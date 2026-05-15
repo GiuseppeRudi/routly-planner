@@ -1,4 +1,4 @@
-name: osm-pddl-bologna
+name: routly
 
 channels:
   - conda-forge
