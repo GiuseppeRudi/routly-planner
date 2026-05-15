@@ -31,33 +31,7 @@ Bologna city center is a good case study because it contains main roads, many in
 - `data/`: raw and processed data.
 - `pddl/`: PDDL domains, problems, and plans.
 - `docs/`: project documentation.
-- `notebooks/`: exploratory analysis.
 
-## Environment setup
-
-Create the Conda environment:
-
-```bash
-conda env create -f environment.yml
-```
-
-Activate it:
-
-```bash
-conda activate osm-pddl-bologna
-```
-
-Register the environment as a Jupyter kernel:
-
-```bash
-python -m ipykernel install --user --name osm-pddl-bologna --display-name "Python (osm-pddl-bologna)"
-```
-
-Test the installation:
-
-```bash
-python -c "import osmnx as ox; import networkx as nx; print('Environment OK')"
-```
 
 ## First execution
 

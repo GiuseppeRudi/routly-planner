@@ -21,9 +21,3 @@ plotly
 # Utilities
 python-dotenv
 rich
-
-# Development
-jupyterlab
-ipykernel
-pytest
-black
