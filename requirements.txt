@@ -1,0 +1,29 @@
+# Core geospatial libraries
+osmnx
+geopandas
+shapely
+pyproj
+fiona
+folium
+
+# Graph processing
+networkx
+
+# Data processing
+pandas
+numpy
+pyyaml
+
+# Visualization
+matplotlib
+plotly
+
+# Utilities
+python-dotenv
+rich
+
+# Development
+jupyterlab
+ipykernel
+pytest
+black

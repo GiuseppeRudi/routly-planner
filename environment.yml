@@ -1,0 +1,38 @@
+name: osm-pddl-bologna
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.11
+  - pip
+
+  # Geospatial / OpenStreetMap
+  - osmnx
+  - geopandas
+  - shapely
+  - pyproj
+  - fiona
+  - folium
+
+  # Graphs and data
+  - networkx
+  - pandas
+  - numpy
+  - pyyaml
+
+  # Visualization
+  - matplotlib
+  - plotly
+
+  # Development
+  - jupyterlab
+  - ipykernel
+  - black
+  - pytest
+
+  # Pip-only packages
+  - pip:
+      - python-dotenv
+      - rich
