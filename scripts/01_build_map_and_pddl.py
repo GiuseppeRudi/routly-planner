@@ -5,18 +5,17 @@ from pathlib import Path
 import sys
 
 PROJECT_ROOT = Path.cwd()
-
-
 sys.path.insert(0, str(PROJECT_ROOT))
-
 
 from src.routly.config import load_config
 from src.routly.graph.graph_export import plot_graph
+
 from src.routly.osm.graph_builder import (
     add_projected_coordinates,
     build_osm_graph,
     save_graphml,
 )
+
 from src.routly.pddl.domain_generator import build_road_network_domain
 from src.routly.pddl.mapping import graph_to_mapping, write_mapping
 from src.routly.pddl.pddl_writer import write_pddl
@@ -27,14 +26,13 @@ from src.routly.pddl.problem_generator import (
 
 
 def main() -> None:
-    config = load_config("config/bologna_area.yaml")
+    config = load_config("config/bologna_area.yaml", "config/project_settings.yaml")
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
 
     graph = build_osm_graph(
         place_name=config.place_name,
         network_type=config.network_type,
-        c_target=config.c_target,
         max_nodes=config.max_nodes,
     )
 

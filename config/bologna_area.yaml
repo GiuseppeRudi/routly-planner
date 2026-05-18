@@ -12,4 +12,5 @@ graph_simplification:
   remove_isolated_nodes: true
   max_nodes_for_pddl: 80
   max_edges_for_pddl: 150
+  
 

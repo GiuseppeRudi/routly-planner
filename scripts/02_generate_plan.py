@@ -43,7 +43,6 @@ def main() -> None:
     graph = build_osm_graph(
         place_name=config.place_name,
         network_type=config.network_type,
-        c_target=config.c_target,
         max_nodes=config.max_nodes,
     )
 

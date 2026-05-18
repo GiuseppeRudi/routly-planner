@@ -10,11 +10,9 @@ import yaml
 
 @dataclass(frozen=True)
 class ProjectConfig:
-    """Runtime configuration for the OSM → PDDL → planner → SUMO pipeline."""
 
     place_name: str
     network_type: str
-    c_target: int
     max_nodes: int | None
     vehicle_id: str
     enhsp_jar: Path
@@ -67,22 +65,10 @@ def _read_yaml(path: str | Path) -> dict[str, Any]:
 
 
 def load_config(
-    area_config_path: str | Path = "config/bologna_area.yaml",
-    project_config_path: str | Path = "config/project_settings.yaml",
+    area_config_path: str ,
+    project_config_path: str,
 ) -> ProjectConfig:
-    """
-    Load configuration from two YAML files:
-
-    1. bologna_area.yaml:
-       - OSM place
-       - network type
-       - graph simplification settings
-
-    2. project_settings.yaml:
-       - planner path
-       - SUMO settings
-       - project-level paths
-    """
+   
 
     area_config = _read_yaml(area_config_path)
     project_config = _read_yaml(project_config_path)
@@ -95,15 +81,11 @@ def load_config(
 
     project_root = Path(general_config.get("project_root", "."))
 
-    enhsp_jar = Path(planner_config.get("enhsp_jar", "planners/enhsp/enhsp-20.jar"))
-
-    if not enhsp_jar.is_absolute():
-        enhsp_jar = project_root / enhsp_jar
+    enhsp_jar = Path(planner_config.get("enhsp_jar", {}))
 
     return ProjectConfig(
         place_name=osm_config.get("place_name", "Bologna, Emilia-Romagna, Italy"),
         network_type=osm_config.get("network_type", "drive"),
-        c_target=int(graph_config.get("c_target", 50_000_000)),
         max_nodes=graph_config.get("max_nodes_for_pddl"),
         vehicle_id=project_config.get("vehicle_id", "car1"),
         enhsp_jar=enhsp_jar,

@@ -21,16 +21,7 @@ def keep_largest_strong_component(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
     return graph
 
 
-def compute_auto_max_nodes(graph: nx.MultiDiGraph, c_target: int = 50_000_000) -> int:
-    """
-    Heuristic used in the original script:
-    MAX_NODES ≈ cubic root of c_target / graph density.
-    """
-    density = len(graph.edges) / max(1, len(graph.nodes))
-    max_nodes = int(round((c_target / density) ** (1 / 3)))
-    max_nodes = max(50, min(max_nodes, len(graph.nodes)))
-    print(f"  Auto MAX_NODES: {max_nodes}")
-    return max_nodes
+
 
 
 def crop_around_city_center(
@@ -76,16 +67,12 @@ def save_graphml(graph: nx.MultiDiGraph, path: str | Path) -> None:
 
 def build_osm_graph(
     place_name: str,
-    network_type: str = "drive",
-    c_target: int = 50_000_000,
-    max_nodes: int | None = None,
+    network_type: str ,
+    max_nodes: int ,
 ) -> nx.MultiDiGraph:
     """Complete OSM graph creation step."""
     graph = download_drive_graph(place_name, network_type)
     graph = keep_largest_strong_component(graph)
-
-    if max_nodes is None:
-        max_nodes = compute_auto_max_nodes(graph, c_target)
 
     graph = crop_around_city_center(graph, place_name, max_nodes)
     print(f"  Final graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")

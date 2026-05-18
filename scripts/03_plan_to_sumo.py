@@ -24,7 +24,7 @@ from src.routly.sumo.sumo_writer import (
 
 
 def main() -> None:
-    config = load_config("config/bologna_area.yaml")
+    config = load_config("config/bologna_area.yaml", "config/project_settings.yaml")
 
     mapping = load_mapping(config.mapping_path)
     plan_text = config.plan_path.read_text(encoding="utf-8")
