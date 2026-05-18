@@ -1,16 +1,26 @@
 from __future__ import annotations
 
-from routly.config import load_config
-from routly.graph.graph_export import plot_graph
-from routly.osm.graph_builder import (
+
+from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path.cwd()
+
+
+sys.path.insert(0, str(PROJECT_ROOT))
+
+
+from src.routly.config import load_config
+from src.routly.graph.graph_export import plot_graph
+from src.routly.osm.graph_builder import (
     add_projected_coordinates,
     build_osm_graph,
     save_graphml,
 )
-from routly.pddl.domain_generator import build_road_network_domain
-from routly.pddl.mapping import graph_to_mapping, write_mapping
-from routly.pddl.pddl_writer import write_pddl
-from routly.pddl.problem_generator import (
+from src.routly.pddl.domain_generator import build_road_network_domain
+from src.routly.pddl.mapping import graph_to_mapping, write_mapping
+from src.routly.pddl.pddl_writer import write_pddl
+from src.routly.pddl.problem_generator import (
     build_road_network_problem,
     choose_start_goal,
 )

@@ -6,7 +6,16 @@ import subprocess
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-from routly.planning.plan_parser import extract_start_traversal_timestamps
+
+from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path.cwd()
+
+
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.routly.planning.plan_parser import extract_start_traversal_timestamps
 
 
 def _write_pretty_xml(root: ET.Element, path: str | Path) -> None:

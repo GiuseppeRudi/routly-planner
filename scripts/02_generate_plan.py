@@ -2,12 +2,22 @@ from __future__ import annotations
 
 import osmnx as ox
 
-from routly.config import load_config
-from routly.graph.graph_export import plot_plan_from_mapping
-from routly.osm.graph_builder import build_osm_graph
-from routly.pddl.mapping import load_mapping
-from routly.planning.plan_parser import parse_start_traversal_roads
-from routly.planning.planner_runner import run_enhsp
+
+from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path.cwd()
+
+
+sys.path.insert(0, str(PROJECT_ROOT))
+
+
+from src.routly.config import load_config
+from src.routly.graph.graph_export import plot_plan_from_mapping
+from src.routly.osm.graph_builder import build_osm_graph
+from src.routly.pddl.mapping import load_mapping
+from src.routly.planning.plan_parser import parse_start_traversal_roads
+from src.routly.planning.planner_runner import run_enhsp
 
 
 def main() -> None:

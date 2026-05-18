@@ -1,10 +1,18 @@
 from __future__ import annotations
 
-from routly.config import load_config
-from routly.pddl.mapping import load_mapping
-from routly.planning.plan_parser import parse_start_traversal_roads
-from routly.sumo.sumo_runner import launch_sumo_gui
-from routly.sumo.sumo_writer import (
+
+from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path.cwd()
+sys.path.insert(0, str(PROJECT_ROOT))
+
+
+from src.routly.config import load_config
+from src.routly.pddl.mapping import load_mapping
+from src.routly.planning.plan_parser import parse_start_traversal_roads
+from src.routly.sumo.sumo_runner import launch_sumo_gui
+from src.routly.sumo.sumo_writer import (
     build_net,
     compute_simulation_end_time,
     write_edg_xml,
