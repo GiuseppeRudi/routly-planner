@@ -1,5 +1,5 @@
 osm:
-  place_name: "Bologna, Emilia-Romagna, Italy"
+  place_name: "Ravenna, Emilia-Romagna, Italy"
   network_type: "drive" # up to now only drive 
 
 area:
@@ -12,5 +12,5 @@ graph_simplification:
   remove_isolated_nodes: true
   max_nodes_for_pddl: 80
   max_edges_for_pddl: 150
-  
+
 

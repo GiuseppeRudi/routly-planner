@@ -65,15 +65,77 @@ def save_graphml(graph: nx.MultiDiGraph, path: str | Path) -> None:
     print(f"  Saved GraphML: {path}")
 
 
+# def build_osm_graph(
+#     place_name: str,
+#     network_type: str ,
+#     max_nodes: int ,
+# ) -> nx.MultiDiGraph:
+#     """Complete OSM graph creation step."""
+#     graph = download_drive_graph(place_name, network_type)
+#     graph = keep_largest_strong_component(graph)
+
+#     graph = crop_around_city_center(graph, place_name, max_nodes)
+#     print(f"  Final graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+#     return graph
+
+
+
 def build_osm_graph(
     place_name: str,
-    network_type: str ,
-    max_nodes: int ,
+    network_type: str,
+    max_nodes: int | None,
+    distance_meters: int | None = 2000,
 ) -> nx.MultiDiGraph:
     """Complete OSM graph creation step."""
-    graph = download_drive_graph(place_name, network_type)
+
+    graph = download_drive_graph(
+        place_name=place_name,
+        network_type=network_type,
+        distance_meters=distance_meters,
+    )
+
     graph = keep_largest_strong_component(graph)
 
-    graph = crop_around_city_center(graph, place_name, max_nodes)
+    # graph = crop_around_city_center(
+    #     graph=graph,
+    #     place_name=place_name,
+    #     max_nodes=max_nodes,
+    # )
+
     print(f"  Final graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+
+    return graph
+
+
+def download_drive_graph(
+    place_name: str,
+    network_type: str = "drive",
+    distance_meters: int | None = None,
+) -> nx.MultiDiGraph:
+    """
+    Download a road graph from OpenStreetMap using OSMnx.
+
+    If center coordinates and distance are provided, only a local area is downloaded.
+    Otherwise, the full place boundary is downloaded.
+    """
+
+    if (place_name):
+        
+        center = ox.geocode(place_name)
+        center_latitude, center_longitude = center[0], center[1]
+        graph = ox.graph_from_point(
+            center_point=(center_latitude, center_longitude),
+            dist=distance_meters,
+            network_type=network_type,
+        )
+
+    else:
+        print(f"Downloading {place_name} {network_type} network from OSM...")
+        graph = ox.graph_from_place(
+            place_name,
+            network_type=network_type,
+        )
+
+    print(f"  Raw graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+
     return graph

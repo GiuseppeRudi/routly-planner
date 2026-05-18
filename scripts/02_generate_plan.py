@@ -14,7 +14,6 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
 from src.routly.graph.graph_export import plot_plan_from_mapping
-from src.routly.osm.graph_builder import build_osm_graph
 from src.routly.pddl.mapping import load_mapping
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
@@ -40,16 +39,7 @@ def main() -> None:
 
     print(f"Roads in plan: {len(planned_roads)}")
 
-    graph = build_osm_graph(
-        place_name=config.place_name,
-        network_type=config.network_type,
-        max_nodes=config.max_nodes,
-    )
-
-    projected_graph = ox.project_graph(graph)
-
     plot_plan_from_mapping(
-        projected_graph=projected_graph,
         mapping=mapping,
         planned_roads=planned_roads,
         output_path=config.output_dir / "road_network_plan.png",

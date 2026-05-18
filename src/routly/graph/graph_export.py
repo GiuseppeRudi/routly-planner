@@ -27,48 +27,115 @@ def plot_graph(graph, output_path: str | Path, title: str = "Road Network") -> N
     print(f"Graph image saved: {output_path}")
 
 
+
 def plot_plan_from_mapping(
-    projected_graph,
     mapping: dict,
     planned_roads: list[str],
     output_path: str | Path,
 ) -> None:
-    """Plot the projected graph and highlight the planned road sequence."""
+    """
+    Plot the road network and highlight the planned road sequence.
+
+    This function uses only roads_mapping.json.
+    It does not reload OSM and does not require the original graph.
+    """
+
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    _, ax = ox.plot_graph(
-        projected_graph,
-        figsize=(12, 12),
-        node_size=2,
-        node_color="#2c3e50",
-        edge_color="#2c3e50",
-        edge_linewidth=1,
-        bgcolor="#f8f9fa",
-        show=False,
-        close=False,
-    )
+    fig, ax = plt.subplots(figsize=(12, 12))
 
     planned_set = set(planned_roads)
 
+    # Draw full road network
     for road in mapping["roads"]:
-        if road["id"] not in planned_set:
+        geometry = road.get("geometry", [])
+
+        if len(geometry) < 2:
             continue
 
-        xs = [p[0] for p in road["geometry"]]
-        ys = [p[1] for p in road["geometry"]]
-        ax.plot(xs, ys, color="red", linewidth=1, zorder=2)
-        ax.scatter(xs[0], ys[0], color="green", s=2, zorder=3)
-        ax.scatter(xs[-1], ys[-1], color="green", s=2, zorder=3)
+        xs = [p[0] for p in geometry]
+        ys = [p[1] for p in geometry]
 
-        if planned_roads and road["id"] == planned_roads[0]:
-            ax.text(xs[0], ys[0], "START", fontsize=10, color="green",
-                    ha="center", va="bottom", zorder=4)
+        ax.plot(
+            xs,
+            ys,
+            linewidth=0.6,
+            color="black",
+            alpha=0.5,
+            zorder=1,
+        )
 
-        if planned_roads and road["id"] == planned_roads[-1]:
-            ax.text(xs[-1], ys[-1], "GOAL", fontsize=10, color="darkred",
-                    ha="center", va="bottom", zorder=4)
+    # Draw planned route
+    for road_id in planned_roads:
+        road = next(
+            (r for r in mapping["roads"] if r["id"] == road_id),
+            None,
+        )
+
+        if road is None:
+            print(f"WARNING: planned road not found in mapping: {road_id}")
+            continue
+
+        geometry = road.get("geometry", [])
+
+        if len(geometry) < 2:
+            continue
+
+        xs = [p[0] for p in geometry]
+        ys = [p[1] for p in geometry]
+
+        ax.plot(
+            xs,
+            ys,
+            linewidth=2.5,
+            color="red",
+            zorder=2,
+        )
+
+    # START and GOAL labels
+    if planned_roads:
+        first_road = next(
+            (r for r in mapping["roads"] if r["id"] == planned_roads[0]),
+            None,
+        )
+        last_road = next(
+            (r for r in mapping["roads"] if r["id"] == planned_roads[-1]),
+            None,
+        )
+
+        if first_road and first_road.get("geometry"):
+            x_start, y_start = first_road["geometry"][0]
+            ax.scatter(x_start, y_start, s=30, color="green", zorder=3)
+            ax.text(
+                x_start,
+                y_start,
+                "START",
+                fontsize=10,
+                color="green",
+                ha="center",
+                va="bottom",
+                zorder=4,
+            )
+
+        if last_road and last_road.get("geometry"):
+            x_goal, y_goal = last_road["geometry"][-1]
+            ax.scatter(x_goal, y_goal, s=30, color="darkred", zorder=3)
+            ax.text(
+                x_goal,
+                y_goal,
+                "GOAL",
+                fontsize=10,
+                color="darkred",
+                ha="center",
+                va="bottom",
+                zorder=4,
+            )
+
+    ax.set_aspect("equal", adjustable="box")
+    ax.axis("off")
 
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
-    plt.close()
+    plt.close(fig)
+
     print(f"Plan image saved: {output_path}")
