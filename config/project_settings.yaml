@@ -6,6 +6,4 @@ paths:
   pddl_plan: "pddl/plans/generated_plan.txt"
 
 planner:
-  name: "external"
-  command: ""
-  validate_with_val: false
+  enhsp_jar: planners/enhsp/enhsp-20.jar

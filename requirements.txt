@@ -5,6 +5,7 @@ shapely
 pyproj
 fiona
 folium
+traci
 
 # Graph processing
 networkx

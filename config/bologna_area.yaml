@@ -1,11 +1,6 @@
-project:
-  name: "OSM PDDL Bologna Planner"
-  city: "Bologna"
-  country: "Italy"
-
 osm:
   place_name: "Bologna, Emilia-Romagna, Italy"
-  network_type: "drive"
+  network_type: "drive" # up to now only drive 
 
 area:
   center_latitude: 44.4949
@@ -18,9 +13,3 @@ graph_simplification:
   max_nodes_for_pddl: 80
   max_edges_for_pddl: 150
 
-pddl:
-  vehicle_name: "vehicle_1"
-  start_node_strategy: "west"
-  goal_node_strategy: "east"
-  use_numeric_costs: true
-  use_one_way_edges: true
