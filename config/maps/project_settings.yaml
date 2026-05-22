@@ -1,0 +1,10 @@
+project:
+  project_root: "."
+
+planner:
+  enhsp_jar: "planners/enhsp/enhsp-20.jar"
+
+sumo:
+  sumo_gui: "sumo-gui"
+
+vehicle_id: "car1"

@@ -1,0 +1,20 @@
+scenario:
+  name: bologna_car1_custom
+map:
+  place_name: Bologna, Emilia-Romagna, Italy
+  place_slug: Bologna_Emilia-Romagna_Italy
+  map_scenario: nodes_80
+  graphml_path: C:\Projects\routly-planner\data\Bologna_Emilia-Romagna_Italy\nodes_80\road_network.graphml
+  mapping_path: C:\Projects\routly-planner\data\Bologna_Emilia-Romagna_Italy\nodes_80\roads_mapping.json
+vehicles:
+- id: car1
+  start:
+    type: location_id
+    value: loc_0105
+    x: 686472.355
+    y: 4929463.923
+  goal:
+    type: location_id
+    value: loc_0760
+    x: 686239.11
+    y: 4931357.795

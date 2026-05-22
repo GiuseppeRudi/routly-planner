@@ -26,7 +26,7 @@ from src.routly.pddl.problem_generator import (
 
 
 def main() -> None:
-    config = load_config("config/bologna_area.yaml", "config/project_settings.yaml")
+    config = load_config("config/maps/bologna_area.yaml", "config/maps/project_settings.yaml")
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -34,12 +34,15 @@ def main() -> None:
         place_name=config.place_name,
         network_type=config.network_type,
         max_nodes=config.max_nodes,
+        keep_largest_component=config.keep_largest_component,
+        is_strongly_connected=config.remove_isolated_nodes,
+        distance_meters=config.distance_meters
     )
 
     plot_graph(
         graph,
         config.output_dir / "road_network_graph.png",
-        title=f"{config.place_name} Road Network — PDDL Project",
+        title=f"{config.place_name} Road Network — Routly",
     )
 
     graph, projected_graph = add_projected_coordinates(graph)
@@ -71,3 +74,15 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# TODO Il panner non considera la congestione del traffico simulata da sumo,
+# TODO successivamente troviamo il modo di integrarlo nella rappresentazione dello stato all'interno del problema
+# TODO 1. Semafori
+# TODO 2. Sensi di Marcia
+# TODO 3. Più auto nel problema PDDL per simulare congestione
+# TODO 4. Eventi casuali (incidenti, lavori in corso) con LLM
+# TODO Fare diverse simulazioni e partire dallo stesso scenario. La prima simulazione parte senza eventi generati dall'LLM
+# TODO Successivamente effettuare diverse altre simulazioni a partire dallo stesso scenario in cui l'LLM genere degli eventi casuali
+# TODO e vedere come è cambiato il planner e il piano a seconda degli eventi generati effettuando una comparazione (SOTA)
+# TODO 5. Controllo benzina
+# TODO 6. (Opzionale) Distinzione tra mappa piccola, media e grande

@@ -1,9 +1,0 @@
-paths:
-  raw_osm_graph: "data/raw/osm/bologna_center_drive.graphml"
-  simplified_graph: "data/processed/graphs/bologna_simplified_graph.graphml"
-  pddl_domain: "pddl/domains/urban_navigation_domain.pddl"
-  pddl_problem: "pddl/problems/bologna_center_problem.pddl"
-  pddl_plan: "pddl/plans/generated_plan.txt"
-
-planner:
-  enhsp_jar: planners/enhsp/enhsp-20.jar

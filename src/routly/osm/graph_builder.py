@@ -14,14 +14,11 @@ def download_drive_graph(place_name: str, network_type: str = "drive") -> nx.Mul
     return graph
 
 
-def keep_largest_strong_component(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
+def keep_largest_strong_component(graph: nx.MultiDiGraph, is_strongly_connected: bool) -> nx.MultiDiGraph:
     """Keep the largest strongly connected component."""
-    graph = ox.truncate.largest_component(graph, strongly=True)
+    graph = ox.truncate.largest_component(graph, strongly=is_strongly_connected)
     print(f"  Largest component: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
     return graph
-
-
-
 
 
 def crop_around_city_center(
@@ -83,8 +80,10 @@ def save_graphml(graph: nx.MultiDiGraph, path: str | Path) -> None:
 def build_osm_graph(
     place_name: str,
     network_type: str,
-    max_nodes: int | None,
-    distance_meters: int | None = 2000,
+    max_nodes: int,
+    distance_meters: int,
+    keep_largest_component: bool,
+    is_strongly_connected: bool
 ) -> nx.MultiDiGraph:
     """Complete OSM graph creation step."""
 
@@ -93,8 +92,8 @@ def build_osm_graph(
         network_type=network_type,
         distance_meters=distance_meters,
     )
-
-    graph = keep_largest_strong_component(graph)
+    if keep_largest_component:
+        graph = keep_largest_strong_component(graph, is_strongly_connected)
 
     # graph = crop_around_city_center(
     #     graph=graph,
