@@ -4,7 +4,7 @@ osm:
 
 
 graph_simplification:
-  keep_largest_component: true
+  keep_largest_component: false
   remove_isolated_nodes: true
   distance_meters : 2000
   max_nodes : 80

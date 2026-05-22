@@ -6,16 +6,7 @@ import networkx as nx
 import osmnx as ox
 
 
-def download_drive_graph(place_name: str, network_type: str = "drive") -> nx.MultiDiGraph:
-    """Download a road graph from OpenStreetMap using OSMnx."""
-    print(f"Downloading {place_name} {network_type} network from OSM...")
-    graph = ox.graph_from_place(place_name, network_type=network_type)
-    print(f"  Raw graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
-    return graph
-
-
 def keep_largest_strong_component(graph: nx.MultiDiGraph, is_strongly_connected: bool) -> nx.MultiDiGraph:
-    """Keep the largest strongly connected component."""
     graph = ox.truncate.largest_component(graph, strongly=is_strongly_connected)
     print(f"  Largest component: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
     return graph
@@ -62,19 +53,6 @@ def save_graphml(graph: nx.MultiDiGraph, path: str | Path) -> None:
     print(f"  Saved GraphML: {path}")
 
 
-# def build_osm_graph(
-#     place_name: str,
-#     network_type: str ,
-#     max_nodes: int ,
-# ) -> nx.MultiDiGraph:
-#     """Complete OSM graph creation step."""
-#     graph = download_drive_graph(place_name, network_type)
-#     graph = keep_largest_strong_component(graph)
-
-#     graph = crop_around_city_center(graph, place_name, max_nodes)
-#     print(f"  Final graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
-#     return graph
-
 
 
 def build_osm_graph(
@@ -92,6 +70,7 @@ def build_osm_graph(
         network_type=network_type,
         distance_meters=distance_meters,
     )
+
     if keep_largest_component:
         graph = keep_largest_strong_component(graph, is_strongly_connected)
 
@@ -100,7 +79,7 @@ def build_osm_graph(
     #     place_name=place_name,
     #     max_nodes=max_nodes,
     # )
-
+    
     print(f"  Final graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
 
     return graph
@@ -108,32 +87,20 @@ def build_osm_graph(
 
 def download_drive_graph(
     place_name: str,
-    network_type: str = "drive",
-    distance_meters: int | None = None,
+    network_type: str ,
+    distance_meters: int ,
 ) -> nx.MultiDiGraph:
     """
     Download a road graph from OpenStreetMap using OSMnx.
-
-    If center coordinates and distance are provided, only a local area is downloaded.
-    Otherwise, the full place boundary is downloaded.
     """
-
-    if (place_name):
         
-        center = ox.geocode(place_name)
-        center_latitude, center_longitude = center[0], center[1]
-        graph = ox.graph_from_point(
-            center_point=(center_latitude, center_longitude),
-            dist=distance_meters,
-            network_type=network_type,
-        )
-
-    else:
-        print(f"Downloading {place_name} {network_type} network from OSM...")
-        graph = ox.graph_from_place(
-            place_name,
-            network_type=network_type,
-        )
+    center = ox.geocode(place_name)
+    center_latitude, center_longitude = center[0], center[1]
+    graph = ox.graph_from_point(
+        center_point=(center_latitude, center_longitude),
+        dist=distance_meters,
+        network_type=network_type,
+    )
 
     print(f"  Raw graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
 

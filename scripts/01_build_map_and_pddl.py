@@ -26,7 +26,7 @@ from src.routly.pddl.problem_generator import (
 
 
 def main() -> None:
-    config = load_config("config/maps/bologna_area.yaml", "config/maps/project_settings.yaml")
+    config = load_config("config/maps/bologna_area.yaml", "config/project_settings.yaml")
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
 
