@@ -21,7 +21,7 @@ from src.routly.planning.planner_runner import run_enhsp
 
 def main() -> None:
     config = load_config(
-        area_config_path="config/bologna_area.yaml",
+        area_config_path="config/maps/bologna_area.yaml",
         project_config_path="config/project_settings.yaml",
     )
 
