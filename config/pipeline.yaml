@@ -1,0 +1,13 @@
+configs:
+  map_config: "config/maps/bologna_area.yaml"
+  project_config: "config/project_settings.yaml"
+
+outputs:
+  scenario_config: "config/scenarios/bologna_car1_custom.yaml"
+
+run:
+  - build_map
+  - select_scenario_points
+  - build_problem
+  - generate_plan
+  - plan_to_sumo

@@ -7,6 +7,12 @@ from typing import Any
 
 import yaml
 
+import sys
+
+PROJECT_ROOT = Path.cwd()
+sys.path.insert(0, str(PROJECT_ROOT))
+from src.routly.utils import read_yaml
+
 
 @dataclass(frozen=True)
 class ProjectConfig:
@@ -106,21 +112,14 @@ class ProjectConfig:
         return self.simulation_dir / "viewsettings.xml"
 
 
-def _read_yaml(path: str | Path) -> dict[str, Any]:
-    path = Path(path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {path}")
-
-    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def  load_config(
     area_config_path: str | Path,
     project_config_path: str | Path,
 ) -> ProjectConfig:
-    area_config = _read_yaml(area_config_path)
-    project_config = _read_yaml(project_config_path)
+    area_config = read_yaml(area_config_path)
+    project_config = read_yaml(project_config_path)
 
     osm_config = area_config.get("osm", {})
     graph_config = area_config.get("graph_simplification", {})

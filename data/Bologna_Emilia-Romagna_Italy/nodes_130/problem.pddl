@@ -1,7 +1,7 @@
 ;; ============================================================
 ;;  PROBLEM: bologna_car1_custom
-;;  Start:   loc_0071
-;;  Goal:    loc_0003
+;;  Start:   loc_0003
+;;  Goal:    loc_0007
 ;; ============================================================
 
 (define (problem bologna_car1_custom)
@@ -18,7 +18,7 @@
   )
 
   (:init
-  (at car1 loc_0071)
+  (at car1 loc_0003)
   (= (speed car1) 0)
   (= (total-distance car1) 0)
   (= (distance-remaining car1) 0)
@@ -876,6 +876,6 @@
   (= (speed-limit road_0212) 8.333)
   )
 
-  (:goal (at car1 loc_0003))
+  (:goal (at car1 loc_0007))
   (:metric minimize (total-distance car1))
 )
