@@ -7,4 +7,3 @@ planner:
 sumo:
   sumo_gui: "sumo-gui"
 
-vehicle_id: "car1"

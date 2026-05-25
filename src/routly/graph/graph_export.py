@@ -24,7 +24,7 @@ def plot_graph(graph, output_path: str | Path, title: str = "Road Network") -> N
     ax.set_title(title, fontsize=14)
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
-    print(f"Graph image saved: {output_path}")
+    # print(f"Graph image saved: {output_path}")
 
 
 
@@ -33,12 +33,7 @@ def plot_plan_from_mapping(
     planned_roads: list[str],
     output_path: str | Path,
 ) -> None:
-    """
-    Plot the road network and highlight the planned road sequence.
 
-    This function uses only roads_mapping.json.
-    It does not reload OSM and does not require the original graph.
-    """
 
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -138,4 +133,4 @@ def plot_plan_from_mapping(
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
-    print(f"Plan image saved: {output_path}")
+    # print(f"Plan image saved: {output_path}")Locations

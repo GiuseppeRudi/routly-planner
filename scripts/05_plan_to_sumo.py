@@ -24,7 +24,7 @@ from src.routly.sumo.sumo_writer import (
 
 
 def main() -> None:
-    config = load_config("config/bologna_area.yaml", "config/project_settings.yaml")
+    config = load_config("config/maps/bologna_area.yaml", "config/project_settings.yaml")
 
     mapping = load_mapping(config.mapping_path)
     plan_text = config.plan_path.read_text(encoding="utf-8")
@@ -49,7 +49,7 @@ def main() -> None:
     write_rou_xml(
         road_sequence,
         out_path=rou_xml,
-        vehicle_id=config.vehicle_id,
+        vehicle_id= "car1",
     )
 
     end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)
@@ -63,7 +63,7 @@ def main() -> None:
     print(f"  {rou_xml}")
     print(f"  {cfg_file}")
 
-    launch_sumo_gui(cfg_file, sumo_gui=config.sumo_gui, vehicle_id=config.vehicle_id)
+    launch_sumo_gui(cfg_file, sumo_gui=config.sumo_gui, vehicle_id="car1")
 
 
 if __name__ == "__main__":

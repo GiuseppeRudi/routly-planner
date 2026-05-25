@@ -240,10 +240,7 @@ def select_start_goal_interactively(
 
     plot_mapping_graph(mapping)
 
-    print("\nINTERACTIVE POINT SELECTION")
-    print("  1st click: START")
-    print("  2nd click: GOAL")
-    print("  Close the Matplotlib window only after selecting both points.\n")
+
 
     clicks = plt.ginput(2, timeout=0)
 
@@ -344,9 +341,6 @@ def write_scenario_yaml(scenario: dict[str, Any], output_path: Path) -> None:
 # ============================================================
 
 def main() -> None:
-    print("Loading map files...")
-    print(f"  GraphML: {GRAPHML_PATH}")
-    print(f"  Mapping: {MAPPING_PATH}")
 
     graph = load_graph(GRAPHML_PATH)
     mapping = load_mapping(MAPPING_PATH)
@@ -354,9 +348,9 @@ def main() -> None:
     if "nodes" not in mapping or "roads" not in mapping:
         raise KeyError("roads_mapping.json must contain 'nodes' and 'roads'.")
 
-    print(f"Loaded mapping:")
-    print(f"  Nodes: {len(mapping['nodes'])}")
-    print(f"  Roads: {len(mapping['roads'])}")
+    # print(f"Loaded mapping:")
+    # print(f"  Nodes: {len(mapping['nodes'])}")
+    # print(f"  Roads: {len(mapping['roads'])}")
 
     start_node, goal_node = select_start_goal_interactively(mapping)
 

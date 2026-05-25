@@ -85,8 +85,8 @@ def graph_to_mapping(
         "roads": roads_for_json,
     }
 
-    print(f"  Locations: {len(nodes_for_json)}")
-    print(f"  Roads:     {len(roads_for_json)}")
+    #print(f"  Locations: {len(nodes_for_json)}")
+    #print(f"  Roads:     {len(roads_for_json)}")
 
     return mapping, node_map, pddl_roads
 
@@ -95,7 +95,7 @@ def write_mapping(mapping: dict, path: str | Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(mapping, indent=2), encoding="utf-8")
-    print(f"Mapping written: {path}")
+    #print(f"Mapping written: {path}")
 
 
 def load_mapping(path: str | Path) -> dict:

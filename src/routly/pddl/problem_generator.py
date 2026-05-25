@@ -62,7 +62,7 @@ def build_road_network_problem(
             f"  (connects {road['id']} {road['from']} {road['to']})",
             f"  (road-open {road['id']})",
             f"  (= (road-length {road['id']}) {road['length']})",
-            f"  (= (speed-limit {road['id']}) {road['speed_ms']})",
+            f"  (= (speed-limit {road['id']}) {road['speed']})",
         ])
 
     return f"""\
