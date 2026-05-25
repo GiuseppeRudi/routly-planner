@@ -74,11 +74,11 @@ def build_osm_graph(
     if keep_largest_component:
         graph = keep_largest_strong_component(graph, is_strongly_connected)
 
-    # graph = crop_around_city_center(
-    #     graph=graph,
-    #     place_name=place_name,
-    #     max_nodes=max_nodes,
-    # )
+    graph = crop_around_city_center(
+        graph=graph,
+        place_name=place_name,
+        max_nodes=max_nodes,
+    )
     
     print(f"  Final graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
 
