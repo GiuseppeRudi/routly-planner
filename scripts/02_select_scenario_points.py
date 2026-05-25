@@ -28,7 +28,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 PLACE_NAME = "Bologna, Emilia-Romagna, Italy"
 PLACE_SLUG = "Bologna_Emilia-Romagna_Italy"
-MAP_SCENARIO = "nodes_80"
+MAP_SCENARIO = "nodes_130"
 
 MAP_DIR = PROJECT_ROOT / "data" / PLACE_SLUG / MAP_SCENARIO
 
