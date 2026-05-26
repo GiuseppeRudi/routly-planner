@@ -77,9 +77,9 @@ def main() -> None:
     if not mapping_path.is_absolute():
         mapping_path = PROJECT_ROOT / mapping_path
 
-    print("Building PDDL problem from scenario:")
-    print(f"  Scenario: {scenario_path}")
-    print(f"  Mapping:  {mapping_path}")
+    print("Building PDDL problem from scenario and mapping")
+    # print(f"  Scenario: {scenario_path}")
+    # print(f"  Mapping:  {mapping_path}")
 
     mapping = load_mapping(mapping_path)
 

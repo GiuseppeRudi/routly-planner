@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 import subprocess
 import sys
@@ -126,8 +127,8 @@ def run_step(step_name: str, config: dict[str, Any]) -> None:
     print("\n" + "=" * 70)
     print(f"RUNNING STEP: {step_name}")
     print("=" * 70)
-    print("Command:")
-    print("  " + " ".join(cmd))
+    # print("Command:")
+    # print("  " + " ".join(cmd))
 
     result = subprocess.run(
         cmd,
@@ -140,20 +141,54 @@ def run_step(step_name: str, config: dict[str, Any]) -> None:
             f"Pipeline stopped: step '{step_name}' failed with exit code {result.returncode}."
         )
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Routly pipeline runner.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "steps",
+        nargs="*",
+        type=int,
+        metavar="STEP",
+        help=(
+            "Step numbers to run (1-based). Run all if omitted.\n"
+            "  1 = build_map\n"
+            "  2 = select_scenario_points\n"
+            "  3 = build_problem\n"
+            "  4 = generate_plan\n"
+            "  5 = plan_to_sumo\n"
+            "Example: python run_pipeline.py 1 3 5"
+        ),
+    )
+    return parser.parse_args()
 
 def main() -> None:
-    pipeline_config = read_yaml(PIPELINE_CONFIG_PATH)
+    args = parse_args()
 
+    pipeline_config = read_yaml(PIPELINE_CONFIG_PATH)
     validate_pipeline_config(pipeline_config)
     validate_existing_input_configs(pipeline_config)
 
-    run_steps = pipeline_config["run"]
+    all_steps = pipeline_config["run"]
+
+    # Filter steps if numbers were provided on the CLI
+    if args.steps:
+        invalid = [n for n in args.steps if n < 1 or n > len(all_steps)]
+        if invalid:
+            raise ValueError(
+                f"Invalid step number(s): {invalid}. "
+                f"Valid range: 1-{len(all_steps)}."
+            )
+        run_steps = [all_steps[n - 1] for n in args.steps]
+    else:
+        run_steps = all_steps
 
     print("Routly pipeline")
-    print(f"Pipeline config: {PIPELINE_CONFIG_PATH}")
-    print("Steps:")
+    print("Steps to run:")
     for step_name in run_steps:
-        print(f"  - {step_name}")
+        idx = all_steps.index(step_name) + 1
+        print(f"  {idx}. {step_name}")
 
     for step_name in run_steps:
         run_step(step_name, pipeline_config)
@@ -163,3 +198,21 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# SOLVED 1. Semafori
+# SOLVED 2. Sensi di Marcia
+# TODO 3. Più auto per simulare congestione:
+# TODO **Semplice**: Il planner non considera la congestione del traffico ma viene simulata solo da sumo,
+# TODO Il planner genera il piano senza considerare la congestione, poi inserisci 200 macchine ad esempio e simuli su sumo
+# TODO **Completa**: Integrare la congestione nel planner, ad esempio con un costo dinamico che aumenta per le strade più trafficate.
+# TODO In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
+# TODO Inoltre vogliamo creare diversi domain e problem file (con sensi di marcia, senza sensi di marcia, con semafori, senza semafori,
+# TODO con congestione, senza congestione, congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
+# TODO e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
+# TODO 4. Eventi casuali (incidenti, lavori in corso) con LLM
+# TODO Fare diverse simulazioni e partire dallo stesso scenario. La prima simulazione parte senza eventi generati dall'LLM
+# TODO Successivamente effettuare diverse altre simulazioni a partire dallo stesso scenario in cui l'LLM genera degli eventi casuali
+# TODO e vedere come è cambiato il planner e il piano a seconda degli eventi generati effettuando una comparazione (SOTA)
+# TODO 5. Controllo benzina
+# TODO 6. (Opzionale) Distinzione tra mappa piccola, media e grande

@@ -10,6 +10,7 @@ def run_enhsp(
     domain_path: str | Path,
     problem_path: str | Path,
     plan_path: str | Path,
+    java_heap_mb: int = 4096,
 ) -> None:
     """Run ENHSP and write planner stdout to a plan file."""
     enhsp_jar = Path(enhsp_jar)
@@ -19,10 +20,17 @@ def run_enhsp(
 
     plan_path.parent.mkdir(parents=True, exist_ok=True)
 
-    cmd = ["java", "-jar", str(enhsp_jar), "-o", str(domain_path), "-f", str(problem_path)]
+    cmd = [
+        "java",
+        f"-Xmx{java_heap_mb}m",     # max heap — prevents OOM on large problems
+        f"-Xms{java_heap_mb // 4}m", # initial heap — reduces GC pauses at startup
+        "-jar",
+        str(enhsp_jar),
+        "-o", str(domain_path),
+        "-f", str(problem_path)]
 
-    print("Running ENHSP:")
-    print("  " + " ".join(cmd))
+    print("Running ENHSP")
+    # print("  " + " ".join(cmd))
 
     try:
         start = time.time()

@@ -69,7 +69,7 @@ def main() -> None:
     graph, projected_graph = add_projected_coordinates(graph)
     save_graphml(graph, config.raw_graphml_path)
 
-    mapping, node_map, roads = graph_to_mapping(graph, projected_graph)
+    mapping = graph_to_mapping(graph, projected_graph)
     write_mapping(mapping, config.mapping_path)
 
     print("\nOUTPUT FILES:")

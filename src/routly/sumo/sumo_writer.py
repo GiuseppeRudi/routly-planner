@@ -30,12 +30,15 @@ def _write_pretty_xml(root: ET.Element, path: str | Path) -> None:
 def write_nod_xml(nodes: list[dict], path: str | Path) -> None:
     root = ET.Element("nodes")
     for node in nodes:
+        # SUMO renders traffic lights automatically when type="traffic_light"
+        node_type = "traffic_light" if node.get("traffic_light") else "priority"
         ET.SubElement(
             root,
             "node",
             id=node["id"],
             x=str(round(node["x"], 2)),
             y=str(round(node["y"], 2)),
+            type=node_type,
         )
     _write_pretty_xml(root, path)
 

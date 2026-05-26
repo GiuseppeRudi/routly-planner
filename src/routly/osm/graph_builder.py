@@ -12,7 +12,7 @@ def keep_largest_strong_component(graph: nx.MultiDiGraph, is_strongly_connected:
     return graph
 
 
-def crop_around_city_center(
+def crop_around_center(
     graph: nx.MultiDiGraph,
     place_name: str,
     max_nodes: int | None,
@@ -20,12 +20,13 @@ def crop_around_city_center(
     if not max_nodes or len(graph.nodes) <= max_nodes:
         return graph
 
-    city_center = ox.geocode(place_name)
-    center_node = ox.distance.nearest_nodes(graph, X=city_center[1], Y=city_center[0])
+    print(f"  Cropping graph around center to max {max_nodes} nodes...")
+    center = ox.geocode(place_name)
+    center_node = ox.distance.nearest_nodes(graph, X=center[1], Y=center[0])
     bfs_nodes = list(nx.bfs_tree(graph, center_node).nodes)[:max_nodes]
     cropped = graph.subgraph(bfs_nodes).copy()
 
-    # print(f"  City center: lat={city_center[0]:.4f}, lon={city_center[1]:.4f}")
+    # print(f"  Center: lat={center[0]:.4f}, lon={center[1]:.4f}")
     # print(f"  Cropped graph: {len(cropped.nodes)} nodes, {len(cropped.edges)} edges")
     return cropped
 
@@ -69,7 +70,7 @@ def build_osm_graph(
     if keep_largest_component:
         graph = keep_largest_strong_component(graph, is_strongly_connected)
 
-    graph = crop_around_city_center(
+    graph = crop_around_center(
         graph=graph,
         place_name=place_name,
         max_nodes=max_nodes,
@@ -95,6 +96,6 @@ def download_drive_graph(
         network_type=network_type,
     )
 
-    print(f"  Raw graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+    print(f"  Raw graph in a range of {distance_meters} meters: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
 
     return graph

@@ -57,6 +57,20 @@ def build_road_network_problem(
         f"  (= (distance-remaining {vehicle_id}) 0)",
     ]
 
+    AVERAGE_LIGHT_WAIT = 5.0   # seconds
+
+    # travel-time init
+    init_lines.append(f"  (= (travel-time {vehicle_id}) 0)")
+
+    # Traffic light facts — node_map values are dicts with "id", "x", "y", "traffic_light"
+    for node_info in node_map.values():
+        loc_id = node_info["id"]
+        if node_info.get("traffic_light"):
+            init_lines.append(f"  (has-traffic-light {loc_id})")
+            init_lines.append(f"  (= (light-wait {loc_id}) {AVERAGE_LIGHT_WAIT})")
+        else:
+            init_lines.append(f"  (= (light-wait {loc_id}) 0)")
+
     for road in roads:
         init_lines.extend([
             f"  (connects {road['id']} {road['from']} {road['to']})",
@@ -90,6 +104,6 @@ def build_road_network_problem(
   )
 
   (:goal (at {vehicle_id} {goal_loc}))
-  (:metric minimize (total-distance {vehicle_id}))
+  (:metric minimize (travel-time {vehicle_id}))
 )
 """

@@ -21,7 +21,7 @@ def _parse_speed_ms(raw_speed: object, default_kmh: float = 50.0) -> float:
 def graph_to_mapping(
     graph: nx.MultiDiGraph,
     projected_graph: nx.MultiDiGraph,
-) -> tuple[dict, dict, list[dict]]:
+) -> tuple[dict]:
     """
     Convert an OSMnx graph to:
       - SUMO/PDDL node mapping
@@ -35,15 +35,19 @@ def graph_to_mapping(
         data = graph.nodes[node]
         loc_id = f"loc_{i:04d}"
 
+        is_tl = data.get("highway") == "traffic_signals"
+
         node_map[node] = {
             "id": loc_id,
             "x": data["x_proj"],
             "y": data["y_proj"],
+            "traffic_light": is_tl,
         }
         nodes_for_json.append({
             "id": loc_id,
             "x": data["x_proj"],
             "y": data["y_proj"],
+            "traffic_light": is_tl,
         })
 
     pddl_roads: list[dict] = []
@@ -87,8 +91,10 @@ def graph_to_mapping(
 
     #print(f"  Locations: {len(nodes_for_json)}")
     #print(f"  Roads:     {len(roads_for_json)}")
+    tl_count = sum(1 for n in nodes_for_json if n.get("traffic_light"))
+    print(f"  Traffic lights: {tl_count} / {len(nodes_for_json)} nodes")
 
-    return mapping, node_map, pddl_roads
+    return mapping
 
 
 def write_mapping(mapping: dict, path: str | Path) -> None:

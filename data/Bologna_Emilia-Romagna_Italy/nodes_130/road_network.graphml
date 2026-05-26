@@ -1289,7 +1289,7 @@
       <data key="d10">[34521300, 540393191]</data>
       <data key="d11">living_street</data>
       <data key="d13">30</data>
-      <data key="d14">["Via de' Marchi", 'Piazza San Francesco']</data>
+      <data key="d14">['Piazza San Francesco', "Via de' Marchi"]</data>
       <data key="d15">True</data>
       <data key="d16">False</data>
       <data key="d17">177.8979390526265</data>
@@ -1386,7 +1386,7 @@
       <data key="d11">tertiary</data>
       <data key="d12">1</data>
       <data key="d13">30</data>
-      <data key="d14">['Piazza della Mercanzia', 'Via Castiglione']</data>
+      <data key="d14">['Via Castiglione', 'Piazza della Mercanzia']</data>
       <data key="d15">True</data>
       <data key="d16">False</data>
       <data key="d17">178.1170632060096</data>
@@ -1528,7 +1528,7 @@
       <data key="d10">[32242909, 32242885]</data>
       <data key="d11">residential</data>
       <data key="d13">30</data>
-      <data key="d14">['Via Belvedere', 'Via San Gervasio']</data>
+      <data key="d14">['Via San Gervasio', 'Via Belvedere']</data>
       <data key="d15">True</data>
       <data key="d16">False</data>
       <data key="d17">119.88653032501387</data>
@@ -1560,7 +1560,7 @@
       <data key="d10">[33758587, 30853431]</data>
       <data key="d11">residential</data>
       <data key="d13">30</data>
-      <data key="d14">["Via de' Griffoni", "Via Val D'Aposa"]</data>
+      <data key="d14">["Via Val D'Aposa", "Via de' Griffoni"]</data>
       <data key="d15">True</data>
       <data key="d16">False</data>
       <data key="d17">176.2723994883872</data>
@@ -1879,7 +1879,7 @@
       <data key="d10">[23276040, 1187613133, 32242885]</data>
       <data key="d11">residential</data>
       <data key="d13">30</data>
-      <data key="d14">['Via Maggia', 'Via Giovanni Battista Morgagni', 'Via San Gervasio']</data>
+      <data key="d14">['Via San Gervasio', 'Via Giovanni Battista Morgagni', 'Via Maggia']</data>
       <data key="d15">True</data>
       <data key="d16">False</data>
       <data key="d17">149.85510848780962</data>
@@ -1901,7 +1901,7 @@
       <data key="d11">residential</data>
       <data key="d12">1</data>
       <data key="d13">30</data>
-      <data key="d14">['Via del Porto', 'Via Montebello']</data>
+      <data key="d14">['Via Montebello', 'Via del Porto']</data>
       <data key="d15">True</data>
       <data key="d16">False</data>
       <data key="d17">191.1114672096839</data>
@@ -2666,7 +2666,7 @@
       <data key="d11">tertiary</data>
       <data key="d12">2</data>
       <data key="d13">30</data>
-      <data key="d14">['Via Ugo Bassi', 'Via Francesco Rizzoli']</data>
+      <data key="d14">['Via Francesco Rizzoli', 'Via Ugo Bassi']</data>
       <data key="d15">False</data>
       <data key="d16">False</data>
       <data key="d17">357.89163358930347</data>
@@ -3199,7 +3199,7 @@
       <data key="d17">92.72752048084807</data>
       <data key="d18">LINESTRING (11.342183 44.4985572, 11.3420685 44.4981358, 11.3420059 44.4978848, 11.3419593 44.4977388)</data>
     </edge>
-    <data key="d0">2026-05-25 18:59:10</data>
+    <data key="d0">2026-05-25 21:30:02</data>
     <data key="d1">OSMnx 2.1.0</data>
     <data key="d2">epsg:4326</data>
     <data key="d3">True</data>

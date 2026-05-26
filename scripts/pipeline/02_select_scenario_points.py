@@ -329,8 +329,8 @@ def write_scenario_yaml(scenario: dict[str, Any], output_path: Path) -> None:
         encoding="utf-8",
     )
 
-    print("\nScenario YAML saved:")
-    print(f"  {output_path}")
+    print("\nScenario YAML saved on config/scenarios folder")
+    # print(f"  {output_path}")
 
 
 def main() -> None:
