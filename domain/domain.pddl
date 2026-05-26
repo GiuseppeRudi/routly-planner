@@ -3,23 +3,26 @@
 ;; ============================================================
 
 (define (domain road-network)
-  (:requirements :typing :numeric-fluents :time)
+  (:requirements :typing :numeric-fluents :time :negative-preconditions)
   (:types vehicle location road)
 
   (:predicates
-    (connects  ?r - road  ?from - location  ?to - location)
-    (road-open ?r - road)
-    (at        ?v - vehicle  ?l - location)
-    (on-road   ?v - vehicle  ?r - road)
-    (moving    ?v - vehicle)
+    (connects          ?r - road  ?from - location  ?to - location)
+    (road-open         ?r - road)
+    (has-traffic-light ?l - location)
+    (at                ?v - vehicle  ?l - location)
+    (on-road           ?v - vehicle  ?r - road)
+    (moving            ?v - vehicle)
   )
 
   (:functions
     (road-length          ?r - road)
     (speed-limit          ?r - road)
+    (light-wait           ?l - location)
     (distance-remaining   ?v - vehicle)
     (speed                ?v - vehicle)
     (total-distance       ?v - vehicle)
+    (travel-time           ?v - vehicle)
   )
 
   (:action start-traversal
@@ -47,16 +50,19 @@
     )
     :effect (and
       (decrease (distance-remaining ?v) (* #t (speed ?v)))
-      (increase (total-distance ?v) (* #t (speed ?v)))
+      (increase (total-distance ?v)     (* #t (speed ?v)))
+      (increase (travel-time ?v)         #t)
     )
   )
 
+  ;; Arrive at a normal intersection
   (:event arrive
     :parameters (?v - vehicle ?r - road ?from - location ?to - location)
     :precondition (and
       (on-road ?v ?r)
       (moving ?v)
       (connects ?r ?from ?to)
+      (not (has-traffic-light ?to))
       (<= (distance-remaining ?v) 0)
     )
     :effect (and
@@ -65,6 +71,26 @@
       (at ?v ?to)
       (assign (distance-remaining ?v) 0)
       (assign (speed ?v) 0)
+    )
+  )
+
+  ;; Arrive at a signalized intersection — pays average red-light wait
+  (:event arrive-at-traffic-light
+    :parameters (?v - vehicle ?r - road ?from - location ?to - location)
+    :precondition (and
+      (on-road ?v ?r)
+      (moving ?v)
+      (connects ?r ?from ?to)
+      (has-traffic-light ?to)
+      (<= (distance-remaining ?v) 0)
+    )
+    :effect (and
+      (not (on-road ?v ?r))
+      (not (moving ?v))
+      (at ?v ?to)
+      (assign (distance-remaining ?v) 0)
+      (assign (speed ?v) 0)
+      (increase (travel-time ?v) (light-wait ?to))
     )
   )
 )
