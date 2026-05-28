@@ -73,7 +73,7 @@ class ProjectConfig:
 
     @property
     def domain_path(self) -> Path:
-        return self.project_root / "domain" / "domain.pddl"
+        return self.project_root / "domain" / "dynamic_domain.pddl"
 
     @property
     def problem_path(self) -> Path:

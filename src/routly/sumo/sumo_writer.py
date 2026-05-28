@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import os
+import random
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -27,11 +28,17 @@ def _write_pretty_xml(root: ET.Element, path: str | Path) -> None:
     path.write_text(pretty, encoding="utf-8")
 
 
-def write_nod_xml(nodes: list[dict], path: str | Path) -> None:
+def write_nod_xml(
+        nodes: list[dict],
+        path: str | Path,
+        with_traffic_lights: bool = True,
+    ) -> None:
     root = ET.Element("nodes")
     for node in nodes:
-        # SUMO renders traffic lights automatically when type="traffic_light"
-        node_type = "traffic_light" if node.get("traffic_light") else "priority"
+        is_tl = with_traffic_lights and node.get("traffic_light", False)
+        node_type = "traffic_light" if is_tl else "priority"
+        if is_tl:
+            print(f"Node {node['id']} has traffic light.")
         ET.SubElement(
             root,
             "node",
@@ -75,26 +82,85 @@ def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path
     print("Running:", " ".join(cmd))
     subprocess.run(cmd, check=True)
 
+def _generate_background_routes(
+    all_roads: list[dict],
+    num_vehicles: int,
+    seed: int = 42,
+) -> list[tuple[float, list[str]]]:   # ← now returns (depart_time, route)
+    random.seed(seed)
+
+    adjacency: dict[str, list[str]] = {}
+    road_to: dict[str, str] = {}
+
+    for r in all_roads:
+        adjacency.setdefault(r["from"], []).append(r["id"])
+        road_to[r["id"]] = r["to"]
+
+    all_road_ids = list(road_to.keys())
+    results = []
+    attempts = 0
+
+    while len(results) < num_vehicles and attempts < num_vehicles * 20:
+        attempts += 1
+
+        start_road = random.choice(all_road_ids)
+        route = [start_road]
+        current_to = road_to[start_road]
+
+        for _ in range(random.randint(3, 12)):
+            next_roads = adjacency.get(current_to, [])
+            if not next_roads:
+                break
+            next_road = random.choice(next_roads)
+            route.append(next_road)
+            current_to = road_to[next_road]
+
+        if len(route) >= 2:
+            # Start from t=1 so car1 at t=0 always comes first
+            depart = round(random.uniform(1.0, 300.0), 1)
+            results.append((depart, route))
+
+    # Sort by departure time — SUMO requires this
+    results.sort(key=lambda x: x[0])
+    return results
 
 def write_rou_xml(
     edge_sequence: list[str],
-    out_path: str | Path,
+    out_path,
     vehicle_id: str = "car1",
     depart_time: float = 0.0,
+    background_vehicles: int = 0,
+    all_roads: list[dict] | None = None, # for random routes
+    seed: int = 42,
 ) -> None:
+    """
+    Write SUMO route XML.
+
+    background_vehicles: number of extra vehicles to add for congestion simulation.
+    all_road_ids: pool of road IDs to use for random background routes.
+                  If None, background vehicles use the planned route (less realistic).
+    """
+    random.seed(seed)
+
     root = ET.Element("routes")
-    ET.SubElement(
-        root,
-        "vType",
-        id="car",
-        accel="2.6",
-        decel="4.5",
-        sigma="0.5",
-        length="5.0",
-        maxSpeed="13.9",
-    )
-    vehicle = ET.SubElement(root, "vehicle", id=vehicle_id, type="car", depart=str(depart_time))
+    ET.SubElement(root, "vType", id="car", accel="2.6", decel="4.5",
+                  sigma="0.5", length="5.0", maxSpeed="13.9")
+
+    # ── planned vehicle ───────────────────────────────────────────────────────
+    vehicle = ET.SubElement(root, "vehicle",
+                            id=vehicle_id, type="car",
+                            depart=str(depart_time),
+                            color="1,0,0")   # red — easy to spot
     ET.SubElement(vehicle, "route", edges=" ".join(edge_sequence))
+
+    # ── background vehicles ───────────────────────────────────────────────────
+    if background_vehicles > 0 and all_roads:
+        bg_routes = _generate_background_routes(all_roads, background_vehicles, seed)
+        for i, (depart, route) in enumerate(bg_routes):
+            bg = ET.SubElement(root, "vehicle",
+                               id=f"bg_{i:04d}", type="car",
+                               depart=str(depart), color="0.5,0.5,0.5")
+            ET.SubElement(bg, "route", edges=" ".join(route))
     _write_pretty_xml(root, out_path)
 
 
@@ -147,11 +213,19 @@ def write_sumocfg(
     ET.SubElement(input_el, "net-file", value=os.path.basename(net_file))
     ET.SubElement(input_el, "route-files", value=os.path.basename(route_file))
 
-    if view_file:
-        ET.SubElement(input_el, "gui-settings-file", value=os.path.basename(view_file))
-
     time_el = ET.SubElement(root, "time")
     ET.SubElement(time_el, "begin", value=str(begin))
     ET.SubElement(time_el, "end", value=str(end))
+
+    processing = ET.SubElement(root, "processing")
+    ET.SubElement(processing, "ignore-route-errors", value="true")
+    ET.SubElement(processing, "time-to-teleport", value="30")
+
+    report = ET.SubElement(root, "report")
+    ET.SubElement(report, "no-warnings", value="true")
+
+    if view_file:
+        gui_el = ET.SubElement(root, "gui_only")
+        ET.SubElement(gui_el, "gui-settings-file", value=os.path.basename(view_file))
 
     _write_pretty_xml(root, cfg_file)

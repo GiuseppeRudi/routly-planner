@@ -23,9 +23,9 @@ SCRIPT_REGISTRY = {
         "script": "scripts/pipeline/02_select_scenario_points.py",
         "args": ["map_config", "project_config", "scenario_output"],
     },
-    "build_problem": {
-        "script": "scripts/pipeline/03_build_problem.py",
-        "args": ["map_config", "project_config", "scenario_config"],
+    "build_domain_and_problem": {
+        "script": "scripts/pipeline/03_build_domain_and_problem.py",
+        "args": ["map_config", "project_config", "scenario_config", "features_config"],
     },
     "generate_plan": {
         "script": "scripts/pipeline/04_generate_plan.py",
@@ -33,7 +33,7 @@ SCRIPT_REGISTRY = {
     },
     "plan_to_sumo": {
         "script": "scripts/pipeline/05_plan_to_sumo.py",
-        "args": ["map_config", "project_config", "scenario_config"],
+        "args": ["map_config", "project_config", "scenario_config", "features_config"],
     },
 }
 
@@ -55,6 +55,9 @@ def get_pipeline_value(config: dict[str, Any], key: str) -> str:
     if key == "scenario_config":
         return outputs["scenario_config"]
 
+    if key == "features_config":
+        return configs["features_config"]
+
     raise KeyError(f"Unsupported pipeline argument key: {key}")
 
 
@@ -64,6 +67,7 @@ def cli_flag_for_key(key: str) -> str:
         "project_config": "--project-config",
         "scenario_output": "--scenario-output",
         "scenario_config": "--scenario-config",
+        "features_config": "--features-config",
     }
 
     return flags[key]
@@ -155,7 +159,7 @@ def parse_args() -> argparse.Namespace:
             "Step numbers to run (1-based). Run all if omitted.\n"
             "  1 = build_map\n"
             "  2 = select_scenario_points\n"
-            "  3 = build_problem\n"
+            "  3 = build_domain_and_problem\n"
             "  4 = generate_plan\n"
             "  5 = plan_to_sumo\n"
             "Example: python run_pipeline.py 1 3 5"
@@ -203,13 +207,13 @@ if __name__ == "__main__":
 # SOLVED 1. Semafori
 # SOLVED 2. Sensi di Marcia
 # TODO 3. Più auto per simulare congestione:
-# TODO **Semplice**: Il planner non considera la congestione del traffico ma viene simulata solo da sumo,
-# TODO Il planner genera il piano senza considerare la congestione, poi inserisci 200 macchine ad esempio e simuli su sumo
+# SOLVED **Semplice**: Il planner non considera la congestione del traffico ma viene simulata solo da sumo,
+# SOLVED Il planner genera il piano senza considerare la congestione, poi inserisci 200 macchine ad esempio e simuli su sumo
 # TODO **Completa**: Integrare la congestione nel planner, ad esempio con un costo dinamico che aumenta per le strade più trafficate.
 # TODO In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
-# TODO Inoltre vogliamo creare diversi domain e problem file (con sensi di marcia, senza sensi di marcia, con semafori, senza semafori,
-# TODO con congestione, senza congestione, congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
-# TODO e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
+# SOLVED Inoltre vogliamo creare diversi domain e problem file (con semafori, senza semafori, senza congestione,
+# SOLVED congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
+# SOLVED e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
 # TODO 4. Eventi casuali (incidenti, lavori in corso) con LLM
 # TODO Fare diverse simulazioni e partire dallo stesso scenario. La prima simulazione parte senza eventi generati dall'LLM
 # TODO Successivamente effettuare diverse altre simulazioni a partire dallo stesso scenario in cui l'LLM genera degli eventi casuali

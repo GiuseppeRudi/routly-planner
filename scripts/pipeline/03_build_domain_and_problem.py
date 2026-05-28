@@ -12,19 +12,22 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.utils import read_yaml
 from src.routly.config import load_config
+from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.pddl.pddl_writer import write_pddl
 from src.routly.pddl.problem_generator import build_road_network_problem
+from src.routly.pddl.domain_generator import build_road_network_domain
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Build PDDL problem from selected scenario YAML."
+        description="Build PDDL domain and problem from selected scenario YAML."
     )
 
     parser.add_argument("--map-config", required=True)
     parser.add_argument("--project-config", required=True)
     parser.add_argument("--scenario-config", required=True)
+    parser.add_argument("--features-config", required=True)
 
     return parser.parse_args()
 
@@ -70,6 +73,8 @@ def main() -> None:
 
     scenario = read_yaml(scenario_path)
 
+    features = FeatureConfig.from_yaml(args.features_config)
+
     mapping_path = Path(
         scenario.get("map", {}).get("mapping_path", config.mapping_path)
     )
@@ -77,7 +82,7 @@ def main() -> None:
     if not mapping_path.is_absolute():
         mapping_path = PROJECT_ROOT / mapping_path
 
-    print("Building PDDL problem from scenario and mapping")
+    print("Building PDDL domain and problem from scenario and mapping")
     # print(f"  Scenario: {scenario_path}")
     # print(f"  Mapping:  {mapping_path}")
 
@@ -88,6 +93,12 @@ def main() -> None:
     node_map = build_node_map_from_mapping(mapping)
     roads = mapping["roads"]
 
+    # Generate domain
+    domain_text = build_road_network_domain(features)
+    write_pddl(domain_text, config.domain_path)
+    print(f"\nPDDL DOMAIN CREATED (with features: {features.label})")
+
+    # Generate problem
     problem_name = scenario.get("scenario", {}).get(
         "name",
         f"{config.place_slug}_problem",
@@ -100,6 +111,7 @@ def main() -> None:
         goal_loc=goal_loc,
         vehicle_id=vehicle_id,
         problem_name=problem_name,
+        features=features
     )
 
     write_pddl(problem_text, config.problem_path)
