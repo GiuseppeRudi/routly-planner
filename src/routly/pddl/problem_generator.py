@@ -7,7 +7,7 @@ import networkx as nx
 from src.routly.features import FeatureConfig
 
 
-AVERAGE_LIGHT_WAIT_S = 30.0   # seconds — typical urban signal half-cycle
+AVERAGE_LIGHT_WAIT_S = 30.0   # seconds
 
 
 # ── PUBLIC API ────────────────────────────────────────────────────────────────
@@ -25,18 +25,26 @@ def build_road_network_problem(
         features = FeatureConfig.base()
 
     # Compute congested roads if needed (betweenness centrality on road graph)
-    congested_road_ids: set[str] = set()
+    congestion_factors: dict[str, float] = {}
+
     if features.congestion_in_pddl:
-        congested_road_ids = _compute_congested_roads(
+        congestion_factors = _compute_congestion_factors(
             roads,
-            fraction=features.congestion.congested_fraction,
+            background_vehicles=features.congestion.num_background_vehicles,
+            base_factor=features.congestion.congestion_factor,
         )
-        print(f"  Congested roads (top {features.congestion.congested_fraction*100:.0f}% centrality): "
-              f"{len(congested_road_ids)} / {len(roads)}")
+
+        print(f"{congestion_factors}")
+
+        print(
+            f"Computed congestion factors for "
+            f"{len(congestion_factors)} roads "
+            f"using {features.congestion.num_background_vehicles} background vehicles."
+        )
 
     objects_block  = _build_objects(node_map, roads, vehicle_id)
     init_block     = _build_init(node_map, roads, start_loc, vehicle_id,
-                                 features, congested_road_ids)
+                                 features, congestion_factors)
     metric_line    = _build_metric(vehicle_id, features)
 
     return f"""\
@@ -93,7 +101,7 @@ def _build_init(
     start_loc: str,
     vehicle_id: str,
     features: FeatureConfig,
-    congested_road_ids: set[str],
+    congestion_factors: dict[str, float],
 ) -> str:
     lines: list[str] = []
 
@@ -118,8 +126,10 @@ def _build_init(
         ]
 
         if features.congestion_in_pddl:
-            factor = features.congestion.congestion_factor if road_id in congested_road_ids else 1.0
-            lines.append(f"  (= (congestion-factor {road_id}) {factor})")
+            factor = congestion_factors.get(road_id, 1.0)
+            lines.append(
+                f"  (= (congestion-factor {road_id}) {factor})"
+            )
 
         # LLM events: all roads start unblocked; LLM will add (road-blocked ...) facts
         # No init facts needed here — absence of (road-blocked) means passable.
@@ -149,31 +159,67 @@ def _build_metric(vehicle_id: str, features: FeatureConfig) -> str:
 
 # ── CONGESTION COMPUTATION ────────────────────────────────────────────────────
 
-def _compute_congested_roads(
+def _compute_congestion_factors(
     roads: list[dict[str, Any]],
-    fraction: float = 0.2,
-) -> set[str]:
+    background_vehicles: int,
+    base_factor: float,
+) -> dict[str, float]:
     """
-    Mark the top `fraction` of roads as congested using edge betweenness
-    centrality — roads that lie on many shortest paths are the busiest arteries.
+    Compute dynamic congestion factors using:
+    - edge betweenness centrality
+    - number of background vehicles
+
+    More vehicles => higher congestion impact.
     """
-    # Build a lightweight DiGraph just for centrality computation
+
     G = nx.DiGraph()
     road_by_edge: dict[tuple[str, str], str] = {}
 
     for r in roads:
-        G.add_edge(r["from"], r["to"], weight=r["length"])
-        road_by_edge[(r["from"], r["to"])] = r["id"]
+        edge = (r["from"], r["to"])
 
-    centrality = nx.edge_betweenness_centrality(G, weight="weight", normalized=True)
+        G.add_edge(
+            r["from"],
+            r["to"],
+            weight=r["length"],
+        )
 
-    # Sort edges by centrality descending, take top fraction
-    sorted_edges = sorted(centrality.items(), key=lambda x: x[1], reverse=True)
-    n_congested = max(1, int(len(sorted_edges) * fraction))
-    congested_edges = {edge for edge, _ in sorted_edges[:n_congested]}
+        road_by_edge[edge] = r["id"]
 
-    return {
-        road_by_edge[edge]
-        for edge in congested_edges
-        if edge in road_by_edge
-    }
+    centrality = nx.edge_betweenness_centrality(
+        G,
+        weight="weight",
+        normalized=True,
+    )
+
+    if not centrality:
+        return {}
+
+    max_centrality = max(centrality.values())
+
+    # Prevent division by zero
+    if max_centrality == 0:
+        max_centrality = 1.0
+
+    # Example:
+    # 20 vehicles  -> 0.2
+    # 100 vehicles -> 1.0
+    # 200 vehicles -> 2.0
+    traffic_multiplier = background_vehicles / 100.0
+
+    congestion_factors: dict[str, float] = {}
+
+    for edge, score in centrality.items():
+        normalized_score = score / max_centrality
+
+        factor = (
+            1.0
+            + normalized_score
+            * traffic_multiplier
+            * (base_factor - 1.0)
+        )
+
+        road_id = road_by_edge[edge]
+        congestion_factors[road_id] = round(factor, 2)
+
+    return congestion_factors

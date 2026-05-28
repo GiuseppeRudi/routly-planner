@@ -219,7 +219,7 @@ def write_sumocfg(
 
     processing = ET.SubElement(root, "processing")
     ET.SubElement(processing, "ignore-route-errors", value="true")
-    ET.SubElement(processing, "time-to-teleport", value="30")
+    ET.SubElement(processing, "time-to-teleport", value="60")
 
     report = ET.SubElement(root, "report")
     ET.SubElement(report, "no-warnings", value="true")
