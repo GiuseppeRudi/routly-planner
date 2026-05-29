@@ -11,6 +11,7 @@ PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
+from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.sumo.sumo_runner import launch_sumo_gui
@@ -33,6 +34,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--map-config", required=True)
     parser.add_argument("--project-config", required=True)
     parser.add_argument("--scenario-config", required=True)
+    parser.add_argument("--features-config", required=True)
 
     return parser.parse_args()
 
@@ -65,7 +67,11 @@ def main() -> None:
     scenario = read_yaml(scenario_path)
     vehicle_id = get_vehicle_id_from_scenario(scenario)
 
+    features = FeatureConfig.from_yaml(args.features_config)
+
     mapping = load_mapping(config.mapping_path)
+    all_road_ids = [r["id"] for r in mapping["roads"]]
+
     plan_text = config.plan_path.read_text(encoding="utf-8")
     road_sequence = parse_start_traversal_roads(plan_text)
 
@@ -74,7 +80,7 @@ def main() -> None:
 
     print(f"Found route with {len(road_sequence)} roads.")
 
-    write_nod_xml(mapping["nodes"], config.sumo_nod_path)
+    write_nod_xml(mapping["nodes"], config.sumo_nod_path, with_traffic_lights=features.traffic_lights)
     write_edg_xml(mapping["roads"], config.sumo_edg_path)
     build_net(config.sumo_edg_path, config.sumo_nod_path, config.sumo_net_path)
 
@@ -82,6 +88,8 @@ def main() -> None:
         road_sequence,
         out_path=config.sumo_rou_path,
         vehicle_id=vehicle_id,
+        background_vehicles=features.congestion.num_background_vehicles if features.congestion_in_sumo else 0,
+        all_roads=mapping["roads"],
     )
 
     end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)

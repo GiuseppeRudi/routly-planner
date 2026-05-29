@@ -23,9 +23,9 @@ SCRIPT_REGISTRY = {
         "script": "scripts/pipeline/02_select_scenario_points.py",
         "args": ["map_config", "project_config", "scenario_output"],
     },
-    "build_problem": {
-        "script": "scripts/pipeline/03_build_problem.py",
-        "args": ["map_config", "project_config", "scenario_config"],
+    "build_domain_and_problem": {
+        "script": "scripts/pipeline/03_build_domain_and_problem.py",
+        "args": ["map_config", "project_config", "scenario_config", "features_config"],
     },
     "generate_plan": {
         "script": "scripts/pipeline/04_generate_plan.py",
@@ -33,7 +33,7 @@ SCRIPT_REGISTRY = {
     },
     "plan_to_sumo": {
         "script": "scripts/pipeline/05_plan_to_sumo.py",
-        "args": ["map_config", "project_config", "scenario_config"],
+        "args": ["map_config", "project_config", "scenario_config", "features_config"],
     },
 }
 
@@ -55,6 +55,9 @@ def get_pipeline_value(config: dict[str, Any], key: str) -> str:
     if key == "scenario_config":
         return outputs["scenario_config"]
 
+    if key == "features_config":
+        return configs["features_config"]
+
     raise KeyError(f"Unsupported pipeline argument key: {key}")
 
 
@@ -64,6 +67,7 @@ def cli_flag_for_key(key: str) -> str:
         "project_config": "--project-config",
         "scenario_output": "--scenario-output",
         "scenario_config": "--scenario-config",
+        "features_config": "--features-config",
     }
 
     return flags[key]
@@ -155,7 +159,7 @@ def parse_args() -> argparse.Namespace:
             "Step numbers to run (1-based). Run all if omitted.\n"
             "  1 = build_map\n"
             "  2 = select_scenario_points\n"
-            "  3 = build_problem\n"
+            "  3 = build_domain_and_problem\n"
             "  4 = generate_plan\n"
             "  5 = plan_to_sumo\n"
             "Example: python run_pipeline.py 1 3 5"
@@ -203,16 +207,28 @@ if __name__ == "__main__":
 # SOLVED 1. Semafori
 # SOLVED 2. Sensi di Marcia
 # TODO 3. Più auto per simulare congestione:
-# TODO **Semplice**: Il planner non considera la congestione del traffico ma viene simulata solo da sumo,
-# TODO Il planner genera il piano senza considerare la congestione, poi inserisci 200 macchine ad esempio e simuli su sumo
+# SOLVED **Semplice**: Il planner non considera la congestione del traffico ma viene simulata solo da sumo,
+# SOLVED Il planner genera il piano senza considerare la congestione, poi inserisci 200 macchine ad esempio e simuli su sumo
 # TODO **Completa**: Integrare la congestione nel planner, ad esempio con un costo dinamico che aumenta per le strade più trafficate.
 # TODO In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
-# TODO Inoltre vogliamo creare diversi domain e problem file (con sensi di marcia, senza sensi di marcia, con semafori, senza semafori,
-# TODO con congestione, senza congestione, congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
-# TODO e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
+# SOLVED Inoltre vogliamo creare diversi domain e problem file (con semafori, senza semafori, senza congestione,
+# SOLVED congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
+# SOLVED e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
 # TODO 4. Eventi casuali (incidenti, lavori in corso) con LLM
 # TODO Fare diverse simulazioni e partire dallo stesso scenario. La prima simulazione parte senza eventi generati dall'LLM
 # TODO Successivamente effettuare diverse altre simulazioni a partire dallo stesso scenario in cui l'LLM genera degli eventi casuali
 # TODO e vedere come è cambiato il planner e il piano a seconda degli eventi generati effettuando una comparazione (SOTA)
 # TODO 5. Controllo benzina
 # TODO 6. (Opzionale) Distinzione tra mappa piccola, media e grande
+
+# TODO 7 : allora i semafori sono fissi a 30 s di durata => questo però viene scelto da noi 
+# TODO 7 : potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà 
+
+# TODO : 1- la congestione attualmente viene generata da sumo indicando il numero di macchine con un timestep di generazione random , nodo di partenza e di arrivo random 
+# TODO : 2- per integrare la congestione nel planner potremmo creare un costo dinamico che aumenta per le strade più trafficate, 
+# ad esempio potremmo avere un costo base per ogni strada e poi aggiungere un costo aggiuntivo che dipende dal numero di macchine che stanno utilizzando quella strada 
+# in quel momento. In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
+# PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
+# QUESTO PERO NON è SUFFICIENTE POICHE NON BASTA AVERE IL NUMERO TOTALE DI MACCHINA CHE PASSANO PER QUELLA STRADA MA ANCHE SAPERE IN LINEA TEMPORALE COME SI DISTRIBUSICONO QUESTE MACCHINE LUNGO IL TEMP O
+# PER AVERE UNA CONGESTIONE DINAMICA DELLE STRADE 
+
