@@ -220,3 +220,15 @@ if __name__ == "__main__":
 # TODO e vedere come è cambiato il planner e il piano a seconda degli eventi generati effettuando una comparazione (SOTA)
 # TODO 5. Controllo benzina
 # TODO 6. (Opzionale) Distinzione tra mappa piccola, media e grande
+
+# TODO 7 : allora i semafori sono fissi a 30 s di durata => questo però viene scelto da noi 
+# TODO 7 : potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà 
+
+# TODO : 1- la congestione attualmente viene generata da sumo indicando il numero di macchine con un timestep di generazione random , nodo di partenza e di arrivo random 
+# TODO : 2- per integrare la congestione nel planner potremmo creare un costo dinamico che aumenta per le strade più trafficate, 
+# ad esempio potremmo avere un costo base per ogni strada e poi aggiungere un costo aggiuntivo che dipende dal numero di macchine che stanno utilizzando quella strada 
+# in quel momento. In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
+# PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
+# QUESTO PERO NON è SUFFICIENTE POICHE NON BASTA AVERE IL NUMERO TOTALE DI MACCHINA CHE PASSANO PER QUELLA STRADA MA ANCHE SAPERE IN LINEA TEMPORALE COME SI DISTRIBUSICONO QUESTE MACCHINE LUNGO IL TEMP O
+# PER AVERE UNA CONGESTIONE DINAMICA DELLE STRADE 
+
