@@ -23,3 +23,5 @@ plotly
 # Utilities
 python-dotenv
 rich
+
+# quali eventi, env
