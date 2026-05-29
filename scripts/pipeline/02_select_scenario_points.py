@@ -8,6 +8,8 @@ import sys
 from typing import Any
 
 import matplotlib.pyplot as plt
+from matplotlib.backend_bases import MouseButton
+from matplotlib.widgets import Button
 import networkx as nx
 import osmnx as ox
 import yaml
@@ -18,6 +20,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
 
+
+# ============================================================
+# CLI
+# ============================================================
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -30,6 +36,10 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
+# ============================================================
+# Loading utilities
+# ============================================================
 
 def load_mapping(path: Path) -> dict[str, Any]:
     if not path.exists():
@@ -44,6 +54,10 @@ def load_graph(path: Path) -> nx.MultiDiGraph:
 
     return ox.load_graphml(path)
 
+
+# ============================================================
+# Mapping utilities
+# ============================================================
 
 def get_node_xy(node: dict[str, Any]) -> tuple[float, float]:
     if "x" not in node or "y" not in node:
@@ -81,6 +95,10 @@ def find_nearest_mapping_node(
 
     return best_node, best_distance
 
+
+# ============================================================
+# Reachability validation
+# ============================================================
 
 def build_directed_graph_from_mapping(mapping: dict[str, Any]) -> dict[str, list[str]]:
     directed_graph: dict[str, list[str]] = {}
@@ -120,7 +138,7 @@ def validate_selected_pair(
     mapping: dict[str, Any],
     start_node: dict[str, Any],
     goal_node: dict[str, Any],
-) -> bool:
+) -> tuple[bool, str]:
     directed_graph = build_directed_graph_from_mapping(mapping)
 
     start_loc = start_node["id"]
@@ -129,32 +147,77 @@ def validate_selected_pair(
     outgoing = directed_graph.get(start_loc, [])
 
     if not outgoing:
-        print(f"\nINVALID START: {start_loc} has no outgoing roads.")
-        return False
+        return False, f"Invalid START: {start_loc} has no outgoing roads."
 
     reachable = find_reachable_locations(directed_graph, start_loc)
 
     if goal_loc not in reachable:
-        print(f"\nINVALID PAIR: {goal_loc} is not reachable from {start_loc}.")
-        return False
+        return False, f"Invalid pair: {goal_loc} is not reachable from {start_loc}."
 
-    print("\nReachability check passed:")
-    print(f"  Start: {start_loc}")
-    print(f"  Goal:  {goal_loc}")
-    print(f"  Reachable locations from start: {len(reachable)}")
-
-    return True
+    return True, (
+        f"Valid pair selected. START={start_loc}, GOAL={goal_loc}, "
+        f"reachable locations={len(reachable)}."
+    )
 
 
-def plot_mapping_graph(
-    mapping: dict[str, Any],
-    title: str,
-    selected_points: list[tuple[str, dict[str, Any]]] | None = None,
-) -> None:
+# ============================================================
+# Matplotlib window helpers
+# ============================================================
+
+def center_window(fig: plt.Figure, width: int = 920, height: int = 680) -> None:
+    """
+    Try to open the Matplotlib window smaller and centered.
+    Works on common Tk/Qt backends. Unsupported backends are ignored safely.
+    """
+    manager = plt.get_current_fig_manager()
+
+    try:
+        manager.resize(width, height)
+    except Exception:
+        pass
+
+    try:
+        window = manager.window
+
+        # TkAgg
+        if hasattr(window, "winfo_screenwidth"):
+            screen_width = window.winfo_screenwidth()
+            screen_height = window.winfo_screenheight()
+            x = int((screen_width - width) / 2)
+            y = int((screen_height - height) / 2)
+            window.geometry(f"{width}x{height}+{x}+{y}")
+            return
+
+        # QtAgg
+        if hasattr(window, "screen") and hasattr(window, "move"):
+            screen_geometry = window.screen().availableGeometry()
+            x = int(screen_geometry.x() + (screen_geometry.width() - width) / 2)
+            y = int(screen_geometry.y() + (screen_geometry.height() - height) / 2)
+            window.resize(width, height)
+            window.move(x, y)
+            return
+
+    except Exception:
+        pass
+
+    fig.set_size_inches(width / 100, height / 100)
+
+
+def setup_axes(ax: plt.Axes, title: str) -> None:
+    ax.set_title(title, fontsize=12, fontweight="bold", pad=10)
+    ax.set_xlabel("Projected X", fontsize=9)
+    ax.set_ylabel("Projected Y", fontsize=9)
+    ax.axis("equal")
+    ax.grid(True, linewidth=0.35, alpha=0.22)
+
+    ax.tick_params(axis="both", labelsize=8)
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+
+def draw_base_graph(ax: plt.Axes, mapping: dict[str, Any]) -> None:
     nodes_by_id = {node["id"]: node for node in mapping["nodes"]}
-    selected_points = selected_points or []
-
-    fig, ax = plt.subplots(figsize=(12, 10))
 
     for road in mapping["roads"]:
         geometry = road.get("geometry")
@@ -162,7 +225,6 @@ def plot_mapping_graph(
         if geometry:
             xs = [point[0] for point in geometry]
             ys = [point[1] for point in geometry]
-            ax.plot(xs, ys, linewidth=0.8)
         else:
             from_node = nodes_by_id.get(road["from"])
             to_node = nodes_by_id.get(road["to"])
@@ -172,94 +234,281 @@ def plot_mapping_graph(
 
             x1, y1 = get_node_xy(from_node)
             x2, y2 = get_node_xy(to_node)
-            ax.plot([x1, x2], [y1, y2], linewidth=0.8)
+            xs = [x1, x2]
+            ys = [y1, y2]
 
-    node_xs = []
-    node_ys = []
+        ax.plot(
+            xs,
+            ys,
+            color="#6f6f6f",
+            linewidth=0.55,
+            alpha=0.55,
+            zorder=1,
+        )
+
+    node_xs: list[float] = []
+    node_ys: list[float] = []
 
     for node in mapping["nodes"]:
         x, y = get_node_xy(node)
         node_xs.append(x)
         node_ys.append(y)
 
-    ax.scatter(node_xs, node_ys, s=12)
+    ax.scatter(
+        node_xs,
+        node_ys,
+        s=20,
+        color="#2f80ed",
+        edgecolors="white",
+        linewidths=0.45,
+        alpha=0.95,
+        zorder=2,
+    )
 
-    for label, node in selected_points:
-        x, y = get_node_xy(node)
-        ax.scatter([x], [y], s=120)
-        ax.annotate(label, (x, y), textcoords="offset points", xytext=(8, 8))
 
-    ax.set_title(title)
-    ax.set_xlabel("Projected X")
-    ax.set_ylabel("Projected Y")
-    ax.axis("equal")
-    ax.grid(True)
+def draw_selected_point(
+    ax: plt.Axes,
+    node: dict[str, Any],
+    label: str,
+    color: str,
+) -> list[Any]:
+    x, y = get_node_xy(node)
 
-    plt.tight_layout()
+    artists: list[Any] = []
+
+    point = ax.scatter(
+        [x],
+        [y],
+        s=170,
+        color=color,
+        edgecolors="black",
+        linewidths=1.15,
+        zorder=6,
+    )
+    artists.append(point)
+
+    annotation = ax.annotate(
+        f"{label}\n{node['id']}",
+        (x, y),
+        textcoords="offset points",
+        xytext=(10, 10),
+        fontsize=8.5,
+        fontweight="bold",
+        bbox={
+            "boxstyle": "round,pad=0.35",
+            "facecolor": "white",
+            "edgecolor": color,
+            "alpha": 0.96,
+        },
+        zorder=7,
+    )
+    artists.append(annotation)
+
+    return artists
+
+
+# ============================================================
+# Selector class
+# ============================================================
+
+class ScenarioPointSelector:
+    def __init__(self, mapping: dict[str, Any]) -> None:
+        self.mapping = mapping
+        self.mapping_nodes = mapping["nodes"]
+
+        self.start_node: dict[str, Any] | None = None
+        self.goal_node: dict[str, Any] | None = None
+        self.confirmed = False
+
+        self.selected_artists: list[Any] = []
+
+        self.fig, self.ax = plt.subplots(figsize=(9.2, 6.8))
+        self.fig.canvas.manager.set_window_title("Routly — Scenario point selector")
+
+        center_window(self.fig, width=920, height=680)
+
+        # Leave space below for buttons.
+        self.fig.subplots_adjust(left=0.07, right=0.98, top=0.90, bottom=0.16)
+
+        draw_base_graph(self.ax, self.mapping)
+        setup_axes(
+            self.ax,
+            "Double-click START, then double-click GOAL",
+        )
+
+        self.status_text = self.fig.text(
+            0.07,
+            0.08,
+            "Use toolbar zoom/pan. Double-click on a node area to select START, then GOAL.",
+            fontsize=9,
+            ha="left",
+            va="center",
+        )
+
+        confirm_ax = self.fig.add_axes([0.70, 0.035, 0.12, 0.045])
+        reset_ax = self.fig.add_axes([0.84, 0.035, 0.10, 0.045])
+
+        self.confirm_button = Button(confirm_ax, "Confirm")
+        self.reset_button = Button(reset_ax, "Reset")
+
+        self.confirm_button.on_clicked(self.on_confirm_clicked)
+        self.reset_button.on_clicked(self.on_reset_clicked)
+
+        self.click_connection_id = self.fig.canvas.mpl_connect(
+            "button_press_event",
+            self.on_mouse_press,
+        )
+
+    def set_status(self, message: str) -> None:
+        self.status_text.set_text(message)
+        self.fig.canvas.draw_idle()
+
+    def clear_selected_artists(self) -> None:
+        for artist in self.selected_artists:
+            try:
+                artist.remove()
+            except Exception:
+                pass
+
+        self.selected_artists.clear()
+        self.fig.canvas.draw_idle()
+
+    def redraw_selected_points(self) -> None:
+        self.clear_selected_artists()
+
+        if self.start_node is not None:
+            self.selected_artists.extend(
+                draw_selected_point(
+                    self.ax,
+                    self.start_node,
+                    "START",
+                    "#2ca02c",
+                )
+            )
+
+        if self.goal_node is not None:
+            self.selected_artists.extend(
+                draw_selected_point(
+                    self.ax,
+                    self.goal_node,
+                    "GOAL",
+                    "#d62728",
+                )
+            )
+
+        self.fig.canvas.draw_idle()
+
+    def on_mouse_press(self, event: Any) -> None:
+        if event.inaxes != self.ax:
+            return
+
+        if event.button != MouseButton.LEFT:
+            return
+
+        # Require double click to avoid accidental selection while zooming/panning.
+        if not getattr(event, "dblclick", False):
+            self.set_status("Single click ignored. Use double-click to select a node.")
+            return
+
+        if event.xdata is None or event.ydata is None:
+            return
+
+        node, distance = find_nearest_mapping_node(
+            click_x=event.xdata,
+            click_y=event.ydata,
+            mapping_nodes=self.mapping_nodes,
+        )
+
+        if self.start_node is None:
+            self.start_node = node
+            self.set_status(
+                f"START selected: {node['id']} "
+                f"(click distance {distance:.2f} m). Now double-click GOAL."
+            )
+
+        elif self.goal_node is None:
+            self.goal_node = node
+            self.set_status(
+                f"GOAL selected: {node['id']} "
+                f"(click distance {distance:.2f} m). Press Confirm or Reset."
+            )
+
+        else:
+            self.set_status(
+                "Both START and GOAL are already selected. Press Confirm or Reset."
+            )
+            return
+
+        self.redraw_selected_points()
+
+    def on_reset_clicked(self, event: Any) -> None:
+        self.start_node = None
+        self.goal_node = None
+        self.confirmed = False
+        self.clear_selected_artists()
+        self.ax.set_title(
+            "Double-click START, then double-click GOAL",
+            fontsize=12,
+            fontweight="bold",
+            pad=10,
+        )
+        self.set_status(
+            "Selection reset. Double-click START, then double-click GOAL."
+        )
+
+    def on_confirm_clicked(self, event: Any) -> None:
+        if self.start_node is None or self.goal_node is None:
+            self.set_status("Cannot confirm: select both START and GOAL first.")
+            return
+
+        is_valid, message = validate_selected_pair(
+            mapping=self.mapping,
+            start_node=self.start_node,
+            goal_node=self.goal_node,
+        )
+
+        if not is_valid:
+            self.ax.set_title(
+                "Invalid selection — press Reset and choose again",
+                fontsize=12,
+                fontweight="bold",
+                pad=10,
+            )
+            self.set_status(message)
+            return
+
+        self.confirmed = True
+        self.ax.set_title(
+            "Valid selection confirmed — closing window",
+            fontsize=12,
+            fontweight="bold",
+            pad=10,
+        )
+        self.set_status(message)
+
+        self.fig.canvas.draw_idle()
+        plt.pause(0.35)
+        plt.close(self.fig)
+
+    def run(self) -> tuple[dict[str, Any], dict[str, Any]]:
+        plt.show()
+
+        if not self.confirmed or self.start_node is None or self.goal_node is None:
+            raise RuntimeError("Point selection was cancelled or not confirmed.")
+
+        return self.start_node, self.goal_node
 
 
 def select_start_goal_interactively(
     mapping: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    mapping_nodes = mapping["nodes"]
+    selector = ScenarioPointSelector(mapping)
+    return selector.run()
 
-    while True:
-        plot_mapping_graph(
-            mapping,
-            "Select points: first click = START, second click = GOAL",
-        )
 
-        print("\nINTERACTIVE POINT SELECTION")
-        print("  1st click: START")
-        print("  2nd click: GOAL")
-        print("  You can use Matplotlib zoom/pan before clicking.\n")
-
-        clicks = plt.ginput(2, timeout=0)
-
-        if len(clicks) != 2:
-            plt.close()
-            raise RuntimeError(f"Expected exactly 2 clicks, got {len(clicks)}.")
-
-        start_node, start_distance = find_nearest_mapping_node(
-            clicks[0][0],
-            clicks[0][1],
-            mapping_nodes,
-        )
-
-        goal_node, goal_distance = find_nearest_mapping_node(
-            clicks[1][0],
-            clicks[1][1],
-            mapping_nodes,
-        )
-
-        plt.close()
-
-        print("Selected START:")
-        print(f"  location_id: {start_node['id']}")
-        print(f"  distance from click: {start_distance:.2f} m")
-
-        print("Selected GOAL:")
-        print(f"  location_id: {goal_node['id']}")
-        print(f"  distance from click: {goal_distance:.2f} m")
-
-        if validate_selected_pair(mapping, start_node, goal_node):
-            break
-
-        print("\nSelect a new valid pair.")
-
-    plot_mapping_graph(
-        mapping,
-        "Selected valid START and GOAL",
-        selected_points=[
-            ("START", start_node),
-            ("GOAL", goal_node),
-        ],
-    )
-
-    plt.show()
-
-    return start_node, goal_node
-
+# ============================================================
+# Scenario YAML writing
+# ============================================================
 
 def enrich_selected_node(
     mapping_node: dict[str, Any],
@@ -330,8 +579,12 @@ def write_scenario_yaml(scenario: dict[str, Any], output_path: Path) -> None:
     )
 
     print("\nScenario YAML saved on config/scenarios folder")
-    # print(f"  {output_path}")
+    print(f"  {output_path}")
 
+
+# ============================================================
+# Main
+# ============================================================
 
 def main() -> None:
     args = parse_args()
