@@ -35,6 +35,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--project-config", required=True)
     parser.add_argument("--scenario-config", required=True)
     parser.add_argument("--features-config", required=True)
+    parser.add_argument("--plan-override", help="Path to alternative plan file")
 
     return parser.parse_args()
 
@@ -57,7 +58,6 @@ def get_vehicle_id_from_scenario(scenario: dict[str, Any]) -> str:
 
 def main() -> None:
     args = parse_args()
-
     config = load_config(args.map_config, args.project_config)
 
     scenario_path = Path(args.scenario_config)
@@ -72,7 +72,8 @@ def main() -> None:
     mapping = load_mapping(config.mapping_path)
     all_road_ids = [r["id"] for r in mapping["roads"]]
 
-    plan_text = config.plan_path.read_text(encoding="utf-8")
+    plan_path = Path(args.plan_override) if args.plan_override else config.plan_path
+    plan_text = plan_path.read_text(encoding="utf-8")
     road_sequence = parse_start_traversal_roads(plan_text)
 
     if not road_sequence:

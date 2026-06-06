@@ -35,6 +35,19 @@ SCRIPT_REGISTRY = {
         "script": "scripts/pipeline/05_plan_to_sumo.py",
         "args": ["map_config", "project_config", "scenario_config", "features_config"],
     },
+    # --- NUOVI STEP DINAMICI CON LLM ---
+    "inject_llm_events": {
+        "script": "scripts/pipeline/06_inject_llm_events.py",
+        "args": ["map_config", "project_config"],
+    },
+    "generate_dynamic_plan": {
+        "script": "scripts/pipeline/07_generate_dynamic_plan.py",
+        "args": ["map_config", "project_config"],
+    },
+    "plan_dynamic_to_sumo": {
+        "script": "scripts/pipeline/08_plan_dynamic_to_sumo.py",
+        "args": ["map_config", "project_config", "scenario_config", "features_config"],
+    },
 }
 
 
