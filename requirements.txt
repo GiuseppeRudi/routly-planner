@@ -24,4 +24,7 @@ plotly
 python-dotenv
 rich
 
-# quali eventi, env
+
+# llm config
+aider
+ollama

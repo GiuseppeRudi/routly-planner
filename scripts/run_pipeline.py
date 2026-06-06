@@ -227,21 +227,18 @@ if __name__ == "__main__":
 # SOLVED Inoltre vogliamo creare diversi domain e problem file (con semafori, senza semafori, senza congestione,
 # SOLVED congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
 # SOLVED e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
-# TODO 4. Eventi casuali (incidenti, lavori in corso) con LLM
+# TODO 4. allora i semafori sono fissi a 30 s di durata => questo però viene scelto da noi 
+# TODO potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà 
+# TODO 5. Eventi casuali (incidenti, lavori in corso) con LLM
 # TODO Fare diverse simulazioni e partire dallo stesso scenario. La prima simulazione parte senza eventi generati dall'LLM
 # TODO Successivamente effettuare diverse altre simulazioni a partire dallo stesso scenario in cui l'LLM genera degli eventi casuali
 # TODO e vedere come è cambiato il planner e il piano a seconda degli eventi generati effettuando una comparazione (SOTA)
-# TODO 5. Controllo benzina
-# TODO 6. (Opzionale) Distinzione tra mappa piccola, media e grande
-
-# TODO 7 : allora i semafori sono fissi a 30 s di durata => questo però viene scelto da noi 
-# TODO 7 : potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà 
-
-# TODO : 1- la congestione attualmente viene generata da sumo indicando il numero di macchine con un timestep di generazione random , nodo di partenza e di arrivo random 
-# TODO : 2- per integrare la congestione nel planner potremmo creare un costo dinamico che aumenta per le strade più trafficate, 
-# ad esempio potremmo avere un costo base per ogni strada e poi aggiungere un costo aggiuntivo che dipende dal numero di macchine che stanno utilizzando quella strada 
-# in quel momento. In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
-# PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
-# QUESTO PERO NON è SUFFICIENTE POICHE NON BASTA AVERE IL NUMERO TOTALE DI MACCHINA CHE PASSANO PER QUELLA STRADA MA ANCHE SAPERE IN LINEA TEMPORALE COME SI DISTRIBUSICONO QUESTE MACCHINE LUNGO IL TEMP O
-# PER AVERE UNA CONGESTIONE DINAMICA DELLE STRADE 
+# TODO 6. Controllo benzina
+# TODO 7. la congestione attualmente viene generata da sumo indicando il numero di macchine con un timestep di generazione random , nodo di partenza e di arrivo random 
+# TODO per integrare la congestione nel planner potremmo creare un costo dinamico che aumenta per le strade più trafficate, 
+# TODO ad esempio potremmo avere un costo base per ogni strada e poi aggiungere un costo aggiuntivo che dipende dal numero di macchine che stanno utilizzando quella strada 
+# TODO in quel momento. In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
+# TODO PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
+# TODO QUESTO PERO NON è SUFFICIENTE POICHE NON BASTA AVERE IL NUMERO TOTALE DI MACCHINA CHE PASSANO PER QUELLA STRADA MA ANCHE SAPERE IN LINEA TEMPORALE COME SI DISTRIBUSICONO QUESTE MACCHINE LUNGO IL TEMP O
+# TODO PER AVERE UNA CONGESTIONE DINAMICA DELLE STRADE 
 

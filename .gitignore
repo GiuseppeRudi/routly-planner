@@ -29,6 +29,7 @@ conda-meta/
 # Data files
 cache/
 data/
+config/scenarios/
 
 # Generated PDDL outputs
 pddl/problems/generated_*.pddl
