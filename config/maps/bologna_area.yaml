@@ -7,5 +7,5 @@ graph_simplification:
   keep_largest_component: true
   remove_isolated_nodes: true
   distance_meters: 1000
-  max_nodes: 300
+  max_nodes: 130
 
