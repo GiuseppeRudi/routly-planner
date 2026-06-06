@@ -23,3 +23,8 @@ plotly
 # Utilities
 python-dotenv
 rich
+
+
+# llm config
+aider
+ollama
