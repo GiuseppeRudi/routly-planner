@@ -5,20 +5,18 @@ import argparse
 import sys
 from typing import Any
 
-import yaml
-
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.utils import read_yaml
-from routly.domain.congestion import generate_background_routes, write_background_routes
+from src.routly.domain.congestion import generate_background_routes, write_background_routes
 from src.routly.config import load_config
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.pddl.pddl_writer import write_pddl
 from src.routly.pddl.problem_generator import build_road_network_problem
 from src.routly.pddl.domain_generator import build_road_network_domain
-from routly.domain.traffic_lights import (
+from src.routly.domain.traffic_lights import (
     generate_traffic_light_timings,
     write_traffic_light_timings,
 )
@@ -104,6 +102,7 @@ def main() -> None:
         background_routes = generate_background_routes(
             roads,
             features.congestion.num_background_vehicles,
+            config.seed,
         )
         write_background_routes(background_routes, config.background_routes_path)
         print(
@@ -115,6 +114,7 @@ def main() -> None:
         traffic_light_timings = generate_traffic_light_timings(
             mapping["nodes"],
             features.traffic_lights_config,
+            config.seed,
         )
         write_traffic_light_timings(
             traffic_light_timings,
@@ -146,6 +146,7 @@ def main() -> None:
         features=features,
         background_routes=background_routes,
         traffic_light_timings=traffic_light_timings,
+        seed=config.seed,
     )
 
     write_pddl(problem_text, config.problem_path)

@@ -11,7 +11,7 @@ PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
-from routly.domain.congestion import load_background_routes
+from src.routly.domain.congestion import load_background_routes
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.planning.plan_parser import parse_start_traversal_roads
@@ -26,7 +26,7 @@ from src.routly.sumo.sumo_writer import (
     write_sumocfg,
     write_view_settings,
 )
-from routly.domain.traffic_lights import (
+from src.routly.domain.traffic_lights import (
     generate_traffic_light_timings,
     load_traffic_light_timings,
     write_traffic_light_timings,
@@ -93,6 +93,7 @@ def main() -> None:
             traffic_light_timings = generate_traffic_light_timings(
                 mapping["nodes"],
                 features.traffic_lights_config,
+                config.seed,
             )
             write_traffic_light_timings(
                 traffic_light_timings,
@@ -137,6 +138,7 @@ def main() -> None:
         background_vehicles=features.congestion.num_background_vehicles if features.congestion_in_sumo else 0,
         all_roads=mapping["roads"],
         background_routes=background_routes,
+        seed=config.seed,
     )
 
     end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)
@@ -149,6 +151,7 @@ def main() -> None:
         config.sumo_cfg_path,
         view_file=config.sumo_viewsettings_path,
         end=end_time,
+        seed=config.seed,
     )
 
     print("\nSUMO FILES CREATED:")

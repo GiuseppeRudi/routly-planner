@@ -26,7 +26,6 @@ class DurationRange:
 
 @dataclass(frozen=True)
 class TrafficLightsConfig:
-    seed: int = 42
     green_duration: DurationRange = field(
         default_factory=lambda: DurationRange(20, 60)
     )
@@ -100,7 +99,6 @@ class FeatureConfig:
         if isinstance(traffic_lights_raw, dict):
             traffic_lights_enabled = traffic_lights_raw.get("enabled", True)
             traffic_lights_config = TrafficLightsConfig(
-                seed=traffic_lights_raw.get("seed", 42),
                 green_duration=_duration_range(
                     traffic_lights_raw.get("green_duration"),
                     default_minimum=20,

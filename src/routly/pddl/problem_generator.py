@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from routly.domain.congestion import BackgroundRoute, compute_congestion_factors
+from src.routly.domain.congestion import BackgroundRoute, compute_congestion_factors
 from src.routly.features import FeatureConfig
-from routly.domain.traffic_lights import (
+from src.routly.domain.traffic_lights import (
     TrafficLightTiming,
     generate_traffic_light_timings,
 )
@@ -22,15 +22,21 @@ def build_road_network_problem(
     features: FeatureConfig | None = None,
     background_routes: list[BackgroundRoute] | None = None,
     traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
+    seed: int | None = None,
 ) -> str:
     if features is None:
         features = FeatureConfig.base()
 
     congestion_factors: dict[str, float] = {}
     if features.traffic_lights and traffic_light_timings is None:
+        if seed is None:
+            raise ValueError(
+                "A global seed is required when generating traffic-light timings"
+            )
         traffic_light_timings = generate_traffic_light_timings(
             list(node_map.values()),
             features.traffic_lights_config,
+            seed,
         )
 
     if features.congestion_in_pddl:

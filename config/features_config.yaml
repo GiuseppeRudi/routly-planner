@@ -1,7 +1,6 @@
 features:
   traffic_lights:
     enabled: true
-    seed: 42
     green_duration:
       min: 20
       max: 30

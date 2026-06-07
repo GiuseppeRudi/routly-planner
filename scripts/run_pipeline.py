@@ -227,8 +227,8 @@ if __name__ == "__main__":
 # SOLVED Inoltre vogliamo creare diversi domain e problem file (con semafori, senza semafori, senza congestione,
 # SOLVED congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
 # SOLVED e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
-# TODO 4. allora i semafori sono fissi a 30 s di durata => questo però viene scelto da noi 
-# TODO potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà o un valore random
+# SOLVED 4. allora i semafori sono fissi a 30 s di durata => questo però viene scelto da noi 
+# SOLVED potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà o un valore random
 
 # TODO 5. Eventi casuali (incidenti, lavori in corso) con LLM
 # TODO Fare diverse simulazioni e partire dallo stesso scenario. La prima simulazione parte senza eventi generati dall'LLM

@@ -15,9 +15,9 @@ PROJECT_ROOT = Path.cwd()
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from routly.domain.congestion import BackgroundRoute, generate_background_routes
+from src.routly.domain.congestion import BackgroundRoute, generate_background_routes
 from src.routly.planning.plan_parser import extract_start_traversal_timestamps
-from routly.domain.traffic_lights import TrafficLightTiming
+from src.routly.domain.traffic_lights import TrafficLightTiming
 
 
 def _write_pretty_xml(root: ET.Element, path: str | Path) -> None:
@@ -163,7 +163,7 @@ def write_rou_xml(
     background_vehicles: int = 0,
     all_roads: list[dict] | None = None,
     background_routes: list[BackgroundRoute] | None = None,
-    seed: int = 42,
+    seed: int | None = None,
 ) -> None:
     """
     Write SUMO route XML.
@@ -186,6 +186,10 @@ def write_rou_xml(
     # ── background vehicles ───────────────────────────────────────────────────
     bg_routes = background_routes
     if bg_routes is None and background_vehicles > 0 and all_roads:
+        if seed is None:
+            raise ValueError(
+                "A global seed is required when generating background routes"
+            )
         bg_routes = generate_background_routes(all_roads, background_vehicles, seed)
 
     if bg_routes:
@@ -239,6 +243,7 @@ def write_sumocfg(
     view_file: str | Path | None = None,
     begin: float = 0,
     end: float = 3600,
+    seed: int | None = None,
 ) -> None:
     root = ET.Element("configuration")
 
@@ -256,6 +261,10 @@ def write_sumocfg(
 
     report = ET.SubElement(root, "report")
     ET.SubElement(report, "no-warnings", value="true")
+
+    if seed is not None:
+        random_number = ET.SubElement(root, "random_number")
+        ET.SubElement(random_number, "seed", value=str(seed))
 
     if view_file:
         gui_el = ET.SubElement(root, "gui_only")

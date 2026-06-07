@@ -13,11 +13,11 @@ BackgroundRoute = tuple[float, list[str]]
 def generate_background_routes(
     roads: list[dict[str, Any]],
     num_vehicles: int,
-    seed: int = 42,
+    seed: int,
 ) -> list[BackgroundRoute]:
     """Generate deterministic background routes that can be shared by PDDL and SUMO."""
     if num_vehicles <= 0 or not roads:
-        return []
+        return [] 
 
     rng = random.Random(seed)
     adjacency: dict[str, list[str]] = {}

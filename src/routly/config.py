@@ -17,6 +17,7 @@ from src.routly.utils import read_yaml
 @dataclass(frozen=True)
 class ProjectConfig:
 
+    seed: int
     place_name: str
     network_type: str
 
@@ -136,9 +137,13 @@ def  load_config(
     sumo_config = project_config.get("sumo", {})
     general_config = project_config.get("project", {})
 
+    if "seed" not in general_config:
+        raise ValueError("Missing required project.seed in project configuration")
+
     project_root = Path(general_config.get("project_root", "."))
 
     return ProjectConfig(
+        seed=int(general_config["seed"]),
         place_name=osm_config["place_name"],
         network_type=osm_config["network_type"],
 

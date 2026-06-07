@@ -30,9 +30,10 @@ class TrafficLightTiming:
 def generate_traffic_light_timings(
     nodes: list[dict[str, Any]],
     config: TrafficLightsConfig,
+    seed: int,
 ) -> dict[str, TrafficLightTiming]:
     """Generate reproducible timings for every traffic-light node."""
-    rng = random.Random(config.seed)
+    rng = random.Random(seed)
     timings: dict[str, TrafficLightTiming] = {}
 
     traffic_light_ids = sorted(
