@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 import os
-import random
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -16,7 +15,9 @@ PROJECT_ROOT = Path.cwd()
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from routly.domain.congestion import BackgroundRoute, generate_background_routes
 from src.routly.planning.plan_parser import extract_start_traversal_timestamps
+from routly.domain.traffic_lights import TrafficLightTiming
 
 
 def _write_pretty_xml(root: ET.Element, path: str | Path) -> None:
@@ -82,47 +83,77 @@ def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path
     print("Running:", " ".join(cmd))
     subprocess.run(cmd, check=True)
 
-def _generate_background_routes(
-    all_roads: list[dict],
-    num_vehicles: int,
-    seed: int = 42,
-) -> list[tuple[float, list[str]]]:   # ← now returns (depart_time, route)
-    random.seed(seed)
 
-    adjacency: dict[str, list[str]] = {}
-    road_to: dict[str, str] = {}
+def apply_traffic_light_timings(
+    net_file: str | Path,
+    timings: dict[str, TrafficLightTiming],
+) -> None:
+    """
+    Apply per-junction timings while preserving netconvert's safe signal states.
 
-    for r in all_roads:
-        adjacency.setdefault(r["from"], []).append(r["id"])
-        road_to[r["id"]] = r["to"]
+    An all-red phase is inserted after yellow when netconvert did not already
+    create one.
+    """
+    net_file = Path(net_file)
+    tree = ET.parse(net_file)
+    root = tree.getroot()
 
-    all_road_ids = list(road_to.keys())
-    results = []
-    attempts = 0
+    for logic in root.findall("tlLogic"):
+        timing = timings.get(logic.get("id", ""))
+        if timing is None:
+            continue
 
-    while len(results) < num_vehicles and attempts < num_vehicles * 20:
-        attempts += 1
+        phases = logic.findall("phase")
+        for phase in phases:
+            phase.set("duration", str(_duration_for_phase(phase, timing)))
 
-        start_road = random.choice(all_road_ids)
-        route = [start_road]
-        current_to = road_to[start_road]
+        insertions: list[tuple[int, ET.Element]] = []
+        for index, phase in enumerate(phases):
+            if _phase_kind(phase) != "yellow":
+                continue
 
-        for _ in range(random.randint(3, 12)):
-            next_roads = adjacency.get(current_to, [])
-            if not next_roads:
-                break
-            next_road = random.choice(next_roads)
-            route.append(next_road)
-            current_to = road_to[next_road]
+            next_phase = phases[(index + 1) % len(phases)]
+            if _phase_kind(next_phase) == "red":
+                continue
 
-        if len(route) >= 2:
-            # Start from t=1 so car1 at t=0 always comes first
-            depart = round(random.uniform(1.0, 300.0), 1)
-            results.append((depart, route))
+            state = phase.get("state", "")
+            insertions.append(
+                (
+                    index + 1,
+                    ET.Element(
+                        "phase",
+                        duration=str(timing.red),
+                        state="r" * len(state),
+                    ),
+                )
+            )
 
-    # Sort by departure time — SUMO requires this
-    results.sort(key=lambda x: x[0])
-    return results
+        for index, phase in reversed(insertions):
+            logic.insert(index, phase)
+
+    tree.write(net_file, encoding="utf-8", xml_declaration=True)
+
+
+def _phase_kind(phase: ET.Element) -> str:
+    state = phase.get("state", "")
+    if "y" in state or "Y" in state:
+        return "yellow"
+    if "g" in state or "G" in state:
+        return "green"
+    return "red"
+
+
+def _duration_for_phase(
+    phase: ET.Element,
+    timing: TrafficLightTiming,
+) -> int:
+    phase_kind = _phase_kind(phase)
+    if phase_kind == "yellow":
+        return timing.yellow
+    if phase_kind == "green":
+        return timing.green
+    return timing.red
+
 
 def write_rou_xml(
     edge_sequence: list[str],
@@ -130,7 +161,8 @@ def write_rou_xml(
     vehicle_id: str = "car1",
     depart_time: float = 0.0,
     background_vehicles: int = 0,
-    all_roads: list[dict] | None = None, # for random routes
+    all_roads: list[dict] | None = None,
+    background_routes: list[BackgroundRoute] | None = None,
     seed: int = 42,
 ) -> None:
     """
@@ -140,8 +172,6 @@ def write_rou_xml(
     all_road_ids: pool of road IDs to use for random background routes.
                   If None, background vehicles use the planned route (less realistic).
     """
-    random.seed(seed)
-
     root = ET.Element("routes")
     ET.SubElement(root, "vType", id="car", accel="2.6", decel="4.5",
                   sigma="0.5", length="5.0", maxSpeed="13.9")
@@ -154,8 +184,11 @@ def write_rou_xml(
     ET.SubElement(vehicle, "route", edges=" ".join(edge_sequence))
 
     # ── background vehicles ───────────────────────────────────────────────────
-    if background_vehicles > 0 and all_roads:
-        bg_routes = _generate_background_routes(all_roads, background_vehicles, seed)
+    bg_routes = background_routes
+    if bg_routes is None and background_vehicles > 0 and all_roads:
+        bg_routes = generate_background_routes(all_roads, background_vehicles, seed)
+
+    if bg_routes:
         for i, (depart, route) in enumerate(bg_routes):
             bg = ET.SubElement(root, "vehicle",
                                id=f"bg_{i:04d}", type="car",

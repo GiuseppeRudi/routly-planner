@@ -219,26 +219,65 @@ if __name__ == "__main__":
 
 # SOLVED 1. Semafori
 # SOLVED 2. Sensi di Marcia
-# TODO 3. Più auto per simulare congestione:
+# SOLVED 3. Più auto per simulare congestione:
 # SOLVED **Semplice**: Il planner non considera la congestione del traffico ma viene simulata solo da sumo,
 # SOLVED Il planner genera il piano senza considerare la congestione, poi inserisci 200 macchine ad esempio e simuli su sumo
-# TODO **Completa**: Integrare la congestione nel planner, ad esempio con un costo dinamico che aumenta per le strade più trafficate.
-# TODO In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
+# SOLVED **Completa**: Integrare la congestione nel planner, ad esempio con un costo dinamico che aumenta per le strade più trafficate.
+# SOLVED In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
 # SOLVED Inoltre vogliamo creare diversi domain e problem file (con semafori, senza semafori, senza congestione,
 # SOLVED congestione in PDDL, congestione non in PDDL, con llm, senza llm (per la generazione di eventi casuali es. incidenti, lavori in corso))
 # SOLVED e vedere come cambia il piano a seconda delle features considerate. Quindi tramite uno yaml configuriamo quali features vogliamo attivare per la generazione del piano.
 # TODO 4. allora i semafori sono fissi a 30 s di durata => questo però viene scelto da noi 
-# TODO potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà 
+# TODO potremmo verificare se queste informazioni possano essere prelevati per ogni specifico semafori quindi ognuno con durata diversa prelevata  dalla realtà o un valore random
+
 # TODO 5. Eventi casuali (incidenti, lavori in corso) con LLM
 # TODO Fare diverse simulazioni e partire dallo stesso scenario. La prima simulazione parte senza eventi generati dall'LLM
 # TODO Successivamente effettuare diverse altre simulazioni a partire dallo stesso scenario in cui l'LLM genera degli eventi casuali
 # TODO e vedere come è cambiato il planner e il piano a seconda degli eventi generati effettuando una comparazione (SOTA)
-# TODO 6. Controllo benzina
-# TODO 7. la congestione attualmente viene generata da sumo indicando il numero di macchine con un timestep di generazione random , nodo di partenza e di arrivo random 
-# TODO per integrare la congestione nel planner potremmo creare un costo dinamico che aumenta per le strade più trafficate, 
-# TODO ad esempio potremmo avere un costo base per ogni strada e poi aggiungere un costo aggiuntivo che dipende dal numero di macchine che stanno utilizzando quella strada 
-# TODO in quel momento. In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
-# TODO PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
+
+# TODO - BISOGNA INTEGRARE GLI SCRIPT 6 E 7 TRA IL BUILD DOMAIN AND PROBLEM E IL GENERATE PLAN (TRA 4 E 5) , QUINDI LO SCRIPT 8 SI ELIMINA PERCHE GIA IL PLAN TO SUMO (5)
+ 
+# TODO - DALLA RUN PIPELINE YAML DARE LA POSSIBILITA ALLUTENTE DI ATTIVARE O DISATTIVARE LINTEGRAZIONE DEGLI LLM feature_config.yaml ce un flag va controllato 
+ 
+# TODO modificare il comportamento del python che invece di commentare deve sostituire il predicato road open in road blocked cosi da essere coerente con il file domain generator che implementa iniziezione del road blocked all'interno del domain file pddl 
+# TODO - LLM RESTITUISCE ANCHE UN FILE .LOG CHE PER OGNI EVENTO GENERATO DA LA MOTIVAZIONE REALISTICA DEL PERCHE è STATA CHIUSA
+ 
+# ----  EUGENIO 
+ 
+# TODO - DARE LA POSSIBILITA AD UN UNICA ESECUZIONE DEL LLM DI GENERARE PIU EVENTI, E OGNI EVENTO PUO AVERE UNA DIMENSIONE DIVERSA (INTESA COME NUMERO DI STRADE CHIUSE DOVE ESISTE UNA CONNESSIONE TRA PIU STRADE DELLO STESSO EVENTO) .
+ 
+# TODO - EVENTI COME INCIDENTI STRADALI HANNO UNA DIMENSIONE FISSA PARI A 1 , EVENTI COME LAVORI IN CORSO, RAPINE POSSONO PORTARE ALLA CHIUSURE DI PIU STRADE LA CUI DIMENSIONE CIOE IL NUMERO DI STRADE DA CHIUDERE VIENE LASCIATA AL RAGIONAMENTO DEL LLM ( AD EUGENIO FA PAURA) .
+ 
+# TODO - IL RAGIONAMENTO DELLA DIMENSIONE DEVE ESSERE FATTO A SECONDA DELLA DIMENSIONE DELLA MAPPA ( NUMERO DI NODI ), AL NUMERO DI EVENTI GIA CREATI , ALLA DIMENSIONE DEGLI EVENTI GIA CREATI . INOLTRE IL NUMERO DI EVENTI DA CREARE CHE POSSONO UNO O PIU VIENE LASCIATO DECIDERE ALL LLM IN BASE ANCHE IN QUESTO ALLA DIMENSIONE DELLA MAPPA (MAGARI SI POTREBBE DIRE AL LLM DI CERCARE DI CHIUDERE DEI PUNTI STRASTEGICI SENZA CONOSCERE IL PIANO MA SOLO CON IL PROBLEM FILE IN CUI PASSERREBBE LA MACCHINA NELLA SUA ROTTA => QUESTO PER EVITARE DI CREARE EVENTI IN UNA GRANDE MAPPA SENZA CHE INFLUISCANO SUL PIANO)
+ 
+ 
+# ---  SIMONE 
+ 
+# TODO - RISOLVERE E GESTIRE ERRORE DERIVATO DAL FATTO CHE IL PLANNER POTREBBE NON RISOLVERE UN PERCORSO SE LLM CHIUDE LE STRADE O LUNICA STADA CHE COLLEGA LO START E IL GOAL
+ 
+# TODO - GESTIRE ERRORE QUANDO CHIUDIAMO SUMO DOPO LA SIMULAZIONE
+ 
+# TODO ULTERIORI MODIFICHE :
+ 
+# TODO - LLM DEVE CREARE NON SOLO CHIUSURA DI STRADA MA ANCHE DIMINUIZIONE DELLA VELCOITA IN SPECIFICO TRATTO DI STRADA
+ 
+# TODO CONGESTIONE TRAFFICO 
+# TODO  -  ROSSO = STRADA CHIUSA , GIALLO = RALLENTAMENTO CON ABBASSAMENTO LIMITE DI VELOCITA
+
+# SOLVED 7. la congestione attualmente viene generata da sumo indicando il numero di macchine con un timestep di generazione random , nodo di partenza e di arrivo random 
+# SOLVED per integrare la congestione nel planner potremmo creare un costo dinamico che aumenta per le strade più trafficate, 
+# SOLVED ad esempio potremmo avere un costo base per ogni strada e poi aggiungere un costo aggiuntivo che dipende dal numero di macchine che stanno utilizzando quella strada 
+# SOLVED in quel momento. In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
+
+# TODO 6. ATTUALMENTE UTILIZZIAMO UNA FORMULA PER IL CALCOLO DELLA CONGESTIONE CHE TIENE CONTO DI UN NUMERO MASSIMO DI VEICOLO
+# TODO PER OGNI STRADA SENZA PERO DIFFERENZIARE I TIPI DI STRADA : AD ESEMPIO UNA STRADA PROVINCIALE PIU AVERE UN NUMERO DI MACCHINE
+# TODO PER POTER ESSERE CONGESTIONATA PARI A 20 MENTRE UNA SUPERSTRADA POTREBEB AVERE UN NUMERO DI MACCHINA PER POTER ESSERE CLASSIFICATA CONGESTIONATA SUPERIORE AD ESEMPIO 50 
+
+# TODO 7. PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
 # TODO QUESTO PERO NON è SUFFICIENTE POICHE NON BASTA AVERE IL NUMERO TOTALE DI MACCHINA CHE PASSANO PER QUELLA STRADA MA ANCHE SAPERE IN LINEA TEMPORALE COME SI DISTRIBUSICONO QUESTE MACCHINE LUNGO IL TEMP O
 # TODO PER AVERE UNA CONGESTIONE DINAMICA DELLE STRADE 
 
+# TODO 8. Classificare ogni semaforo per complessità dell’incrocio, cioe dare delle durata diverse delle fasi
+# TODO di verse , rosso e giallo a seconda della complessita dellincrocio o del tipo di strada 
+
+# TODO 9. Controllo benzina

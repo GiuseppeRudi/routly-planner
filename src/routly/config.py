@@ -111,6 +111,14 @@ class ProjectConfig:
     def sumo_viewsettings_path(self) -> Path:
         return self.simulation_dir / "viewsettings.xml"
 
+    @property
+    def background_routes_path(self) -> Path:
+        return self.simulation_dir / "background_routes.json"
+
+    @property
+    def traffic_light_timings_path(self) -> Path:
+        return self.simulation_dir / "traffic_light_timings.json"
+
 
 
 
