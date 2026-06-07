@@ -11,7 +11,10 @@ PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
-from src.routly.domain.congestion import load_background_routes
+from src.routly.domain.congestion import (
+    load_background_routes,
+    validate_background_routes,
+)
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.planning.plan_parser import parse_start_traversal_roads
@@ -103,6 +106,7 @@ def main() -> None:
     background_routes = None
     if features.congestion_in_sumo and config.background_routes_path.exists():
         background_routes = load_background_routes(config.background_routes_path)
+        validate_background_routes(background_routes, mapping["roads"])
         print(
             f"Loaded {len(background_routes)} shared background routes from "
             f"{config.background_routes_path}"

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import random
 from typing import Any
-
+ 
 
 BackgroundRoute = tuple[float, list[str]]
 
@@ -15,19 +15,27 @@ def generate_background_routes(
     num_vehicles: int,
     seed: int,
 ) -> list[BackgroundRoute]:
-    """Generate deterministic background routes that can be shared by PDDL and SUMO."""
+    """Generate deterministic, cycle-free routes shared by PDDL and SUMO."""
     if num_vehicles <= 0 or not roads:
-        return [] 
+        return []
 
     rng = random.Random(seed)
     adjacency: dict[str, list[str]] = {}
+    road_from: dict[str, str] = {}
     road_to: dict[str, str] = {}
 
     for road in roads:
         adjacency.setdefault(road["from"], []).append(road["id"])
+        road_from[road["id"]] = road["from"]
         road_to[road["id"]] = road["to"]
 
-    all_road_ids = list(road_to)
+    all_road_ids = [
+        road_id
+        for road_id in road_to
+        if road_from[road_id] != road_to[road_id]
+    ]
+    if not all_road_ids:
+        return []
     routes: list[BackgroundRoute] = []
     attempts = 0
 
@@ -36,21 +44,77 @@ def generate_background_routes(
         start_road = rng.choice(all_road_ids)
         route = [start_road]
         current_to = road_to[start_road]
+        visited_roads = {start_road}
+        visited_nodes = {road_from[start_road], current_to}
 
         for _ in range(rng.randint(3, 12)):
-            next_roads = adjacency.get(current_to, [])
+            next_roads = [
+                road_id
+                for road_id in adjacency.get(current_to, [])
+                if road_id not in visited_roads
+                and road_to[road_id] not in visited_nodes
+            ]
             if not next_roads:
                 break
+
             next_road = rng.choice(next_roads)
             route.append(next_road)
+            visited_roads.add(next_road)
             current_to = road_to[next_road]
+            visited_nodes.add(current_to)
 
         if len(route) >= 2:
             depart = round(rng.uniform(1.0, 300.0), 1)
             routes.append((depart, route))
 
     routes.sort(key=lambda item: item[0])
+    validate_background_routes(routes, roads)
     return routes
+
+
+def validate_background_routes(
+    background_routes: list[BackgroundRoute],
+    roads: list[dict[str, Any]],
+) -> None:
+    """Reject disconnected routes, repeated roads, and routes that revisit nodes."""
+    road_by_id = {road["id"]: road for road in roads}
+
+    for route_index, (_, route) in enumerate(background_routes):
+        if len(route) < 2:
+            raise ValueError(
+                f"Background route {route_index} must contain at least two roads"
+            )
+
+        if len(route) != len(set(route)):
+            raise ValueError(
+                f"Background route {route_index} repeats one or more roads"
+            )
+
+        visited_nodes: set[str] = set()
+        previous_to: str | None = None
+
+        for road_id in route:
+            if road_id not in road_by_id:
+                raise ValueError(
+                    f"Background route {route_index} contains unknown road {road_id}"
+                )
+
+            road = road_by_id[road_id]
+            if previous_to is not None and road["from"] != previous_to:
+                raise ValueError(
+                    f"Background route {route_index} is disconnected at {road_id}"
+                )
+
+            if not visited_nodes:
+                visited_nodes.add(road["from"])
+
+            if road["to"] in visited_nodes:
+                raise ValueError(
+                    f"Background route {route_index} revisits node {road['to']}"
+                )
+
+            visited_nodes.add(road["to"])
+            previous_to = road["to"]
 
 
 def count_vehicles_per_road(
