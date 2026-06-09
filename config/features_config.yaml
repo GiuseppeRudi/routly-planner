@@ -8,4 +8,4 @@ features:
     congested_fraction: 0.2    # top 20% most central roads are congested (only if mode: "pddl")
 
   llm_events:
-    enabled: false # placeholder: LLM event generation not active
+    enabled: true

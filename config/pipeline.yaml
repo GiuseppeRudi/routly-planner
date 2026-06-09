@@ -12,6 +12,3 @@ run:
   - build_domain_and_problem
   - generate_plan
   - plan_to_sumo
-  - inject_llm_events
-  - generate_dynamic_plan
-  - plan_dynamic_to_sumo
