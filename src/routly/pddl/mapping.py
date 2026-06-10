@@ -106,3 +106,29 @@ def write_mapping(mapping: dict, path: str | Path) -> None:
 
 def load_mapping(path: str | Path) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def build_road_adjacency(mapping: dict, road_ids: set[str] | None = None) -> dict[str, set[str]]:
+    """Map each road id to the set of road ids sharing an endpoint (from/to) with it.
+
+    If `road_ids` is given, only those roads are considered (both as keys and as
+    possible neighbors) - useful to restrict adjacency to currently open roads.
+    """
+    by_location: dict[str, set[str]] = {}
+    for road in mapping["roads"]:
+        rid = road["id"]
+        if road_ids is not None and rid not in road_ids:
+            continue
+        by_location.setdefault(road["from"], set()).add(rid)
+        by_location.setdefault(road["to"], set()).add(rid)
+
+    adjacency: dict[str, set[str]] = {}
+    for road in mapping["roads"]:
+        rid = road["id"]
+        if road_ids is not None and rid not in road_ids:
+            continue
+        neighbors = by_location.get(road["from"], set()) | by_location.get(road["to"], set())
+        neighbors.discard(rid)
+        adjacency[rid] = neighbors
+
+    return adjacency
