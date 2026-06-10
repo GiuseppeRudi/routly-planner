@@ -10,11 +10,11 @@ vehicles:
 - id: car1
   start:
     type: location_id
-    value: loc_0118
-    x: 685730.394
-    y: 4929829.94
+    value: loc_0189
+    x: 685634.67
+    y: 4929675.334
   goal:
     type: location_id
-    value: loc_0072
-    x: 687233.876
-    y: 4928870.66
+    value: loc_0029
+    x: 686472.355
+    y: 4929463.923

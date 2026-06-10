@@ -65,19 +65,15 @@ def main() -> None:
 
     # Resolve the default plan path from config
     plan_path = Path(args.plan_override) if args.plan_override else config.plan_path
-    
-    # Check features configuration file to automatically select the plan type
-    if not args.plan_override:
-        with open(args.features_config, "r", encoding="utf-8") as f:
-            features_data = yaml.safe_load(f) or {}
-        
-        llm_events_enabled = features_data.get("llm_events", {}).get("enabled", False)
-        
-        if llm_events_enabled:
-            plan_path = plan_path.parent / "plan_dynamic.sol"
-            if not plan_path.exists():
-                print(f"⚠️ plan_dynamic.sol not found at {plan_path}. Falling back to base plan.")
-                plan_path = config.plan_path
+
+    # When LLM events are enabled, step 4 produces plan_dynamic.sol instead of plan.txt
+    if not args.plan_override and features.llm_events.enabled:
+        plan_path = plan_path.parent / "plan_dynamic.sol"
+        if not plan_path.exists():
+            raise FileNotFoundError(
+                f"plan_dynamic.sol not found at {plan_path}. "
+                "Run step 4 with llm_events.enabled=true to generate it first."
+            )
 
     print(f"\n📖 Reading plan file: {plan_path.name}")
     plan_text = plan_path.read_text(encoding="utf-8")

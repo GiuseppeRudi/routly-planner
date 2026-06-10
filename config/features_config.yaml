@@ -9,3 +9,4 @@ features:
 
   llm_events:
     enabled: true
+    backend: "lmstudio" # "ollama" | "lmstudio" - which local LLM server to call

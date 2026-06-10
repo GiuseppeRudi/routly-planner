@@ -1,4 +1,4 @@
-from __future__ import annotations
+'''from __future__ import annotations
 from pathlib import Path
 import argparse
 import sys
@@ -70,13 +70,20 @@ def main() -> None:
             f"  \"event_description\": \"Breve descrizione di cosa è successo in italiano\"\n"
             f"}}"
         )
-
+        #OLLAMA
         url = "http://localhost:11434/api/chat"
         data = {
             "model": "gpt-oss:120b-cloud",
             "messages": [{"role": "user", "content": prompt}],
             "options": {"temperature": 0.8},
             "stream": False
+        }
+        #LM STUDIO
+        url = "http://127.0.0.1:1234/v1/chat/completions"
+        data = {
+        "model": "qwen/qwen2.5-coder-14b",
+        "messages": [...],
+        "temperature": 0.8
         }
         
         try:
@@ -132,3 +139,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+'''

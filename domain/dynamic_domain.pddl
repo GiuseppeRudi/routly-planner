@@ -1,9 +1,9 @@
 ;; ============================================================
 ;;  DOMAIN: road-network
-;;  Features: tl_cong-pddl
+;;  Features: tl_cong-pddl_llm
 ;;    traffic_lights  : True
 ;;    congestion mode : pddl
-;;    llm_events      : False
+;;    llm_events      : True
 ;; ============================================================
 
 (define (domain road-network)
@@ -14,6 +14,7 @@
     (connects  ?r - road  ?from - location  ?to - location)
     (road-open ?r - road)
     (has-traffic-light ?l - location)
+    (road-blocked ?r - road)   ;; set by LLM event generator
     (at       ?v - vehicle  ?l - location)
     (on-road  ?v - vehicle  ?r - road)
     (moving   ?v - vehicle)
@@ -36,6 +37,7 @@
       (at ?v ?from)
       (connects ?r ?from ?to)
       (road-open ?r)
+      (not (road-blocked ?r))
       (not (moving ?v))
     )
     :effect (and
