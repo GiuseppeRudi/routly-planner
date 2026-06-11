@@ -62,3 +62,6 @@ htmlcov/
 
 # planners/**/*.jar
 .aider*
+
+# Claude
+*.md

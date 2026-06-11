@@ -4,7 +4,7 @@ import json
 import urllib.request
 
 
-def call_llm(prompt: str, backend: str = "ollama", timeout: int = 30) -> str:
+def call_llm(prompt: str, backend: str = "ollama", timeout: int = 180) -> str:
     """Call a local LLM server and return the raw text content of its reply.
 
     `backend` selects both the request shape and the response parsing:

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import osmnx as ox
+import plotly.graph_objects as go
 
 
 def plot_graph(graph, output_path: str | Path, title: str = "Road Network") -> None:
@@ -133,4 +134,151 @@ def plot_plan_from_mapping(
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
-    # print(f"Plan image saved: {output_path}")Locations
+    # print(f"Plan image saved: {output_path}")
+
+
+def _road_segments_trace(
+    roads_by_id: dict[str, dict],
+    road_ids: list[str],
+    name: str,
+    line: dict,
+    hover_lookup: dict[str, str] | None = None,
+) -> go.Scatter | None:
+    """Build a single Scatter trace covering many road geometries, separated by None gaps."""
+    xs: list[float | None] = []
+    ys: list[float | None] = []
+    texts: list[str | None] = []
+
+    for road_id in road_ids:
+        road = roads_by_id.get(road_id)
+        if road is None:
+            continue
+
+        geometry = road.get("geometry", [])
+        if len(geometry) < 2:
+            continue
+
+        hover_text = hover_lookup.get(road_id) if hover_lookup else None
+
+        for x, y in geometry:
+            xs.append(x)
+            ys.append(y)
+            texts.append(hover_text)
+
+        xs.append(None)
+        ys.append(None)
+        texts.append(None)
+
+    if not xs:
+        return None
+
+    return go.Scatter(
+        x=xs,
+        y=ys,
+        mode="lines",
+        name=name,
+        line=line,
+        text=texts,
+        hoverinfo="text" if hover_lookup else "skip",
+    )
+
+
+def plot_event_map(
+    mapping: dict,
+    original_roads: list[str],
+    recalculated_roads: list[str],
+    blocked_roads: list[dict],
+    start_loc: str | None,
+    goal_loc: str | None,
+    output_path: str | Path,
+) -> None:
+    """Write an interactive Plotly HTML map comparing the original and
+    re-planned routes, highlighting roads closed by LLM-generated events."""
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    roads_by_id = {road["id"]: road for road in mapping["roads"]}
+    nodes_by_id = {node["id"]: node for node in mapping["nodes"]}
+
+    traces: list[go.Scatter] = []
+
+    network_trace = _road_segments_trace(
+        roads_by_id,
+        [road["id"] for road in mapping["roads"]],
+        name="Road network",
+        line=dict(color="black", width=1),
+    )
+    if network_trace is not None:
+        traces.append(network_trace)
+
+    original_trace = _road_segments_trace(
+        roads_by_id,
+        original_roads,
+        name="Original route",
+        line=dict(color="red", width=3),
+    )
+    if original_trace is not None:
+        traces.append(original_trace)
+
+    recalculated_trace = _road_segments_trace(
+        roads_by_id,
+        recalculated_roads,
+        name="Recalculated route",
+        line=dict(color="green", width=3),
+    )
+    if recalculated_trace is not None:
+        traces.append(recalculated_trace)
+
+    blocked_hover = {
+        entry["id"]: f"{entry['id']} [{entry['event_type']}]: {entry['description']}"
+        for entry in blocked_roads
+    }
+    blocked_trace = _road_segments_trace(
+        roads_by_id,
+        [entry["id"] for entry in blocked_roads],
+        name="Blocked roads",
+        line=dict(color="blue", width=4, dash="dash"),
+        hover_lookup=blocked_hover,
+    )
+    if blocked_trace is not None:
+        traces.append(blocked_trace)
+
+    if start_loc and start_loc in nodes_by_id:
+        node = nodes_by_id[start_loc]
+        traces.append(go.Scatter(
+            x=[node["x"]],
+            y=[node["y"]],
+            mode="markers+text",
+            name="Start",
+            marker=dict(color="purple", size=14),
+            text=["START"],
+            textposition="top center",
+            hoverinfo="text",
+            hovertext=[f"Start: {start_loc}"],
+        ))
+
+    if goal_loc and goal_loc in nodes_by_id:
+        node = nodes_by_id[goal_loc]
+        traces.append(go.Scatter(
+            x=[node["x"]],
+            y=[node["y"]],
+            mode="markers+text",
+            name="Goal",
+            marker=dict(color="darkred", size=14),
+            text=["GOAL"],
+            textposition="top center",
+            hoverinfo="text",
+            hovertext=[f"Goal: {goal_loc}"],
+        ))
+
+    fig = go.Figure(data=traces)
+    fig.update_layout(
+        title="Dynamic event map: original vs recalculated route",
+        xaxis=dict(visible=False, scaleanchor="y", scaleratio=1),
+        yaxis=dict(visible=False),
+        plot_bgcolor="white",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+        dragmode="pan",
+    )
+
+    fig.write_html(output_path, config={"scrollZoom": False, "displaylogo": False})

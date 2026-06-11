@@ -7,6 +7,7 @@ import random
 import re
 import json
 import datetime  # ➔ Added for timestamp logging
+import webbrowser
 import yaml
 
 PROJECT_ROOT = Path.cwd()
@@ -14,7 +15,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
 from src.routly.features import FeatureConfig
-from src.routly.graph.graph_export import plot_plan_from_mapping
+from src.routly.graph.graph_export import plot_event_map, plot_plan_from_mapping
 from src.routly.llm_client import call_llm
 from src.routly.pddl.mapping import load_mapping, build_road_adjacency
 from src.routly.planning.plan_parser import parse_start_traversal_roads
@@ -34,7 +35,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _run_and_plot(config, problem_path: Path, plan_path: Path, plan_image_path: Path) -> None:
+def _run_and_plot(config, problem_path: Path, plan_path: Path, plan_image_path: Path) -> list[str]:
     print(f"\n🚀 Running ENHSP planner on: {problem_path.name}")
     run_enhsp(
         enhsp_jar=config.enhsp_jar,
@@ -50,6 +51,7 @@ def _run_and_plot(config, problem_path: Path, plan_path: Path, plan_image_path: 
     print("\nOUTPUT FILES:")
     print(f"  Plan:       {plan_path}")
     print(f"  Plan image: {plan_image_path}")
+    return planned_roads
 
 
 def _largest_connected_component(roads: list[str], adjacency: dict[str, set[str]]) -> list[str]:
@@ -91,7 +93,7 @@ def main() -> None:
     print("=" * 70)
 
     # Always plan on the static problem first → guarantees plan.txt always exists
-    _run_and_plot(config, problem_path, plan_path, plan_image_path)
+    original_roads = _run_and_plot(config, problem_path, plan_path, plan_image_path)
 
     if not features.llm_events.enabled:
         return
@@ -110,6 +112,11 @@ def main() -> None:
     if not all_roads:
         print("❌ No open roads found in the base PDDL file! Skipping dynamic event injection.")
         return
+
+    start_match = re.search(r";;\s*Start:\s*(loc_\d+)", content)
+    goal_match = re.search(r";;\s*Goal:\s*(loc_\d+)", content)
+    start_loc = start_match.group(1) if start_match else None
+    goal_loc = goal_match.group(1) if goal_match else None
 
     print(f"🔮 Mode: AUTOMATED STOCHASTIC GENERATION (LLM)")
 
@@ -207,6 +214,10 @@ def main() -> None:
             "description": "Generic incident detected by the urban monitoring system.",
         }]
 
+    print(f"\n📊 LLM generated {len(events)} event(s):")
+    for i, event in enumerate(events, 1):
+        print(f"  - Event {i}: type={event['event_type']}, roads_closed={len(event['roads'])}")
+
     print(f"\n🚨 AUTOMATED EVENTS INJECTED ({len(events)}):")
     for event in events:
         print(f"  ➔ [{event['event_type']}] Blocked roads: {event['roads']}")
@@ -241,7 +252,25 @@ def main() -> None:
         json.dump(log_payload, log_f, indent=2, ensure_ascii=False)
     print(f"📝 Incidents log successfully saved to: {log_path.name}")
 
-    _run_and_plot(config, dynamic_problem_path, dynamic_plan_path, dynamic_plan_image_path)
+    recalculated_roads = _run_and_plot(config, dynamic_problem_path, dynamic_plan_path, dynamic_plan_image_path)
+
+    blocked_roads = [
+        {"id": road, "event_type": event["event_type"], "description": event["description"]}
+        for event in events
+        for road in event["roads"]
+    ]
+    event_map_path = problem_path.parent / "event_map.html"
+    plot_event_map(
+        mapping=mapping,
+        original_roads=original_roads,
+        recalculated_roads=recalculated_roads,
+        blocked_roads=blocked_roads,
+        start_loc=start_loc,
+        goal_loc=goal_loc,
+        output_path=event_map_path,
+    )
+    print(f"🗺️  Event map saved: {event_map_path}")
+    webbrowser.open(event_map_path.resolve().as_uri())
 
 
 if __name__ == "__main__":
