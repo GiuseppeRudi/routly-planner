@@ -1,6 +1,6 @@
 project:
   project_root: "."
-  seed: 69
+  seed: 71
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"

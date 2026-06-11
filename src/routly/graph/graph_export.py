@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import osmnx as ox
-import plotly.graph_objects as go
 
 
 def plot_graph(graph, output_path: str | Path, title: str = "Road Network") -> None:
@@ -137,18 +137,15 @@ def plot_plan_from_mapping(
     # print(f"Plan image saved: {output_path}")
 
 
-def _road_segments_trace(
+def _plot_roads(
+    ax,
     roads_by_id: dict[str, dict],
     road_ids: list[str],
-    name: str,
-    line: dict,
-    hover_lookup: dict[str, str] | None = None,
-) -> go.Scatter | None:
-    """Build a single Scatter trace covering many road geometries, separated by None gaps."""
-    xs: list[float | None] = []
-    ys: list[float | None] = []
-    texts: list[str | None] = []
-
+    color: str,
+    linewidth: float,
+    alpha: float,
+    zorder: int,
+) -> None:
     for road_id in road_ids:
         road = roads_by_id.get(road_id)
         if road is None:
@@ -158,29 +155,17 @@ def _road_segments_trace(
         if len(geometry) < 2:
             continue
 
-        hover_text = hover_lookup.get(road_id) if hover_lookup else None
-
-        for x, y in geometry:
-            xs.append(x)
-            ys.append(y)
-            texts.append(hover_text)
-
-        xs.append(None)
-        ys.append(None)
-        texts.append(None)
-
-    if not xs:
-        return None
-
-    return go.Scatter(
-        x=xs,
-        y=ys,
-        mode="lines",
-        name=name,
-        line=line,
-        text=texts,
-        hoverinfo="text" if hover_lookup else "skip",
-    )
+        xs = [point[0] for point in geometry]
+        ys = [point[1] for point in geometry]
+        ax.plot(
+            xs,
+            ys,
+            color=color,
+            linewidth=linewidth,
+            alpha=alpha,
+            zorder=zorder,
+            solid_capstyle="round",
+        )
 
 
 def plot_event_map(
@@ -188,97 +173,134 @@ def plot_event_map(
     original_roads: list[str],
     recalculated_roads: list[str],
     blocked_roads: list[dict],
+    blocked_locations: list[dict] | None,
     start_loc: str | None,
     goal_loc: str | None,
     output_path: str | Path,
 ) -> None:
-    """Write an interactive Plotly HTML map comparing the original and
-    re-planned routes, highlighting roads closed by LLM-generated events."""
+    """Write a PNG map comparing original and re-planned routes."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     roads_by_id = {road["id"]: road for road in mapping["roads"]}
     nodes_by_id = {node["id"]: node for node in mapping["nodes"]}
+    blocked_ids = [entry["id"] for entry in blocked_roads]
+    blocked_location_ids = [
+        entry["id"] for entry in (blocked_locations or [])
+    ]
 
-    traces: list[go.Scatter] = []
+    fig, ax = plt.subplots(figsize=(14, 14))
 
-    network_trace = _road_segments_trace(
+    _plot_roads(
+        ax,
         roads_by_id,
         [road["id"] for road in mapping["roads"]],
-        name="Road network",
-        line=dict(color="black", width=1),
+        color="#a8a8a8",
+        linewidth=0.75,
+        alpha=0.72,
+        zorder=1,
     )
-    if network_trace is not None:
-        traces.append(network_trace)
 
-    original_trace = _road_segments_trace(
+    # Same geometry, different widths: overlapping categories remain visible
+    # without shifting roads away from their real position.
+    _plot_roads(
+        ax,
         roads_by_id,
         original_roads,
-        name="Original route",
-        line=dict(color="red", width=6),
+        color="#e64b35",
+        linewidth=8.0,
+        alpha=0.58,
+        zorder=3,
     )
-    if original_trace is not None:
-        traces.append(original_trace)
 
-    recalculated_trace = _road_segments_trace(
+    _plot_roads(
+        ax,
         roads_by_id,
         recalculated_roads,
-        name="Recalculated route",
-        line=dict(color="green", width=3),
+        color="#00a75a",
+        linewidth=5.0,
+        alpha=0.82,
+        zorder=4,
     )
-    if recalculated_trace is not None:
-        traces.append(recalculated_trace)
 
-    blocked_hover = {
-        entry["id"]: f"{entry['id']} [{entry['event_type']}]: {entry['description']}"
-        for entry in blocked_roads
-    }
-    blocked_trace = _road_segments_trace(
+    _plot_roads(
+        ax,
         roads_by_id,
-        [entry["id"] for entry in blocked_roads],
-        name="Blocked roads",
-        line=dict(color="blue", width=4, dash="dash"),
-        hover_lookup=blocked_hover,
+        blocked_ids,
+        color="#1f5fd1",
+        linewidth=11.0,
+        alpha=0.28,
+        zorder=6,
     )
-    if blocked_trace is not None:
-        traces.append(blocked_trace)
+    _plot_roads(
+        ax,
+        roads_by_id,
+        blocked_ids,
+        color="#0057ff",
+        linewidth=3.6,
+        alpha=0.96,
+        zorder=8,
+    )
+
+    for location_id in blocked_location_ids:
+        node = nodes_by_id.get(location_id)
+        if node is None:
+            continue
+        ax.scatter(
+            node["x"],
+            node["y"],
+            marker="X",
+            s=170,
+            color="#0057ff",
+            edgecolors="white",
+            linewidths=1.6,
+            zorder=11,
+        )
 
     if start_loc and start_loc in nodes_by_id:
         node = nodes_by_id[start_loc]
-        traces.append(go.Scatter(
-            x=[node["x"]],
-            y=[node["y"]],
-            mode="markers+text",
-            name="Start",
-            marker=dict(color="purple", size=14),
-            text=["START"],
-            textposition="top center",
-            hoverinfo="text",
-            hovertext=[f"Start: {start_loc}"],
-        ))
+        ax.scatter(node["x"], node["y"], s=120, color="purple", zorder=12)
+        ax.text(
+            node["x"],
+            node["y"],
+            "START",
+            fontsize=11,
+            color="purple",
+            ha="center",
+            va="bottom",
+            zorder=13,
+        )
 
     if goal_loc and goal_loc in nodes_by_id:
         node = nodes_by_id[goal_loc]
-        traces.append(go.Scatter(
-            x=[node["x"]],
-            y=[node["y"]],
-            mode="markers+text",
-            name="Goal",
-            marker=dict(color="darkred", size=14),
-            text=["GOAL"],
-            textposition="top center",
-            hoverinfo="text",
-            hovertext=[f"Goal: {goal_loc}"],
-        ))
+        ax.scatter(node["x"], node["y"], s=120, color="darkred", zorder=12)
+        ax.text(
+            node["x"],
+            node["y"],
+            "GOAL",
+            fontsize=11,
+            color="darkred",
+            ha="center",
+            va="bottom",
+            zorder=13,
+        )
 
-    fig = go.Figure(data=traces)
-    fig.update_layout(
-        title="Dynamic event map: original vs recalculated route",
-        xaxis=dict(visible=False, scaleanchor="y", scaleratio=1),
-        yaxis=dict(visible=False),
-        plot_bgcolor="white",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
-        dragmode="pan",
+    legend_handles = [
+        Line2D([0], [0], color="#e64b35", linewidth=6, alpha=0.75, label="Original route"),
+        Line2D([0], [0], color="#00a75a", linewidth=5, label="Replanned route"),
+        Line2D([0], [0], color="#0057ff", linewidth=4, label="Blocked roads"),
+        Line2D([0], [0], marker="X", color="w", markerfacecolor="#0057ff", markersize=10, label="Blocked intersections"),
+        Line2D([0], [0], color="#a8a8a8", linewidth=2, label="Road network"),
+    ]
+    ax.legend(handles=legend_handles, loc="upper left")
+    ax.set_title("Dynamic event map: original vs recalculated route")
+    ax.set_aspect("equal", adjustable="box")
+    ax.axis("off")
+
+    fig.savefig(
+        output_path,
+        dpi=180,
+        bbox_inches="tight",
+        facecolor="white",
     )
-
-    fig.write_html(output_path, config={"scrollZoom": False, "displaylogo": False})
+    plt.close(fig)

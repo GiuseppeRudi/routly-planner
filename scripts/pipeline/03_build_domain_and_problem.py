@@ -35,7 +35,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-
 def build_node_map_from_mapping(mapping: dict[str, Any]) -> dict[str, dict[str, Any]]:
     node_map: dict[str, dict[str, Any]] = {}
 
@@ -43,7 +42,6 @@ def build_node_map_from_mapping(mapping: dict[str, Any]) -> dict[str, dict[str, 
         node_map[node["id"]] = node
 
     return node_map
-
 
 def extract_vehicle_start_goal(scenario: dict[str, Any]) -> tuple[str, str, str]:
     vehicles = scenario.get("vehicles", [])

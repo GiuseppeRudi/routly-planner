@@ -4,7 +4,12 @@ import json
 import urllib.request
 
 
-def call_llm(prompt: str, backend: str = "ollama", timeout: int = 180) -> str:
+def call_llm(
+    prompt: str,
+    backend: str = "ollama",
+    timeout: int = 180,
+    seed: int | None = None,
+) -> str:
     """Call a local LLM server and return the raw text content of its reply.
 
     `backend` selects both the request shape and the response parsing:
@@ -16,16 +21,20 @@ def call_llm(prompt: str, backend: str = "ollama", timeout: int = 180) -> str:
         data = {
             "model": "qwen/qwen2.5-coder-14b",
             "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.8,
+            "temperature": 0.0,
         }
+        if seed is not None:
+            data["seed"] = seed
     else:
         url = "http://localhost:11434/api/chat"
         data = {
             "model": "gpt-oss:120b-cloud",
             "messages": [{"role": "user", "content": prompt}],
-            "options": {"temperature": 0.8},
+            "options": {"temperature": 0.0},
             "stream": False,
         }
+        if seed is not None:
+            data["options"]["seed"] = seed
 
     req = urllib.request.Request(
         url,

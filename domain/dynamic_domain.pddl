@@ -15,6 +15,7 @@
     (road-open ?r - road)
     (has-traffic-light ?l - location)
     (road-blocked ?r - road)   ;; set by LLM event generator
+    (location-blocked ?l - location)   ;; derived from blocked roads
     (at       ?v - vehicle  ?l - location)
     (on-road  ?v - vehicle  ?r - road)
     (moving   ?v - vehicle)
@@ -38,6 +39,8 @@
       (connects ?r ?from ?to)
       (road-open ?r)
       (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
       (not (moving ?v))
     )
     :effect (and

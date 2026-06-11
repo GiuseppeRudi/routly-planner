@@ -49,13 +49,18 @@ class CongestionConfig:
 class LLMEventsConfig:
     """
     Placeholder for LLM-generated random events (accidents, roadworks).
-    When enabled, the domain gains a (road-blocked ?r) predicate and
-    road-open preconditions already prevent traversal of blocked roads.
-    The LLM is responsible for populating which roads are blocked in the
-    problem file at runtime (not implemented yet).
+    When enabled, the domain can block roads and selected intersections.
+    The LLM chooses roads; the pipeline derives an intersection block only
+    when multiple closed roads meet at the same location.
     """
     enabled: bool = False
     backend: str = "ollama"  # "ollama" | "lmstudio" - which local LLM server to call
+
+
+@dataclass
+class SumoRunConfig:
+    plans: list[str] = field(default_factory=lambda: ["base"])
+    open_event_map: bool = True
 
 
 @dataclass
@@ -66,6 +71,7 @@ class FeatureConfig:
     )
     congestion: CongestionConfig = field(default_factory=CongestionConfig)
     llm_events: LLMEventsConfig = field(default_factory=LLMEventsConfig)
+    sumo: SumoRunConfig = field(default_factory=SumoRunConfig)
 
     @property
     def congestion_in_pddl(self) -> bool:
@@ -137,11 +143,23 @@ class FeatureConfig:
             backend=llm_raw.get("backend", "ollama"),
         )
 
+        sumo_raw = f.get("sumo", {})
+        sumo = SumoRunConfig(
+            plans=_sumo_plans(
+                sumo_raw.get(
+                    "plans",
+                    ["base", "dynamic"] if llm.enabled else ["base"],
+                )
+            ),
+            open_event_map=sumo_raw.get("open_event_map", True),
+        )
+
         return cls(
             traffic_lights=traffic_lights_enabled,
             traffic_lights_config=traffic_lights_config,
             congestion=cong,
             llm_events=llm,
+            sumo=sumo,
         )
 
     @classmethod
@@ -160,3 +178,16 @@ def _duration_range(
         minimum=int(raw.get("min", default_minimum)),
         maximum=int(raw.get("max", default_maximum)),
     )
+
+
+def _sumo_plans(raw: str | list[str]) -> list[str]:
+    plans = [raw] if isinstance(raw, str) else list(raw)
+    valid = {"base", "dynamic"}
+    invalid = [plan for plan in plans if plan not in valid]
+    if invalid:
+        raise ValueError(
+            f"Unsupported SUMO plan(s): {invalid}. Valid values are: {sorted(valid)}"
+        )
+    if not plans:
+        raise ValueError("At least one SUMO plan must be configured")
+    return plans

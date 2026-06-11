@@ -150,8 +150,8 @@ def _build_init(
                 f"  (= (congestion-factor {road_id}) {factor})"
             )
 
-        # LLM events: all roads start unblocked; LLM will add (road-blocked ...) facts
-        # No init facts needed here — absence of (road-blocked) means passable.
+        # LLM events: all roads and locations start unblocked; the dynamic
+        # event step adds road-blocked and optional location-blocked facts.
 
     # ── nodes: traffic lights ─────────────────────────────────────────────────
     if features.traffic_lights:

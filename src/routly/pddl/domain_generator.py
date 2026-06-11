@@ -20,8 +20,9 @@ def build_road_network_domain(features: FeatureConfig | None = None) -> str:
                          start-traversal assigns speed = speed-limit / congestion-factor
                          planner naturally avoids slow congested roads
 
-      +llm_events      — road-blocked predicate declared (road-open already gates traversal)
-                         LLM populates blocked roads in the problem file at runtime
+      +llm_events      — road-blocked and location-blocked predicates declared.
+                         LLM selects blocked roads; the pipeline derives only
+                         intersections shared by multiple blocked roads.
     """
     if features is None:
         features = FeatureConfig.base()
@@ -74,6 +75,7 @@ def _build_predicates(f: FeatureConfig) -> str:
     # no road is blocked. The LLM (or human) sets blocked roads in the problem.
     if f.llm_events.enabled:
         lines.append("    (road-blocked ?r - road)   ;; set by LLM event generator")
+        lines.append("    (location-blocked ?l - location)   ;; derived from blocked roads")
 
     lines += [
         "    (at       ?v - vehicle  ?l - location)",
@@ -119,7 +121,11 @@ def _build_action(f: FeatureConfig) -> str:
 
     extra_precond = ""
     if f.llm_events.enabled:
-        extra_precond = "\n      (not (road-blocked ?r))"
+        extra_precond = (
+            "\n      (not (road-blocked ?r))"
+            "\n      (not (location-blocked ?from))"
+            "\n      (not (location-blocked ?to))"
+        )
 
     if f.congestion_in_pddl:
         speed_assign = "(assign (speed ?v) (/ (speed-limit ?r) (congestion-factor ?r)))"

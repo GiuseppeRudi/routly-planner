@@ -19,4 +19,10 @@ features:
 
   llm_events:
     enabled: true
-    backend: "lmstudio" # "ollama" | "lmstudio" - which local LLM server to call
+    backend: "ollama" # "ollama" | "lmstudio"
+
+  sumo:
+    plans:
+      - base
+      - dynamic
+    open_event_map: true
