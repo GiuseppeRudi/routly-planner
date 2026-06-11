@@ -20,6 +20,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     config = load_config(args.map_config, args.project_config)
+    rng = random.Random(config.seed)
 
     base_problem_path = config.problem_path
     dynamic_problem_path = base_problem_path.parent / "problem_dynamic.pddl"
@@ -58,7 +59,7 @@ def main() -> None:
     # Se non è stato inserito un input manuale valido, interroghiamo Ollama
     if not manual_road:
         print(f"🔮 Modalità: GENERAZIONE STOCASTICA (LLM)")
-        sample_roads = random.sample(all_roads, min(5, len(all_roads)))
+        sample_roads = rng.sample(all_roads, min(5, len(all_roads)))
         print(f"  ↳ Campione inviato all'LLM per la scelta: {sample_roads}")
 
         prompt = (
@@ -75,7 +76,10 @@ def main() -> None:
         data = {
             "model": "gpt-oss:120b-cloud",
             "messages": [{"role": "user", "content": prompt}],
-            "options": {"temperature": 0.8},
+            "options": {
+                "temperature": 0.8,
+                "seed": config.seed,
+            },
             "stream": False
         }
         
@@ -98,7 +102,7 @@ def main() -> None:
                 
         except Exception as e:
             print(f"⚠️ Chiamata API o parsing fallito ({e}). Applico fallback deterministico.")
-            selected_road = random.choice(sample_roads)
+            selected_road = rng.choice(sample_roads)
             descrizione = "Incidente generico rilevato dal sistema di monitoraggio urbano."
 
     print(f"\n🚨 DETTAGLI EVENTO APPLICATO:")

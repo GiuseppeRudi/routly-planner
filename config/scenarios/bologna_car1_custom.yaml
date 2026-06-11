@@ -15,6 +15,6 @@ vehicles:
     y: 4929602.002
   goal:
     type: location_id
-    value: loc_0077
-    x: 686576.086
-    y: 4929078.482
+    value: loc_0041
+    x: 686472.355
+    y: 4929463.923

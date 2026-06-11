@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-import networkx as nx
-
+from src.routly.domain.congestion import BackgroundRoute, compute_congestion_factors
 from src.routly.features import FeatureConfig
-
-
-AVERAGE_LIGHT_WAIT_S = 30.0   # seconds
+from src.routly.domain.traffic_lights import (
+    TrafficLightTiming,
+    generate_traffic_light_timings,
+)
 
 
 # ── PUBLIC API ────────────────────────────────────────────────────────────────
@@ -20,31 +20,49 @@ def build_road_network_problem(
     vehicle_id: str = "car1",
     problem_name: str = "road_network_problem",
     features: FeatureConfig | None = None,
+    background_routes: list[BackgroundRoute] | None = None,
+    traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
+    seed: int | None = None,
 ) -> str:
     if features is None:
         features = FeatureConfig.base()
 
-    # Compute congested roads if needed (betweenness centrality on road graph)
     congestion_factors: dict[str, float] = {}
-
-    if features.congestion_in_pddl:
-        congestion_factors = _compute_congestion_factors(
-            roads,
-            background_vehicles=features.congestion.num_background_vehicles,
-            base_factor=features.congestion.congestion_factor,
+    if features.traffic_lights and traffic_light_timings is None:
+        if seed is None:
+            raise ValueError(
+                "A global seed is required when generating traffic-light timings"
+            )
+        traffic_light_timings = generate_traffic_light_timings(
+            list(node_map.values()),
+            features.traffic_lights_config,
+            seed,
         )
 
-        print(f"{congestion_factors}")
+    if features.congestion_in_pddl:
+        congestion_factors = compute_congestion_factors(
+            roads,
+            background_routes or [],
+            max_factor=features.congestion.congestion_factor,
+            vehicles_for_max_congestion=(
+                features.congestion.vehicles_for_max_congestion
+            ),
+        )
+
+        # print("Congestion factors:")
+        # for road_id, factor in congestion_factors.items():
+        #     print(f"  {road_id}: {factor:.2f}")
 
         print(
             f"Computed congestion factors for "
             f"{len(congestion_factors)} roads "
-            f"using {features.congestion.num_background_vehicles} background vehicles."
+            f"from {len(background_routes or [])} generated background routes."
         )
 
     objects_block  = _build_objects(node_map, roads, vehicle_id)
     init_block     = _build_init(node_map, roads, start_loc, vehicle_id,
-                                 features, congestion_factors)
+                                 features, congestion_factors,
+                                 traffic_light_timings or {})
     metric_line    = _build_metric(vehicle_id, features)
 
     return f"""\
@@ -102,6 +120,7 @@ def _build_init(
     vehicle_id: str,
     features: FeatureConfig,
     congestion_factors: dict[str, float],
+    traffic_light_timings: dict[str, TrafficLightTiming],
 ) -> str:
     lines: list[str] = []
 
@@ -139,8 +158,11 @@ def _build_init(
         for node_info in node_map.values():
             loc_id = node_info["id"]
             if node_info.get("traffic_light"):
+                timing = traffic_light_timings[loc_id]
                 lines.append(f"  (has-traffic-light {loc_id})")
-                lines.append(f"  (= (light-wait {loc_id}) {AVERAGE_LIGHT_WAIT_S})")
+                lines.append(
+                    f"  (= (light-wait {loc_id}) {timing.average_wait})"
+                )
             else:
                 lines.append(f"  (= (light-wait {loc_id}) 0)")
 
@@ -155,71 +177,3 @@ def _build_metric(vehicle_id: str, features: FeatureConfig) -> str:
     if features.traffic_lights:
         return f"  (:metric minimize (travel-time {vehicle_id}))"
     return f"  (:metric minimize (total-distance {vehicle_id}))"
-
-
-# ── CONGESTION COMPUTATION ────────────────────────────────────────────────────
-
-def _compute_congestion_factors(
-    roads: list[dict[str, Any]],
-    background_vehicles: int,
-    base_factor: float,
-) -> dict[str, float]:
-    """
-    Compute dynamic congestion factors using:
-    - edge betweenness centrality
-    - number of background vehicles
-
-    More vehicles => higher congestion impact.
-    """
-
-    G = nx.DiGraph()
-    road_by_edge: dict[tuple[str, str], str] = {}
-
-    for r in roads:
-        edge = (r["from"], r["to"])
-
-        G.add_edge(
-            r["from"],
-            r["to"],
-            weight=r["length"],
-        )
-
-        road_by_edge[edge] = r["id"]
-
-    centrality = nx.edge_betweenness_centrality(
-        G,
-        weight="weight",
-        normalized=True,
-    )
-
-    if not centrality:
-        return {}
-
-    max_centrality = max(centrality.values())
-
-    # Prevent division by zero
-    if max_centrality == 0:
-        max_centrality = 1.0
-
-    # Example:
-    # 20 vehicles  -> 0.2
-    # 100 vehicles -> 1.0
-    # 200 vehicles -> 2.0
-    traffic_multiplier = background_vehicles / 100.0
-
-    congestion_factors: dict[str, float] = {}
-
-    for edge, score in centrality.items():
-        normalized_score = score / max_centrality
-
-        factor = (
-            1.0
-            + normalized_score
-            * traffic_multiplier
-            * (base_factor - 1.0)
-        )
-
-        road_id = road_by_edge[edge]
-        congestion_factors[road_id] = round(factor, 2)
-
-    return congestion_factors
