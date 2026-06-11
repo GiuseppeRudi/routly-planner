@@ -1,9 +1,9 @@
 project:
   project_root: "."
+  seed: 69
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
 
 sumo:
   sumo_gui: "sumo-gui"
-

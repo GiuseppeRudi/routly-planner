@@ -1,11 +1,21 @@
 features:
-  traffic_lights: true # true | false
+  traffic_lights:
+    enabled: true
+    green_duration:
+      min: 20
+      max: 30
+    yellow_duration:
+      min: 3
+      max: 6
+    red_duration:
+      min: 20
+      max: 30
 
   congestion:
     mode: "pddl" # "none" | "sumo_only" | "pddl"
     num_background_vehicles: 200   # only if mode is not "none"
     congestion_factor: 2.0     # speed / congestion_factor on congested roads (only if mode: "pddl")
-    congested_fraction: 0.2    # top 20% most central roads are congested (only if mode: "pddl")
+    vehicles_for_max_congestion: 20 # vehicles on one road needed to reach congestion_factor
 
   llm_events:
     enabled: true
