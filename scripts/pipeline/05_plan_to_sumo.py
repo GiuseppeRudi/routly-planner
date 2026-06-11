@@ -4,7 +4,6 @@ from pathlib import Path
 import argparse
 import sys
 from typing import Any
-
 import yaml
 
 PROJECT_ROOT = Path.cwd()
@@ -40,29 +39,24 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Convert ENHSP plan to SUMO files and launch SUMO-GUI."
     )
-
     parser.add_argument("--map-config", required=True)
     parser.add_argument("--project-config", required=True)
     parser.add_argument("--scenario-config", required=True)
     parser.add_argument("--features-config", required=True)
     parser.add_argument("--plan-override", help="Path to alternative plan file")
-
     return parser.parse_args()
 
 
 def read_yaml(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Scenario YAML not found: {path}")
-
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def get_vehicle_id_from_scenario(scenario: dict[str, Any]) -> str:
     vehicles = scenario.get("vehicles", [])
-
     if not vehicles:
         return "car1"
-
     return vehicles[0].get("id", "car1")
 
 
@@ -76,7 +70,6 @@ def main() -> None:
 
     scenario = read_yaml(scenario_path)
     vehicle_id = get_vehicle_id_from_scenario(scenario)
-
     features = FeatureConfig.from_yaml(args.features_config)
 
     mapping_path = Path(
@@ -117,7 +110,19 @@ def main() -> None:
             f"Run step 3 first to create: {config.background_routes_path}"
         )
 
+    # Resolve the default plan path from config
     plan_path = Path(args.plan_override) if args.plan_override else config.plan_path
+
+    # When LLM events are enabled, step 4 produces plan_dynamic.sol instead of plan.txt
+    if not args.plan_override and features.llm_events.enabled:
+        plan_path = plan_path.parent / "plan_dynamic.sol"
+        if not plan_path.exists():
+            raise FileNotFoundError(
+                f"plan_dynamic.sol not found at {plan_path}. "
+                "Run step 4 with llm_events.enabled=true to generate it first."
+            )
+
+    print(f"\n📖 Reading plan file: {plan_path.name}")
     plan_text = plan_path.read_text(encoding="utf-8")
     road_sequence = parse_start_traversal_roads(plan_text)
 
@@ -146,7 +151,6 @@ def main() -> None:
     )
 
     end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)
-
     write_view_settings(config.sumo_viewsettings_path)
 
     write_sumocfg(

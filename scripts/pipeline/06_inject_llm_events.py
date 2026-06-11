@@ -5,16 +5,18 @@ import sys
 import random
 import re
 import json
-import urllib.request
 
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 from src.routly.config import load_config
+from src.routly.features import FeatureConfig
+from src.routly.llm_client import call_llm
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Inject road incidents via Manual Input or Ollama LLM.")
+    parser = argparse.ArgumentParser(description="Inject road incidents via Manual Input or LLM.")
     parser.add_argument("--map-config", required=True)
     parser.add_argument("--project-config", required=True)
+    parser.add_argument("--features-config", required=True)
     return parser.parse_args()
 
 def main() -> None:
@@ -31,7 +33,7 @@ def main() -> None:
 
     # 2. Estraiamo tutte le strade aperte disponibili nel problema
     all_roads = re.findall(r"\(road-open\s+(road_\d+)\)", content)
-    
+
     if not all_roads:
         print("❌ Nessuna strada aperta trovata nel file PDDL base!")
         sys.exit(1)
@@ -56,7 +58,7 @@ def main() -> None:
             print("➔ Ripiego sulla generazione casuale tramite LLM...")
             manual_road = ""
 
-    # Se non è stato inserito un input manuale valido, interroghiamo Ollama
+    # Se non è stato inserito un input manuale valido, interroghiamo l'LLM
     if not manual_road:
         print(f"🔮 Modalità: GENERAZIONE STOCASTICA (LLM)")
         sample_roads = rng.sample(all_roads, min(5, len(all_roads)))
@@ -72,34 +74,12 @@ def main() -> None:
             f"}}"
         )
 
-        url = "http://localhost:11434/api/chat"
-        data = {
-            "model": "gpt-oss:120b-cloud",
-            "messages": [{"role": "user", "content": prompt}],
-            "options": {
-                "temperature": 0.8,
-                "seed": config.seed,
-            },
-            "stream": False
-        }
-        
         try:
-            req = urllib.request.Request(
-                url, 
-                data=json.dumps(data).encode("utf-8"), 
-                headers={"Content-Type": "application/json"}
-            )
-            with urllib.request.urlopen(req, timeout=30) as response:
-                res = json.loads(response.read().decode("utf-8"))
-                response_text = res["message"]["content"]
-                
-                # Pulizia da tag markdown
-                response_text = re.sub(r"```json|```", "", response_text).strip()
-                llm_decision = json.loads(response_text)
-                
-                selected_road = llm_decision["selected_road"]
-                descrizione = llm_decision["event_description"]
-                
+            response_text = call_llm(prompt, backend=features.llm_events.backend)
+            response_text = re.sub(r"```json|```", "", response_text).strip()
+            llm_decision = json.loads(response_text)
+            selected_road = llm_decision["selected_road"]
+            descrizione = llm_decision["event_description"]
         except Exception as e:
             print(f"⚠️ Chiamata API o parsing fallito ({e}). Applico fallback deterministico.")
             selected_road = rng.choice(sample_roads)
@@ -110,17 +90,17 @@ def main() -> None:
     print(f"  ➔ Scenario:        {descrizione}\n")
 
     # 4. Modifica del file PDDL (In-Memory)
-    
+
     # Rinominiamo il problema
     modified_content = content.replace(
-        "(problem bologna_car1_custom)", 
+        "(problem bologna_car1_custom)",
         "(problem bologna_car1_custom_dynamic)"
     )
-    
+
     # Commentiamo la linea road-open della strada selezionata
     linea_da_commentare = f"(road-open {selected_road})"
     linea_commentata = f";; [DYNAMIC EVENT] {descrizione}\n  ;; {linea_da_commentare}"
-    
+
     if linea_da_commentare in modified_content:
         modified_content = modified_content.replace(linea_da_commentare, linea_commentata)
         print(f"🔒 Stato PDDL aggiornato: '{linea_da_commentare}' rimpiazzata con un blocco.")

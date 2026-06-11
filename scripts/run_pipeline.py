@@ -29,27 +29,13 @@ SCRIPT_REGISTRY = {
     },
     "generate_plan": {
         "script": "scripts/pipeline/04_generate_plan.py",
-        "args": ["map_config", "project_config"],
+        "args": ["map_config", "project_config", "features_config"],  # ➔ Added features_config
     },
     "plan_to_sumo": {
         "script": "scripts/pipeline/05_plan_to_sumo.py",
         "args": ["map_config", "project_config", "scenario_config", "features_config"],
     },
-    # --- NUOVI STEP DINAMICI CON LLM ---
-    "inject_llm_events": {
-        "script": "scripts/pipeline/06_inject_llm_events.py",
-        "args": ["map_config", "project_config"],
-    },
-    "generate_dynamic_plan": {
-        "script": "scripts/pipeline/07_generate_dynamic_plan.py",
-        "args": ["map_config", "project_config"],
-    },
-    "plan_dynamic_to_sumo": {
-        "script": "scripts/pipeline/08_plan_dynamic_to_sumo.py",
-        "args": ["map_config", "project_config", "scenario_config", "features_config"],
-    },
 }
-
 
 
 def get_pipeline_value(config: dict[str, Any], key: str) -> str:
@@ -58,16 +44,12 @@ def get_pipeline_value(config: dict[str, Any], key: str) -> str:
 
     if key == "map_config":
         return configs["map_config"]
-
     if key == "project_config":
         return configs["project_config"]
-
     if key == "scenario_output":
         return outputs["scenario_config"]
-
     if key == "scenario_config":
         return outputs["scenario_config"]
-
     if key == "features_config":
         return configs["features_config"]
 
@@ -82,7 +64,6 @@ def cli_flag_for_key(key: str) -> str:
         "scenario_config": "--scenario-config",
         "features_config": "--features-config",
     }
-
     return flags[key]
 
 
@@ -93,13 +74,10 @@ def validate_pipeline_config(config: dict[str, Any]) -> None:
 
     if not configs.get("map_config"):
         raise ValueError("Missing configs.map_config in config/pipeline.yaml")
-
     if not configs.get("project_config"):
         raise ValueError("Missing configs.project_config in config/pipeline.yaml")
-
     if not outputs.get("scenario_config"):
         raise ValueError("Missing outputs.scenario_config in config/pipeline.yaml")
-
     if not isinstance(run_steps, list) or not run_steps:
         raise ValueError("Missing or empty run list in config/pipeline.yaml")
 
@@ -117,7 +95,6 @@ def validate_existing_input_configs(config: dict[str, Any]) -> None:
 
     if not map_config.exists():
         raise FileNotFoundError(f"Map config not found: {map_config}")
-
     if not project_config.exists():
         raise FileNotFoundError(f"Project config not found: {project_config}")
 
@@ -144,8 +121,6 @@ def run_step(step_name: str, config: dict[str, Any]) -> None:
     print("\n" + "=" * 70)
     print(f"RUNNING STEP: {step_name}")
     print("=" * 70)
-    # print("Command:")
-    # print("  " + " ".join(cmd))
 
     result = subprocess.run(
         cmd,
@@ -157,6 +132,7 @@ def run_step(step_name: str, config: dict[str, Any]) -> None:
         raise RuntimeError(
             f"Pipeline stopped: step '{step_name}' failed with exit code {result.returncode}."
         )
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -180,6 +156,7 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+
 def main() -> None:
     args = parse_args()
 
@@ -189,7 +166,6 @@ def main() -> None:
 
     all_steps = pipeline_config["run"]
 
-    # Filter steps if numbers were provided on the CLI
     if args.steps:
         invalid = [n for n in args.steps if n < 1 or n > len(all_steps)]
         if invalid:
@@ -215,7 +191,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
 
 # SOLVED 1. Semafori
 # SOLVED 2. Sensi di Marcia

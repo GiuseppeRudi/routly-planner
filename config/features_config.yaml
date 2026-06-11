@@ -18,4 +18,5 @@ features:
     vehicles_for_max_congestion: 20 # vehicles on one road needed to reach congestion_factor
 
   llm_events:
-    enabled: false #LLM event generation not active
+    enabled: true
+    backend: "lmstudio" # "ollama" | "lmstudio" - which local LLM server to call

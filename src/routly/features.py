@@ -55,6 +55,7 @@ class LLMEventsConfig:
     problem file at runtime (not implemented yet).
     """
     enabled: bool = False
+    backend: str = "ollama"  # "ollama" | "lmstudio" - which local LLM server to call
 
 
 @dataclass
@@ -133,6 +134,7 @@ class FeatureConfig:
         llm_raw = f.get("llm_events", {})
         llm = LLMEventsConfig(
             enabled=llm_raw.get("enabled", False),
+            backend=llm_raw.get("backend", "ollama"),
         )
 
         return cls(
