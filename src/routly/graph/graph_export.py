@@ -215,7 +215,7 @@ def plot_event_map(
         roads_by_id,
         original_roads,
         name="Original route",
-        line=dict(color="red", width=3),
+        line=dict(color="red", width=6),
     )
     if original_trace is not None:
         traces.append(original_trace)

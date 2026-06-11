@@ -227,13 +227,17 @@ def main() -> None:
     modified_content = re.sub(r"\(problem\s+([^\s\)]+)\)", r"(problem \1_dynamic)", content)
     for event in events:
         for road in event["roads"]:
-            line_to_comment = f"(road-open {road})"
-            commented_line = f";; [DYNAMIC EVENT - {event['event_type']}] {event['description']}\n  ;; {line_to_comment}"
-            if line_to_comment in modified_content:
-                modified_content = modified_content.replace(line_to_comment, commented_line)
-                print(f"🔒 PDDL file updated. Road {road} is now closed.")
+            line_to_find = f"(road-open {road})"
+            blocked_fact = (
+                f"{line_to_find}\n"
+                f"  ;; [DYNAMIC EVENT - {event['event_type']}] {event['description']}\n"
+                f"  (road-blocked {road})"
+            )
+            if line_to_find in modified_content:
+                modified_content = modified_content.replace(line_to_find, blocked_fact)
+                print(f"🔒 PDDL file updated. Road {road} is now blocked.")
             else:
-                print(f"⚠️ Line '{line_to_comment}' not found in the problem text.")
+                print(f"⚠️ Line '{line_to_find}' not found in the problem text.")
 
     with open(dynamic_problem_path, "w", encoding="utf-8") as f:
         f.write(modified_content)
