@@ -8,6 +8,7 @@ from typing import Any
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.routly.domain.fuel import derive_fuel_parameters, write_fuel_stations
 from src.routly.utils import read_yaml
 from src.routly.domain.congestion import generate_background_routes, write_background_routes
 from src.routly.config import load_config
@@ -123,6 +124,20 @@ def main() -> None:
             f"Generated {len(traffic_light_timings)} traffic-light programs: "
             f"{config.traffic_light_timings_path}"
         )
+    
+    fuel_params = None
+    if features.fuel.enabled:
+        fuel_params = derive_fuel_parameters(
+            nodes=mapping["nodes"],
+            config=features.fuel,
+            seed=config.seed,
+        )
+        write_fuel_stations(fuel_params.stations, config.fuel_stations_path)
+        print(
+            f"Fuel: {len(fuel_params.stations)} stations, "
+            f"tank={fuel_params.tank_capacity} L, start={fuel_params.initial_fuel} L, "
+            f"rate={fuel_params.consumption_per_meter} L/m"
+        )
 
     # Generate domain
     domain_text = build_road_network_domain(features)
@@ -145,6 +160,7 @@ def main() -> None:
         features=features,
         background_routes=background_routes,
         traffic_light_timings=traffic_light_timings,
+        fuel_params=fuel_params,
         seed=config.seed,
     )
 

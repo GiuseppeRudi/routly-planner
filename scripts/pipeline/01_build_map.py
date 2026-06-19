@@ -15,6 +15,7 @@ from src.routly.graph.graph_export import plot_graph
 from src.routly.osm.graph_builder import (
     add_projected_coordinates,
     build_osm_graph,
+    find_osm_fuel_nodes,
     save_graphml,
 )
 
@@ -69,7 +70,11 @@ def main() -> None:
     graph, projected_graph = add_projected_coordinates(graph)
     save_graphml(graph, config.raw_graphml_path)
 
-    mapping = graph_to_mapping(graph, projected_graph)
+    fuel_osmids = find_osm_fuel_nodes(
+        graph, config.place_name, config.distance_meters
+    )
+    print(f"Identified {len(fuel_osmids)} fuel stations in OSM data.")
+    mapping = graph_to_mapping(graph, projected_graph, fuel_osmids)
     write_mapping(mapping, config.mapping_path)
 
     print("\nOUTPUT FILES:")

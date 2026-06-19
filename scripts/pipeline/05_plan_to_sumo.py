@@ -10,6 +10,7 @@ import yaml
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.routly.domain.fuel import load_fuel_stations
 from src.routly.config import load_config
 from src.routly.domain.congestion import (
     load_background_routes,
@@ -24,6 +25,7 @@ from src.routly.sumo.sumo_writer import (
     build_net,
     compute_simulation_end_time,
     write_edg_xml,
+    write_fuel_pois,
     write_nod_xml,
     write_rou_xml,
     write_sumocfg,
@@ -170,13 +172,19 @@ def write_and_launch_sumo_for_plan(
     )
 
     end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)
+    additional = []
+    if features.fuel.enabled and config.fuel_stations_path.exists():
+        stations = load_fuel_stations(config.fuel_stations_path)
+        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, config.sumo_net_path, "images/gas_station.png",)
+        additional.append(config.fuel_poi_path)
+
     write_sumocfg(
-        config.sumo_net_path,
-        route_path,
-        cfg_path,
+        net_file=config.sumo_net_path,
+        route_file=route_path,
+        cfg_file=cfg_path,
         view_file=config.sumo_viewsettings_path,
-        end=end_time,
-        seed=config.seed,
+        begin=0, end=end_time, seed=config.seed,
+        additional_files=additional,
     )
 
     print("\nSUMO FILES CREATED:")

@@ -3,18 +3,18 @@ scenario:
 map:
   place_name: Bologna, Emilia-Romagna, Italy
   place_slug: Bologna_Emilia-Romagna_Italy
-  map_scenario: nodes_300
-  graphml_path: data\Bologna_Emilia-Romagna_Italy\nodes_300\road_network.graphml
-  mapping_path: data\Bologna_Emilia-Romagna_Italy\nodes_300\roads_mapping.json
+  map_scenario: nodes_150
+  graphml_path: data\Bologna_Emilia-Romagna_Italy\nodes_150\road_network.graphml
+  mapping_path: data\Bologna_Emilia-Romagna_Italy\nodes_150\roads_mapping.json
 vehicles:
 - id: car1
   start:
     type: location_id
-    value: loc_0100
-    x: 685450.529
-    y: 4929982.828
+    value: loc_0051
+    x: 685990.314
+    y: 4930230.12
   goal:
     type: location_id
-    value: loc_0060
-    x: 685615.689
-    y: 4928951.91
+    value: loc_0130
+    x: 685342.347
+    y: 4928553.601

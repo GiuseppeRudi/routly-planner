@@ -47,12 +47,6 @@ class CongestionConfig:
 
 @dataclass
 class LLMEventsConfig:
-    """
-    Placeholder for LLM-generated random events (accidents, roadworks).
-    When enabled, the domain can block roads and selected intersections.
-    The LLM chooses roads; the pipeline derives an intersection block only
-    when multiple closed roads meet at the same location.
-    """
     enabled: bool = False
     backend: str = "ollama"  # "ollama" | "lmstudio" - which local LLM server to call
 
@@ -62,6 +56,25 @@ class SumoRunConfig:
     plans: list[str] = field(default_factory=lambda: ["base"])
     open_event_map: bool = True
 
+@dataclass
+@dataclass(frozen=True)
+class FuelConfig:
+    """Fuel feature configuration — only flags and ratios; the litres are
+    derived from the map at build time."""
+
+    enabled: bool
+    stations_ratio: float # fraction of nodes that get a station
+    initial_fuel_ratio: float # fraction of full tank at the start
+    stations_source: str # "random" | "osm"
+    consumption_mode: str # "discrete" (burn at road entry) | "continuous" (burn in process)
+
+    def __post_init__(self) -> None:
+        if not 0.0 < self.stations_ratio <= 1.0:
+            raise ValueError("fuel.stations_ratio must be in (0, 1]")
+        if not 0.0 < self.initial_fuel_ratio <= 1.0:
+            raise ValueError("fuel.initial_fuel_ratio must be in (0, 1]")
+        if self.consumption_mode not in ("discrete", "continuous"):
+            raise ValueError("fuel.consumption_mode must be 'discrete' or 'continuous'")
 
 @dataclass
 class FeatureConfig:
@@ -72,6 +85,7 @@ class FeatureConfig:
     congestion: CongestionConfig = field(default_factory=CongestionConfig)
     llm_events: LLMEventsConfig = field(default_factory=LLMEventsConfig)
     sumo: SumoRunConfig = field(default_factory=SumoRunConfig)
+    fuel: FuelConfig = field(default_factory=FuelConfig)
 
     @property
     def congestion_in_pddl(self) -> bool:
@@ -93,6 +107,8 @@ class FeatureConfig:
             parts.append("cong-sumo")
         if self.llm_events.enabled:
             parts.append("llm")
+        if self.fuel.enabled:
+            parts.append("fuel")
         return "_".join(parts) if parts else "base"
 
     # ── constructor ───────────────────────────────────────────────────────────
@@ -154,12 +170,25 @@ class FeatureConfig:
             open_event_map=sumo_raw.get("open_event_map", True),
         )
 
+        fuel_raw = f.get("fuel", False)
+        if isinstance(fuel_raw, dict):
+            fuel = FuelConfig(
+                enabled=fuel_raw.get("enabled", True),
+                stations_ratio=float(fuel_raw.get("stations_ratio", 0.35)),
+                initial_fuel_ratio=float(fuel_raw.get("initial_fuel_ratio", 0.15)),
+                stations_source=fuel_raw.get("stations_source", "random"),
+                consumption_mode=fuel_raw.get("consumption_mode", "discrete"),
+            )
+        else:
+            fuel = FuelConfig(enabled=bool(fuel_raw))
+
         return cls(
             traffic_lights=traffic_lights_enabled,
             traffic_lights_config=traffic_lights_config,
             congestion=cong,
             llm_events=llm,
             sumo=sumo,
+            fuel=fuel,
         )
 
     @classmethod

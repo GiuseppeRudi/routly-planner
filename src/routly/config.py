@@ -120,7 +120,13 @@ class ProjectConfig:
     def traffic_light_timings_path(self) -> Path:
         return self.simulation_dir / "traffic_light_timings.json"
 
+    @property
+    def fuel_stations_path(self) -> Path:
+        return self.simulation_dir / "fuel_stations.json"
 
+    @property
+    def fuel_poi_path(self) -> Path:
+        return self.simulation_dir / "fuel_stations.add.xml"
 
 
 def  load_config(
