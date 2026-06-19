@@ -210,7 +210,7 @@ def main() -> None:
     start_loc = start_match.group(1) if start_match else None
     goal_loc = goal_match.group(1) if goal_match else None
 
-    print(f"🔮 Mode: AUTOMATED STOCHASTIC GENERATION (LLM)")
+    print(f"   Mode: AUTOMATED STOCHASTIC GENERATION (LLM)")
 
     mapping = load_mapping(config.mapping_path)
     roads_by_id = {road["id"]: road for road in mapping["roads"]}
@@ -220,26 +220,26 @@ def main() -> None:
 
     max_events = max(1, min(5, node_count // 20))
     max_roads_per_event = max(1, min(4, node_count // 15))
-    max_total_closures = max(1, road_count // 4)
+    max_total_closures = road_count // 4
 
     seed_roads = rng.sample(all_roads, min(8, len(all_roads)))
     candidates = [
         {"road": r, "connected_to": sorted(adjacency.get(r, set()))[:3]}
         for r in seed_roads
     ]
-    print(f"  ↳ Candidate clusters sent to LLM: {candidates}")
+    print(f"    Candidate clusters sent to LLM: {candidates}")
 
     prompt = (
-        f"You are a traffic incident generator for the city of Bologna.\n"
+        f"You are a traffic incident generator for a specific city.\n"
         f"The road network has {node_count} intersections and {road_count} roads.\n"
         f"Generate between 1 and {max_events} traffic events using only the roads from the "
         f"candidate clusters below. Each cluster lists a road and the roads directly connected "
         f"to it (sharing an intersection).\n"
         f"Candidates: {json.dumps(candidates)}\n\n"
         f"Each event must have an \"event_type\":\n"
-        f"  - \"accident\": blocks exactly ONE road.\n"
+        f"  - \"accident\": blocks exactly one road.\n"
         f"  - \"roadworks\" or \"robbery\": blocks between 1 and {max_roads_per_event} roads, "
-        f"which MUST be connected to each other (pick them from the same cluster, i.e. a road "
+        f"which must be connected to each other (pick them from the same cluster, i.e. a road "
         f"plus one or more of its connected_to roads).\n"
         f"Do not reuse the same road in more than one event. The total number of closed roads "
         f"across all events must not exceed {max_total_closures}.\n"
