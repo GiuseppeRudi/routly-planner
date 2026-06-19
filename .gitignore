@@ -65,3 +65,7 @@ htmlcov/
 
 # Claude
 *.md
+
+# Scripts
+make_dump.py
+project_dump.txt

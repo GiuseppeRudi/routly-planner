@@ -35,6 +35,7 @@ def build_road_network_problem(
             )
         traffic_light_timings = generate_traffic_light_timings(
             list(node_map.values()),
+            roads,
             features.traffic_lights_config,
             seed,
         )

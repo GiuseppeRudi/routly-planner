@@ -111,6 +111,7 @@ def main() -> None:
     if features.traffic_lights:
         traffic_light_timings = generate_traffic_light_timings(
             mapping["nodes"],
+            mapping["roads"],
             features.traffic_lights_config,
             config.seed,
         )
