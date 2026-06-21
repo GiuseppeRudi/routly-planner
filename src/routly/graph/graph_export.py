@@ -33,6 +33,7 @@ def plot_plan_from_mapping(
     mapping: dict,
     planned_roads: list[str],
     output_path: str | Path,
+    fuel_stations: list[str] | None = None
 ) -> None:
 
 
@@ -40,8 +41,6 @@ def plot_plan_from_mapping(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     fig, ax = plt.subplots(figsize=(12, 12))
-
-    planned_set = set(planned_roads)
 
     # Draw full road network
     for road in mapping["roads"]:
@@ -88,6 +87,8 @@ def plot_plan_from_mapping(
             color="red",
             zorder=2,
         )
+
+    draw_fuel_stations(ax, mapping, fuel_stations or [])
 
     # START and GOAL labels
     if planned_roads:
@@ -304,3 +305,29 @@ def plot_event_map(
         facecolor="white",
     )
     plt.close(fig)
+
+def draw_fuel_stations(ax, mapping: dict, station_ids: list[str]) -> None:
+    """Scatter a marker at every fuel-station node."""
+    if not station_ids:
+        return
+    nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
+    xs, ys = [], []
+    for sid in station_ids:
+        node = nodes_by_id.get(sid)
+        if node is None:
+            continue
+        xs.append(node["x"])
+        ys.append(node["y"])
+    if not xs:
+        return
+    ax.scatter(
+        xs, ys,
+        marker="s", s=60, color="#1f9e3a",
+        edgecolors="white", linewidths=1.4, zorder=10,
+    )
+
+    for x, y in zip(xs, ys):
+        ax.annotate(
+            "F", (x, y), ha="center", va="center",
+            color="white", fontsize=4, fontweight="bold", zorder=11,
+        )

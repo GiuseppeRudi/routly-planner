@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.routly.domain.fuel import FuelParameters
 from src.routly.domain.congestion import BackgroundRoute, compute_congestion_factors
 from src.routly.features import FeatureConfig
 from src.routly.domain.traffic_lights import (
@@ -22,6 +23,7 @@ def build_road_network_problem(
     features: FeatureConfig | None = None,
     background_routes: list[BackgroundRoute] | None = None,
     traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
+    fuel_params: FuelParameters | None = None,
     seed: int | None = None,
 ) -> str:
     if features is None:
@@ -35,6 +37,7 @@ def build_road_network_problem(
             )
         traffic_light_timings = generate_traffic_light_timings(
             list(node_map.values()),
+            roads,
             features.traffic_lights_config,
             seed,
         )
@@ -62,7 +65,7 @@ def build_road_network_problem(
     objects_block  = _build_objects(node_map, roads, vehicle_id)
     init_block     = _build_init(node_map, roads, start_loc, vehicle_id,
                                  features, congestion_factors,
-                                 traffic_light_timings or {})
+                                 traffic_light_timings or {}, fuel_params,)
     metric_line    = _build_metric(vehicle_id, features)
 
     return f"""\
@@ -121,6 +124,7 @@ def _build_init(
     features: FeatureConfig,
     congestion_factors: dict[str, float],
     traffic_light_timings: dict[str, TrafficLightTiming],
+    fuel_params: FuelParameters | None = None,
 ) -> str:
     lines: list[str] = []
 
@@ -165,6 +169,18 @@ def _build_init(
                 )
             else:
                 lines.append(f"  (= (light-wait {loc_id}) 0)")
+
+    if features.fuel.enabled and fuel_params is not None:
+        station_set = set(fuel_params.stations)
+        lines += [
+            f"  (= (fuel-level {vehicle_id}) {fuel_params.initial_fuel})",
+            f"  (= (fuel-capacity {vehicle_id}) {fuel_params.tank_capacity})",
+            f"  (= (fuel-consumption-rate {vehicle_id}) {fuel_params.consumption_per_meter})",
+        ]
+        for node in node_map.values():
+            if node["id"] in station_set:
+                lines.append(f"  (has-fuel-station {node['id']})")
+
 
     return "\n".join(lines)
 

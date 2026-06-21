@@ -26,3 +26,12 @@ features:
       - base
       - dynamic
     open_event_map: true
+  
+  fuel:
+    enabled: false # if true max_nodes must be decreased
+    stations_ratio: 0.01 # % of the nodes become fuel stations
+    initial_fuel_ratio: 0.5 # start with % of a full tank
+    stations_source: osm # "random" | "osm"
+    consumption_mode: discrete   # "discrete" | "continuous"
+    # if consumption_mode = discrete, then max_nodes <= 150
+    # if consumption_mode = continuous, then max_nodes <= 100

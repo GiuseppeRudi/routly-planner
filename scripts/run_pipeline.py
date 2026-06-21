@@ -245,10 +245,11 @@ if __name__ == "__main__":
 
 
 
-# TODO 8. Classificare ogni semaforo per complessità dell’incrocio, cioe dare delle durata diverse delle fasi
-# TODO di verde, rosso e giallo a seconda della complessita dellincrocio o del tipo di strada 
+# SOLVED 8. Classificare ogni semaforo per complessità dell’incrocio, cioe dare delle durata diverse delle fasi
+# SOLVED di verde, rosso e giallo a seconda della complessita dellincrocio o del tipo di strada 
 
 # TODO 9. Controllo benzina con flag da yaml per attivare o disattivare la feature, se attivo il planner deve considerare il livello di benzina e quindi generare un piano che preveda anche il rifornimento di benzina in base al livello di benzina iniziale e alla distanza da percorrere.
+# TODO Questo o inserendo a meno delle stazioni di rifornimento casualmente in una delle strade o prendendole dalla realtà (se possibile)
 
 # ^---^ CRISTIANO
 

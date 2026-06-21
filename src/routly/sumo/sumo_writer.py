@@ -133,6 +133,32 @@ def apply_traffic_light_timings(
 
     tree.write(net_file, encoding="utf-8", xml_declaration=True)
 
+def _read_net_offset(net_file) -> tuple[float, float]:
+    loc = ET.parse(Path(net_file)).getroot().find("location")
+    if loc is None:
+        return (0.0, 0.0)
+    dx, dy = (float(v) for v in loc.get("netOffset", "0,0").split(","))
+    return dx, dy
+
+def write_fuel_pois(stations: list[str], nodes: list[dict], path: str | Path, net_file: str | Path, icon: Path | None = None) -> None:
+    """Write a SUMO additional file with one POI per fuel station."""
+    nodes_by_id = {n["id"]: n for n in nodes}
+    root = ET.Element("additional")
+    dx, dy = _read_net_offset(net_file)
+    for sid in stations:
+        print(f"Adding fuel station POI for node {sid}")
+        node = nodes_by_id.get(sid)
+        if node is None:
+            continue
+        poi = ET.SubElement(root, "poi", id=f"fuel_{sid}",
+            x=str(round(node["x"] + dx, 2)),   # shift in net coords
+            y=str(round(node["y"] + dy, 2)),
+            type="fuel", layer="10", width="10", height="10")
+        if icon:
+            poi.set("imgFile", str(Path(icon).resolve()))
+        else:
+            poi.set("color", "0,0.6,0.2")
+    _write_pretty_xml(root, path)
 
 def _phase_kind(phase: ET.Element) -> str:
     state = phase.get("state", "")
@@ -244,12 +270,19 @@ def write_sumocfg(
     begin: float = 0,
     end: float = 3600,
     seed: int | None = None,
+    additional_files: list[str | Path] | None = None,
 ) -> None:
     root = ET.Element("configuration")
 
     input_el = ET.SubElement(root, "input")
     ET.SubElement(input_el, "net-file", value=os.path.basename(net_file))
     ET.SubElement(input_el, "route-files", value=os.path.basename(route_file))
+
+    if additional_files:
+        ET.SubElement(
+            input_el, "additional-files",
+            value=",".join(os.path.basename(p) for p in additional_files),
+        )
 
     time_el = ET.SubElement(root, "time")
     ET.SubElement(time_el, "begin", value=str(begin))

@@ -6,32 +6,22 @@ from src.routly.features import FeatureConfig
 def build_road_network_domain(features: FeatureConfig | None = None) -> str:
     """
     Build a PDDL+ domain string conditioned on active features.
-
-    Feature matrix:
-      base          — connects, road-open, at, on-road, moving
-                      road-length, speed-limit, distance-remaining, speed, total-distance
-                      start-traversal (4-param), traverse process, arrive event
-
-      +traffic_lights  — has-traffic-light predicate, light-wait + travel-time functions
-                         arrive-at-traffic-light event (adds light-wait to travel-time)
-                         metric changes to minimize travel-time
-
-      +congestion_pddl — congested predicate, congestion-factor function
-                         start-traversal assigns speed = speed-limit / congestion-factor
-                         planner naturally avoids slow congested roads
-
-      +llm_events      — road-blocked and location-blocked predicates declared.
-                         LLM selects blocked roads; the pipeline derives only
-                         intersections shared by multiple blocked roads.
     """
     if features is None:
         features = FeatureConfig.base()
 
-    predicates  = _build_predicates(features)
-    functions   = _build_functions(features)
-    action      = _build_action(features)
-    process     = _build_process()
-    events      = _build_events(features)
+    predicates = _build_predicates(features)
+    functions = _build_functions(features)
+    action = _build_action(features)
+    refuel = _build_refuel(features)
+    process = _build_process(features)
+    events = _build_events(features)
+
+    blocks = [predicates, functions, action]
+    if refuel:
+        blocks.append(refuel)
+    blocks += [process, events]
+    body = "\n\n".join(blocks)
 
     return f"""\
 ;; ============================================================
@@ -40,26 +30,17 @@ def build_road_network_domain(features: FeatureConfig | None = None) -> str:
 ;;    traffic_lights  : {features.traffic_lights}
 ;;    congestion mode : {features.congestion.mode}
 ;;    llm_events      : {features.llm_events.enabled}
+;;    fuel            : {features.fuel.enabled}
 ;; ============================================================
 
 (define (domain road-network)
   (:requirements :typing :numeric-fluents :time)
   (:types vehicle location road)
 
-{predicates}
-
-{functions}
-
-{action}
-
-{process}
-
-{events}
+{body}
 )
 """
 
-
-# ── PREDICATES ────────────────────────────────────────────────────────────────
 
 def _build_predicates(f: FeatureConfig) -> str:
     lines = [
@@ -71,8 +52,9 @@ def _build_predicates(f: FeatureConfig) -> str:
     if f.traffic_lights:
         lines.append("    (has-traffic-light ?l - location)")
 
-    # LLM events: road-blocked is declared so the domain is valid even when
-    # no road is blocked. The LLM (or human) sets blocked roads in the problem.
+    if f.fuel.enabled:
+        lines.append("    (has-fuel-station ?l - location)   ;; refuelling point")
+
     if f.llm_events.enabled:
         lines.append("    (road-blocked ?r - road)   ;; set by LLM event generator")
         lines.append("    (location-blocked ?l - location)   ;; derived from blocked roads")
@@ -85,8 +67,6 @@ def _build_predicates(f: FeatureConfig) -> str:
     ]
     return "\n".join(lines)
 
-
-# ── FUNCTIONS ─────────────────────────────────────────────────────────────────
 
 def _build_functions(f: FeatureConfig) -> str:
     lines = [
@@ -108,23 +88,42 @@ def _build_functions(f: FeatureConfig) -> str:
         lines.append("    (light-wait           ?l - location)  ;; avg red-light wait (s)")
         lines.append("    (travel-time          ?v - vehicle)   ;; elapsed time incl. waits")
 
+    if f.fuel.enabled:
+        lines.append("    (fuel-level            ?v - vehicle)  ;; current litres in tank")
+        lines.append("    (fuel-capacity         ?v - vehicle)  ;; max tank size (litres)")
+        lines.append("    (fuel-consumption-rate ?v - vehicle)  ;; litres per metre")
+
     lines.append("  )")
     return "\n".join(lines)
 
 
-# ── ACTION ────────────────────────────────────────────────────────────────────
-
 def _build_action(f: FeatureConfig) -> str:
-    # Without congestion: speed = speed-limit
-    # With congestion:    speed = speed-limit / congestion-factor
-    #   (no extra parameter needed — congestion-factor is on the road object)
-
     extra_precond = ""
     if f.llm_events.enabled:
-        extra_precond = (
+        extra_precond += (
             "\n      (not (road-blocked ?r))"
             "\n      (not (location-blocked ?from))"
             "\n      (not (location-blocked ?to))"
+        )
+
+    if f.fuel.enabled:
+        # Only enter a road if there is enough fuel to cross it. The matching
+        # discrete burn is in the effect below, so the tank never goes negative
+        # and the planner must refuel beforehand when a road is unaffordable.
+        extra_precond += (
+            "\n      (>= (fuel-level ?v) "
+            "(* (road-length ?r) (fuel-consumption-rate ?v)))"
+        )
+
+    fuel_effect = ""
+    if f.fuel.enabled and f.fuel.consumption_mode == "discrete":
+        # Discrete burn: subtract the whole road's fuel at entry instead of
+        # integrating it in the process. Same litres per road, but fuel-level
+        # changes only at action boundaries -> far smaller search space.
+        # (consumption_mode == "continuous" moves this into _build_process.)
+        fuel_effect = (
+            "\n      (decrease (fuel-level ?v) "
+            "(* (road-length ?r) (fuel-consumption-rate ?v)))"
         )
 
     if f.congestion_in_pddl:
@@ -146,16 +145,41 @@ def _build_action(f: FeatureConfig) -> str:
       (on-road ?v ?r)
       (moving ?v)
       (assign (distance-remaining ?v) (road-length ?r))
-      {speed_assign}
+      {speed_assign}{fuel_effect}
     )
   )"""
 
 
-# ── PROCESS ───────────────────────────────────────────────────────────────────
-
-def _build_process() -> str:
-    # traverse is always the same — speed is already adjusted in start-traversal
+def _build_refuel(f: FeatureConfig) -> str:
+    if not f.fuel.enabled:
+        return ""
     return """\
+  (:action refuel
+    :parameters (?v - vehicle ?l - location)
+    :precondition (and
+      (at ?v ?l)
+      (has-fuel-station ?l)
+      (not (moving ?v))
+      (< (fuel-level ?v) (fuel-capacity ?v))
+    )
+    :effect (and
+      (assign (fuel-level ?v) (fuel-capacity ?v))
+    )
+  )"""
+
+
+def _build_process(f: FeatureConfig) -> str:
+    fuel_effect = ""
+    if f.fuel.enabled and f.fuel.consumption_mode == "continuous":
+        # Continuous burn integrated over time: litres = rate * speed * #t.
+        # Physically smooth, but fuel-level changes every tick, which makes
+        # the search far heavier -> prefer "discrete" unless you need this.
+        fuel_effect = (
+            "\n      (decrease (fuel-level ?v) "
+            "(* #t (* (speed ?v) (fuel-consumption-rate ?v))))"
+        )
+
+    return f"""\
   (:process traverse
     :parameters (?v - vehicle)
     :precondition (and
@@ -164,18 +188,15 @@ def _build_process() -> str:
     )
     :effect (and
       (decrease (distance-remaining ?v) (* #t (speed ?v)))
-      (increase (total-distance ?v)     (* #t (speed ?v)))
+      (increase (total-distance ?v)     (* #t (speed ?v))){fuel_effect}
     )
   )"""
 
-
-# ── EVENTS ────────────────────────────────────────────────────────────────────
 
 def _build_events(f: FeatureConfig) -> str:
     events = []
 
     if f.traffic_lights:
-        # Two arrive events: plain intersection and signalized intersection
         events.append("""\
   ;; Arrive at a normal intersection
   (:event arrive
@@ -218,7 +239,6 @@ def _build_events(f: FeatureConfig) -> str:
   )""")
 
     else:
-        # Single arrive event — no traffic light distinction
         events.append("""\
   (:event arrive
     :parameters (?v - vehicle ?r - road ?from - location ?to - location)

@@ -11,6 +11,7 @@ import datetime
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.routly.domain.fuel import load_fuel_stations
 from src.routly.config import load_config
 from src.routly.features import FeatureConfig
 from src.routly.graph.graph_export import plot_event_map, plot_plan_from_mapping
@@ -33,9 +34,9 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _run_and_plot(config, problem_path: Path, plan_path: Path, plan_image_path: Path) -> list[str]:
+def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path: Path, plan_image_path: Path) -> list[str]:
 
-    print(f"\n Running ENHSP planner on: {problem_path.name}")
+    print(f"\nRunning ENHSP planner on: {problem_path.name}")
     run_enhsp(
         enhsp_jar=config.enhsp_jar,
         domain_path=config.domain_path,
@@ -47,7 +48,12 @@ def _run_and_plot(config, problem_path: Path, plan_path: Path, plan_image_path: 
     plan_text = plan_path.read_text(encoding="utf-8")
     planned_roads = parse_start_traversal_roads(plan_text)
     print(f"Roads in plan: {len(planned_roads)}")
-    plot_plan_from_mapping(mapping=mapping, planned_roads=planned_roads, output_path=plan_image_path)
+    fuel_stations = (
+        load_fuel_stations(config.fuel_stations_path)
+        if features.fuel.enabled and config.fuel_stations_path.exists()
+        else []
+    )
+    plot_plan_from_mapping(mapping=mapping, planned_roads=planned_roads, output_path=plan_image_path, fuel_stations=fuel_stations)
     print("\nOUTPUT FILES:")
     print(f"  Plan:       {plan_path}")
     print(f"  Plan image: {plan_image_path}")
@@ -181,14 +187,14 @@ def main() -> None:
 
     features = FeatureConfig.from_yaml(args.features_config)
 
-    print("\n" + "=" * 70)
-    print(f" LLM STATUS : {features.llm_events.enabled}")
-    print("=" * 70)
-
-    original_roads = _run_and_plot(config, problem_path, plan_path, plan_image_path)
+    original_roads = _run_and_plot(config, features, problem_path, plan_path, plan_image_path)
 
     if not features.llm_events.enabled:
         return
+
+    print("\n" + "=" * 70)
+    print(f" LLM STATUS : {features.llm_events.enabled}")
+    print("=" * 70)
 
     # --- LLM event injection + dynamic re-plan ---
     dynamic_problem_path = problem_path.parent / "problem_dynamic.pddl"
@@ -358,9 +364,9 @@ def main() -> None:
     }
     with open(log_path, "w", encoding="utf-8") as log_f:
         json.dump(log_payload, log_f, indent=2, ensure_ascii=False)
-    print(f"📝 Incidents log successfully saved to: {log_path.name}")
+    print(f"  Incidents log successfully saved to: {log_path.name}")
 
-    recalculated_roads = _run_and_plot(config, dynamic_problem_path, dynamic_plan_path, dynamic_plan_image_path)
+    recalculated_roads = _run_and_plot(config, features, dynamic_problem_path, dynamic_plan_path, dynamic_plan_image_path)
 
     blocked_roads = [
         {"id": road, "event_type": event["event_type"], "description": event["description"]}
@@ -378,7 +384,7 @@ def main() -> None:
         goal_loc=goal_loc,
         output_path=event_map_path,
     )
-    print(f"🗺️  Event map saved: {event_map_path}")
+    print(f"   Event map saved: {event_map_path}")
     print("   It will be opened by plan_to_sumo before launching SUMO.")
 
 

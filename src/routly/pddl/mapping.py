@@ -21,6 +21,7 @@ def _parse_speed_ms(raw_speed: object, default_kmh: float = 50.0) -> float:
 def graph_to_mapping(
     graph: nx.MultiDiGraph,
     projected_graph: nx.MultiDiGraph,
+    fuel_osmids: set | None = None,
 ) -> tuple[dict]:
     """
     Convert an OSMnx graph to:
@@ -30,25 +31,21 @@ def graph_to_mapping(
     """
     node_map: dict[int, dict] = {}
     nodes_for_json: list[dict] = []
+    fuel_osmids = fuel_osmids or set()
 
     for i, node in enumerate(graph.nodes):
         data = graph.nodes[node]
         loc_id = f"loc_{i:04d}"
 
         is_tl = data.get("highway") == "traffic_signals"
+        is_fuel = node in fuel_osmids
 
-        node_map[node] = {
-            "id": loc_id,
-            "x": data["x_proj"],
-            "y": data["y_proj"],
-            "traffic_light": is_tl,
+        entry = {
+            "id": loc_id, "x": data["x_proj"], "y": data["y_proj"],
+            "traffic_light": is_tl, "fuel_station": is_fuel,  # NEW key
         }
-        nodes_for_json.append({
-            "id": loc_id,
-            "x": data["x_proj"],
-            "y": data["y_proj"],
-            "traffic_light": is_tl,
-        })
+        node_map[node] = entry
+        nodes_for_json.append(dict(entry))
 
     pddl_roads: list[dict] = []
     roads_for_json: list[dict] = []

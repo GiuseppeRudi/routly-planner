@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import networkx as nx
+import numpy as np
 import osmnx as ox
 
 
@@ -50,7 +51,25 @@ def save_graphml(graph: nx.MultiDiGraph, path: str | Path) -> None:
     # print(f"  Saved GraphML: {path}")
 
 
-
+def find_osm_fuel_nodes(graph, place_name, distance_meters) -> set:
+    """osmids (graph node keys) closest to real amenity=fuel POIs."""
+    center = ox.geocode(place_name) # (lat, lon)
+    try:
+        pois = ox.features_from_point(
+            (center[0], center[1]),
+            tags={"amenity": "fuel"},
+            dist=distance_meters, # same area as the road graph
+        )
+    except Exception as exc: # network / empty / old osmnx
+        print(f"  WARNING: OSM fuel query failed ({exc}); no real stations.")
+        return set()
+    if pois.empty:
+        return set()
+    pts = pois.geometry.representative_point() # handles node + polygon POIs
+    nearest = ox.distance.nearest_nodes( # unprojected graph -> X=lon, Y=lat
+        graph, X=pts.x.tolist(), Y=pts.y.tolist()
+    )
+    return {int(v) for v in np.atleast_1d(nearest)}
 
 def build_osm_graph(
     place_name: str,
