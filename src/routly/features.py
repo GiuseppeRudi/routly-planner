@@ -49,6 +49,8 @@ class CongestionConfig:
 class LLMEventsConfig:
     enabled: bool = False
     backend: str = "ollama"  # "ollama" | "lmstudio" - which local LLM server to call
+    strategic_injection: bool = False  # if True, LLM uses compact problem topology
+    # (start, goal, node degree) instead of a random road sample to pick targets
 
 
 @dataclass
@@ -157,6 +159,7 @@ class FeatureConfig:
         llm = LLMEventsConfig(
             enabled=llm_raw.get("enabled", False),
             backend=llm_raw.get("backend", "ollama"),
+            strategic_injection=llm_raw.get("strategic_injection", False),
         )
 
         sumo_raw = f.get("sumo", {})

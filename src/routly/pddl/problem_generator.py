@@ -153,6 +153,10 @@ def _build_init(
             lines.append(
                 f"  (= (congestion-factor {road_id}) {factor})"
             )
+        elif features.llm_events.enabled:
+            # Neutral starting value; a "slowdown" LLM event later overwrites
+            # this line in problem_dynamic.pddl with a higher factor.
+            lines.append(f"  (= (congestion-factor {road_id}) 1.0)")
 
         # LLM events: all roads and locations start unblocked; the dynamic
         # event step adds road-blocked and optional location-blocked facts.

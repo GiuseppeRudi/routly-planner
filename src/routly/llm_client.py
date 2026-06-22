@@ -6,7 +6,7 @@ import urllib.request
 
 def call_llm(
     prompt: str,
-    backend: str = "ollama",
+    backend: str = "lmstudio",
     timeout: int = 180,
     seed: int | None = None,
 ) -> str:
@@ -19,7 +19,7 @@ def call_llm(
     if backend == "lmstudio":
         url = "http://127.0.0.1:1234/v1/chat/completions"
         data = {
-            "model": "qwen/qwen2.5-coder-14b",
+            "model": "local-model",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.0,
         }
