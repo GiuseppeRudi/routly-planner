@@ -8,6 +8,7 @@ from pathlib import Path
 import random
 from typing import Any
 
+from src.routly.domain.roads import road_capacity_class
 from src.routly.features import DurationRange, TrafficLightsConfig
 
 
@@ -17,19 +18,6 @@ class IntersectionComplexity(str, Enum):
     MEDIUM = "medium"
     COMPLEX = "complex"
 
-
-# ---------------------------------------------------------------------------
-# Road-type proxy.
-#
-# The mapping does not store the OSM 'highway' class, but it does store the
-# per-road speed limit (m/s), which is a good proxy for the *type* of road
-# feeding the intersection:
-#   <= ~9 m/s   (~32 km/h)  -> residential / local street
-#   <= ~14 m/s  (~50 km/h)  -> urban arterial
-#    > ~14 m/s               -> major / fast road
-# ---------------------------------------------------------------------------
-_LOCAL_ROAD_SPEED_MS = 9.0
-_URBAN_ROAD_SPEED_MS = 14.0
 
 # Where each complexity class sits inside a configured [min, max] phase band.
 _COMPLEXITY_BANDS: dict["IntersectionComplexity", tuple[float, float]] = {
@@ -53,50 +41,6 @@ class TrafficLightTiming:
         """Expected red-light wait for uniformly distributed arrivals."""
         cycle_duration = self.green + self.yellow + self.red
         return round((self.red * self.red) / (2 * cycle_duration), 2)
-
-
-def _road_speed_ms(road: dict[str, Any]) -> float:
-    """Return a road's speed in m/s, tolerating both mapping keys.
-    JSON mapping roads use 'speed' while PDDL road dicts use 'speed_ms'."""
-    speed = road.get("speed", road.get("speed_ms"))
-    try:
-        return float(speed)
-    except (TypeError, ValueError):
-        return 0.0
-
-
-# NOTE: ideally this lives in a shared module (e.g. src/routly/domain/roads.py)
-# so the congestion feature and this one use the SAME definition of
-# road type. Kept here for now; move it and import it from both once the OSM
-# highway tag is added to the mapping.
-def road_class(road: dict[str, Any]) -> str:
-    """Normalize a road to a tier: "major" | "arterial" | "local".
-
-    Prefers the OSM highway tag; falls back to the speed proxy when the tag
-    is missing, so this works both before and after adding highway.
-    """
-    highway = road.get("highway")
-    if isinstance(highway, list):
-        highway = highway[0] if highway else None
-    if highway:
-        if highway in {
-            "motorway", "trunk", "primary",
-            "motorway_link", "trunk_link", "primary_link",
-        }:
-            return "major"
-        if highway in {
-            "secondary", "tertiary",
-            "secondary_link", "tertiary_link",
-        }:
-            return "arterial"
-        return "local"  # residential, unclassified, living_street, service…
-
-    speed_ms = _road_speed_ms(road)
-    if speed_ms > _URBAN_ROAD_SPEED_MS:
-        return "major"
-    if speed_ms > _LOCAL_ROAD_SPEED_MS:
-        return "arterial"
-    return "local"
 
 
 # Road-type contribution to the complexity score.
@@ -143,18 +87,16 @@ def classify_intersection(
 
     The score combines two signals:
       * how many streets meet at the node (geometric complexity), and
-      * the biggest/fastest incident road (road-type tier via 'road_class').
+      * the highest-capacity incident road.
     """
     # Geometric complexity from the number of approaching streets.
     if approaches <= 2: degree_level = 0  # through-node / pedestrian crossing
     elif approaches == 3: degree_level = 1  # T-junction
     else: degree_level = 2  # crossroads (4-way) or larger
 
-    # Road-type complexity from the biggest incident road. Uses the shared
-    # road_class() helper, which prefers the OSM highway tag and falls back
-    # to the speed proxy when the tag is not present yet.
+    # Road-type complexity from the highest-capacity incident road.
     road_level = max(
-        (_CLASS_RANK[road_class(road)] for road in incident_roads),
+        (_CLASS_RANK[road_capacity_class(road)] for road in incident_roads),
         default=0,
     )
 
@@ -200,7 +142,7 @@ def generate_traffic_light_timings(
     """Generate reproducible, complexity-aware timings for every TL node.
 
     Each signalised node is classified by its intersection complexity (number
-    of approaching streets plus the type/speed of the incident roads). The
+    of approaching streets plus the highest-capacity incident roads). The
     green/yellow/red phase durations are then drawn from the matching band of
     the configured ranges, so busier/faster junctions get longer phases.
     """

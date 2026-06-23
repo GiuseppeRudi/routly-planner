@@ -261,6 +261,22 @@ if __name__ == "__main__":
 # TODO 7. PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
 # TODO QUESTO PERO NON è SUFFICIENTE POICHE NON BASTA AVERE IL NUMERO TOTALE DI MACCHINA CHE PASSANO PER QUELLA STRADA MA ANCHE SAPERE IN LINEA TEMPORALE COME SI DISTRIBUSICONO QUESTE MACCHINE LUNGO IL TEMP O
 # TODO PER AVERE UNA CONGESTIONE DINAMICA DELLE STRADE 
+# NOTA: questa strada e stata studiata ma scartata per limiti pratici del planner.
+# IDEA PROVATA: calcolare in Python una timeline della congestione dividendo il tempo in finestre
+# (es. 30 secondi), contare quante auto background occupano ogni strada in ogni finestra e generare
+# nel PDDL+ eventi temporali che aggiornano il congestion-factor delle strade durante il piano.
+# PROBLEMA: su una mappa realistica questa soluzione produce molte finestre/oggetti/update PDDL
+# (ad esempio centinaia di strade e migliaia di aggiornamenti temporali). ENHSP deve quindi ragionare
+# su molti piu fluenti numerici, eventi e processi temporali; nella prova pratica il planner e andato
+# in OutOfMemoryError: Java heap space durante la ricerca euristica, confermando che il modello e troppo
+# pesante per questa pipeline.
+# POSSIBILE ALTERNATIVA NON IMPLEMENTATA: fare re-planning usando uno snapshot di congestione corrente.
+# Questa soluzione richiede pero un controller esterno che esegua solo una parte del piano, capisca dove
+# si trova il veicolo a un certo tempo (soprattutto se e in mezzo a una strada), rigeneri un problem PDDL
+# dal nodo/posizione corrente e unisca i piani parziali. Per questo e molto piu complessa rispetto
+# all'architettura attuale, dove il planner produce un piano completo start-goal in un'unica esecuzione.
+# DECISIONE: mantenere per ora una congestione statica dentro il singolo problem PDDL, migliorata dal TODO 6
+# con soglie diverse per classe di strada, invece di una congestione dinamica temporale dentro PDDL.
 
 
 # ^---^ RUDI

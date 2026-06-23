@@ -18,6 +18,27 @@ def _parse_speed_ms(raw_speed: object, default_kmh: float = 50.0) -> float:
     return round(speed_kmh / 3.6, 3)
 
 
+def _normalize_highway(raw_highway: object) -> str | list[str] | None:
+    if raw_highway is None:
+        return None
+
+    if isinstance(raw_highway, str):
+        highway = raw_highway.strip()
+        return highway if highway else None
+
+    if isinstance(raw_highway, (list, tuple, set)):
+        tags = [
+            item.strip()
+            for item in raw_highway
+            if isinstance(item, str) and item.strip()
+        ]
+        if not tags:
+            return None
+        return tags[0] if len(tags) == 1 else tags
+
+    return str(raw_highway)
+
+
 def graph_to_mapping(
     graph: nx.MultiDiGraph,
     projected_graph: nx.MultiDiGraph,
@@ -54,6 +75,7 @@ def graph_to_mapping(
         road_id = f"road_{i:04d}"
         length = round(float(data.get("length", 100.0)), 2)
         speed_ms = _parse_speed_ms(data.get("maxspeed", "50"))
+        highway = _normalize_highway(data.get("highway"))
 
         edge_data_projected = projected_graph.get_edge_data(u, v, k)
         if edge_data_projected and "geometry" in edge_data_projected:
@@ -70,6 +92,7 @@ def graph_to_mapping(
             "to": node_map[v]["id"],
             "length": length,
             "speed_ms": speed_ms,
+            "highway": highway,
         })
 
         roads_for_json.append({
@@ -78,6 +101,7 @@ def graph_to_mapping(
             "to": node_map[v]["id"],
             "length": length,
             "speed": speed_ms,
+            "highway": highway,
             "geometry": geometry,
         })
 

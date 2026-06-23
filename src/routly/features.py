@@ -5,6 +5,13 @@ from pathlib import Path
 from typing import Any
 
 
+DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS = {
+    "local": 20,
+    "arterial": 35,
+    "major": 50,
+}
+
+
 def _read_yaml(path: Path) -> dict[str, Any]:
     import yaml
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -42,7 +49,9 @@ class CongestionConfig:
     mode: str = "none" # "none" | "sumo_only" | "pddl"
     num_background_vehicles: int = 200  # used in sumo_only and pddl modes
     congestion_factor: float = 2.0 # speed divisor for congested roads in pddl mode
-    vehicles_for_max_congestion: int = 20 # vehicle count at which congestion_factor is fully applied
+    vehicles_for_max_congestion_by_road_class: dict[str, int] = field(
+        default_factory=lambda: dict(DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS)
+    )
 
 
 @dataclass
@@ -143,13 +152,14 @@ class FeatureConfig:
             traffic_lights_config = TrafficLightsConfig()
 
         cong_raw = f.get("congestion", {})
+        cong_mode = cong_raw.get("mode", "none")
         cong = CongestionConfig(
-            mode=cong_raw.get("mode", "none"),
+            mode=cong_mode,
             num_background_vehicles=cong_raw.get("num_background_vehicles", 200),
             congestion_factor=cong_raw.get("congestion_factor", 2.0),
-            vehicles_for_max_congestion=cong_raw.get(
-                "vehicles_for_max_congestion",
-                20,
+            vehicles_for_max_congestion_by_road_class=_congestion_thresholds(
+                cong_raw.get("vehicles_for_max_congestion_by_road_class"),
+                required=cong_mode != "none",
             ),
         )
 
@@ -207,6 +217,47 @@ def _duration_range(
         minimum=int(raw.get("min", default_minimum)),
         maximum=int(raw.get("max", default_maximum)),
     )
+
+
+def _congestion_thresholds(
+    raw: dict[str, Any] | None,
+    required: bool,
+) -> dict[str, int]:
+    if raw is None:
+        if required:
+            raise ValueError(
+                "Missing required features.congestion."
+                "vehicles_for_max_congestion_by_road_class"
+            )
+        return dict(DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS)
+
+    missing = [
+        road_class
+        for road_class in DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS
+        if road_class not in raw
+    ]
+    if missing:
+        raise ValueError(
+            "Missing congestion threshold(s) for road class: "
+            + ", ".join(missing)
+        )
+
+    thresholds = {}
+    for road_class in DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS:
+        try:
+            threshold = int(raw[road_class])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "Congestion threshold must be an integer for road class "
+                f"{road_class}"
+            ) from exc
+        if threshold <= 0:
+            raise ValueError(
+                "Congestion threshold must be greater than zero for road class "
+                f"{road_class}"
+            )
+        thresholds[road_class] = threshold
+    return thresholds
 
 
 def _sumo_plans(raw: str | list[str]) -> list[str]:
