@@ -5,7 +5,9 @@ import json
 from pathlib import Path
 import random
 from typing import Any
- 
+
+from src.routly.domain.roads import ROAD_CAPACITY_CLASSES, road_capacity_class
+
 
 BackgroundRoute = tuple[float, list[str]]
 
@@ -131,19 +133,21 @@ def compute_congestion_factors(
     roads: list[dict[str, Any]],
     background_routes: list[BackgroundRoute],
     max_factor: float,
-    vehicles_for_max_congestion: int,
+    vehicles_for_max_congestion_by_road_class: dict[str, int],
 ) -> dict[str, float]:
     """
-    Scale each road from 1.0 to max_factor according to its absolute vehicle load.
+    Scale each road from 1.0 to max_factor according to its vehicle load.
 
-    A road reaches max_factor when its vehicle count reaches the configured
-    threshold. Higher counts remain capped at max_factor.
+    A road reaches max_factor when its vehicle count reaches the threshold
+    configured for its capacity class. Higher counts remain capped at max_factor.
     """
 
     if max_factor < 1.0:
         raise ValueError("max_factor must be greater than or equal to 1.0")
-    if vehicles_for_max_congestion <= 0:
-        raise ValueError("vehicles_for_max_congestion must be greater than zero")
+
+    thresholds = _validate_congestion_thresholds(
+        vehicles_for_max_congestion_by_road_class
+    )
 
     counts = count_vehicles_per_road(background_routes)
     
@@ -151,13 +155,49 @@ def compute_congestion_factors(
     #     f"Vehicle counts for congestion computation: "
     #     f"{ {road_id: count for road_id, count in counts.items() if count > 0} }")
     
-    return {
-        road["id"]: round(
-            min(max_factor, 1.0 + (counts.get(road["id"], 0) / vehicles_for_max_congestion) * (max_factor - 1.0))
-            , 2
+    factors: dict[str, float] = {}
+    for road in roads:
+        road_id = road["id"]
+        threshold = thresholds[road_capacity_class(road)]
+        vehicle_count = counts.get(road_id, 0)
+        factor = min(
+            max_factor,
+            1.0 + (vehicle_count / threshold) * (max_factor - 1.0),
         )
-        for road in roads
-    }
+        factors[road_id] = round(factor, 2)
+    return factors
+
+
+def _validate_congestion_thresholds(
+    thresholds: dict[str, int],
+) -> dict[str, int]:
+    missing = [
+        road_class
+        for road_class in ROAD_CAPACITY_CLASSES
+        if road_class not in thresholds
+    ]
+    if missing:
+        raise ValueError(
+            "Missing congestion threshold(s) for road class: "
+            + ", ".join(missing)
+        )
+
+    validated = {}
+    for road_class in ROAD_CAPACITY_CLASSES:
+        try:
+            threshold = int(thresholds[road_class])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "Congestion threshold must be an integer for road class "
+                f"{road_class}"
+            ) from exc
+        if threshold <= 0:
+            raise ValueError(
+                "Congestion threshold must be greater than zero for road class "
+                f"{road_class}"
+            )
+        validated[road_class] = threshold
+    return validated
 
 
 def write_background_routes(

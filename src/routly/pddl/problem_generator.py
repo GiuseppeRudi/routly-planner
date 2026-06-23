@@ -47,8 +47,8 @@ def build_road_network_problem(
             roads,
             background_routes or [],
             max_factor=features.congestion.congestion_factor,
-            vehicles_for_max_congestion=(
-                features.congestion.vehicles_for_max_congestion
+            vehicles_for_max_congestion_by_road_class=(
+                features.congestion.vehicles_for_max_congestion_by_road_class
             ),
         )
 
