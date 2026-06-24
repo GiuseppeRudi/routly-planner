@@ -190,6 +190,8 @@ def write_rou_xml(
     all_roads: list[dict] | None = None,
     background_routes: list[BackgroundRoute] | None = None,
     seed: int | None = None,
+    blocked_roads: list[str] | None = None,       # ➔ Task 2: Added parameter
+    blocked_locations: list[str] | None = None,   # ➔ Task 2: Added parameter
 ) -> None:
     """
     Write SUMO route XML.
@@ -210,20 +212,54 @@ def write_rou_xml(
     ET.SubElement(vehicle, "route", edges=" ".join(edge_sequence))
 
     # ── background vehicles ───────────────────────────────────────────────────
+    closed_edges = set(blocked_roads) if blocked_roads else set()
+    closed_nodes = set(blocked_locations) if blocked_locations else set()
+
+    road_nodes = {}
+    if all_roads:
+        for r in all_roads:
+            road_nodes[r["id"]] = (r["from"], r["to"])
+
     bg_routes = background_routes
     if bg_routes is None and background_vehicles > 0 and all_roads:
         if seed is None:
             raise ValueError(
                 "A global seed is required when generating background routes"
             )
-        bg_routes = generate_background_routes(all_roads, background_vehicles, seed)
+        # Filter the pool so random background routes do not even pick blocked infrastructure
+        filtered_all_roads = [
+            r for r in all_roads
+            if r["id"] not in closed_edges
+            and r["from"] not in closed_nodes
+            and r["to"] not in closed_nodes
+        ]
+        bg_routes = generate_background_routes(filtered_all_roads, background_vehicles, seed)
+    elif bg_routes is not None:
+        # If background routes are pre-calculated, filter out any route touching blocked components
+        filtered_bg_routes = []
+        for depart, route in bg_routes:
+            route_edges = route.edges if hasattr(route, "edges") else route
+            valid = True
+            for edge_id in route_edges:
+                if edge_id in closed_edges:
+                    valid = False
+                    break
+                if edge_id in road_nodes:
+                    fr, to = road_nodes[edge_id]
+                    if fr in closed_nodes or to in closed_nodes:
+                        valid = False
+                        break
+            if valid:
+                filtered_bg_routes.append((depart, route))
+        bg_routes = filtered_bg_routes
 
     if bg_routes:
         for i, (depart, route) in enumerate(bg_routes):
+            route_edges = route.edges if hasattr(route, "edges") else route
             bg = ET.SubElement(root, "vehicle",
                                id=f"bg_{i:04d}", type="car",
                                depart=str(depart), color="0.5,0.5,0.5")
-            ET.SubElement(bg, "route", edges=" ".join(route))
+            ET.SubElement(bg, "route", edges=" ".join(route_edges))
     _write_pretty_xml(root, out_path)
 
 

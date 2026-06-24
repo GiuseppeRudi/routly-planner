@@ -5,9 +5,12 @@ import argparse
 import sys
 import webbrowser
 from typing import Any
+import json  # ➔ Added for incident log parsing
 import yaml
 
-PROJECT_ROOT = Path.cwd()
+# Bulletproof root path resolution independent of terminal prompt location
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.fuel import load_fuel_stations
@@ -88,10 +91,8 @@ def resolve_plan_runs(
 
         plan_path = config.plan_path.parent / PLAN_FILE_BY_KIND[plan_kind]
         if not plan_path.exists():
-            raise FileNotFoundError(
-                f"Plan '{plan_kind}' not found at {plan_path}. "
-                "Run step 4 first to generate the requested plan."
-            )
+            print(f"WARNING: Plan '{plan_kind}' not found at {plan_path}. Skipping run.")
+            continue
         runs.append((plan_kind, plan_path))
 
     if not runs:
@@ -157,6 +158,36 @@ def write_and_launch_sumo_for_plan(
     route_path = sumo_route_path_for_plan(config, plan_kind)
     cfg_path = sumo_cfg_path_for_plan(config, plan_kind)
 
+    # ── TASK 2: LOAD INCIDENT DATA LOGS FOR BACKGROUND VEHICLE FILTERING ─────
+    blocked_roads = []
+    blocked_locations = []
+
+    if plan_kind == "dynamic" and features.llm_events.enabled:
+        log_path = config.problem_path.parent / "incidents_log.json"
+        if log_path.exists():
+            try:
+                with open(log_path, "r", encoding="utf-8") as log_f:
+                    log_data = json.load(log_f)
+                
+                # Fetch only physical blocks (exclude slowdowns from routing exclusions)
+                for event in log_data.get("events", []):
+                    if event.get("event_type") != "slowdown":
+                        blocked_roads.extend(event.get("roads", []))
+                
+                # Fetch derived blocked intersections
+                for loc in log_data.get("blocked_locations", []):
+                    if isinstance(loc, dict) and "id" in loc:
+                        blocked_locations.append(loc["id"])
+                    elif isinstance(loc, str):
+                        blocked_locations.append(loc)
+                
+                print(f"ℹ️ Loaded incident data for background filtering. Blocked infrastructure:")
+                print(f"   Roads: {blocked_roads}")
+                print(f"   Junctions: {blocked_locations}")
+            except Exception as e:
+                print(f"WARNING: Failed to parse incidents log file ({e}). Routing fallback active.")
+    # ──────────────────────────────────────────────────────────────────────────
+
     write_rou_xml(
         road_sequence,
         out_path=route_path,
@@ -169,13 +200,15 @@ def write_and_launch_sumo_for_plan(
         all_roads=mapping["roads"],
         background_routes=background_routes,
         seed=config.seed,
+        blocked_roads=blocked_roads,         # ➔ Passed for filtering
+        blocked_locations=blocked_locations, # ➔ Passed for filtering
     )
 
     end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)
     additional = []
     if features.fuel.enabled and config.fuel_stations_path.exists():
         stations = load_fuel_stations(config.fuel_stations_path)
-        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, config.sumo_net_path, "images/gas_station.png",)
+        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, config.sumo_net_path, "images/gas_station.png")
         additional.append(config.fuel_poi_path)
 
     write_sumocfg(

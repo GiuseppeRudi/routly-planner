@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from src.routly.domain.fuel import FuelParameters
-from src.routly.domain.congestion import BackgroundRoute, compute_congestion_factors
+# ➔ Task 3: Added generate_background_routes import
+from src.routly.domain.congestion import BackgroundRoute, compute_congestion_factors, generate_background_routes
 from src.routly.features import FeatureConfig
 from src.routly.domain.traffic_lights import (
     TrafficLightTiming,
@@ -52,10 +53,6 @@ def build_road_network_problem(
             ),
         )
 
-        # print("Congestion factors:")
-        # for road_id, factor in congestion_factors.items():
-        #     print(f"  {road_id}: {factor:.2f}")
-
         print(
             f"Computed congestion factors for "
             f"{len(congestion_factors)} roads "
@@ -90,6 +87,49 @@ def build_road_network_problem(
 {metric_line}
 )
 """
+
+
+def recleanse_and_compute_dynamic_congestion(
+    roads: list[dict[str, Any]],
+    blocked_roads: list[str],
+    blocked_locations: list[str],
+    features: FeatureConfig,
+    seed: int,
+) -> tuple[dict[str, float], list[Any]]:
+    """
+    TASK 3: Re-generate background traffic routes on the remaining open network topology
+    and re-compute fresh congestion factors for the PDDL planner input.
+    """
+    if not features.congestion_in_pddl:
+        return {}, []
+
+    closed_edges = set(blocked_roads)
+    closed_nodes = set(blocked_locations)
+
+    # Filter out blocked components from the routing pool for background vehicles
+    filtered_roads = [
+        r for r in roads
+        if r["id"] not in closed_edges
+        and r["from"] not in closed_nodes
+        and r["to"] not in closed_nodes
+    ]
+
+    # Re-generate background traffic routes exclusively using the safe open network paths
+    new_bg_routes = generate_background_routes(
+        filtered_roads,
+        features.congestion.num_background_vehicles,
+        seed
+    )
+
+    # Re-compute dynamic congestion factors for all network edges based on new traffic distribution
+    new_factors = compute_congestion_factors(
+        roads,
+        new_bg_routes,
+        max_factor=features.congestion.congestion_factor,
+        vehicles_for_max_congestion=features.congestion.vehicles_for_max_congestion,
+    )
+
+    return new_factors, new_bg_routes
 
 
 # ── OBJECTS ───────────────────────────────────────────────────────────────────
@@ -154,12 +194,7 @@ def _build_init(
                 f"  (= (congestion-factor {road_id}) {factor})"
             )
         elif features.llm_events.enabled:
-            # Neutral starting value; a "slowdown" LLM event later overwrites
-            # this line in problem_dynamic.pddl with a higher factor.
             lines.append(f"  (= (congestion-factor {road_id}) 1.0)")
-
-        # LLM events: all roads and locations start unblocked; the dynamic
-        # event step adds road-blocked and optional location-blocked facts.
 
     # ── nodes: traffic lights ─────────────────────────────────────────────────
     if features.traffic_lights:
@@ -185,15 +220,12 @@ def _build_init(
             if node["id"] in station_set:
                 lines.append(f"  (has-fuel-station {node['id']})")
 
-
     return "\n".join(lines)
 
 
 # ── METRIC ────────────────────────────────────────────────────────────────────
 
 def _build_metric(vehicle_id: str, features: FeatureConfig) -> str:
-    # Use travel-time when traffic lights are active (it includes signal delays).
-    # Fall back to total-distance for pure routing.
     if features.traffic_lights:
         return f"  (:metric minimize (travel-time {vehicle_id}))"
     return f"  (:metric minimize (total-distance {vehicle_id}))"

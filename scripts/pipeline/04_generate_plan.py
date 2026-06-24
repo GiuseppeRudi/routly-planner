@@ -8,7 +8,9 @@ import re
 import json
 import datetime
 
-PROJECT_ROOT = Path.cwd()
+# Bulletproof path resolution independent of terminal working directory
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.fuel import load_fuel_stations
@@ -22,6 +24,8 @@ from src.routly.pddl.mapping import (
     build_road_adjacency,
     extract_topology_for_llm,
 )
+# ➔ Task 3: Import the dynamic congestion re-calculation module
+from src.routly.pddl.problem_generator import recleanse_and_compute_dynamic_congestion
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
 
@@ -72,9 +76,7 @@ def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path
 
 
 def _connected_components(roads: list[str], adjacency: dict[str, set[str]]) -> list[list[str]]:
-    """Split `roads` into its connected components according to `adjacency`
-    (roads sharing an endpoint), instead of discarding everything outside the
-    largest one - each component can become its own event."""
+    """Split `roads` into its connected components according to `adjacency`."""
     road_set = set(roads)
     visited: set[str] = set()
     components: list[list[str]] = []
@@ -117,8 +119,6 @@ def _validated_events(
         if event_type not in EVENT_TYPES:
             event_type = "accident"
 
-        # "slowdown" never closes a road, so it does not count against the
-        # closure budget and is not subject to it either.
         is_closure = event_type != "slowdown"
         if is_closure and total_closed >= max_total_closures:
             continue
@@ -142,9 +142,6 @@ def _validated_events(
             roads = roads[:1]
             components = [roads]
         else:
-            # Roads that don't actually share an endpoint are split into
-            # separate events instead of being dropped, so a single LLM
-            # proposal of disconnected roads turns into multiple events.
             components = _connected_components(roads, adjacency)
 
         if event_type == "slowdown":
@@ -187,30 +184,37 @@ def _derive_blocked_locations(
     roads_by_id: dict[str, dict],
     protected_locations: set[str],
 ) -> list[dict]:
-    """Close only intersections shared by two or more roads in the same event."""
+    """Close only intersections shared by two or more roads globally across active closures."""
     blocked_locations: list[dict] = []
     seen: set[str] = set()
 
+    endpoint_counts: dict[str, int] = {}
+    node_to_event_info: dict[str, tuple[str, str]] = {}
+
     for event in events:
-        endpoint_counts: dict[str, int] = {}
+        if event["event_type"] == "slowdown":
+            continue
         for road_id in event["roads"]:
             road = roads_by_id.get(road_id)
             if road is None:
                 continue
             endpoint_counts[road["from"]] = endpoint_counts.get(road["from"], 0) + 1
             endpoint_counts[road["to"]] = endpoint_counts.get(road["to"], 0) + 1
+            node_to_event_info[road["from"]] = (event["event_type"], event["description"])
+            node_to_event_info[road["to"]] = (event["event_type"], event["description"])
 
-        for location_id, count in sorted(endpoint_counts.items()):
-            if count < 2 or location_id in protected_locations or location_id in seen:
-                continue
+    for location_id, count in sorted(endpoint_counts.items()):
+        if count < 2 or location_id in protected_locations or location_id in seen:
+            continue
 
-            blocked_locations.append({
-                "id": location_id,
-                "event_type": event["event_type"],
-                "description": event["description"],
-                "shared_closed_roads": count,
-            })
-            seen.add(location_id)
+        event_type, description = node_to_event_info[location_id]
+        blocked_locations.append({
+            "id": location_id,
+            "event_type": event_type,
+            "description": description,
+            "shared_closed_roads": count,
+        })
+        seen.add(location_id)
 
     return blocked_locations
 
@@ -282,11 +286,7 @@ def main() -> None:
     if features.llm_events.strategic_injection:
         print(f"   Mode: STRATEGIC TOPOLOGY-BASED GENERATION (LLM)")
         if start_loc is None or goal_loc is None:
-            print(
-                "❌ Could not extract start/goal from the PDDL problem header "
-                "(';; Start:' / ';; Goal:' comments missing). Cannot build a "
-                "strategic topology prompt. Skipping dynamic event injection."
-            )
+            print("❌ Could not extract start/goal from PDDL header. Skipping injection.")
             return
         topology = extract_topology_for_llm(
             mapping=mapping,
@@ -294,39 +294,20 @@ def main() -> None:
             start_loc=start_loc,
             goal_loc=goal_loc,
         )
-        print(
-            f"    Topology sent to LLM: {len(topology['edges'])} edges, "
-            f"{len(topology['nodes'])} nodes (truncated={topology['truncated']})"
-        )
+        print(f"    Topology sent to LLM: {len(topology['edges'])} edges, {len(topology['nodes'])} nodes.")
         prompt = build_strategic_prompt(
-            topology=topology,
-            node_count=node_count,
-            road_count=road_count,
-            max_events=max_events,
-            max_roads_per_event=max_roads_per_event,
-            max_total_closures=max_total_closures,
-            min_severity=SEVERITY_MIN,
-            max_severity=SEVERITY_MAX,
+            topology=topology, node_count=node_count, road_count=road_count,
+            max_events=max_events, max_roads_per_event=max_roads_per_event,
+            max_total_closures=max_total_closures, min_severity=SEVERITY_MIN, max_severity=SEVERITY_MAX,
         )
     else:
         print(f"   Mode: AUTOMATED STOCHASTIC GENERATION (LLM)")
         candidates = _build_random_candidates(rng, all_roads, adjacency)
         print(f"    Candidate clusters sent to LLM: {candidates}")
-        prompt = build_random_prompt(
-            candidates,
-            node_count,
-            road_count,
-            max_events,
-            max_roads_per_event,
-            max_total_closures,
-        )
+        prompt = build_random_prompt(candidates, node_count, road_count, max_events, max_roads_per_event, max_total_closures)
 
     try:
-        response_text = call_llm(
-            prompt,
-            backend=features.llm_events.backend,
-            seed=config.seed,
-        )
+        response_text = call_llm(prompt, backend=features.llm_events.backend, seed=config.seed)
         response_text = re.sub(r"```json|```", "", response_text).strip()
         llm_decision = json.loads(response_text)
         raw_events = llm_decision["events"]
@@ -334,14 +315,8 @@ def main() -> None:
             raise ValueError("LLM returned an empty events list")
 
         events = _validated_events(
-            raw_events,
-            all_roads,
-            adjacency,
-            max_events,
-            max_roads_per_event,
-            max_total_closures,
-            severity_min=SEVERITY_MIN,
-            severity_max=SEVERITY_MAX,
+            raw_events, all_roads, adjacency, max_events, max_roads_per_event, max_total_closures,
+            severity_min=SEVERITY_MIN, severity_max=SEVERITY_MAX,
         )
         if not events:
             raise ValueError("No valid events left after validation")
@@ -372,79 +347,65 @@ def main() -> None:
     print()
 
     modified_content = re.sub(r"\(problem\s+([^\s\)]+)\)", r"(problem \1_dynamic)", content)
+    
+    # 1. Inject standard roadblocks and explicit slowdown severities
     for event in events:
         if event["event_type"] == "slowdown":
             severity = event["severity"]
-            updated_roads = []
-            missing_roads = []
             for road in event["roads"]:
-                pattern = re.compile(
-                    rf"\(=\s*\(congestion-factor\s+{re.escape(road)}\)\s*[\d.]+\)"
-                )
-                replacement = (
-                    f"(= (congestion-factor {road}) {severity})  "
-                    f";; [DYNAMIC EVENT - slowdown] {event['description']}"
-                )
+                pattern = re.compile(rf"\(=\s*\(congestion-factor\s+{re.escape(road)}\)\s*[\d.]+\)")
+                replacement = f"(= (congestion-factor {road}) {severity})  ;; [DYNAMIC EVENT - slowdown] {event['description']}"
                 if pattern.search(modified_content):
                     modified_content = pattern.sub(replacement, modified_content, count=1)
-                    updated_roads.append(road)
-                else:
-                    missing_roads.append(road)
-            print(
-                f"PDDL file updated. {len(updated_roads)}/{len(event['roads'])} roads "
-                f"slowed down (factor={severity}): {updated_roads}."
-            )
-            if missing_roads:
-                print(
-                    f"  WARNING: congestion-factor line not found for {missing_roads} "
-                    f"(was llm_events.enabled set when the problem was generated?)."
-                )
             continue
 
         for road in event["roads"]:
             line_to_find = f"(road-open {road})"
-            blocked_fact = (
-                f"{line_to_find}\n"
-                f"  ;; [DYNAMIC EVENT - {event['event_type']}] {event['description']}\n"
-                f"  (road-blocked {road})"
-            )
+            blocked_fact = f"{line_to_find}\n  ;; [DYNAMIC EVENT - {event['event_type']}] {event['description']}\n  (road-blocked {road})"
             if line_to_find in modified_content:
                 modified_content = modified_content.replace(line_to_find, blocked_fact)
-                print(f"PDDL file updated. Road {road} is now blocked.")
-            else:
-                print(f"Line '{line_to_find}' not found in the problem text.")
 
     protected_locations = {loc for loc in (start_loc, goal_loc) if loc is not None}
     closure_events = [event for event in events if event["event_type"] != "slowdown"]
-    blocked_locations = _derive_blocked_locations(
-        events=closure_events,
-        roads_by_id=roads_by_id,
-        protected_locations=protected_locations,
-    )
+    
+    # 2. Derive global intersection blockade blocks (Task 1)
+    blocked_locations = _derive_blocked_locations(events=closure_events, roads_by_id=roads_by_id, protected_locations=protected_locations)
     if blocked_locations:
         location_lines = [
-            (
-                f"  ;; [DYNAMIC EVENT - {location['event_type']}] "
-                f"{location['description']}"
-            )
-            + "\n"
-            + f"  (location-blocked {location['id']})"
+            f"  ;; [DYNAMIC EVENT - {location['event_type']}] {location['description']}\n  (location-blocked {location['id']})"
             for location in blocked_locations
         ]
         init_end_marker = "\n  )\n\n  (:goal"
-        modified_content = modified_content.replace(
-            init_end_marker,
-            "\n" + "\n".join(location_lines) + init_end_marker,
-            1,
-        )
-        print("PDDL file updated. Blocked intersections:")
-        for location in blocked_locations:
-            print(
-                f"  - {location['id']} "
-                f"({location['shared_closed_roads']} closed roads meet here)"
-            )
-    else:
-        print("No intersections blocked: no event closes two or more roads at the same node.")
+        modified_content = modified_content.replace(init_end_marker, "\n" + "\n".join(location_lines) + init_end_marker, 1)
+        print("PDDL file updated with blocked intersections.")
+
+    # 3. TASK 3: Recalculate background routes and congestion factor fluents globally
+    # Isolate explicit slowdown road IDs to avoid overwriting them with general traffic redistribution costs
+    slowed_road_ids = {r for e in events if e["event_type"] == "slowdown" for r in e["roads"]}
+    just_blocked_road_ids = [r for e in closure_events for r in e["roads"]]
+    just_blocked_loc_ids = [loc["id"] for loc in blocked_locations]
+
+    new_factors, _ = recleanse_and_compute_dynamic_congestion(
+        roads=mapping["roads"],
+        blocked_roads=just_blocked_road_ids,
+        blocked_locations=just_blocked_loc_ids,
+        features=features,
+        seed=config.seed
+    )
+
+    if new_factors:
+        print("Recalculating dynamic congestion factors based on new open network topology...")
+        updated_count = 0
+        for road_id, factor in new_factors.items():
+            if road_id in slowed_road_ids:
+                continue  # Preserve explicit LLM slowdown event priorities
+            
+            pattern = re.compile(rf"\(=\s*\(congestion-factor\s+{re.escape(road_id)}\)\s*[\d.]+\)")
+            replacement = f"(= (congestion-factor {road_id}) {round(factor, 4)})"
+            if pattern.search(modified_content):
+                modified_content = pattern.sub(replacement, modified_content, count=1)
+                updated_count += 1
+        print(f"✅ Dynamic topology recalculation completed. {updated_count} open roads updated in PDDL.")
 
     with open(dynamic_problem_path, "w", encoding="utf-8") as f:
         f.write(modified_content)
@@ -458,9 +419,7 @@ def main() -> None:
         "blocked_locations": blocked_locations,
         "events": [
             {
-                "event_type": event["event_type"],
-                "roads": event["roads"],
-                "description": event["description"],
+                "event_type": event["event_type"], "roads": event["roads"], "description": event["description"],
                 **({"severity": event["severity"]} if event["event_type"] == "slowdown" else {}),
             }
             for event in events
@@ -472,31 +431,16 @@ def main() -> None:
 
     recalculated_roads = _run_and_plot(config, features, dynamic_problem_path, dynamic_plan_path, dynamic_plan_image_path)
 
-    blocked_roads = [
-        {"id": road, "event_type": event["event_type"], "description": event["description"]}
-        for event in closure_events
-        for road in event["roads"]
-    ]
-    slowed_roads = [
-        {"id": road, "event_type": event["event_type"], "description": event["description"], "severity": event["severity"]}
-        for event in events
-        if event["event_type"] == "slowdown"
-        for road in event["roads"]
-    ]
+    blocked_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"]} for event in closure_events for road in event["roads"]]
+    slowed_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"], "severity": event["severity"]} for event in events if event["event_type"] == "slowdown" for road in event["roads"]]
+    
     event_map_path = problem_path.parent / "event_map.png"
     plot_event_map(
-        mapping=mapping,
-        original_roads=original_roads,
-        recalculated_roads=recalculated_roads,
-        blocked_roads=blocked_roads,
-        blocked_locations=blocked_locations,
-        start_loc=start_loc,
-        goal_loc=goal_loc,
-        output_path=event_map_path,
-        slowed_roads=slowed_roads,
+        mapping=mapping, original_roads=original_roads, recalculated_roads=recalculated_roads,
+        blocked_roads=blocked_roads, blocked_locations=blocked_locations, start_loc=start_loc, goal_loc=goal_loc,
+        output_path=event_map_path, slowed_roads=slowed_roads,
     )
     print(f"   Event map saved: {event_map_path}")
-    print("   It will be opened by plan_to_sumo before launching SUMO.")
 
 
 if __name__ == "__main__":
