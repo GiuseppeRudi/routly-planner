@@ -71,12 +71,13 @@ def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path
     return planned_roads
 
 
-def _largest_connected_component(roads: list[str], adjacency: dict[str, set[str]]) -> list[str]:
-    """Return the largest subset of `roads` that forms a connected component
-    according to `adjacency` (roads sharing an endpoint)."""
+def _connected_components(roads: list[str], adjacency: dict[str, set[str]]) -> list[list[str]]:
+    """Split `roads` into its connected components according to `adjacency`
+    (roads sharing an endpoint), instead of discarding everything outside the
+    largest one - each component can become its own event."""
     road_set = set(roads)
     visited: set[str] = set()
-    best: list[str] = []
+    components: list[list[str]] = []
     for start in roads:
         if start in visited:
             continue
@@ -90,9 +91,8 @@ def _largest_connected_component(roads: list[str], adjacency: dict[str, set[str]
                 if neighbor in road_set and neighbor not in visited:
                     visited.add(neighbor)
                     stack.append(neighbor)
-        if len(component) > len(best):
-            best = component
-    return best
+        components.append(component)
+    return components
 
 
 def _validated_events(
@@ -140,34 +140,44 @@ def _validated_events(
 
         if event_type == "accident":
             roads = roads[:1]
+            components = [roads]
         else:
-            roads = roads[:max_roads_per_event]
+            # Roads that don't actually share an endpoint are split into
+            # separate events instead of being dropped, so a single LLM
+            # proposal of disconnected roads turns into multiple events.
+            components = _connected_components(roads, adjacency)
 
-        roads = _largest_connected_component(roads, adjacency)
-        if not roads:
-            continue
-
-        if is_closure:
-            roads = roads[:max_total_closures - total_closed]
-            if not roads:
-                continue
-
-        event = {
-            "event_type": event_type,
-            "roads": roads,
-            "description": description,
-        }
         if event_type == "slowdown":
             try:
                 severity = float(raw_event.get("severity", severity_min))
             except (TypeError, ValueError):
                 severity = severity_min
-            event["severity"] = max(severity_min, min(severity_max, severity))
+            severity = max(severity_min, min(severity_max, severity))
 
-        events.append(event)
-        used_roads.update(roads)
-        if is_closure:
-            total_closed += len(roads)
+        for component_roads in components:
+            if len(events) >= max_events:
+                break
+            if event_type != "accident":
+                component_roads = component_roads[:max_roads_per_event]
+            if is_closure:
+                component_roads = component_roads[:max_total_closures - total_closed]
+            if not component_roads:
+                continue
+
+            event = {
+                "event_type": event_type,
+                "roads": component_roads,
+                "description": description,
+            }
+            if event_type == "slowdown":
+                event["severity"] = severity
+
+            events.append(event)
+            used_roads.update(component_roads)
+            if is_closure:
+                total_closed += len(component_roads)
+                if total_closed >= max_total_closures:
+                    break
 
     return events
 
@@ -365,6 +375,8 @@ def main() -> None:
     for event in events:
         if event["event_type"] == "slowdown":
             severity = event["severity"]
+            updated_roads = []
+            missing_roads = []
             for road in event["roads"]:
                 pattern = re.compile(
                     rf"\(=\s*\(congestion-factor\s+{re.escape(road)}\)\s*[\d.]+\)"
@@ -375,12 +387,18 @@ def main() -> None:
                 )
                 if pattern.search(modified_content):
                     modified_content = pattern.sub(replacement, modified_content, count=1)
-                    print(f"PDDL file updated. Road {road} slowed down (factor={severity}).")
+                    updated_roads.append(road)
                 else:
-                    print(
-                        f"congestion-factor line for road '{road}' not found in the problem "
-                        f"text (was llm_events.enabled set when the problem was generated?)."
-                    )
+                    missing_roads.append(road)
+            print(
+                f"PDDL file updated. {len(updated_roads)}/{len(event['roads'])} roads "
+                f"slowed down (factor={severity}): {updated_roads}."
+            )
+            if missing_roads:
+                print(
+                    f"  WARNING: congestion-factor line not found for {missing_roads} "
+                    f"(was llm_events.enabled set when the problem was generated?)."
+                )
             continue
 
         for road in event["roads"]:

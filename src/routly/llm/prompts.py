@@ -110,12 +110,14 @@ def build_strategic_prompt(
         f"\"slowdown\" roads do not count against this limit since the road stays open.\n"
         f"Briefly justify each choice in \"event_description\" in terms of the "
         f"topology (e.g. 'low-degree bridge node between the two areas'), in English.\n"
-        f"Respond strictly in this JSON format, no other text:\n"
+        f"Respond strictly in this JSON format, no other text (\"roads\" is a list of "
+        f"1 to {max_roads_per_event} road ids - the example below shows the shape, not "
+        f"the count you should use):\n"
         "{\n"
         '  "events": [\n'
-        '    {"event_type": "roadworks", "roads": ["road_XXXX", "road_YYYY"], '
+        '    {"event_type": "roadworks", "roads": ["road_<id_1>", "...", "road_<id_N>"], '
         '"event_description": "..."},\n'
-        '    {"event_type": "slowdown", "roads": ["road_ZZZZ"], "severity": 2.5, '
+        '    {"event_type": "slowdown", "roads": ["road_<id_1>", "..."], "severity": 2.5, '
         '"event_description": "..."}\n'
         "  ]\n"
         "}"

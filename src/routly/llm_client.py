@@ -21,7 +21,7 @@ def call_llm(
         data = {
             "model": "local-model",
             "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.0,
+            "temperature": 0.6,
         }
         if seed is not None:
             data["seed"] = seed
@@ -30,7 +30,7 @@ def call_llm(
         data = {
             "model": "gpt-oss:120b-cloud",
             "messages": [{"role": "user", "content": prompt}],
-            "options": {"temperature": 0.0},
+            "options": {"temperature": 0.6},
             "stream": False,
         }
         if seed is not None:
