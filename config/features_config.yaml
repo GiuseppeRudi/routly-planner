@@ -15,7 +15,11 @@ features:
     mode: "pddl" # "none" | "sumo_only" | "pddl"
     num_background_vehicles: 200   # only if mode is not "none"
     congestion_factor: 2.0     # speed / congestion_factor on congested roads (only if mode: "pddl")
-    vehicles_for_max_congestion: 20 # vehicles on one road needed to reach congestion_factor
+    # If OSM highway is missing or unknown, the road is treated as local.
+    vehicles_for_max_congestion_by_road_class:
+      local: 20
+      arterial: 35
+      major: 50
 
   llm_events:
     enabled: true
