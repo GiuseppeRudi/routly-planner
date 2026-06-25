@@ -98,7 +98,7 @@ def recleanse_and_compute_dynamic_congestion(
 ) -> tuple[dict[str, float], list[Any]]:
     """
     TASK 3: Re-generate background traffic routes on the remaining open network topology
-    and re-compute fresh congestion factors for the PDDL planner input.
+    and re-compute fresh static congestion factors for the PDDL planner input.
     """
     if not features.congestion_in_pddl:
         return {}, []
@@ -121,12 +121,14 @@ def recleanse_and_compute_dynamic_congestion(
         seed
     )
 
-    # Re-compute dynamic congestion factors for all network edges based on new traffic distribution
+    # Re-compute static congestion factors for all network edges based on the new traffic distribution.
     new_factors = compute_congestion_factors(
         roads,
         new_bg_routes,
         max_factor=features.congestion.congestion_factor,
-        vehicles_for_max_congestion=features.congestion.vehicles_for_max_congestion,
+        vehicles_for_max_congestion_by_road_class=(
+            features.congestion.vehicles_for_max_congestion_by_road_class
+        ),
     )
 
     return new_factors, new_bg_routes

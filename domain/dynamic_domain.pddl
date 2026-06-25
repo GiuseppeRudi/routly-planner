@@ -1,10 +1,10 @@
 ;; ============================================================
 ;;  DOMAIN: road-network
-;;  Features: tl_cong-pddl_llm
+;;  Features: tl_cong-pddl_llm_fuel
 ;;    traffic_lights  : True
 ;;    congestion mode : pddl
 ;;    llm_events      : True
-;;    fuel            : False
+;;    fuel            : True
 ;; ============================================================
 
 (define (domain road-network)
@@ -15,6 +15,7 @@
     (connects  ?r - road  ?from - location  ?to - location)
     (road-open ?r - road)
     (has-traffic-light ?l - location)
+    (has-fuel-station ?l - location)   ;; refuelling point
     (road-blocked ?r - road)   ;; set by LLM event generator
     (location-blocked ?l - location)   ;; derived from blocked roads
     (at       ?v - vehicle  ?l - location)
@@ -31,6 +32,9 @@
     (total-distance       ?v - vehicle)
     (light-wait           ?l - location)  ;; avg red-light wait (s)
     (travel-time          ?v - vehicle)   ;; elapsed time incl. waits
+    (fuel-level            ?v - vehicle)  ;; current litres in tank
+    (fuel-capacity         ?v - vehicle)  ;; max tank size (litres)
+    (fuel-consumption-rate ?v - vehicle)  ;; litres per metre
   )
 
   (:action start-traversal
@@ -42,6 +46,7 @@
       (not (road-blocked ?r))
       (not (location-blocked ?from))
       (not (location-blocked ?to))
+      (>= (fuel-level ?v) (* (road-length ?r) (fuel-consumption-rate ?v)))
       (not (moving ?v))
     )
     :effect (and
@@ -50,6 +55,19 @@
       (moving ?v)
       (assign (distance-remaining ?v) (road-length ?r))
       (assign (speed ?v) (/ (speed-limit ?r) (congestion-factor ?r)))
+    )
+  )
+
+  (:action refuel
+    :parameters (?v - vehicle ?l - location)
+    :precondition (and
+      (at ?v ?l)
+      (has-fuel-station ?l)
+      (not (moving ?v))
+      (< (fuel-level ?v) (fuel-capacity ?v))
+    )
+    :effect (and
+      (assign (fuel-level ?v) (fuel-capacity ?v))
     )
   )
 
@@ -62,6 +80,7 @@
     :effect (and
       (decrease (distance-remaining ?v) (* #t (speed ?v)))
       (increase (total-distance ?v)     (* #t (speed ?v)))
+      (decrease (fuel-level ?v) (* #t (* (speed ?v) (fuel-consumption-rate ?v))))
     )
   )
 
