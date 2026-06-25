@@ -129,6 +129,157 @@ def load_mapping(path: str | Path) -> dict:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def extract_topology_for_llm(
+    mapping: dict,
+    all_roads: list[str],
+    start_loc: str,
+    goal_loc: str,
+    max_edges: int = 120,
+) -> dict:
+    """Compact, route-agnostic graph view for the strategic LLM prompt.
+
+    Contains only topology (which roads connect which intersections), each
+    touched intersection's degree (how many roads meet there), a node ->
+    incident-roads lookup (`node_roads`, so the LLM does not have to infer
+    adjacency by scanning the flat edge list), and a purely geometric
+    `distance_to_axis` per edge (perpendicular distance of the road's
+    midpoint from the straight start-goal segment) - never the solved plan.
+    On large maps the edge set is truncated to a corridor buffer around the
+    start-goal segment (geometric filter, not solver output) so the prompt
+    stays within context limits.
+    """
+    roads_by_id = {r["id"]: r for r in mapping["roads"] if r["id"] in set(all_roads)}
+    nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
+
+    degree: dict[str, int] = {}
+    for road in roads_by_id.values():
+        degree[road["from"]] = degree.get(road["from"], 0) + 1
+        degree[road["to"]] = degree.get(road["to"], 0) + 1
+
+    if len(roads_by_id) <= max_edges:
+        selected_ids = list(roads_by_id.keys())
+        truncated = False
+    else:
+        selected_ids = _roads_in_corridor(
+            roads_by_id, nodes_by_id, start_loc, goal_loc, max_edges
+        )
+        truncated = True
+
+    edges = []
+    node_roads: dict[str, list[str]] = {}
+    for rid in selected_ids:
+        road = roads_by_id[rid]
+        distance_to_axis = _road_distance_to_axis(road, nodes_by_id, start_loc, goal_loc)
+        edges.append({
+            "id": rid,
+            "from": road["from"],
+            "to": road["to"],
+            "length": road["length"],
+            "distance_to_axis": distance_to_axis,
+        })
+        node_roads.setdefault(road["from"], []).append(rid)
+        node_roads.setdefault(road["to"], []).append(rid)
+
+    touched_nodes = sorted(node_roads.keys())
+
+    return {
+        "start": start_loc,
+        "goal": goal_loc,
+        "nodes": [{"id": n, "degree": degree.get(n, 0)} for n in touched_nodes],
+        "edges": edges,
+        "node_roads": node_roads,
+        "truncated": truncated,
+    }
+
+
+def _point_segment_distance(
+    px: float, py: float, ax: float, ay: float, bx: float, by: float
+) -> float:
+    """Perpendicular distance from point (px, py) to segment a-b."""
+    dx, dy = bx - ax, by - ay
+    seg_len_sq = dx * dx + dy * dy
+    if seg_len_sq == 0:
+        return ((px - ax) ** 2 + (py - ay) ** 2) ** 0.5
+    t = max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / seg_len_sq))
+    proj_x, proj_y = ax + t * dx, ay + t * dy
+    return ((px - proj_x) ** 2 + (py - proj_y) ** 2) ** 0.5
+
+
+def _road_distance_to_axis(
+    road: dict, nodes_by_id: dict[str, dict], start_loc: str, goal_loc: str
+) -> float | None:
+    start_node = nodes_by_id.get(start_loc)
+    goal_node = nodes_by_id.get(goal_loc)
+    from_node = nodes_by_id.get(road["from"])
+    to_node = nodes_by_id.get(road["to"])
+    if None in (start_node, goal_node, from_node, to_node):
+        return None
+    mid_x = (from_node["x"] + to_node["x"]) / 2
+    mid_y = (from_node["y"] + to_node["y"]) / 2
+    return round(
+        _point_segment_distance(
+            mid_x, mid_y,
+            start_node["x"], start_node["y"],
+            goal_node["x"], goal_node["y"],
+        ),
+        1,
+    )
+
+
+def _roads_in_corridor(
+    roads_by_id: dict[str, dict],
+    nodes_by_id: dict[str, dict],
+    start_loc: str,
+    goal_loc: str,
+    max_edges: int,
+    width_ratio: float = 0.12,
+    min_width: float = 80.0,
+) -> list[str]:
+    """Geometric filter: keep only roads whose endpoints both lie within a
+    buffer of the straight start-goal segment. Narrower than a bounding box,
+    so it concentrates candidates closer to a plausible direct path without
+    ever reading the solver's actual plan."""
+    start_node = nodes_by_id.get(start_loc)
+    goal_node = nodes_by_id.get(goal_loc)
+    if start_node is None or goal_node is None:
+        return list(roads_by_id.keys())[:max_edges]
+
+    segment_length = (
+        (goal_node["x"] - start_node["x"]) ** 2
+        + (goal_node["y"] - start_node["y"]) ** 2
+    ) ** 0.5
+    corridor_width = max(segment_length * width_ratio, min_width)
+
+    def _near_axis(loc_id: str) -> bool:
+        node = nodes_by_id.get(loc_id)
+        if node is None:
+            return False
+        return _point_segment_distance(
+            node["x"], node["y"],
+            start_node["x"], start_node["y"],
+            goal_node["x"], goal_node["y"],
+        ) <= corridor_width
+
+    selected = [
+        rid
+        for rid, road in roads_by_id.items()
+        if _near_axis(road["from"]) and _near_axis(road["to"])
+    ]
+
+    if not selected:
+        # Degenerate corridor (e.g. start/goal coincide) - fall back to the
+        # closest roads by axis distance instead of returning nothing.
+        ranked = sorted(
+            roads_by_id.items(),
+            key=lambda item: _road_distance_to_axis(
+                item[1], nodes_by_id, start_loc, goal_loc
+            ) or float("inf"),
+        )
+        selected = [rid for rid, _ in ranked]
+
+    return selected[:max_edges]
+
+
 def build_road_adjacency(mapping: dict, road_ids: set[str] | None = None) -> dict[str, set[str]]:
     """Map each road id to the set of road ids sharing an endpoint (from/to) with it.
 

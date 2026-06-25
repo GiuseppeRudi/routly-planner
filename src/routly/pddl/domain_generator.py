@@ -75,7 +75,7 @@ def _build_functions(f: FeatureConfig) -> str:
         "    (speed-limit          ?r - road)",
     ]
 
-    if f.congestion_in_pddl:
+    if f.congestion_in_pddl or f.llm_events.enabled:
         lines.append("    (congestion-factor    ?r - road)  ;; 1.0=free, 2.0=half speed")
 
     lines += [
@@ -126,7 +126,7 @@ def _build_action(f: FeatureConfig) -> str:
             "(* (road-length ?r) (fuel-consumption-rate ?v)))"
         )
 
-    if f.congestion_in_pddl:
+    if f.congestion_in_pddl or f.llm_events.enabled:
         speed_assign = "(assign (speed ?v) (/ (speed-limit ?r) (congestion-factor ?r)))"
     else:
         speed_assign = "(assign (speed ?v) (speed-limit ?r))"

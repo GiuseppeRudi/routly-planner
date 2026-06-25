@@ -146,6 +146,7 @@ def _plot_roads(
     linewidth: float,
     alpha: float,
     zorder: int,
+    linestyle: str = "-",
 ) -> None:
     for road_id in road_ids:
         road = roads_by_id.get(road_id)
@@ -165,6 +166,7 @@ def _plot_roads(
             linewidth=linewidth,
             alpha=alpha,
             zorder=zorder,
+            linestyle=linestyle,
             solid_capstyle="round",
         )
 
@@ -178,6 +180,7 @@ def plot_event_map(
     start_loc: str | None,
     goal_loc: str | None,
     output_path: str | Path,
+    slowed_roads: list[dict] | None = None,
 ) -> None:
     """Write a PNG map comparing original and re-planned routes."""
     output_path = Path(output_path)
@@ -186,6 +189,7 @@ def plot_event_map(
     roads_by_id = {road["id"]: road for road in mapping["roads"]}
     nodes_by_id = {node["id"]: node for node in mapping["nodes"]}
     blocked_ids = [entry["id"] for entry in blocked_roads]
+    slowed_ids = [entry["id"] for entry in (slowed_roads or [])]
     blocked_location_ids = [
         entry["id"] for entry in (blocked_locations or [])
     ]
@@ -243,6 +247,17 @@ def plot_event_map(
         zorder=8,
     )
 
+    _plot_roads(
+        ax,
+        roads_by_id,
+        slowed_ids,
+        color="#FFD700",
+        linewidth=4.2,
+        alpha=0.96,
+        zorder=7,
+        linestyle="--",
+    )
+
     for location_id in blocked_location_ids:
         node = nodes_by_id.get(location_id)
         if node is None:
@@ -290,6 +305,7 @@ def plot_event_map(
         Line2D([0], [0], color="#e64b35", linewidth=6, alpha=0.75, label="Original route"),
         Line2D([0], [0], color="#00a75a", linewidth=5, label="Replanned route"),
         Line2D([0], [0], color="#0057ff", linewidth=4, label="Blocked roads"),
+        Line2D([0], [0], color="#FFD700", linewidth=4, linestyle="--", label="Slowdowns"),
         Line2D([0], [0], marker="X", color="w", markerfacecolor="#0057ff", markersize=10, label="Blocked intersections"),
         Line2D([0], [0], color="#a8a8a8", linewidth=2, label="Road network"),
     ]
