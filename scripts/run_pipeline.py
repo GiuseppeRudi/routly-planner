@@ -1,83 +1,66 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 from typing import Any
-
-import yaml
 
 PROJECT_ROOT = Path.cwd()
 PIPELINE_CONFIG_PATH = PROJECT_ROOT / "config" / "pipeline.yaml"
 
 sys.path.insert(0, str(PROJECT_ROOT))
+from src.routly.config import EXPERIMENT_NAME_ENV, load_config, resolve_experiment_name
 from src.routly.utils import read_yaml
 
 SCRIPT_REGISTRY = {
     "build_map": {
         "script": "scripts/pipeline/01_build_map.py",
-        "args": ["map_config", "project_config"],
+        "args": ["project_config"],
     },
     "select_scenario_points": {
         "script": "scripts/pipeline/02_select_scenario_points.py",
-        "args": ["map_config", "project_config", "scenario_output"],
+        "args": ["project_config"],
     },
     "build_domain_and_problem": {
         "script": "scripts/pipeline/03_build_domain_and_problem.py",
-        "args": ["map_config", "project_config", "scenario_config", "features_config"],
+        "args": ["project_config"],
     },
     "generate_plan": {
         "script": "scripts/pipeline/04_generate_plan.py",
-        "args": ["map_config", "project_config", "features_config"],  # ➔ Added features_config
+        "args": ["project_config"],
     },
     "plan_to_sumo": {
         "script": "scripts/pipeline/05_plan_to_sumo.py",
-        "args": ["map_config", "project_config", "scenario_config", "features_config"],
+        "args": ["project_config"],
     },
 }
 
 
 def get_pipeline_value(config: dict[str, Any], key: str) -> str:
     configs = config.get("configs", {})
-    outputs = config.get("outputs", {})
 
-    if key == "map_config":
-        return configs["map_config"]
     if key == "project_config":
         return configs["project_config"]
-    if key == "scenario_output":
-        return outputs["scenario_config"]
-    if key == "scenario_config":
-        return outputs["scenario_config"]
-    if key == "features_config":
-        return configs["features_config"]
 
     raise KeyError(f"Unsupported pipeline argument key: {key}")
 
 
 def cli_flag_for_key(key: str) -> str:
     flags = {
-        "map_config": "--map-config",
         "project_config": "--project-config",
-        "scenario_output": "--scenario-output",
-        "scenario_config": "--scenario-config",
-        "features_config": "--features-config",
     }
     return flags[key]
 
 
 def validate_pipeline_config(config: dict[str, Any]) -> None:
     configs = config.get("configs", {})
-    outputs = config.get("outputs", {})
     run_steps = config.get("run", [])
 
-    if not configs.get("map_config"):
-        raise ValueError("Missing configs.map_config in config/pipeline.yaml")
     if not configs.get("project_config"):
         raise ValueError("Missing configs.project_config in config/pipeline.yaml")
-    if not outputs.get("scenario_config"):
-        raise ValueError("Missing outputs.scenario_config in config/pipeline.yaml")
     if not isinstance(run_steps, list) or not run_steps:
         raise ValueError("Missing or empty run list in config/pipeline.yaml")
 
@@ -90,13 +73,23 @@ def validate_pipeline_config(config: dict[str, Any]) -> None:
 
 
 def validate_existing_input_configs(config: dict[str, Any]) -> None:
-    map_config = PROJECT_ROOT / config["configs"]["map_config"]
     project_config = PROJECT_ROOT / config["configs"]["project_config"]
 
-    if not map_config.exists():
-        raise FileNotFoundError(f"Map config not found: {map_config}")
     if not project_config.exists():
         raise FileNotFoundError(f"Project config not found: {project_config}")
+
+
+def snapshot_input_configs(config, project_config_path: Path) -> None:
+    config.config_dir.mkdir(parents=True, exist_ok=True)
+    snapshots = [
+        (PIPELINE_CONFIG_PATH, config.config_dir / "pipeline.yaml"),
+        (project_config_path, config.config_dir / "project.yaml"),
+    ]
+
+    for source, destination in snapshots:
+        if source.resolve() == destination.resolve():
+            continue
+        shutil.copy2(source, destination)
 
 
 def build_script_command(step_name: str, config: dict[str, Any]) -> list[str]:
@@ -126,6 +119,7 @@ def run_step(step_name: str, config: dict[str, Any]) -> None:
         cmd,
         cwd=PROJECT_ROOT,
         text=True,
+        env=os.environ.copy(),
     )
 
     if result.returncode != 0:
@@ -164,6 +158,14 @@ def main() -> None:
     validate_pipeline_config(pipeline_config)
     validate_existing_input_configs(pipeline_config)
 
+    project_config_path = PROJECT_ROOT / pipeline_config["configs"]["project_config"]
+    project_config_raw = read_yaml(project_config_path)
+    experiment_name = resolve_experiment_name(project_config_raw)
+    os.environ[EXPERIMENT_NAME_ENV] = experiment_name
+
+    project_config = load_config(project_config_path)
+    snapshot_input_configs(project_config, project_config_path)
+
     all_steps = pipeline_config["run"]
 
     if args.steps:
@@ -178,6 +180,8 @@ def main() -> None:
         run_steps = all_steps
 
     print("Routly pipeline")
+    print(f"Experiment: {project_config.experiment_name}")
+    print(f"Output dir:  {project_config.experiment_dir}")
     print("Steps to run:")
     for step_name in run_steps:
         idx = all_steps.index(step_name) + 1

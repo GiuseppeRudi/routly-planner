@@ -308,16 +308,22 @@ def write_sumocfg(
     seed: int | None = None,
     additional_files: list[str | Path] | None = None,
 ) -> None:
+    cfg_file = Path(cfg_file)
+    cfg_dir = cfg_file.parent
+
+    def relative_to_cfg(path: str | Path) -> str:
+        return os.path.relpath(Path(path), start=cfg_dir).replace(os.sep, "/")
+
     root = ET.Element("configuration")
 
     input_el = ET.SubElement(root, "input")
-    ET.SubElement(input_el, "net-file", value=os.path.basename(net_file))
-    ET.SubElement(input_el, "route-files", value=os.path.basename(route_file))
+    ET.SubElement(input_el, "net-file", value=relative_to_cfg(net_file))
+    ET.SubElement(input_el, "route-files", value=relative_to_cfg(route_file))
 
     if additional_files:
         ET.SubElement(
             input_el, "additional-files",
-            value=",".join(os.path.basename(p) for p in additional_files),
+            value=",".join(relative_to_cfg(p) for p in additional_files),
         )
 
     time_el = ET.SubElement(root, "time")
@@ -337,6 +343,6 @@ def write_sumocfg(
 
     if view_file:
         gui_el = ET.SubElement(root, "gui_only")
-        ET.SubElement(gui_el, "gui-settings-file", value=os.path.basename(view_file))
+        ET.SubElement(gui_el, "gui-settings-file", value=relative_to_cfg(view_file))
 
     _write_pretty_xml(root, cfg_file)

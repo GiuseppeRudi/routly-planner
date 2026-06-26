@@ -1,0 +1,62 @@
+project:
+  project_root: "."
+  seed: 71
+
+experiment:
+  name_prefix: "experiment"
+
+osm:
+  place_name: "Bologna, Emilia-Romagna, Italy"
+  network_type: "drive"
+
+graph_simplification:
+  keep_largest_component: true
+  remove_isolated_nodes: true
+  distance_meters: 1000
+  max_nodes: 500
+
+planner:
+  enhsp_jar: "planners/enhsp/enhsp-20.jar"
+
+sumo:
+  sumo_gui: "sumo-gui"
+
+features:
+  traffic_lights:
+    enabled: true
+    green_duration:
+      min: 20
+      max: 30
+    yellow_duration:
+      min: 3
+      max: 6
+    red_duration:
+      min: 20
+      max: 30
+
+  congestion:
+    mode: "pddl"
+    num_background_vehicles: 200
+    congestion_factor: 2.0
+    vehicles_for_max_congestion_by_road_class:
+      local: 20
+      arterial: 35
+      major: 50
+
+  llm_events:
+    enabled: true
+    backend: "ollama"
+    strategic_injection: true
+
+  sumo:
+    plans:
+      - base
+      - dynamic
+    open_event_map: true
+
+  fuel:
+    enabled: false
+    stations_ratio: 0.15
+    initial_fuel_ratio: 0.8
+    stations_source: "random"
+    consumption_mode: "continuous"
