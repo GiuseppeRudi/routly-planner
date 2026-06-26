@@ -28,10 +28,7 @@ def parse_args() -> argparse.Namespace:
         description="Build PDDL domain and problem from selected scenario YAML."
     )
 
-    parser.add_argument("--map-config", required=True)
     parser.add_argument("--project-config", required=True)
-    parser.add_argument("--scenario-config", required=True)
-    parser.add_argument("--features-config", required=True)
 
     return parser.parse_args()
 
@@ -67,15 +64,12 @@ def extract_vehicle_start_goal(scenario: dict[str, Any]) -> tuple[str, str, str]
 def main() -> None:
     args = parse_args()
 
-    config = load_config(args.map_config, args.project_config)
-
-    scenario_path = Path(args.scenario_config)
-    if not scenario_path.is_absolute():
-        scenario_path = PROJECT_ROOT / scenario_path
+    config = load_config(args.project_config)
+    scenario_path = config.scenario_path
 
     scenario = read_yaml(scenario_path)
 
-    features = FeatureConfig.from_yaml(args.features_config)
+    features = FeatureConfig.from_yaml(args.project_config)
 
     mapping_path = Path(
         scenario.get("map", {}).get("mapping_path", config.mapping_path)

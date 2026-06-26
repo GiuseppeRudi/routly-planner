@@ -27,28 +27,33 @@ Bologna city center is a good case study because it contains main roads, many in
 ## Main folders
 
 - `src/`: Python source code.
-- `scripts/`: executable project steps.
-- `data/`: raw and processed data.
-- `pddl/`: PDDL domains, problems, and plans.
-- `docs/`: project documentation.
+- `scripts/`: executable project steps and pipeline runner.
+- `config/`: versioned pipeline and project configuration.
+- `data/`: generated experiments, ignored by Git.
+- `planners/`: local planner binaries.
 
+
+## Configuration
+
+The project keeps two versioned YAML files:
+
+- `config/pipeline.yaml`: step order.
+- `config/project.yaml`: project, map, planner, SUMO, and feature settings.
+
+Each run creates an experiment folder like:
+
+```text
+data/<city>/nodes_<N>_distance_<meters>/<experiment>/
+  config/
+  map/
+  runs/
+    basic/
+    llm/
+  sumo/
+```
 
 ## First execution
 
-Download the road network around Bologna city center:
-
 ```bash
-python scripts/01_download_bologna_center_osm.py
-```
-
-Simplify it for PDDL:
-
-```bash
-python scripts/02_simplify_graph.py
-```
-
-Generate a first PDDL problem:
-
-```bash
-python scripts/03_generate_pddl_problem.py
+python scripts/run_pipeline.py
 ```

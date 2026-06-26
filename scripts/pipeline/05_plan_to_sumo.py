@@ -41,20 +41,11 @@ from src.routly.domain.traffic_lights import (
 )
 
 
-PLAN_FILE_BY_KIND = {
-    "base": "plan.txt",
-    "dynamic": "plan_dynamic.sol",
-}
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Convert ENHSP plan to SUMO files and launch SUMO-GUI."
     )
-    parser.add_argument("--map-config", required=True)
     parser.add_argument("--project-config", required=True)
-    parser.add_argument("--scenario-config", required=True)
-    parser.add_argument("--features-config", required=True)
     parser.add_argument("--plan-override", help="Path to alternative plan file")
     return parser.parse_args()
 
@@ -89,14 +80,14 @@ def resolve_plan_runs(
             )
             continue
 
-        plan_path = config.plan_path.parent / PLAN_FILE_BY_KIND[plan_kind]
+        plan_path = config.dynamic_plan_path if plan_kind == "dynamic" else config.plan_path
         if not plan_path.exists():
             print(f"WARNING: Plan '{plan_kind}' not found at {plan_path}. Skipping run.")
             continue
         runs.append((plan_kind, plan_path))
 
     if not runs:
-        plan_path = config.plan_path.parent / PLAN_FILE_BY_KIND["base"]
+        plan_path = config.plan_path
         if not plan_path.exists():
             raise FileNotFoundError(
                 f"Base plan not found at {plan_path}. Run step 4 first."
@@ -107,15 +98,15 @@ def resolve_plan_runs(
 
 
 def sumo_route_path_for_plan(config, plan_kind: str) -> Path:
-    if plan_kind == "base":
-        return config.sumo_rou_path
-    return config.sumo_rou_path.with_name(f"road_network_{plan_kind}.rou.xml")
+    if plan_kind == "dynamic":
+        return config.dynamic_sumo_rou_path
+    return config.sumo_rou_path
 
 
 def sumo_cfg_path_for_plan(config, plan_kind: str) -> Path:
-    if plan_kind == "base":
-        return config.sumo_cfg_path
-    return config.sumo_cfg_path.with_name(f"road_network_{plan_kind}.sumocfg")
+    if plan_kind == "dynamic":
+        return config.dynamic_sumo_cfg_path
+    return config.sumo_cfg_path
 
 
 def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list[str]) -> None:
@@ -124,7 +115,7 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
     if "dynamic" not in plan_kinds:
         return
 
-    event_map_path = config.problem_path.parent / "event_map.png"
+    event_map_path = config.event_map_path
     if not event_map_path.exists():
         print(f"WARNING: event map not found before SUMO launch: {event_map_path}")
         return
@@ -163,7 +154,7 @@ def write_and_launch_sumo_for_plan(
     blocked_locations = []
 
     if plan_kind == "dynamic" and features.llm_events.enabled:
-        log_path = config.problem_path.parent / "incidents_log.json"
+        log_path = config.incidents_log_path
         if log_path.exists():
             try:
                 with open(log_path, "r", encoding="utf-8") as log_f:
@@ -233,15 +224,12 @@ def write_and_launch_sumo_for_plan(
 
 def main() -> None:
     args = parse_args()
-    config = load_config(args.map_config, args.project_config)
-
-    scenario_path = Path(args.scenario_config)
-    if not scenario_path.is_absolute():
-        scenario_path = PROJECT_ROOT / scenario_path
+    config = load_config(args.project_config)
+    scenario_path = config.scenario_path
 
     scenario = read_yaml(scenario_path)
     vehicle_id = get_vehicle_id_from_scenario(scenario)
-    features = FeatureConfig.from_yaml(args.features_config)
+    features = FeatureConfig.from_yaml(args.project_config)
 
     mapping_path = Path(
         scenario.get("map", {}).get("mapping_path", config.mapping_path)
