@@ -66,6 +66,7 @@ class LLMEventsConfig:
 class SumoRunConfig:
     plans: list[str] = field(default_factory=lambda: ["base"])
     open_event_map: bool = True
+    open_congestion_map: bool = False
 
 @dataclass
 @dataclass(frozen=True)
@@ -181,6 +182,7 @@ class FeatureConfig:
                 )
             ),
             open_event_map=sumo_raw.get("open_event_map", True),
+            open_congestion_map=sumo_raw.get("open_congestion_map", False),
         )
 
         fuel_raw = f.get("fuel", False)

@@ -239,8 +239,9 @@ if __name__ == "__main__":
 
 # CRISTIANO
 # TODO - implementare un immagine da matplotlib che mostri il cambiamento dinamico del fattore di congestione prendendo quello antecedente alla generazione degli eventi llm e quello successivo 
-# TODO - idea sarebbe un grafo che mostra nodi e archi per ogni strada un colore che ne indica lintesista del fattore di congestione con slider button che cambia il colore a secona del pre e post eventi llm e per 
-# TODO - il valore puntale numerico quando si clicca su una determinata strada o piu esce una tabella laterlae che mostra i valori di pre epost 
+# TODO - l'idea sarebbe una mappa/grafo che mostra nodi e archi (strade) e per ogni strada: inserire un colore che ne indica l'intensità del fattore di congestione e
+# TODO - un valore puntale numerico quando si clicca oppure si passa di sopra su una determinata strada e mostrare i valori di pre e post da qualche parte.
+# TODO - aggiungere anche uno switch o slider che cambia la tipologia di mappa (pre o post)
 
 
 # RUDI

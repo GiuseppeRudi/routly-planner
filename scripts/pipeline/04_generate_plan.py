@@ -16,7 +16,9 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.routly.domain.fuel import load_fuel_stations
 from src.routly.config import load_config
 from src.routly.features import FeatureConfig
-from src.routly.graph.graph_export import plot_event_map, plot_plan_from_mapping
+from src.routly.graph.graph_export import (
+    plot_event_map, plot_plan_from_mapping, open_congestion_map,
+)
 from src.routly.llm_client import call_llm
 from src.routly.llm.prompts import build_random_prompt, build_strategic_prompt
 from src.routly.pddl.mapping import (
@@ -441,6 +443,17 @@ def main() -> None:
         output_path=event_map_path, slowed_roads=slowed_roads,
     )
     print(f"   Event map saved: {event_map_path}")
+
+    if features.sumo.open_congestion_map:
+        print("\nOpening the interactive congestion map (pre vs post LLM events)...")
+        open_congestion_map(
+            mapping=mapping,
+            pre_problem_path=problem_path, # problem.pddl  (pre)
+            post_problem_path=dynamic_problem_path, # problem_dynamic.pddl (post)
+            start_loc=start_loc,
+            goal_loc=goal_loc,
+            place_name=getattr(config, "place_name", ""),
+        )
 
 
 if __name__ == "__main__":

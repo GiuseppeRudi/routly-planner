@@ -30,7 +30,8 @@ features:
     plans:
       - base
       - dynamic
-    open_event_map: true
+    open_event_map: true # opens the route comparison with the genretaed events
+    open_congestion_map: true
   
   fuel:
     enabled: false # if true max_nodes must be decreased
