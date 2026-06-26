@@ -409,7 +409,7 @@ class ScenarioPointSelector:
             mid_x, mid_y = (x1 + x2) / 2, (y1 + y2) / 2
             self.selected_artists.append(
                 self.ax.annotate(
-                    f"~{dist_m / 1000:.2f} km (linea d'aria)",
+                    f"~{dist_m / 1000:.2f} km (straight-line distance)",
                     (mid_x, mid_y),
                     textcoords="offset points", xytext=(6, 6),
                     fontsize=8, color="#555555",
