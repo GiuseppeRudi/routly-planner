@@ -60,6 +60,9 @@ class LLMEventsConfig:
     backend: str = "ollama"  # "ollama" | "lmstudio" - which local LLM server to call
     strategic_injection: bool = False  # if True, LLM uses compact problem topology
     # (start, goal, node degree) instead of a random road sample to pick targets
+    prevent_unsolvable_blocks: bool = False
+    unsolvable_fallback: str = "slowdown" # "slowdown" | "skip"
+    unsolvable_fallback_severity: float = 5.0
 
 
 @dataclass
@@ -171,6 +174,9 @@ class FeatureConfig:
             enabled=llm_raw.get("enabled", False),
             backend=llm_raw.get("backend", "ollama"),
             strategic_injection=llm_raw.get("strategic_injection", False),
+            prevent_unsolvable_blocks=llm_raw.get("prevent_unsolvable_blocks", False),
+            unsolvable_fallback=llm_raw.get("unsolvable_fallback", "slowdown"),
+            unsolvable_fallback_severity=llm_raw.get("unsolvable_fallback_severity", 5.0),
         )
 
         sumo_raw = f.get("sumo", {})

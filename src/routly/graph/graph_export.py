@@ -6,7 +6,7 @@ from typing import Any
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from matplotlib.widgets import Button, RadioButtons
+from matplotlib.widgets import Button, RadioButtons, TextBox
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 import osmnx as ox
@@ -359,47 +359,52 @@ class CongestionMapViewer:
     POST_LABEL = "Post LLM events"
 
     def __init__(self, mapping, pre_factors, post_factors,
-                 start_loc=None, goal_loc=None, place_name=""):
+                 start_loc=None, goal_loc=None, place_name="",
+                 blocked_roads=None):
         self.mapping = mapping
         self.nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
         self.roads = list(mapping["roads"])
         self.pre = pre_factors or {}
         self.post = post_factors or {}
+        self.blocked = set(blocked_roads or ()) # blocked roads (post view)
         self.start_loc = start_loc
         self.goal_loc = goal_loc
         self.place_name = place_name
         self.current = "pre" # "pre" | "post"
         self.pinned_road = None
 
-        # Color normalization for consistent comparison between pre and post.
+        # Shared color normalization across pre and post -> consistent compare.
         all_vals = list(self.pre.values()) + list(self.post.values())
         vmin = min(all_vals) if all_vals else 1.0
         vmax = max(all_vals) if all_vals else 2.0
         if vmax <= vmin:
             vmax = vmin + 1e-6
         self.norm = Normalize(vmin=vmin, vmax=vmax)
-        self.cmap = plt.get_cmap("RdYlGn_r")   # green=free, red=congested
+        self.cmap = plt.get_cmap("RdYlGn_r") # green=free, red=congested
 
         matplotlib.rcParams["toolbar"] = "None"
-        self.fig, self.ax = plt.subplots(figsize=(13, 11))
+        self.fig, self.ax = plt.subplots(figsize=(12, 7))
         try:
             self.fig.canvas.manager.set_window_title(
-                "Routly — Congestion Map (pre/post)")
+                "Routly - Congestion map (pre/post)")
         except Exception:
             pass
-        self.fig.subplots_adjust(left=0.03, right=0.99, top=0.92, bottom=0.06)
+        self.fig.subplots_adjust(left=0.02, right=0.86, top=0.93, bottom=0.05)
 
         self.road_lines: dict[str, Any] = {}
         self._build_map()
         self._add_colorbar()
+        self._add_legend()
         self._add_switch()
+        self._add_search()
         self._add_annotation()
         self._connect_events()
         self._refresh_colors()
 
-    # ---- build map ----
+    # ---- map building ----
     @staticmethod
     def _xy(node):
+        """Projected coordinates of a mapping node."""
         return float(node["x"]), float(node["y"])
 
     def _road_xy(self, road):
@@ -420,7 +425,7 @@ class CongestionMapViewer:
             if xs is None:
                 continue
             (line,) = self.ax.plot(
-                xs, ys, linewidth=2.2, alpha=0.9, zorder=2,
+                xs, ys, linewidth=1.54, alpha=0.9, zorder=2,
                 solid_capstyle="round", picker=5,   # picker -> click
             )
             self.road_lines[road["id"]] = line
@@ -445,45 +450,62 @@ class CongestionMapViewer:
     def _add_colorbar(self):
         sm = ScalarMappable(norm=self.norm, cmap=self.cmap)
         sm.set_array([])
-        cbar = self.fig.colorbar(sm, ax=self.ax, fraction=0.035, pad=0.02)
-        cbar.set_label("congestion-factor (1.0 = free, high = congestion)")
+        cbar = self.fig.colorbar(sm, ax=self.ax, fraction=0.04, pad=0.04)
+        cbar.set_label("congestion-factor (1.0 = free, higher = congested)")
+
+    def _add_legend(self):
+        handles = [Line2D([0], [0], color="#9e9e9e", lw=3,
+                          label="Blocked road")]
+        self.ax.legend(handles=handles, loc="lower right", fontsize=8,
+                       framealpha=0.9)
 
     def _add_switch(self):
-        switch_ax = self.fig.add_axes([0.015, 0.85, 0.17, 0.10])
-        switch_ax.set_title("Map", fontsize=9)
+        switch_ax = self.fig.add_axes([0.015, 0.76, 0.15, 0.09])
+        switch_ax.set_title("Map", fontsize=8)
         self.radio = RadioButtons(switch_ax, (self.PRE_LABEL, self.POST_LABEL),
                                   active=0)
         self.radio.on_clicked(self._on_switch)
 
+    def _add_search(self):
+        search_ax = self.fig.add_axes([0.015, 0.66, 0.15, 0.045])
+        search_ax.set_title("Search road (number)", fontsize=8)
+        self.search_box = TextBox(search_ax, "", textalignment="center")
+        self.search_box.on_submit(self._on_search)
+        # Red warning shown right below the search field when not found.
+        self.search_msg = self.fig.text(
+            0.015, 0.64, "", color="red", fontsize=8, va="top")
+
     def _add_annotation(self):
-        self.hover_annot = self.ax.annotate(
-            "", xy=(0, 0), xytext=(14, 14), textcoords="offset points",
+        # Pop-up box shown on click, with a leader line to the clicked road.
+        self.click_annot = self.ax.annotate(
+            "", xy=(0, 0), xytext=(30, 30), textcoords="offset points",
             bbox={"boxstyle": "round,pad=0.4", "facecolor": "white",
                   "edgecolor": "#555", "alpha": 0.96},
+            arrowprops={"arrowstyle": "-", "color": "#555", "lw": 1.2,
+                        "shrinkA": 0, "shrinkB": 0},
             fontsize=8.5, zorder=20)
-        self.hover_annot.set_visible(False)
-        self.info_text = self.fig.text(
-            0.015, 0.015,
-            "Hover or click on a road to see the pre/post values",
-            fontsize=9, va="bottom")
+        self.click_annot.set_visible(False)
 
     def _connect_events(self):
-        self.fig.canvas.mpl_connect("motion_notify_event", self._on_motion)
         self.fig.canvas.mpl_connect("pick_event", self._on_pick)
 
-    # ---- status/color ----
+    # ---- state/color ----
     def _factor_for(self, road_id):
         data = self.pre if self.current == "pre" else self.post
         return data.get(road_id, 1.0)
 
     def _refresh_colors(self):
         for road_id, line in self.road_lines.items():
-            line.set_color(self.cmap(self.norm(self._factor_for(road_id))))
-            line.set_linewidth(5.0 if road_id == self.pinned_road else 2.2)
+            line.set_linestyle("-") # always continuous
+            if self.current == "post" and road_id in self.blocked:
+                line.set_color("#9e9e9e") # grey = blocked road
+            else:
+                line.set_color(self.cmap(self.norm(self._factor_for(road_id))))
+            line.set_linewidth(3.5 if road_id == self.pinned_road else 1.54)
         label = self.PRE_LABEL if self.current == "pre" else self.POST_LABEL
-        suffix = f"  ·  {self.place_name}" if self.place_name else ""
-        self.ax.set_title(f"Congestion Factor — {label}{suffix}",
-                          fontsize=13, fontweight="bold")
+        suffix = f"  -  {self.place_name}" if self.place_name else ""
+        self.ax.set_title(f"Congestion factor - {label}{suffix}",
+                          fontsize=12, fontweight="bold", pad=12)
         self.fig.canvas.draw_idle()
 
     def _on_switch(self, label):
@@ -491,40 +513,24 @@ class CongestionMapViewer:
         self._refresh_colors()
 
     # ---- interaction ----
-    def _find_road(self, event):
-        for road_id, line in self.road_lines.items():
-            contains, _ = line.contains(event)
-            if contains:
-                return road_id
-        return None
-
     def _describe(self, road_id):
         pre = self.pre.get(road_id)
         post = self.post.get(road_id)
-        pre_s = f"{pre:.4g}" if pre is not None else "n/d"
-        post_s = f"{post:.4g}" if post is not None else "n/d"
+        pre_s = f"{pre:.4g}" if pre is not None else "n/a"
+        post_s = f"{post:.4g}" if post is not None else "n/a"
         delta = ""
         if pre is not None and post is not None:
             d = post - pre
             trend = "up" if d > 1e-9 else ("down" if d < -1e-9 else "flat")
             delta = f"   delta {d:+.4g} ({trend})"
-        return f"{road_id}\npre: {pre_s}    post: {post_s}{delta}"
+        flag = "  [BLOCKED post]" if road_id in self.blocked else ""
+        return f"{road_id}{flag}\npre: {pre_s}    post: {post_s}{delta}"
 
-    def _on_motion(self, event):
-        if event.inaxes != self.ax:
-            if self.hover_annot.get_visible():
-                self.hover_annot.set_visible(False)
-                self.fig.canvas.draw_idle()
-            return
-        road_id = self._find_road(event)
-        if road_id is None:
-            if self.hover_annot.get_visible():
-                self.hover_annot.set_visible(False)
-                self.fig.canvas.draw_idle()
-            return
-        self.hover_annot.xy = (event.xdata, event.ydata)
-        self.hover_annot.set_text(self._describe(road_id))
-        self.hover_annot.set_visible(True)
+    def _deselect(self):
+        self.pinned_road = None
+        self.click_annot.set_visible(False)
+        self.search_msg.set_text("")
+        self._refresh_colors()
         self.fig.canvas.draw_idle()
 
     def _on_pick(self, event):
@@ -532,11 +538,45 @@ class CongestionMapViewer:
                         if ln is event.artist), None)
         if road_id is None:
             return
+        me = event.mouseevent
+        # Right-click on the currently selected road -> deselect it.
+        if me.button == 3:
+            if road_id == self.pinned_road:
+                self._deselect()
+            return
         self.pinned_road = road_id
-        self.info_text.set_text(
-            "Road selected → "
-            + self._describe(road_id).replace("\n", "   |   "))
+        if me.xdata is not None and me.ydata is not None:
+            xy = (me.xdata, me.ydata)            # exact click point on the road
+        else:
+            line = self.road_lines[road_id]
+            xs, ys = line.get_xdata(), line.get_ydata()
+            xy = (xs[len(xs) // 2], ys[len(ys) // 2])
+        self.click_annot.xy = xy
+        self.click_annot.set_text(self._describe(road_id))
+        self.click_annot.set_visible(True)
         self._refresh_colors()
+        self.fig.canvas.draw_idle()
+
+    def _on_search(self, text):
+        road_id = (text or "").strip()
+        if not road_id:
+            return
+        if not road_id.startswith("road_"):
+            road_id = f"road_{road_id}"
+        if road_id not in self.road_lines:
+            self.search_msg.set_text(f"Road '{road_id}' not found.")
+            self.fig.canvas.draw_idle()
+            return
+        self.search_msg.set_text("")
+        self.pinned_road = road_id
+        line = self.road_lines[road_id]
+        xs, ys = line.get_xdata(), line.get_ydata()
+        mid = len(xs) // 2
+        self.click_annot.xy = (xs[mid], ys[mid])
+        self.click_annot.set_text(self._describe(road_id))
+        self.click_annot.set_visible(True)
+        self._refresh_colors()
+        self.fig.canvas.draw_idle()
 
     def show(self):
         plt.show()
@@ -546,7 +586,7 @@ _CONGESTION_RE = re.compile(
 )
 
 def parse_congestion_factors(pddl_path: str | Path) -> dict[str, float]:
-    """Extracts {road_id: congestion_factor} from the fluent values in a PDDL problem."""
+    """Extract {road_id: congestion_factor} from the fluents of a PDDL problem."""
     path = Path(pddl_path)
     if not path.exists():
         return {}
@@ -559,16 +599,28 @@ def parse_congestion_factors(pddl_path: str | Path) -> dict[str, float]:
             continue
     return factors
 
+
+_BLOCKED_RE = re.compile(r"\(road-blocked\s+(\S+?)\)")
+
+
+def parse_blocked_roads(pddl_path: str | Path) -> set[str]:
+    """Extract the set of blocked roads (road-blocked) from a PDDL problem."""
+    path = Path(pddl_path)
+    if not path.exists():
+        return set()
+    return set(_BLOCKED_RE.findall(path.read_text(encoding="utf-8")))
+
 def open_congestion_map(mapping, pre_problem_path, post_problem_path,
                         start_loc=None, goal_loc=None, place_name=""):
 
     pre = parse_congestion_factors(pre_problem_path)
     post = parse_congestion_factors(post_problem_path)
-    if not pre and not post:
-        print("WARNING: no fluent congestion-factor found "
-              "(congestion.mode='pddl' needed); congestion map skipped.")
+    blocked = parse_blocked_roads(post_problem_path)
+    if not pre and not post and not blocked:
+        print("WARNING: no congestion-factor/road-blocked fluent found "
+              "(needs congestion.mode='pddl'); congestion map skipped.")
         return None
     viewer = CongestionMapViewer(mapping, pre, post, start_loc, goal_loc,
-                                 place_name)
+                                 place_name, blocked_roads=blocked)
     viewer.show()
     return viewer

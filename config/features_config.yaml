@@ -25,6 +25,9 @@ features:
     enabled: true
     backend: "ollama" # "ollama" | "lmstudio"
     strategic_injection: true # if true, LLM picks roads from compact topology (start/goal/degree) instead of random sampling
+    prevent_unsolvable_blocks: true
+    unsolvable_fallback: "slowdown" # "slowdown" | "skip"
+    unsolvable_fallback_severity: 5.0
 
   sumo:
     plans:
