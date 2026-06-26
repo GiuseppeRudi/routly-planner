@@ -61,8 +61,7 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# planners/**/*.jar
-.aider*
+
 
 # Claude
 *.md

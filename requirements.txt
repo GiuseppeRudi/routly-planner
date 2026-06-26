@@ -26,5 +26,4 @@ rich
 
 
 # llm config
-aider
 ollama

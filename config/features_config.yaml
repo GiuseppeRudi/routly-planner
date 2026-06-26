@@ -33,7 +33,7 @@ features:
     open_event_map: true
   
   fuel:
-    enabled: true # if true max_nodes must be decreased
+    enabled: false # if true max_nodes must be decreased
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
     stations_source: random # "random" | "osm"

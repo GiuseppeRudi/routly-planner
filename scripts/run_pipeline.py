@@ -217,46 +217,50 @@ if __name__ == "__main__":
 # SOLVED per integrare la congestione nel planner potremmo creare un costo dinamico che aumenta per le strade più trafficate, 
 # SOLVED ad esempio potremmo avere un costo base per ogni strada e poi aggiungere un costo aggiuntivo che dipende dal numero di macchine che stanno utilizzando quella strada 
 # SOLVED in quel momento. In questo modo il planner cercherà di evitare le strade congestionate già durante la generazione del piano.
+# SOLVED - EVENTI COME INCIDENTI STRADALI HANNO UNA DIMENSIONE FISSA PARI A 1 , EVENTI COME LAVORI IN CORSO, RAPINE POSSONO PORTARE ALLA CHIUSURE DI PIU STRADE LA CUI DIMENSIONE CIOE IL NUMERO DI STRADE DA CHIUDERE VIENE LASCIATA AL RAGIONAMENTO DEL LLM ( AD EUGENIO FA PAURA) .
+# SOLVED - IL RAGIONAMENTO DELLA DIMENSIONE DEVE ESSERE FATTO A SECONDA DELLA DIMENSIONE DELLA MAPPA ( NUMERO DI NODI ), AL NUMERO DI EVENTI GIA CREATI , ALLA DIMENSIONE DEGLI EVENTI GIA CREATI . 
+# SOLVED - INOLTRE IL NUMERO DI EVENTI DA CREARE CHE POSSONO UNO O PIU VIENE LASCIATO DECIDERE ALL LLM IN BASE ANCHE IN QUESTO ALLA DIMENSIONE DELLA MAPPA 
+# SOLVED - LLM DEVE CREARE NON SOLO CHIUSURA DI STRADA MA ANCHE DIMINUIZIONE DELLA VELCOITA IN SPECIFICO TRATTO DI STRADA
+# SOLVED - CONGESTIONE TRAFFICO  ROSSO = STRADA CHIUSA , GIALLO = RALLENTAMENTO CON ABBASSAMENTO LIMITE DI VELOCITA
+# SOLVED - SISTEMARE IL MECCANISMO PER LA RILEVAZIONE DEGLI INCROCI CHIUSI POSSIBILE SOLO SE DUE O PIU STRADE CHIUDE SI INCONTRANO IN UN NODO CHIUSO I NODI ESTERNI AL BLOCCO DI STRADE CHIUSE (EVENTO) NON DEVONO ESSERE CHIUSE
+# SOLVED 8. Classificare ogni semaforo per complessità dell’incrocio, cioe dare delle durata diverse delle fasi
+# SOLVED di verde, rosso e giallo a seconda della complessita dellincrocio o del tipo di strada 
+# SOLVED - 9. Controllo benzina con flag da yaml per attivare o disattivare la feature, se attivo il planner deve considerare il livello di benzina e quindi generare un piano che preveda anche il rifornimento di benzina in base al livello di benzina iniziale e alla distanza da percorrere.
+# SOLVED - Questo o inserendo a meno delle stazioni di rifornimento casualmente in una delle strade o prendendole dalla realtà (se possibile)
+# SOLVED - 6. ATTUALMENTE UTILIZZIAMO UNA FORMULA PER IL CALCOLO DELLA CONGESTIONE CHE TIENE CONTO DI UN NUMERO MASSIMO DI VEICOLO
+# SOLVED - PER OGNI STRADA SENZA PERO DIFFERENZIARE I TIPI DI STRADA : AD ESEMPIO UNA STRADA PROVINCIALE PIU AVERE UN NUMERO DI MACCHINE
+# SOLVED - PER POTER ESSERE CONGESTIONATA PARI A 20 MENTRE UNA SUPERSTRADA POTREBEB AVERE UN NUMERO DI MACCHINA PER POTER ESSERE CLASSIFICATA CONGESTIONATA SUPERIORE AD ESEMPIO 50 
 
 
-
-# TODO - EVENTI COME INCIDENTI STRADALI HANNO UNA DIMENSIONE FISSA PARI A 1 , EVENTI COME LAVORI IN CORSO, RAPINE POSSONO PORTARE ALLA CHIUSURE DI PIU STRADE LA CUI DIMENSIONE CIOE IL NUMERO DI STRADE DA CHIUDERE VIENE LASCIATA AL RAGIONAMENTO DEL LLM ( AD EUGENIO FA PAURA) .
-# TODO - IL RAGIONAMENTO DELLA DIMENSIONE DEVE ESSERE FATTO A SECONDA DELLA DIMENSIONE DELLA MAPPA ( NUMERO DI NODI ), AL NUMERO DI EVENTI GIA CREATI , ALLA DIMENSIONE DEGLI EVENTI GIA CREATI . 
-# TODO - INOLTRE IL NUMERO DI EVENTI DA CREARE CHE POSSONO UNO O PIU VIENE LASCIATO DECIDERE ALL LLM IN BASE ANCHE IN QUESTO ALLA DIMENSIONE DELLA MAPPA 
-# TODO - iniettare questo con flag true o false da yaml (MAGARI SI POTREBBE DIRE AL LLM DI CERCARE DI CHIUDERE DEI PUNTI STRASTEGICI SENZA CONOSCERE IL PIANO MA SOLO CON IL PROBLEM FILE IN CUI PASSERREBBE LA MACCHINA NELLA SUA ROTTA => QUESTO PER EVITARE DI CREARE EVENTI IN UNA GRANDE MAPPA SENZA CHE INFLUISCANO SUL PIANO)
+# SIMONE
+# TODO - flag = true nel prompt gli dici di cercare di chiudere strade che hanno una distanza minore dalla retta (linea d'aria) altrimenti FALSE = llm  ha la distanza dalla retta ma non gli diciamo esplicitamente di chiudere le strade con minore distanza fa lui quello che meglio crede 
+# TODO - quindi modificare il flag attuale (strategic_injection) quinid non prende piu il subset di 8 nodi random e non ce neanche piu il controllo aldisotto dei 120 nodi . all LLM noi mandiamo sempre tutti i nodi e archi dal problem file 
 
 
-# TODO - LLM DEVE CREARE NON SOLO CHIUSURA DI STRADA MA ANCHE DIMINUIZIONE DELLA VELCOITA IN SPECIFICO TRATTO DI STRADA
+# CRISTIANO
+# TODO - implementare un immagine da matplotlib che mostri il cambiamento dinamico del fattore di congestione prendendo quello antecedente alla generazione degli eventi llm e quello successivo 
+# TODO - idea sarebbe un grafo che mostra nodi e archi per ogni strada un colore che ne indica lintesista del fattore di congestione con slider button che cambia il colore a secona del pre e post eventi llm e per 
+# TODO - il valore puntale numerico quando si clicca su una determinata strada o piu esce una tabella laterlae che mostra i valori di pre epost 
 
-# TODO CONGESTIONE TRAFFICO 
-# TODO  -  ROSSO = STRADA CHIUSA , GIALLO = RALLENTAMENTO CON ABBASSAMENTO LIMITE DI VELOCITA
 
-# ^---^  SIMONE 
+# RUDI
+# TODO - modifica del naming delle cartelle in data la struttura dovrebbe essere la seguente : data => nome_citta => nodes_X_distanze_Y => nome_esperimento_ora_e_data => all'interno le copie degli yaml da cui parte la configurazione per riproducibilità
+# TODO -  organizzazione migliore delle cartelle interne ad un determinato esperimento es : plan_llm , plan_basic  ect ect 
+# TODO - vedere se unificare i file yaml in un unico file va bebe oppure no 
 
-# TODO SISTEMARE IL MECCANISMO PER LA RILEVAZIONE DEGLI INCROCI CHIUSI POSSIBILE SOLO SE DUE O PIU STRADE CHIUDE SI INCONTRANO IN UN NODO CHIUSO
-# TODO I NODI ESTERNI AL BLOCCO DI STRADE CHIUSE (EVENTO) NON DEVONO ESSERE CHIUSE
-
+# EUGENIO
+# TODO : DA TESTARE 
 # TODO SISTEMARE IL PROBLEMA DERIVATO DALLA FATTO CHE ALCUNE MACCHINE APPARTENENTI AL TRAFFICO NON PASSINO DA STRADE E NODI CHIUSI DALL LLM 
-
 # TODO - quando vengono bloccate le strade a causa degli eventi generati dagli llm bisogna ricreare anche le route dei veicoli background e
 # TODO   quindi ricalcolare anche il fattore di congestione per ogni strada con le nuove route aggiornate e poi darle al planner
 
-# ^---^ IELPA
+# TODO - RISOLVERE E GESTIRE ERRORE DERIVATO DAL FATTO CHE IL PLANNER POTREBBE NON RISOLVERE UN PERCORSO SE LLM CHIUDE LE STRADE O LUNICA STADA CHE COLLEGA LO START E IL GOAL. non far crashare il programma ma chiuderlo avvisando lutente di quello che è successo 
 
 
 
-# SOLVED 8. Classificare ogni semaforo per complessità dell’incrocio, cioe dare delle durata diverse delle fasi
-# SOLVED di verde, rosso e giallo a seconda della complessita dellincrocio o del tipo di strada 
 
-# TODO 9. Controllo benzina con flag da yaml per attivare o disattivare la feature, se attivo il planner deve considerare il livello di benzina e quindi generare un piano che preveda anche il rifornimento di benzina in base al livello di benzina iniziale e alla distanza da percorrere.
-# TODO Questo o inserendo a meno delle stazioni di rifornimento casualmente in una delle strade o prendendole dalla realtà (se possibile)
 
-# ^---^ CRISTIANO
-
- 
-# TODO 6. ATTUALMENTE UTILIZZIAMO UNA FORMULA PER IL CALCOLO DELLA CONGESTIONE CHE TIENE CONTO DI UN NUMERO MASSIMO DI VEICOLO
-# TODO PER OGNI STRADA SENZA PERO DIFFERENZIARE I TIPI DI STRADA : AD ESEMPIO UNA STRADA PROVINCIALE PIU AVERE UN NUMERO DI MACCHINE
-# TODO PER POTER ESSERE CONGESTIONATA PARI A 20 MENTRE UNA SUPERSTRADA POTREBEB AVERE UN NUMERO DI MACCHINA PER POTER ESSERE CLASSIFICATA CONGESTIONATA SUPERIORE AD ESEMPIO 50 
+# SCALABILITA' = PROBLEMA DELLA BENZINA E CONGESTIONE DINAMICA 
 
 # TODO 7. PER OGNI STRADA DOBBIMO CONTROLLARE QUANTE MACCHINE PASSANO DA LI => CONTARE IL NUMERO DI MACCHINE CHE PASSANO DA UNA STRADA 
 # TODO QUESTO PERO NON è SUFFICIENTE POICHE NON BASTA AVERE IL NUMERO TOTALE DI MACCHINA CHE PASSANO PER QUELLA STRADA MA ANCHE SAPERE IN LINEA TEMPORALE COME SI DISTRIBUSICONO QUESTE MACCHINE LUNGO IL TEMP O
@@ -279,14 +283,4 @@ if __name__ == "__main__":
 # con soglie diverse per classe di strada, invece di una congestione dinamica temporale dentro PDDL.
 
 
-# ^---^ RUDI
 
-
-
-# OPEN QUESTIONS 
-
-
-# TODO PENDING - RISOLVERE E GESTIRE ERRORE DERIVATO DAL FATTO CHE IL PLANNER POTREBBE NON RISOLVERE UN PERCORSO SE LLM CHIUDE LE STRADE O LUNICA STADA CHE COLLEGA LO START E IL GOAL
-# TODO PENDING - AVVISARE LUTENTE CHE DURANTE UN PIANO UNSOLVABLE POICHE LLM HA CHIUSO UN UNICA STRADA, IL PLANNER NON RIESCE A TROVARE UNA SOLUZIONE 
-# TODO PENDING - OPPURE
-# TODO PENDING - quando viene bloccata una strada che rende impossibile la route da punto A a punto B, effettuare una diminuzione di velocità invece di bloccarla
