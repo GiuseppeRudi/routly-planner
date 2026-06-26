@@ -45,18 +45,25 @@ features:
 
   llm_events:
     enabled: true
-    backend: "ollama"
-    strategic_injection: true
+    backend: "ollama" # "ollama" | "lmstudio"
+    strategic_injection: true # if true, LLM picks roads from compact topology (start/goal/degree) instead of random sampling
+    prevent_unsolvable_blocks: true
+    unsolvable_fallback: "slowdown" # "slowdown" | "skip"
+    unsolvable_fallback_severity: 5.0
 
   sumo:
     plans:
       - base
       - dynamic
-    open_event_map: true
-
+    open_event_map: true # opens the route comparison with the genretaed events
+    open_congestion_map: true
+  
   fuel:
-    enabled: false
-    stations_ratio: 0.15
-    initial_fuel_ratio: 0.8
-    stations_source: "random"
-    consumption_mode: "continuous"
+    enabled: false # if true max_nodes must be decreased
+    stations_ratio: 0.15 # % of the nodes become fuel stations
+    initial_fuel_ratio: 0.8 # start with % of a full tank
+    stations_source: random # "random" | "osm"
+    consumption_mode: continuous   # "discrete" | "continuous"
+    # if consumption_mode = discrete, then max_nodes <= 150
+    # if consumption_mode = continuous, then max_nodes <= 100
+ 

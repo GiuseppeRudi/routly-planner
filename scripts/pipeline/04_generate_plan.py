@@ -16,7 +16,9 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.routly.domain.fuel import load_fuel_stations
 from src.routly.config import load_config
 from src.routly.features import FeatureConfig
-from src.routly.graph.graph_export import plot_event_map, plot_plan_from_mapping
+from src.routly.graph.graph_export import (
+    plot_event_map, plot_plan_from_mapping, open_congestion_map,
+)
 from src.routly.llm_client import call_llm
 from src.routly.llm.prompts import build_random_prompt, build_strategic_prompt
 from src.routly.pddl.mapping import (
@@ -230,6 +232,79 @@ def _build_random_candidates(
         for r in seed_roads
     ]
 
+def _build_adjacency(road_endpoints, blocked):
+    """Adiacenza diretta delle sole strade NON bloccate."""
+    adj: dict[str, list[str]] = {}
+    for rid, (a, b) in road_endpoints.items():
+        if rid in blocked:
+            continue
+        adj.setdefault(a, []).append(b)
+    return adj
+
+
+def _reachable(adj, start, goal):
+    """True se goal è raggiungibile da start sul grafo diretto."""
+    if start == goal:
+        return True
+    seen: set[str] = set()
+    stack = [start]
+    while stack:
+        cur = stack.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        if cur == goal:
+            return True
+        for nxt in adj.get(cur, []):
+            if nxt not in seen:
+                stack.append(nxt)
+    return goal in seen
+
+
+def enforce_solvable_events(events, roads_by_id, all_roads, start_loc,
+                            goal_loc, fallback="slowdown", severity=5.0):
+
+    if start_loc is None or goal_loc is None:
+        return events
+    road_endpoints = {
+        rid: (roads_by_id[rid]["from"], roads_by_id[rid]["to"])
+        for rid in all_roads if rid in roads_by_id
+    }
+    blocked: set[str] = set()
+    downgraded: list[str] = []
+    new_events = []
+    for event in events:
+        if event["event_type"] == "slowdown":
+            new_events.append(event)
+            continue
+        kept = []
+        for road in event["roads"]:
+            if road not in road_endpoints:
+                kept.append(road) # unknown road, cannot check connectivity; keep it
+                continue
+            blocked.add(road)
+            if _reachable(_build_adjacency(road_endpoints, blocked),
+                          start_loc, goal_loc):
+                kept.append(road)
+            else:
+                blocked.discard(road) # do not block this road, it would disconnect start->goal
+                downgraded.append(road)
+                print(f"   DEBUG safeguard: closing {road} disconnects "
+                      f"{start_loc} -> {goal_loc}; fallback='{fallback}'.")
+        if kept:
+            ev = dict(event)
+            ev["roads"] = kept
+            new_events.append(ev)
+    if fallback == "slowdown" and downgraded:
+        new_events.append({
+            "event_type": "slowdown",
+            "roads": downgraded,
+            "severity": severity,
+            "description": "Auto-fallback (debug): avoided closure for not "
+                           "making A->B unsolvable.",
+        })
+    # fallback == "skip": the roads in 'downgraded' are simply ignored
+    return new_events
 
 def main() -> None:
     args = parse_args()
@@ -334,6 +409,17 @@ def main() -> None:
             print(f"  - Event {i}: type=slowdown, roads_slowed={len(event['roads'])}, severity={event['severity']}")
         else:
             print(f"  - Event {i}: type={event['event_type']}, roads_closed={len(event['roads'])}")
+
+    if features.llm_events.prevent_unsolvable_blocks:
+        events = enforce_solvable_events(
+            events=events,
+            roads_by_id=roads_by_id,
+            all_roads=all_roads,
+            start_loc=start_loc,
+            goal_loc=goal_loc,
+            fallback=features.llm_events.unsolvable_fallback,
+            severity=features.llm_events.unsolvable_fallback_severity,
+        )
 
     print(f"\nAUTOMATED EVENTS INJECTED ({len(events)}):")
     for event in events:
@@ -441,6 +527,17 @@ def main() -> None:
         output_path=event_map_path, slowed_roads=slowed_roads,
     )
     print(f"   Event map saved: {event_map_path}")
+
+    if features.sumo.open_congestion_map:
+        print("\nOpening the interactive congestion map (pre vs post LLM events)...")
+        open_congestion_map(
+            mapping=mapping,
+            pre_problem_path=problem_path, # problem.pddl  (pre)
+            post_problem_path=dynamic_problem_path, # problem_dynamic.pddl (post)
+            start_loc=start_loc,
+            goal_loc=goal_loc,
+            place_name=getattr(config, "place_name", ""),
+        )
 
 
 if __name__ == "__main__":
