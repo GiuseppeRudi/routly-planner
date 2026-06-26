@@ -30,9 +30,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Select start and goal points interactively using Matplotlib."
     )
-    parser.add_argument("--map-config",      required=True)
     parser.add_argument("--project-config",  required=True)
-    parser.add_argument("--scenario-output", required=True)
     return parser.parse_args()
 
 
@@ -694,11 +692,8 @@ def write_scenario_yaml(scenario: dict[str, Any], output_path: Path) -> None:
 
 def main() -> None:
     args = parse_args()
-    config = load_config(args.map_config, args.project_config)
-
-    scenario_output_path = Path(args.scenario_output)
-    if not scenario_output_path.is_absolute():
-        scenario_output_path = PROJECT_ROOT / scenario_output_path
+    config = load_config(args.project_config)
+    scenario_output_path = config.scenario_path
 
     print("Loading map files:")
     print(f"  GraphML: {config.raw_graphml_path}")

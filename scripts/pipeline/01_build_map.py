@@ -7,8 +7,6 @@ import sys
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.routly.utils import read_yaml
-
 from src.routly.config import load_config
 from src.routly.graph.graph_export import plot_graph
 
@@ -28,15 +26,9 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--map-config",
-        required=True,
-        help="Path to the map YAML config, e.g. config/maps/bologna_area.yaml",
-    )
-
-    parser.add_argument(
         "--project-config",
         required=True,
-        help="Path to the project YAML config, e.g. config/project_settings.yaml",
+        help="Path to the project YAML config, e.g. config/project.yaml",
     )
 
     return parser.parse_args()
@@ -45,10 +37,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    config = load_config(
-        args.map_config,
-        args.project_config,
-    )
+    config = load_config(args.project_config)
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -82,7 +71,7 @@ def main() -> None:
     print(f"  GraphML:      {config.raw_graphml_path}")
     print(f"  Mapping:      {config.mapping_path}")
     print("\nNEXT STEP:")
-    print("  python scripts/02_select_scenario_points.py --map-config ... --project-config ... --scenario-config ...")
+    print("  python scripts/pipeline/02_select_scenario_points.py --project-config config/project.yaml")
 
 
 if __name__ == "__main__":

@@ -40,9 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run ENHSP and plot the generated plan governed by features config YAML."
     )
-    parser.add_argument("--map-config", required=True)
     parser.add_argument("--project-config", required=True)
-    parser.add_argument("--features-config", required=True)
     parser.add_argument("--problem-override", help="Path to alternative problem file")
     parser.add_argument("--plan-override", help="Path to alternative plan output file")
     parser.add_argument("--plan-image-override", help="Path to alternative plan image output file")
@@ -235,14 +233,14 @@ def _build_random_candidates(
 
 def main() -> None:
     args = parse_args()
-    config = load_config(args.map_config, args.project_config)
+    config = load_config(args.project_config)
     rng = random.Random(config.seed)
 
     problem_path = Path(args.problem_override) if args.problem_override else config.problem_path
     plan_path = Path(args.plan_override) if args.plan_override else config.plan_path
     plan_image_path = Path(args.plan_image_override) if args.plan_image_override else config.plan_image_path
 
-    features = FeatureConfig.from_yaml(args.features_config)
+    features = FeatureConfig.from_yaml(args.project_config)
 
     original_roads = _run_and_plot(config, features, problem_path, plan_path, plan_image_path)
 
@@ -254,10 +252,10 @@ def main() -> None:
     print("=" * 70)
 
     # --- LLM event injection + dynamic re-plan ---
-    dynamic_problem_path = problem_path.parent / "problem_dynamic.pddl"
-    dynamic_plan_path = plan_path.parent / "plan_dynamic.sol"
-    dynamic_plan_image_path = plan_image_path.parent / "plan_dynamic.png"
-    log_path = problem_path.parent / "incidents_log.json"
+    dynamic_problem_path = config.dynamic_problem_path
+    dynamic_plan_path = config.dynamic_plan_path
+    dynamic_plan_image_path = config.dynamic_plan_image_path
+    log_path = config.incidents_log_path
 
     print(f"\n📋 Cloning problem structure to handle dynamic event...")
     with open(problem_path, "r", encoding="utf-8") as f:
@@ -407,6 +405,7 @@ def main() -> None:
                 updated_count += 1
         print(f"✅ Dynamic topology recalculation completed. {updated_count} open roads updated in PDDL.")
 
+    dynamic_problem_path.parent.mkdir(parents=True, exist_ok=True)
     with open(dynamic_problem_path, "w", encoding="utf-8") as f:
         f.write(modified_content)
 
@@ -425,6 +424,7 @@ def main() -> None:
             for event in events
         ],
     }
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, "w", encoding="utf-8") as log_f:
         json.dump(log_payload, log_f, indent=2, ensure_ascii=False)
     print(f"  Incidents log successfully saved to: {log_path.name}")
@@ -434,7 +434,7 @@ def main() -> None:
     blocked_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"]} for event in closure_events for road in event["roads"]]
     slowed_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"], "severity": event["severity"]} for event in events if event["event_type"] == "slowdown" for road in event["roads"]]
     
-    event_map_path = problem_path.parent / "event_map.png"
+    event_map_path = config.event_map_path
     plot_event_map(
         mapping=mapping, original_roads=original_roads, recalculated_roads=recalculated_roads,
         blocked_roads=blocked_roads, blocked_locations=blocked_locations, start_loc=start_loc, goal_loc=goal_loc,
