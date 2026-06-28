@@ -57,7 +57,7 @@ class CongestionConfig:
 @dataclass
 class LLMEventsConfig:
     enabled: bool = False
-    backend: str = "ollama"  # "ollama" | "lmstudio" - which local LLM server to call
+    backend: str = "ollama"  # "ollama" | "lmstudio" | "groq" - which LLM server to call
     strategic_injection: bool = False  # if True, LLM uses compact problem topology
     # (start, goal, node degree) instead of a random road sample to pick targets
     prevent_unsolvable_blocks: bool = False
