@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import random
 from pathlib import Path
 
 import networkx as nx
@@ -135,18 +136,19 @@ def extract_topology_for_llm(
     start_loc: str,
     goal_loc: str,
     max_edges: int = 120,
+    strategic: bool = True,
+    seed: int = 42,
 ) -> dict:
-    """Compact, route-agnostic graph view for the strategic LLM prompt.
+    """Compact, route-agnostic graph view for the LLM prompt.
 
     Contains only topology (which roads connect which intersections), each
-    touched intersection's degree (how many roads meet there), a node ->
-    incident-roads lookup (`node_roads`, so the LLM does not have to infer
-    adjacency by scanning the flat edge list), and a purely geometric
-    `distance_to_axis` per edge (perpendicular distance of the road's
-    midpoint from the straight start-goal segment) - never the solved plan.
-    On large maps the edge set is truncated to a corridor buffer around the
-    start-goal segment (geometric filter, not solver output) so the prompt
-    stays within context limits.
+    touched intersection's degree (how many roads meet there), and a node ->
+    incident-roads lookup (`node_roads`). When `strategic=True`, each edge also
+    carries `distance_to_axis` (perpendicular distance of the road's midpoint
+    from the straight start-goal segment) to guide strategic road selection.
+    When `strategic=False`, that field is omitted so the LLM has no geometric
+    bias. On large maps the edge set is truncated to a corridor buffer around
+    the start-goal segment (geometric filter, not solver output).
     """
     roads_by_id = {r["id"]: r for r in mapping["roads"] if r["id"] in set(all_roads)}
     nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
@@ -160,23 +162,27 @@ def extract_topology_for_llm(
         selected_ids = list(roads_by_id.keys())
         truncated = False
     else:
-        selected_ids = _roads_in_corridor(
-            roads_by_id, nodes_by_id, start_loc, goal_loc, max_edges
-        )
+        if strategic:
+            selected_ids = _roads_in_corridor(
+                roads_by_id, nodes_by_id, start_loc, goal_loc, max_edges
+            )
+        else:
+            selected_ids = random.Random(seed).sample(list(roads_by_id.keys()), max_edges)
         truncated = True
 
     edges = []
     node_roads: dict[str, list[str]] = {}
     for rid in selected_ids:
         road = roads_by_id[rid]
-        distance_to_axis = _road_distance_to_axis(road, nodes_by_id, start_loc, goal_loc)
-        edges.append({
+        edge: dict = {
             "id": rid,
             "from": road["from"],
             "to": road["to"],
             "length": road["length"],
-            "distance_to_axis": distance_to_axis,
-        })
+        }
+        if strategic:
+            edge["distance_to_axis"] = _road_distance_to_axis(road, nodes_by_id, start_loc, goal_loc)
+        edges.append(edge)
         node_roads.setdefault(road["from"], []).append(rid)
         node_roads.setdefault(road["to"], []).append(rid)
 
@@ -185,7 +191,7 @@ def extract_topology_for_llm(
     return {
         "start": start_loc,
         "goal": goal_loc,
-        "nodes": [{"id": n, "degree": degree.get(n, 0)} for n in touched_nodes],
+        "nodes": [{"id": n} for n in touched_nodes],
         "edges": edges,
         "node_roads": node_roads,
         "truncated": truncated,

@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GROQ_MODEL ="qwen/qwen3-32b"#"meta-llama/llama-4-scout-17b-16e-instruct"# "openai/gpt-oss-120b"
+GROQ_MODEL ="meta-llama/llama-4-scout-17b-16e-instruct"#"openai/gpt-oss-120b"
 
 
 def call_llm(
