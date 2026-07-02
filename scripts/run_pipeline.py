@@ -293,4 +293,4 @@ if __name__ == "__main__":
 # TODO il controllo se il path tra start e goal è percorribile deve anche tenere conto se il veicolo ha abbastanza benzina
 # TODO per arrivare al goal o se deve passare da una stazione di benzina per rifornirsi.
 
-# TODO 13 controllare un problema con route.edges sumo_writer.py con write_rou_xml
+# TODO 13. controllare un problema con route.edges in sumo_writer.py nella funzione write_rou_xml
