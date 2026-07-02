@@ -20,7 +20,7 @@ from src.routly.graph.graph_export import (
     plot_event_map, plot_plan_from_mapping, open_congestion_map,
 )
 from src.routly.llm_client import call_llm
-from src.routly.llm.prompts import build_random_prompt, build_strategic_prompt
+from src.routly.llm.prompts import build_event_prompt
 from src.routly.pddl.mapping import (
     load_mapping,
     build_road_adjacency,
@@ -257,18 +257,23 @@ def _derive_blocked_locations(
     return blocked_locations
 
 
-def _build_random_candidates(
-    rng: random.Random,
-    all_roads: list[str],
-    adjacency: dict[str, set[str]],
-    sample_size: int = 8,
-    neighbors_shown: int = 3,
-) -> list[dict]:
-    seed_roads = rng.sample(all_roads, min(sample_size, len(all_roads)))
-    return [
-        {"road": r, "connected_to": sorted(adjacency.get(r, set()))[:neighbors_shown]}
-        for r in seed_roads
-    ]
+def _extract_json_object(text: str) -> str:
+    """Pull the first top-level {...} JSON object out of an LLM response that
+    may contain reasoning/markdown before or after it."""
+    text = re.sub(r"```json|```", "", text)
+    start = text.find("{")
+    if start == -1:
+        return text.strip()
+    depth = 0
+    for i in range(start, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+    return text[start:].strip()
+
 
 def _build_adjacency(road_endpoints, blocked):
     """Direct adjacency of open roads only."""
@@ -393,32 +398,29 @@ def main() -> None:
     max_roads_per_event = max(1, min(4, node_count // 15))
     max_total_closures = road_count // 4
 
-    if features.llm_events.strategic_injection:
-        print(f"   Mode: STRATEGIC TOPOLOGY-BASED GENERATION (LLM)")
-        if start_loc is None or goal_loc is None:
-            print("❌ Could not extract start/goal from PDDL header. Skipping injection.")
-            return
-        topology = extract_topology_for_llm(
-            mapping=mapping,
-            all_roads=all_roads,
-            start_loc=start_loc,
-            goal_loc=goal_loc,
-        )
-        print(f"    Topology sent to LLM: {len(topology['edges'])} edges, {len(topology['nodes'])} nodes.")
-        prompt = build_strategic_prompt(
-            topology=topology, node_count=node_count, road_count=road_count,
-            max_events=max_events, max_roads_per_event=max_roads_per_event,
-            max_total_closures=max_total_closures, min_severity=SEVERITY_MIN, max_severity=SEVERITY_MAX,
-        )
-    else:
-        print(f"   Mode: AUTOMATED STOCHASTIC GENERATION (LLM)")
-        candidates = _build_random_candidates(rng, all_roads, adjacency)
-        print(f"    Candidate clusters sent to LLM: {candidates}")
-        prompt = build_random_prompt(candidates, node_count, road_count, max_events, max_roads_per_event, max_total_closures)
+    print(f"   Mode: {'STRATEGIC' if features.llm_events.strategic_injection else 'NEUTRAL'} TOPOLOGY-BASED GENERATION (LLM)")
+    if start_loc is None or goal_loc is None:
+        print("❌ Could not extract start/goal from PDDL header. Skipping injection.")
+        return
+    topology = extract_topology_for_llm(
+        mapping=mapping,
+        all_roads=all_roads,
+        start_loc=start_loc,
+        goal_loc=goal_loc,
+        strategic=features.llm_events.strategic_injection,
+        seed=config.seed,
+    )
+    print(f"    Topology sent to LLM: {len(topology['edges'])} edges, {len(topology['nodes'])} nodes.")
+    prompt = build_event_prompt(
+        topology=topology, node_count=node_count, road_count=road_count,
+        max_events=max_events, max_roads_per_event=max_roads_per_event,
+        max_total_closures=max_total_closures, min_severity=SEVERITY_MIN, max_severity=SEVERITY_MAX,
+        strategic=features.llm_events.strategic_injection,
+    )
 
     try:
         response_text = call_llm(prompt, backend=features.llm_events.backend, seed=config.seed)
-        response_text = re.sub(r"```json|```", "", response_text).strip()
+        response_text = _extract_json_object(response_text)
         llm_decision = json.loads(response_text)
         raw_events = llm_decision["events"]
         if not raw_events:
