@@ -34,8 +34,17 @@ features:
       min: 20
       max: 30
 
+  # No congestion = enabled : false 
+  # congestion = {replanning : false , type : static, mode : sumo_only}
+  # congestion = {replanning : false , type : static, mode : pddl}
+  # congestion = {replanning : false , type : dynamic, mode : pddl}
+  # congestion = {replanning : true , type : static, mode : pddl}
+  # congestion = {replanning : true , type : dynamic, mode : pddl}
   congestion:
-    mode: "pddl"
+    # enabled : true , false
+    # type : static , dynamic
+    # replanning : true , false
+    mode: "pddl" # "sumo_only" | "pddl"
     num_background_vehicles: 200
     congestion_factor: 2.0
     vehicles_for_max_congestion_by_road_class:
@@ -47,7 +56,7 @@ features:
     enabled: true
     backend: "ollama" # "ollama" | "lmstudio" | "groq"
     strategic_injection: true # if true, LLM picks roads from compact topology (start/goal/degree) instead of random sampling
-    prevent_unsolvable_blocks: false # ➔ Changed to false to force and debug unsolvable paths
+    prevent_unsolvable_blocks: false # if false gives make unsolvable paths
     unsolvable_fallback: "slowdown" # "slowdown" | "skip"
     unsolvable_fallback_severity: 5.0
 
@@ -58,8 +67,18 @@ features:
     open_event_map: true # opens the route comparison with the genretaed events
     open_congestion_map: true
   
+
+  # No fuel = {enabled : false 
+  # Fuel = {replanning : false , consumption_mode : discrete}
+  # Fuel = {replanning : false , consumption_mode : continuous} 
+  # Fuel = {replanning : true , consumption_mode : discrete} 
+  # Fuel = {replanning : true , consumption_mode : continuous} 
+
+
+  
   fuel:
     enabled: true # if true max_nodes must be decreased
+    # replanning : true o false
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
     stations_source: random # "random" | "osm"
