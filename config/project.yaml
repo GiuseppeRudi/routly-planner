@@ -47,7 +47,7 @@ features:
     enabled: true
     backend: "ollama" # "ollama" | "lmstudio"
     strategic_injection: true # if true, LLM picks roads from compact topology (start/goal/degree) instead of random sampling
-    prevent_unsolvable_blocks: true
+    prevent_unsolvable_blocks: true # ➔ Changed to false to force and debug unsolvable paths
     unsolvable_fallback: "slowdown" # "slowdown" | "skip"
     unsolvable_fallback_severity: 5.0
 
@@ -66,4 +66,3 @@ features:
     consumption_mode: continuous   # "discrete" | "continuous"
     # if consumption_mode = discrete, then max_nodes <= 150
     # if consumption_mode = continuous, then max_nodes <= 100
- 

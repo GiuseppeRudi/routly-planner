@@ -48,20 +48,59 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--plan-image-override", help="Path to alternative plan image output file")
     return parser.parse_args()
 
-
 def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path: Path, plan_image_path: Path) -> list[str]:
 
+    # Clean up any previous solution file to avoid false positives
+    if plan_path.exists():
+        plan_path.unlink()
+
     print(f"\nRunning ENHSP planner on: {problem_path.name}")
-    run_enhsp(
-        enhsp_jar=config.enhsp_jar,
-        domain_path=config.domain_path,
-        problem_path=problem_path,
-        plan_path=plan_path,
-    )
+    
+    # ── TRY-EXCEPT LOGICAL BLOCK TO CATCH UNHANDLED PLANNER EXIT CODES ──
+    try:
+        run_enhsp(
+            enhsp_jar=config.enhsp_jar,
+            domain_path=config.domain_path,
+            problem_path=problem_path,
+            plan_path=plan_path,
+        )
+    except Exception as e:
+        # ENHSP throws an exception on exit code 4294967295 when unsolvable.
+        # We catch it directly here, print the clean alert, and break the pipeline with exit code 1.
+        print("\n" + "!" * 75)
+        print("CRITICAL ERROR: PLAN UNSOLVABLE")
+        print("!" * 75)
+        print(f"The planner could NOT find any valid route for: {problem_path.name}")
+        print("Reason: The network graph topology has been physically disconnected.")
+        print("Either the Start, the Goal, or the main connecting arteries are blocked.")
+        print("Closing execution cleanly without throwing system tracebacks.")
+        print("!" * 75 + "\n")
+        sys.exit(1)  # ➔ Changed to 1 to force run_pipeline.py to halt immediately
+
+    # Safety checkpoint if no exception was raised but the file is still missing
+    if not plan_path.exists():
+        print("\n" + "!" * 75)
+        print("CRITICAL ERROR: PLAN UNSOLVABLE")
+        print("!" * 75)
+        print(f"The planner could NOT find any valid route for: {problem_path.name}")
+        print("Reason: Plan file missing. Graph might be disconnected.")
+        print("!" * 75 + "\n")
+        sys.exit(1)  # ➔ Changed to 1 to force run_pipeline.py to halt immediately
 
     mapping = load_mapping(config.mapping_path)
     plan_text = plan_path.read_text(encoding="utf-8")
     planned_roads = parse_start_traversal_roads(plan_text)
+
+    if not planned_roads:
+        print("\n" + "!" * 75)
+        print("CRITICAL ERROR: PLAN RESOLVED TO EMPTY PATH")
+        print("!" * 75)
+        print(f"The planner finished but returned 0 roads for: {problem_path.name}")
+        print("Aborting pipeline execution safely to prevent subsequent SUMO crashes.")
+        print("!" * 75 + "\n")
+        sys.exit(1)  # ➔ Changed to 1 to force run_pipeline.py to halt immediately
+    # ───────────────────────────────────────────────────────────────────
+
     print(f"Roads in plan: {len(planned_roads)}")
     fuel_stations = (
         load_fuel_stations(config.fuel_stations_path)
@@ -73,7 +112,6 @@ def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path
     print(f"  Plan:       {plan_path}")
     print(f"  Plan image: {plan_image_path}")
     return planned_roads
-
 
 def _connected_components(roads: list[str], adjacency: dict[str, set[str]]) -> list[list[str]]:
     """Split `roads` into its connected components according to `adjacency`."""
@@ -233,7 +271,7 @@ def _build_random_candidates(
     ]
 
 def _build_adjacency(road_endpoints, blocked):
-    """Adiacenza diretta delle sole strade NON bloccate."""
+    """Direct adjacency of open roads only."""
     adj: dict[str, list[str]] = {}
     for rid, (a, b) in road_endpoints.items():
         if rid in blocked:
@@ -243,7 +281,7 @@ def _build_adjacency(road_endpoints, blocked):
 
 
 def _reachable(adj, start, goal):
-    """True se goal è raggiungibile da start sul grafo diretto."""
+    """True if goal is reachable from start on directed graph."""
     if start == goal:
         return True
     seen: set[str] = set()
@@ -280,14 +318,14 @@ def enforce_solvable_events(events, roads_by_id, all_roads, start_loc,
         kept = []
         for road in event["roads"]:
             if road not in road_endpoints:
-                kept.append(road) # unknown road, cannot check connectivity; keep it
+                kept.append(road)
                 continue
             blocked.add(road)
             if _reachable(_build_adjacency(road_endpoints, blocked),
                           start_loc, goal_loc):
                 kept.append(road)
             else:
-                blocked.discard(road) # do not block this road, it would disconnect start->goal
+                blocked.discard(road)
                 downgraded.append(road)
                 print(f"   DEBUG safeguard: closing {road} disconnects "
                       f"{start_loc} -> {goal_loc}; fallback='{fallback}'.")
@@ -303,7 +341,6 @@ def enforce_solvable_events(events, roads_by_id, all_roads, start_loc,
             "description": "Auto-fallback (debug): avoided closure for not "
                            "making A->B unsolvable.",
         })
-    # fallback == "skip": the roads in 'downgraded' are simply ignored
     return new_events
 
 def main() -> None:
@@ -403,6 +440,8 @@ def main() -> None:
             "description": "Generic incident detected by the urban monitoring system.",
         }]
 
+    # FORCE CORNER CASE DEBUG: Chiude a forza la prima strada del percorso base isolando l'avvio
+    #events = [{"event_type": "accident", "roads": [original_roads[0]], "description": "Critical artery collapse."}]
     print(f"\nLLM generated {len(events)} event(s):")
     for i, event in enumerate(events, 1):
         if event["event_type"] == "slowdown":
@@ -432,7 +471,6 @@ def main() -> None:
 
     modified_content = re.sub(r"\(problem\s+([^\s\)]+)\)", r"(problem \1_dynamic)", content)
     
-    # 1. Inject standard roadblocks and explicit slowdown severities
     for event in events:
         if event["event_type"] == "slowdown":
             severity = event["severity"]
@@ -452,7 +490,6 @@ def main() -> None:
     protected_locations = {loc for loc in (start_loc, goal_loc) if loc is not None}
     closure_events = [event for event in events if event["event_type"] != "slowdown"]
     
-    # 2. Derive global intersection blockade blocks (Task 1)
     blocked_locations = _derive_blocked_locations(events=closure_events, roads_by_id=roads_by_id, protected_locations=protected_locations)
     if blocked_locations:
         location_lines = [
@@ -463,8 +500,6 @@ def main() -> None:
         modified_content = modified_content.replace(init_end_marker, "\n" + "\n".join(location_lines) + init_end_marker, 1)
         print("PDDL file updated with blocked intersections.")
 
-    # 3. TASK 3: Recalculate background routes and congestion factor fluents globally
-    # Isolate explicit slowdown road IDs to avoid overwriting them with general traffic redistribution costs
     slowed_road_ids = {r for e in events if e["event_type"] == "slowdown" for r in e["roads"]}
     just_blocked_road_ids = [r for e in closure_events for r in e["roads"]]
     just_blocked_loc_ids = [loc["id"] for loc in blocked_locations]
@@ -482,7 +517,7 @@ def main() -> None:
         updated_count = 0
         for road_id, factor in new_factors.items():
             if road_id in slowed_road_ids:
-                continue  # Preserve explicit LLM slowdown event priorities
+                continue
             
             pattern = re.compile(rf"\(=\s*\(congestion-factor\s+{re.escape(road_id)}\)\s*[\d.]+\)")
             replacement = f"(= (congestion-factor {road_id}) {round(factor, 4)})"
@@ -532,8 +567,8 @@ def main() -> None:
         print("\nOpening the interactive congestion map (pre vs post LLM events)...")
         open_congestion_map(
             mapping=mapping,
-            pre_problem_path=problem_path, # problem.pddl  (pre)
-            post_problem_path=dynamic_problem_path, # problem_dynamic.pddl (post)
+            pre_problem_path=problem_path,
+            post_problem_path=dynamic_problem_path,
             start_loc=start_loc,
             goal_loc=goal_loc,
             place_name=getattr(config, "place_name", ""),

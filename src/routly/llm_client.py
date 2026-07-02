@@ -6,7 +6,7 @@ import urllib.request
 
 def call_llm(
     prompt: str,
-    backend: str = "lmstudio",
+    backend: str = "ollama",
     timeout: int = 180,
     seed: int | None = None,
 ) -> str:
