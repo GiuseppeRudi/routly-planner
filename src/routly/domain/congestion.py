@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 import json
+import math
 from pathlib import Path
 import random
 from typing import Any
@@ -26,6 +27,7 @@ def generate_background_routes(
     roads: list[dict[str, Any]],
     num_vehicles: int,
     seed: int,
+    max_present_time: float | None = None,
 ) -> list[BackgroundRoute]:
     """Generate deterministic, cycle-free routes shared by PDDL and SUMO."""
     if num_vehicles <= 0 or not roads:
@@ -35,11 +37,24 @@ def generate_background_routes(
     adjacency: dict[str, list[str]] = {}
     road_from: dict[str, str] = {}
     road_to: dict[str, str] = {}
+    road_len: dict[str, float] = {}
+    road_speed: dict[str, float] = {}
 
     for road in roads:
         adjacency.setdefault(road["from"], []).append(road["id"])
         road_from[road["id"]] = road["from"]
         road_to[road["id"]] = road["to"]
+        road_len[road["id"]] = float(road.get("length", 0.0))
+        road_speed[road["id"]] = float(road.get("speed", 0.0) or 0.0)
+
+    # time(road) = length / speed.
+    def _route_seconds(route: list[str]) -> float:
+        total = 0.0
+        for rid in route:
+            spd = road_speed.get(rid, 0.0)
+            if spd > 0:
+                total += road_len.get(rid, 0.0) / spd
+        return total
 
     all_road_ids = [
         road_id
@@ -76,7 +91,13 @@ def generate_background_routes(
             visited_nodes.add(current_to)
 
         if len(route) >= 2:
-            depart = round(rng.uniform(1.0, 300.0), 1)
+            if max_present_time is not None:
+                latest_depart = max_present_time - _route_seconds(route)
+                if latest_depart < 1.0:
+                    continue          # can't finish before T -> discard route
+                depart = round(rng.uniform(1.0, latest_depart), 1)
+            else:
+                depart = round(rng.uniform(1.0, 300.0), 1)   # old behaviour
             routes.append((depart, route))
 
     routes.sort(key=lambda item: item[0])
@@ -300,6 +321,39 @@ def _validate_congestion_thresholds(
         validated[road_class] = threshold
     return validated
 
+
+def estimate_route_duration_straight_line(
+    nodes_by_id: dict[str, dict[str, Any]],
+    roads: list[dict[str, Any]],
+    start_loc: str,
+    goal_loc: str,
+    speed: float | None = None,
+    congestion: float = 1.0,
+    detour_factor: float = 1.3,
+    safety_margin: float = 1.0,
+) -> float:
+    """Approximation of the start->goal duration (seconds).
+
+        distance ~= euclidean(start, goal) * detour_factor
+        time     ~= distance * congestion / speed
+
+    speed defaults to the average road speed-limit. `detour_factor` (~1.3)
+    compensates for real roads being longer than a straight line.
+    Returns 0.0 if a node coordinate is missing.
+    """
+    s = nodes_by_id.get(start_loc)
+    g = nodes_by_id.get(goal_loc)
+    if not s or not g:
+        return 0.0
+
+    if speed is None:
+        speeds = [float(r["speed"]) for r in roads if float(r.get("speed", 0)) > 0]
+        speed = sum(speeds) / len(speeds) if speeds else 1.0
+
+    straight = math.hypot(float(g["x"]) - float(s["x"]),
+                          float(g["y"]) - float(s["y"]))
+    distance = straight * detour_factor
+    return round(distance * congestion / speed * safety_margin, 1)
 
 def write_background_routes(
     background_routes: list[BackgroundRoute],

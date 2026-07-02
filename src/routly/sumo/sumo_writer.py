@@ -190,8 +190,10 @@ def write_rou_xml(
     all_roads: list[dict] | None = None,
     background_routes: list[BackgroundRoute] | None = None,
     seed: int | None = None,
-    blocked_roads: list[str] | None = None,       # ➔ Task 2: Added parameter
-    blocked_locations: list[str] | None = None,   # ➔ Task 2: Added parameter
+    blocked_roads: list[str] | None = None,
+    blocked_locations: list[str] | None = None,
+    max_present_time: float | None = None,
+    presence_safety_margin: float = 1.15,
 ) -> None:
     """
     Write SUMO route XML.
@@ -216,9 +218,30 @@ def write_rou_xml(
     closed_nodes = set(blocked_locations) if blocked_locations else set()
 
     road_nodes = {}
+    road_by_id = {}
     if all_roads:
         for r in all_roads:
             road_nodes[r["id"]] = (r["from"], r["to"])
+            road_by_id[r["id"]] = r
+    
+    # time(road) = length / speed. Roads missing from the table are ignored.
+    def _route_seconds(edges):
+        total = 0.0
+        for rid in edges:
+            r = road_by_id.get(rid)
+            if not r:
+                continue
+            speed = float(r.get("speed", 0) or 0)
+            if speed > 0:
+                total += float(r["length"]) / speed
+        return total
+
+    # if no explicit cap was given, derive it from the *actual* planned
+    # route (we already have it here, so no estimate is needed).
+    if max_present_time is None and road_by_id:
+        planned = _route_seconds(edge_sequence)
+        if planned > 0:
+            max_present_time = planned * presence_safety_margin
 
     bg_routes = background_routes
     if bg_routes is None and background_vehicles > 0 and all_roads:
@@ -233,6 +256,7 @@ def write_rou_xml(
             and r["from"] not in closed_nodes
             and r["to"] not in closed_nodes
         ]
+        
         bg_routes = generate_background_routes(filtered_all_roads, background_vehicles, seed)
     elif bg_routes is not None:
         # If background routes are pre-calculated, filter out any route touching blocked components

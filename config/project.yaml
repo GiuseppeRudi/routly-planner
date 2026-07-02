@@ -12,8 +12,8 @@ osm:
 graph_simplification:
   keep_largest_component: true
   remove_isolated_nodes: true
-  distance_meters: 500
-  max_nodes: 50
+  distance_meters: 1000
+  max_nodes: 500
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
@@ -42,7 +42,7 @@ features:
   congestion:
     enabled: true
     mode: "pddl" # "sumo" | "pddl"
-    type: "dynamic" # "static" | "dynamic"
+    type: "static" # "static" | "dynamic"
     replanning: false
     num_background_vehicles: 200
     congestion_factor: 2.0
