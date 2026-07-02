@@ -354,23 +354,27 @@ def draw_fuel_stations(ax, mapping: dict, station_ids: list[str]) -> None:
         )
 
 class CongestionMapViewer:
+    """Interactive congestion-factor map: Pre/Post switch, color by intensity,
+    click with per-road pre/post values, blocked-road highlighting, a road
+    search box, and a clickable list of blocked/slowdown roads."""
 
     PRE_LABEL = "Pre LLM events"
     POST_LABEL = "Post LLM events"
 
     def __init__(self, mapping, pre_factors, post_factors,
                  start_loc=None, goal_loc=None, place_name="",
-                 blocked_roads=None):
+                 blocked_roads=None, slowdown_roads=None):
         self.mapping = mapping
         self.nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
         self.roads = list(mapping["roads"])
         self.pre = pre_factors or {}
         self.post = post_factors or {}
-        self.blocked = set(blocked_roads or ()) # blocked roads (post view)
+        self.blocked = set(blocked_roads or ())      # blocked roads (post view)
+        self.slowdowns = set(slowdown_roads or ())   # slowed roads (post view)
         self.start_loc = start_loc
         self.goal_loc = goal_loc
         self.place_name = place_name
-        self.current = "pre" # "pre" | "post"
+        self.current = "pre"            # "pre" | "post"
         self.pinned_road = None
 
         # Shared color normalization across pre and post -> consistent compare.
@@ -380,7 +384,7 @@ class CongestionMapViewer:
         if vmax <= vmin:
             vmax = vmin + 1e-6
         self.norm = Normalize(vmin=vmin, vmax=vmax)
-        self.cmap = plt.get_cmap("RdYlGn_r") # green=free, red=congested
+        self.cmap = plt.get_cmap("RdYlGn_r")   # green=free, red=congested
 
         matplotlib.rcParams["toolbar"] = "None"
         self.fig, self.ax = plt.subplots(figsize=(12, 7))
@@ -397,6 +401,7 @@ class CongestionMapViewer:
         self._add_legend()
         self._add_switch()
         self._add_search()
+        self._add_road_list()
         self._add_annotation()
         self._connect_events()
         self._refresh_colors()
@@ -475,6 +480,105 @@ class CongestionMapViewer:
         self.search_msg = self.fig.text(
             0.015, 0.64, "", color="red", fontsize=8, va="top")
 
+    def _add_road_list(self):
+        """Clickable list of blocked/slowdown roads under the search field.
+        Clicking a row drops that road number into the search box and selects
+        it; the Up/Down buttons or the mouse wheel page through long lists."""
+        def _num(rid):
+            m = re.search(r"(\d+)$", rid)
+            return int(m.group(1)) if m else 0
+
+        # Blocked roads first (tag "B"), then slowdown roads (tag "S").
+        self.list_items = (
+            [(r, "B") for r in sorted(self.blocked, key=_num)]
+            + [(r, "S") for r in sorted(self.slowdowns, key=_num)]
+        )
+        self.list_offset = 0
+        self.VISIBLE_ROWS = 13
+
+        self.list_header = self.fig.text(
+            0.015, 0.61, "", fontsize=8, fontweight="bold", va="top")
+
+        # Up / Down paging buttons.
+        up_ax = self.fig.add_axes([0.015, 0.565, 0.072, 0.03])
+        down_ax = self.fig.add_axes([0.093, 0.565, 0.072, 0.03])
+        self.btn_up = Button(up_ax, "Up", color="#eee", hovercolor="#ddd")
+        self.btn_down = Button(down_ax, "Down", color="#eee", hovercolor="#ddd")
+        self.btn_up.label.set_fontsize(8)
+        self.btn_down.label.set_fontsize(8)
+        self.btn_up.on_clicked(lambda _e: self._scroll_list(-1))
+        self.btn_down.on_clicked(lambda _e: self._scroll_list(1))
+
+        # One button per visible row; labels are refreshed on scroll/paging.
+        self.row_buttons = []
+        top, step = 0.525, 0.036
+        for i in range(self.VISIBLE_ROWS):
+            row_ax = self.fig.add_axes([0.015, top - i * step, 0.15, 0.03])
+            btn = Button(row_ax, "", color="#f5f5f5", hovercolor="#e0e0e0")
+            btn.label.set_fontsize(8)
+            btn.on_clicked(self._make_row_handler(i))
+            self.row_buttons.append(btn)
+
+        self.fig.canvas.mpl_connect("scroll_event", self._on_scroll)
+        # The list is only shown on the Post view (the map starts on Pre).
+        self._set_list_visible(self.current == "post")
+
+    def _make_row_handler(self, row_index):
+        # Bind the visible row position; the road it maps to depends on offset.
+        def handler(_event):
+            idx = self.list_offset + row_index
+            if 0 <= idx < len(self.list_items):
+                self._select_road(self.list_items[idx][0])
+        return handler
+
+    def _refresh_list(self):
+        total = len(self.list_items)
+        for i, btn in enumerate(self.row_buttons):
+            idx = self.list_offset + i
+            if idx < total:
+                rid, kind = self.list_items[idx]
+                btn.label.set_text(f"{rid}  [{kind}]")
+                btn.ax.set_visible(True)
+            else:
+                btn.label.set_text("")
+                btn.ax.set_visible(False)
+        if total:
+            lo = self.list_offset + 1
+            hi = min(self.list_offset + self.VISIBLE_ROWS, total)
+            self.list_header.set_text(
+                f"Blocked [B] / slowdown [S]  ({lo}-{hi} of {total})")
+        else:
+            self.list_header.set_text("No blocked / slowdown roads")
+        self.fig.canvas.draw_idle()
+
+    def _scroll_list(self, delta):
+        max_offset = max(0, len(self.list_items) - self.VISIBLE_ROWS)
+        self.list_offset = min(max(0, self.list_offset + delta), max_offset)
+        self._refresh_list()
+
+    def _on_scroll(self, event):
+        # React to the wheel only when it is over the left panel.
+        xf = event.x / self.fig.bbox.width if event.x is not None else 1.0
+        if xf > 0.18:
+            return
+        self._scroll_list(-1 if event.button == "up" else 1)
+
+    def _set_list_visible(self, visible):
+        # The blocked/slowdown list only makes sense for the Post view, so it
+        # is hidden (and its buttons deactivated) while looking at Pre.
+        self.list_header.set_visible(visible)
+        for w in (self.btn_up, self.btn_down):
+            w.ax.set_visible(visible)
+            w.set_active(visible)
+        for btn in self.row_buttons:
+            btn.set_active(visible)
+        if visible:
+            self._refresh_list()
+        else:
+            for btn in self.row_buttons:
+                btn.ax.set_visible(False)
+        self.fig.canvas.draw_idle()
+
     def _add_annotation(self):
         # Pop-up box shown on click, with a leader line to the clicked road.
         self.click_annot = self.ax.annotate(
@@ -510,6 +614,7 @@ class CongestionMapViewer:
 
     def _on_switch(self, label):
         self.current = "pre" if label == self.PRE_LABEL else "post"
+        self._set_list_visible(self.current == "post")
         self._refresh_colors()
 
     # ---- interaction ----
@@ -563,11 +668,15 @@ class CongestionMapViewer:
             return
         if not road_id.startswith("road_"):
             road_id = f"road_{road_id}"
+        self._select_road(road_id)
+
+    def _select_road(self, road_id):
+        # Shared by the search box and the blocked/slowdown list buttons.
         if road_id not in self.road_lines:
             self.search_msg.set_text(f"Road '{road_id}' not found.")
             self.fig.canvas.draw_idle()
             return
-        self.search_msg.set_text("")
+        self.search_msg.set_text("")     # clear previous warning
         self.pinned_road = road_id
         line = self.road_lines[road_id]
         xs, ys = line.get_xdata(), line.get_ydata()
@@ -584,6 +693,7 @@ class CongestionMapViewer:
 _CONGESTION_RE = re.compile(
     r"\(=\s*\(congestion-factor\s+(\S+?)\)\s*([0-9]*\.?[0-9]+)\)"
 )
+
 
 def parse_congestion_factors(pddl_path: str | Path) -> dict[str, float]:
     """Extract {road_id: congestion_factor} from the fluents of a PDDL problem."""
@@ -610,17 +720,37 @@ def parse_blocked_roads(pddl_path: str | Path) -> set[str]:
         return set()
     return set(_BLOCKED_RE.findall(path.read_text(encoding="utf-8")))
 
+
+# Slowdown roads are congestion-factor lines that step 04 tags with a
+# ";; [DYNAMIC EVENT - slowdown]" comment. The topological recalibration
+# skips slowed roads (`if road_id in slowed_road_ids: continue`), so this
+# marker survives in problem_dynamic.pddl and is a reliable signal.
+_SLOWDOWN_RE = re.compile(
+    r"\(=\s*\(congestion-factor\s+(\S+?)\)\s*[0-9]*\.?[0-9]+\)"
+    r"\s*;;\s*\[DYNAMIC EVENT - slowdown\]"
+)
+
+
+def parse_slowdown_roads(pddl_path: str | Path) -> set[str]:
+    """Extract the set of slowed roads (LLM 'slowdown' events) from a PDDL problem."""
+    path = Path(pddl_path)
+    if not path.exists():
+        return set()
+    return set(_SLOWDOWN_RE.findall(path.read_text(encoding="utf-8")))
+
 def open_congestion_map(mapping, pre_problem_path, post_problem_path,
                         start_loc=None, goal_loc=None, place_name=""):
-
+    """Open the interactive pre/post congestion-factor map."""
     pre = parse_congestion_factors(pre_problem_path)
     post = parse_congestion_factors(post_problem_path)
     blocked = parse_blocked_roads(post_problem_path)
+    slowdowns = parse_slowdown_roads(post_problem_path)
     if not pre and not post and not blocked:
         print("WARNING: no congestion-factor/road-blocked fluent found "
               "(needs congestion.mode='pddl'); congestion map skipped.")
         return None
     viewer = CongestionMapViewer(mapping, pre, post, start_loc, goal_loc,
-                                 place_name, blocked_roads=blocked)
+                                 place_name, blocked_roads=blocked,
+                                 slowdown_roads=slowdowns)
     viewer.show()
     return viewer
