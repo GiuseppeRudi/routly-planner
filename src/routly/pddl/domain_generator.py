@@ -28,14 +28,14 @@ def build_road_network_domain(features: FeatureConfig | None = None) -> str:
 ;;  DOMAIN: road-network
 ;;  Features: {features.label}
 ;;    traffic_lights  : {features.traffic_lights}
-;;    congestion mode : {features.congestion.mode}
+;;    congestion      : enabled={features.congestion.enabled}, mode={features.congestion.mode}, type={features.congestion.type}
 ;;    llm_events      : {features.llm_events.enabled}
 ;;    fuel            : {features.fuel.enabled}
 ;; ============================================================
 
 (define (domain road-network)
   (:requirements :typing :numeric-fluents :time)
-  (:types vehicle location road)
+  (:types vehicle location road{_time_window_type(features)})
 
 {body}
 )
@@ -54,6 +54,9 @@ def _build_predicates(f: FeatureConfig) -> str:
 
     if f.fuel.enabled:
         lines.append("    (has-fuel-station ?l - location)   ;; refuelling point")
+
+    if f.dynamic_congestion_in_pddl:
+        lines.append("    (congestion-update-pending ?r - road ?w - time-window)")
 
     if f.llm_events.enabled:
         lines.append("    (road-blocked ?r - road)   ;; set by LLM event generator")
@@ -77,6 +80,11 @@ def _build_functions(f: FeatureConfig) -> str:
 
     if f.congestion_in_pddl or f.llm_events.enabled:
         lines.append("    (congestion-factor    ?r - road)  ;; 1.0=free, 2.0=half speed")
+
+    if f.dynamic_congestion_in_pddl:
+        lines.append("    (sim-time)")
+        lines.append("    (window-start         ?w - time-window)")
+        lines.append("    (congestion-value     ?r - road ?w - time-window)")
 
     lines += [
         "    (distance-remaining   ?v - vehicle)",
@@ -179,6 +187,10 @@ def _build_process(f: FeatureConfig) -> str:
             "(* #t (* (speed ?v) (fuel-consumption-rate ?v))))"
         )
 
+    sim_time_effect = ""
+    if f.dynamic_congestion_in_pddl:
+        sim_time_effect = "\n      (increase (sim-time) (* #t 1))"
+
     return f"""\
   (:process traverse
     :parameters (?v - vehicle)
@@ -188,7 +200,7 @@ def _build_process(f: FeatureConfig) -> str:
     )
     :effect (and
       (decrease (distance-remaining ?v) (* #t (speed ?v)))
-      (increase (total-distance ?v)     (* #t (speed ?v))){fuel_effect}
+      (increase (total-distance ?v)     (* #t (speed ?v))){fuel_effect}{sim_time_effect}
     )
   )"""
 
@@ -257,4 +269,23 @@ def _build_events(f: FeatureConfig) -> str:
     )
   )""")
 
+    if f.dynamic_congestion_in_pddl:
+        events.append("""\
+  ;; Activates pre-computed congestion factors when their time window is reached.
+  (:event activate-congestion-window
+    :parameters (?r - road ?w - time-window)
+    :precondition (and
+      (congestion-update-pending ?r ?w)
+      (>= (sim-time) (window-start ?w))
+    )
+    :effect (and
+      (not (congestion-update-pending ?r ?w))
+      (assign (congestion-factor ?r) (congestion-value ?r ?w))
+    )
+  )""")
+
     return "\n\n".join(events)
+
+
+def _time_window_type(f: FeatureConfig) -> str:
+    return " time-window" if f.dynamic_congestion_in_pddl else ""

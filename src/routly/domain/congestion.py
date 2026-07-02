@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import random
@@ -10,6 +11,15 @@ from src.routly.domain.roads import ROAD_CAPACITY_CLASSES, road_capacity_class
 
 
 BackgroundRoute = tuple[float, list[str]]
+
+
+@dataclass(frozen=True)
+class CongestionWindowFactor:
+    start: int
+    factor: float
+
+
+DynamicCongestionProfile = dict[str, list[CongestionWindowFactor]]
 
 
 def generate_background_routes(
@@ -160,12 +170,103 @@ def compute_congestion_factors(
         road_id = road["id"]
         threshold = thresholds[road_capacity_class(road)]
         vehicle_count = counts.get(road_id, 0)
-        factor = min(
+        factors[road_id] = _congestion_factor_for_count(
+            vehicle_count,
+            threshold,
             max_factor,
-            1.0 + (vehicle_count / threshold) * (max_factor - 1.0),
         )
-        factors[road_id] = round(factor, 2)
     return factors
+
+
+def compute_dynamic_congestion_profile(
+    roads: list[dict[str, Any]],
+    background_routes: list[BackgroundRoute],
+    max_factor: float,
+    vehicles_for_max_congestion_by_road_class: dict[str, int],
+    window_seconds: int,
+) -> DynamicCongestionProfile:
+    """
+    Compute congestion-factor changes by road and time window.
+
+    Each background vehicle contributes once to the window in which it enters a
+    road. The first value for every road is always the initial factor at t=0;
+    later entries are emitted only when the factor changes from the previous
+    window.
+    """
+    if window_seconds <= 0:
+        raise ValueError("window_seconds must be greater than zero")
+    if max_factor < 1.0:
+        raise ValueError("max_factor must be greater than or equal to 1.0")
+
+    thresholds = _validate_congestion_thresholds(
+        vehicles_for_max_congestion_by_road_class
+    )
+    roads_by_id = {road["id"]: road for road in roads}
+    counts_by_road_window: dict[str, Counter[int]] = {
+        road["id"]: Counter()
+        for road in roads
+    }
+    max_window_start = 0
+
+    for depart, route in background_routes:
+        current_time = float(depart)
+        for road_id in route:
+            road = roads_by_id.get(road_id)
+            if road is None:
+                continue
+
+            window_start = int(current_time // window_seconds) * window_seconds
+            counts_by_road_window[road_id][window_start] += 1
+            max_window_start = max(max_window_start, window_start)
+
+            speed = float(road.get("speed", 0))
+            if speed <= 0:
+                raise ValueError(f"Road {road_id} has non-positive speed")
+            current_time += float(road["length"]) / speed
+
+    profile: DynamicCongestionProfile = {}
+    window_starts = range(
+        0,
+        max_window_start + (2 * window_seconds),
+        window_seconds,
+    )
+
+    for road in roads:
+        road_id = road["id"]
+        threshold = thresholds[road_capacity_class(road)]
+        changes: list[CongestionWindowFactor] = []
+        previous_factor: float | None = None
+
+        for window_start in window_starts:
+            factor = _congestion_factor_for_count(
+                counts_by_road_window[road_id].get(window_start, 0),
+                threshold,
+                max_factor,
+            )
+            if previous_factor is None or factor != previous_factor:
+                changes.append(
+                    CongestionWindowFactor(
+                        start=window_start,
+                        factor=factor,
+                    )
+                )
+                previous_factor = factor
+
+        profile[road_id] = changes
+
+    return profile
+
+
+def _congestion_factor_for_count(
+    vehicle_count: int,
+    threshold: int,
+    max_factor: float,
+) -> float:
+    factor = min(
+        max_factor,
+        1.0 + (vehicle_count / threshold) * (max_factor - 1.0),
+    )
+    return round(factor, 2)
 
 
 def _validate_congestion_thresholds(

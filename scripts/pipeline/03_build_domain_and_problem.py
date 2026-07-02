@@ -91,7 +91,7 @@ def main() -> None:
     background_routes = []
     traffic_light_timings = {}
 
-    if features.congestion_in_sumo:
+    if features.congestion_enabled:
         background_routes = generate_background_routes(
             roads,
             features.congestion.num_background_vehicles,

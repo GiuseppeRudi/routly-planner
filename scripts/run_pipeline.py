@@ -265,13 +265,16 @@ if __name__ == "__main__":
 # su molti piu fluenti numerici, eventi e processi temporali; nella prova pratica il planner e andato
 # in OutOfMemoryError: Java heap space durante la ricerca euristica, confermando che il modello e troppo
 # pesante per questa pipeline.
+# IMPLEMENTAZIONE ATTUALE: la congestione dinamica PDDL e stata reintrodotta come modalita sperimentale
+# opzionale tramite features.congestion.type=dynamic. Funziona generando finestre temporali e update PDDL,
+# ma resta pensata per mappe piccole per mostrare chiaramente il limite di scalabilita del planner.
 # POSSIBILE ALTERNATIVA NON IMPLEMENTATA: fare re-planning usando uno snapshot di congestione corrente.
 # Questa soluzione richiede pero un controller esterno che esegua solo una parte del piano, capisca dove
 # si trova il veicolo a un certo tempo (soprattutto se e in mezzo a una strada), rigeneri un problem PDDL
 # dal nodo/posizione corrente e unisca i piani parziali. Per questo e molto piu complessa rispetto
 # all'architettura attuale, dove il planner produce un piano completo start-goal in un'unica esecuzione.
-# DECISIONE: mantenere per ora una congestione statica dentro il singolo problem PDDL, migliorata dal TODO 6
-# con soglie diverse per classe di strada, invece di una congestione dinamica temporale dentro PDDL.
+# DECISIONE: il replanning resta bloccato con errore esplicito se abilitato in config; static e dynamic
+# PDDL restano selezionabili senza fallback automatico tra loro.
 
 
 
@@ -287,4 +290,8 @@ if __name__ == "__main__":
 
 
 # TODO 11. INSERIRE UNA MAPPA SATELLITARE CON LE STRADE E I NODI DELLA MAPPA PER AVERE UNA VISIONE PIU REALISTICA 
-# DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API 
+# DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API
+
+# TODO 12. fare in modo che il secondo script tenga conto anche delle stazioni di benzina e quindi quando viene fatto
+# TODO il controllo se il path tra start e goal è percorribile deve anche tenere conto se il veicolo ha abbastanza benzina
+# TODO per arrivare al goal o se deve passare da una stazione di benzina per rifornirsi.

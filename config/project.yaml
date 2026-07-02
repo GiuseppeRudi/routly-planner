@@ -12,8 +12,8 @@ osm:
 graph_simplification:
   keep_largest_component: true
   remove_isolated_nodes: true
-  distance_meters: 1000
-  max_nodes: 300
+  distance_meters: 500
+  max_nodes: 50
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
@@ -34,19 +34,20 @@ features:
       min: 20
       max: 30
 
-  # No congestion = enabled : false 
-  # congestion = {replanning : false , type : static, mode : sumo_only}
-  # congestion = {replanning : false , type : static, mode : pddl}
-  # congestion = {replanning : false , type : dynamic, mode : pddl}
-  # congestion = {replanning : true , type : static, mode : pddl}
-  # congestion = {replanning : true , type : dynamic, mode : pddl}
+  # No congestion = {enabled: false}
+  # congestion = {enabled: true, replanning: false, type: static, mode: sumo}
+  # congestion = {enabled: true, replanning: false, type: static, mode: pddl}
+  # congestion = {enabled: true, replanning: false, type: dynamic, mode: pddl}
+  # replanning: true is parsed but intentionally blocked until the replanning phase is implemented.
   congestion:
-    # enabled : true , false
-    # type : static , dynamic
-    # replanning : true , false
-    mode: "pddl" # "sumo_only" | "pddl"
+    enabled: true
+    mode: "pddl" # "sumo" | "pddl"
+    type: "dynamic" # "static" | "dynamic"
+    replanning: false
     num_background_vehicles: 200
     congestion_factor: 2.0
+    dynamic:
+      window_seconds: 30
     vehicles_for_max_congestion_by_road_class:
       local: 20
       arterial: 35
@@ -79,11 +80,11 @@ features:
 
   
   fuel:
-    enabled: true # if true max_nodes must be decreased
+    enabled: false # if true max_nodes must be decreased
     # replanning : true o false
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
     stations_source: random # "random" | "osm"
-    consumption_mode: continuous   # "discrete" | "continuous"
+    consumption_mode: discrete   # "discrete" | "continuous"
     # if consumption_mode = discrete, then max_nodes <= 150
     # if consumption_mode = continuous, then max_nodes <= 100

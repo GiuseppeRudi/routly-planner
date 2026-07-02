@@ -747,7 +747,7 @@ def open_congestion_map(mapping, pre_problem_path, post_problem_path,
     slowdowns = parse_slowdown_roads(post_problem_path)
     if not pre and not post and not blocked:
         print("WARNING: no congestion-factor/road-blocked fluent found "
-              "(needs congestion.mode='pddl'); congestion map skipped.")
+              "(needs congestion.enabled=true and mode='pddl'); congestion map skipped.")
         return None
     viewer = CongestionMapViewer(mapping, pre, post, start_loc, goal_loc,
                                  place_name, blocked_roads=blocked,
