@@ -234,34 +234,20 @@ if __name__ == "__main__":
 # SOLVED - 6. ATTUALMENTE UTILIZZIAMO UNA FORMULA PER IL CALCOLO DELLA CONGESTIONE CHE TIENE CONTO DI UN NUMERO MASSIMO DI VEICOLO
 # SOLVED - PER OGNI STRADA SENZA PERO DIFFERENZIARE I TIPI DI STRADA : AD ESEMPIO UNA STRADA PROVINCIALE PIU AVERE UN NUMERO DI MACCHINE
 # SOLVED - PER POTER ESSERE CONGESTIONATA PARI A 20 MENTRE UNA SUPERSTRADA POTREBEB AVERE UN NUMERO DI MACCHINA PER POTER ESSERE CLASSIFICATA CONGESTIONATA SUPERIORE AD ESEMPIO 50 
-
-
-# SIMONE
-# TODO - flag = true nel prompt gli dici di cercare di chiudere strade che hanno una distanza minore dalla retta (linea d'aria) altrimenti FALSE = llm  ha la distanza dalla retta ma non gli diciamo esplicitamente di chiudere le strade con minore distanza fa lui quello che meglio crede 
-# TODO - quindi modificare il flag attuale (strategic_injection) quinid non prende piu il subset di 8 nodi random e non ce neanche piu il controllo aldisotto dei 120 nodi . all LLM noi mandiamo sempre tutti i nodi e archi dal problem file 
-
-
-# CRISTIANO
-# TODO - implementare un immagine da matplotlib che mostri il cambiamento dinamico del fattore di congestione prendendo quello antecedente alla generazione degli eventi llm e quello successivo 
-# TODO - l'idea sarebbe una mappa/grafo che mostra nodi e archi (strade) e per ogni strada: inserire un colore che ne indica l'intensità del fattore di congestione e
-# TODO - un valore puntale numerico quando si clicca oppure si passa di sopra su una determinata strada e mostrare i valori di pre e post da qualche parte.
-# TODO - aggiungere anche uno switch o slider che cambia la tipologia di mappa (pre o post)
-
-
-# RUDI
-# TODO - modifica del naming delle cartelle in data la struttura dovrebbe essere la seguente : data => nome_citta => nodes_X_distanze_Y => nome_esperimento_ora_e_data => all'interno le copie degli yaml da cui parte la configurazione per riproducibilità
-# TODO -  organizzazione migliore delle cartelle interne ad un determinato esperimento es : plan_llm , plan_basic  ect ect 
-# TODO - vedere se unificare i file yaml in un unico file va bebe oppure no 
-
-# EUGENIO
-# TODO : DA TESTARE 
-# TODO SISTEMARE IL PROBLEMA DERIVATO DALLA FATTO CHE ALCUNE MACCHINE APPARTENENTI AL TRAFFICO NON PASSINO DA STRADE E NODI CHIUSI DALL LLM 
-# TODO - quando vengono bloccate le strade a causa degli eventi generati dagli llm bisogna ricreare anche le route dei veicoli background e
-# TODO   quindi ricalcolare anche il fattore di congestione per ogni strada con le nuove route aggiornate e poi darle al planner
-
-# TODO - RISOLVERE E GESTIRE ERRORE DERIVATO DAL FATTO CHE IL PLANNER POTREBBE NON RISOLVERE UN PERCORSO SE LLM CHIUDE LE STRADE O LUNICA STADA CHE COLLEGA LO START E IL GOAL. non far crashare il programma ma chiuderlo avvisando lutente di quello che è successo 
-
-
+# SOLVED - flag = true nel prompt gli dici di cercare di chiudere strade che hanno una distanza minore dalla retta (linea d'aria) altrimenti FALSE = llm  ha la distanza dalla retta ma non gli diciamo esplicitamente di chiudere le strade con minore distanza fa lui quello che meglio crede 
+# SOLVED - quindi modificare il flag attuale (strategic_injection) quinid non prende piu il subset di 8 nodi random e non ce neanche piu il controllo aldisotto dei 120 nodi . all LLM noi mandiamo sempre tutti i nodi e archi dal problem file 
+# SOLVED - implementare un immagine da matplotlib che mostri il cambiamento dinamico del fattore di congestione prendendo quello antecedente alla generazione degli eventi llm e quello successivo 
+# SOLVED - l'idea sarebbe una mappa/grafo che mostra nodi e archi (strade) e per ogni strada: inserire un colore che ne indica l'intensità del fattore di congestione e
+# SOLVED - un valore puntale numerico quando si clicca oppure si passa di sopra su una determinata strada e mostrare i valori di pre e post da qualche parte.
+# SOLVED - aggiungere anche uno switch o slider che cambia la tipologia di mappa (pre o post)
+# SOLVED - modifica del naming delle cartelle in data la struttura dovrebbe essere la seguente : data => nome_citta => nodes_X_distanze_Y => nome_esperimento_ora_e_data => all'interno le copie degli yaml da cui parte la configurazione per riproducibilità
+# SOLVED -  organizzazione migliore delle cartelle interne ad un determinato esperimento es : plan_llm , plan_basic  ect ect 
+# SOLVED - vedere se unificare i file yaml in un unico file va bebe oppure no 
+# SOLVED : DA TESTARE 
+# SOLVED SISTEMARE IL PROBLEMA DERIVATO DALLA FATTO CHE ALCUNE MACCHINE APPARTENENTI AL TRAFFICO NON PASSINO DA STRADE E NODI CHIUSI DALL LLM 
+# SOLVED - quando vengono bloccate le strade a causa degli eventi generati dagli llm bisogna ricreare anche le route dei veicoli background e
+# SOLVED   quindi ricalcolare anche il fattore di congestione per ogni strada con le nuove route aggiornate e poi darle al planner
+# SOLVED - RISOLVERE E GESTIRE ERRORE DERIVATO DAL FATTO CHE IL PLANNER POTREBBE NON RISOLVERE UN PERCORSO SE LLM CHIUDE LE STRADE O LUNICA STADA CHE COLLEGA LO START E IL GOAL. non far crashare il programma ma chiuderlo avvisando lutente di quello che è successo 
 
 
 
@@ -289,3 +275,16 @@ if __name__ == "__main__":
 
 
 
+# MINOR PROBLEM 
+# TODO 8. iL run_pipeline ora crea una nuova cartella per ogni esecuzione dello script, ora dobbiamo dare 
+# TODO la possibilita di avviare una simulazione gia creata per far ripartire alcuni dei punti della simulazione precedente 
+
+
+# TODO 9. inserire gli eventi generati dall llm anche su sumo non solo sull immagine quindi blocket roads ma anche rallentamenti 
+
+# TODO 10. inserire nell immagine della comparazione delle congesitoni anche una visione migliore degli eventi generati dall llm 
+# cambiare il colore da grigio a piu accesso e aggiungere una lista 
+
+
+# TODO 11. INSERIRE UNA MAPPA SATELLITARE CON LE STRADE E I NODI DELLA MAPPA PER AVERE UNA VISIONE PIU REALISTICA 
+# DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API 
