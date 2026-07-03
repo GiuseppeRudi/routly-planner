@@ -9,6 +9,7 @@ traci
 
 # Graph processing
 networkx
+contextily
 
 # Data processing
 pandas
