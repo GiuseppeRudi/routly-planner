@@ -79,16 +79,16 @@ def plot_event_map(mapping: dict, original_roads: list[str], recalculated_roads:
 
     fig, ax = plt.subplots(figsize=(14, 14))
     _plot_roads(ax, roads_by_id, [road["id"] for road in mapping["roads"]], color="#ffffff", linewidth=0.75, alpha=0.4, zorder=1)
-    _plot_roads(ax, roads_by_id, original_roads, color="#e64b35", linewidth=8.0, alpha=0.58, zorder=3)
+    _plot_roads(ax, roads_by_id, original_roads, color="#0057ff", linewidth=8.0, alpha=0.58, zorder=3) # ➔ Cambiato in Blu
     _plot_roads(ax, roads_by_id, recalculated_roads, color="#00a75a", linewidth=5.0, alpha=0.82, zorder=4)
-    _plot_roads(ax, roads_by_id, blocked_ids, color="#1f5fd1", linewidth=11.0, alpha=0.28, zorder=6)
-    _plot_roads(ax, roads_by_id, blocked_ids, color="#0057ff", linewidth=3.6, alpha=0.96, zorder=8)
+    _plot_roads(ax, roads_by_id, blocked_ids, color="#e64b35", linewidth=11.0, alpha=0.28, zorder=6) # ➔ Cambiato in Rosso Faded
+    _plot_roads(ax, roads_by_id, blocked_ids, color="#e64b35", linewidth=3.6, alpha=0.96, zorder=8)  # ➔ Cambiato in Rosso Solido
     _plot_roads(ax, roads_by_id, slowed_ids, color="#FFD700", linewidth=4.2, alpha=0.96, zorder=7, linestyle="--")
 
     for location_id in blocked_location_ids:
         node = nodes_by_id.get(location_id)
         if node:
-            ax.scatter(node["x"], node["y"], marker="X", s=170, color="#0057ff", edgecolors="white", linewidths=1.6, zorder=11)
+            ax.scatter(node["x"], node["y"], marker="X", s=170, color="#e64b35", edgecolors="white", linewidths=1.6, zorder=11) # ➔ Cambiato in Rosso
 
     for loc, label, col in ((start_loc, "START", "purple"), (goal_loc, "GOAL", "darkred")):
         if loc and loc in nodes_by_id:
@@ -97,11 +97,11 @@ def plot_event_map(mapping: dict, original_roads: list[str], recalculated_roads:
             ax.text(node["x"], node["y"], label, fontsize=11, color="white", fontweight="bold", ha="center", va="bottom", zorder=13)
 
     legend_handles = [
-        Line2D([0], [0], color="#e64b35", linewidth=6, alpha=0.75, label="Original route"),
+        Line2D([0], [0], color="#0057ff", linewidth=6, alpha=0.75, label="Original route"),
         Line2D([0], [0], color="#00a75a", linewidth=5, label="Replanned route"),
-        Line2D([0], [0], color="#0057ff", linewidth=4, label="Blocked roads"),
+        Line2D([0], [0], color="#e64b35", linewidth=4, label="Blocked roads"),
         Line2D([0], [0], color="#FFD700", linewidth=4, linestyle="--", label="Slowdowns"),
-        Line2D([0], [0], marker="X", color="w", markerfacecolor="#0057ff", markersize=10, label="Blocked intersections"),
+        Line2D([0], [0], marker="X", color="w", markerfacecolor="#e64b35", markersize=10, label="Blocked intersections"),
     ]
     ax.legend(handles=legend_handles, loc="upper left")
     ax.set_title("Dynamic event map: original vs recalculated route")
@@ -151,7 +151,6 @@ class EventMapViewer:
         except Exception:
             pass
             
-        # ➔ MARGINE SINISTRO BLOCCATO A 0.20: NESSUN PULSANTE COPRIRÀ PIÙ LA MAPPA!
         self.fig.subplots_adjust(left=0.20, right=0.98, top=0.92, bottom=0.05)
 
         self.base_road_lines = []
@@ -176,7 +175,7 @@ class EventMapViewer:
         for rid in self.original_ids:
             r = self.roads_by_id.get(rid)
             if r and len(r.get("geometry", [])) >= 2:
-                (ln,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#e64b35", linewidth=8.0, alpha=0.65, zorder=3)
+                (ln,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#0057ff", linewidth=8.0, alpha=0.65, zorder=3) # ➔ Cambiato in Blu
                 self.artists_orig.append(ln)
 
         for rid in self.recalculated_ids:
@@ -188,8 +187,8 @@ class EventMapViewer:
         for rid in self.blocked_ids:
             r = self.roads_by_id.get(rid)
             if r and len(r.get("geometry", [])) >= 2:
-                (ln1,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#1f5fd1", linewidth=11.0, alpha=0.28, zorder=6)
-                (ln2,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#0057ff", linewidth=3.6, alpha=0.96, zorder=8)
+                (ln1,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#e64b35", linewidth=11.0, alpha=0.28, zorder=6) # ➔ Cambiato in Rosso Faded
+                (ln2,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#e64b35", linewidth=3.6, alpha=0.96, zorder=8)  # ➔ Cambiato in Rosso Solido
                 self.artists_events.extend([ln1, ln2])
 
         for rid in self.slowed_ids:
@@ -201,7 +200,7 @@ class EventMapViewer:
         for lid in self.blocked_loc_ids:
             n = self.nodes_by_id.get(lid)
             if n:
-                sc = self.ax.scatter(float(n["x"]), float(n["y"]), marker="X", s=170, color="#0057ff", edgecolors="white", linewidths=1.6, zorder=11)
+                sc = self.ax.scatter(float(n["x"]), float(n["y"]), marker="X", s=170, color="#e64b35", edgecolors="white", linewidths=1.6, zorder=11) # ➔ Cambiato in Rosso
                 self.artists_events.append(sc)
 
         for loc, label, col in ((self.start_loc, "START", "purple"), (self.goal_loc, "GOAL", "darkred")):
@@ -215,7 +214,6 @@ class EventMapViewer:
         self.ax.set_title("Interactive Event Comparison: Original vs Replanned Route", fontsize=12, fontweight="bold", pad=10)
 
     def _add_controls(self):
-        # ➔ PULSANTI POSIZIONATI NELLA COLONNA SINISTRA FUORI DAL GRAFICO (X tra 0.02 e 0.17)
         bg_ax = self.fig.add_axes([0.02, 0.80, 0.15, 0.12])
         bg_ax.set_title("Background Map", fontsize=9, fontweight="bold")
         self.bg_radio = RadioButtons(bg_ax, ("Satellite", "OSM Map", "None"), active=0)
@@ -227,11 +225,11 @@ class EventMapViewer:
         self.check.on_clicked(self._toggle_layer)
 
         legend_handles = [
-            Line2D([0], [0], color="#e64b35", linewidth=6, alpha=0.75, label="Original route"),
+            Line2D([0], [0], color="#0057ff", linewidth=6, alpha=0.75, label="Original route"),
             Line2D([0], [0], color="#00a75a", linewidth=5, label="Replanned route"),
-            Line2D([0], [0], color="#0057ff", linewidth=4, label="Blocked roads"),
+            Line2D([0], [0], color="#e64b35", linewidth=4, label="Blocked roads"),
             Line2D([0], [0], color="#FFD700", linewidth=4, linestyle="--", label="Slowdowns"),
-            Line2D([0], [0], marker="X", color="w", markerfacecolor="#0057ff", markersize=10, label="Blocked intersections"),
+            Line2D([0], [0], marker="X", color="w", markerfacecolor="#e64b35", markersize=10, label="Blocked intersections"),
         ]
         self.ax.legend(handles=legend_handles, loc="upper left", fontsize=8, framealpha=0.85)
 
@@ -240,7 +238,6 @@ class EventMapViewer:
             try: img.remove()
             except Exception: pass
 
-        # ➔ ADATTAMENTO DINAMICO COLORE STRADE: Se "None", le strade diventano grigie ben visibili sul bianco!
         if label == "None":
             for ln in self.base_road_lines:
                 ln.set_color("#a8a8a8")
@@ -319,7 +316,6 @@ class CongestionMapViewer:
         except Exception:
             pass
             
-        # ➔ MARGINI DELIMITATI AL MILLIMETRO PER EVITARE QUALSIASI SOVRAPPOSIZIONE UI
         self.fig.subplots_adjust(left=0.21, right=0.73, top=0.92, bottom=0.05)
 
         self.road_lines: dict[str, Any] = {}
@@ -374,7 +370,7 @@ class CongestionMapViewer:
         cbar.set_label("congestion-factor (1.0 = free, higher = congested)")
 
     def _add_legend(self):
-        self.ax.legend(handles=[Line2D([0], [0], color="#0057ff", lw=3, label="Blocked road")], loc="lower right", fontsize=8, framealpha=0.9)
+        self.ax.legend(handles=[Line2D([0], [0], color="#e64b35", lw=3, label="Blocked road")], loc="lower right", fontsize=8, framealpha=0.9) # ➔ Cambiato in Rosso
 
     def _add_bg_switch(self):
         bg_ax = self.fig.add_axes([0.015, 0.83, 0.16, 0.10])
@@ -475,10 +471,6 @@ class CongestionMapViewer:
         if xf <= 0.19: self._scroll_list(-1 if event.button == "up" else 1)
 
     def _add_llm_events_panel(self):
-        if not self.llm_events_list:
-            t = self.fig.text(0.75, 0.90, "No LLM Events Logged", fontsize=9, style="italic", color="gray", va="top")
-            self.llm_text_elements.append(t); return
-
         t_title = self.fig.text(0.75, 0.90, "LLM INCIDENTS LOG", fontsize=10, fontweight="bold", color="#0057ff", va="top")
         self.llm_text_elements.append(t_title)
 
@@ -490,7 +482,7 @@ class CongestionMapViewer:
             roads = ev.get("roads", [])
             wrapped_desc = "\n  ".join([desc[i:i+30] for i in range(0, len(desc), 30)])
             ev_text = f"• Event {idx} ({etype})\n  Roads: {', '.join(roads[:2])}{'...' if len(roads)>2 else ''}\n  Reason: {wrapped_desc}"
-            border_color = "#0057ff" if etype != "SLOWDOWN" else "#FFD700"
+            border_color = "#e64b35" if etype != "SLOWDOWN" else "#FFD700" # ➔ Cambiato in Rosso
             t_ev = self.fig.text(0.75, y_pos, ev_text, fontsize=8, va="top", bbox=dict(boxstyle="round,pad=0.3", facecolor="#fdfdfd", edgecolor=border_color, alpha=0.9))
             self.llm_text_elements.append(t_ev); y_pos -= 0.13
 
@@ -517,7 +509,7 @@ class CongestionMapViewer:
     def _refresh_colors(self):
         for road_id, line in self.road_lines.items():
             line.set_linestyle("-")
-            if self.current == "post" and road_id in self.blocked: line.set_color("#0057ff")
+            if self.current == "post" and road_id in self.blocked: line.set_color("#e64b35") # ➔ Cambiato in Rosso
             else: line.set_color(self.cmap(self.norm(self._factor_for(road_id))))
             line.set_linewidth(3.5 if road_id == self.pinned_road else 1.54)
         label = self.PRE_LABEL if self.current == "pre" else self.POST_LABEL
