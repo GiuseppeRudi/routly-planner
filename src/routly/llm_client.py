@@ -58,7 +58,7 @@ def call_llm(
     else:
         url = "http://localhost:11434/api/chat"
         data = {
-            "model": "gpt-oss:120b-cloud",
+            "model": "llama3:8b",
             "messages": [{"role": "user", "content": prompt}],
             "options": {"temperature": 0.6},
             "stream": False,

@@ -754,3 +754,104 @@ def open_congestion_map(mapping, pre_problem_path, post_problem_path,
                                  slowdown_roads=slowdowns)
     viewer.show()
     return viewer
+
+def save_congestion_maps(
+    mapping,
+    pre_problem_path,
+    post_problem_path,
+    pre_output_path,
+    post_output_path,
+    start_loc=None,
+    goal_loc=None,
+    place_name="",
+):
+    """Render and save the pre/post congestion-factor maps as two PNG images."""
+    pre = parse_congestion_factors(pre_problem_path)
+    post = parse_congestion_factors(post_problem_path)
+    blocked = parse_blocked_roads(post_problem_path)
+
+    if not pre and not post and not blocked:
+        print("WARNING: no congestion-factor/road-blocked fluent found "
+              "(needs congestion.mode='pddl'); congestion images skipped.")
+        return None, None
+
+    nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
+
+    # Shared color normalization across pre and post -> consistent comparison.
+    all_vals = list(pre.values()) + list(post.values())
+    vmin = min(all_vals) if all_vals else 1.0
+    vmax = max(all_vals) if all_vals else 2.0
+    if vmax <= vmin:
+        vmax = vmin + 1e-6
+    norm = Normalize(vmin=vmin, vmax=vmax)
+    cmap = plt.get_cmap("RdYlGn_r")
+
+    def _road_xy(road):
+        geometry = road.get("geometry")
+        if geometry and len(geometry) >= 2:
+            return [p[0] for p in geometry], [p[1] for p in geometry]
+        fn = nodes_by_id.get(road["from"])
+        tn = nodes_by_id.get(road["to"])
+        if fn is None or tn is None:
+            return None, None
+        return [float(fn["x"]), float(tn["x"])], [float(fn["y"]), float(tn["y"])]
+
+    def _render(which, factors, output_path):
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        fig, ax = plt.subplots(figsize=(12, 7))
+
+        for road in mapping["roads"]:
+            xs, ys = _road_xy(road)
+            if xs is None:
+                continue
+            rid = road["id"]
+            if which == "post" and rid in blocked:
+                color = "#9e9e9e" # grey = blocked road (matches viewer)
+            else:
+                color = cmap(norm(factors.get(rid, 1.0)))
+            ax.plot(xs, ys, color=color, linewidth=1.54, alpha=0.9,
+                    zorder=2, solid_capstyle="round")
+
+        node_xs = [float(n["x"]) for n in mapping["nodes"]]
+        node_ys = [float(n["y"]) for n in mapping["nodes"]]
+        ax.scatter(node_xs, node_ys, s=8, color="#333333", zorder=3, alpha=0.6)
+
+        for loc, label, color in ((start_loc, "START", "purple"),
+                                  (goal_loc, "GOAL", "darkred")):
+            if loc and loc in nodes_by_id:
+                x = float(nodes_by_id[loc]["x"])
+                y = float(nodes_by_id[loc]["y"])
+                ax.scatter([x], [y], s=130, color=color, edgecolors="white",
+                           linewidths=1.4, zorder=5)
+                ax.annotate(label, (x, y), textcoords="offset points",
+                            xytext=(6, 6), fontsize=9, fontweight="bold",
+                            color=color, zorder=6)
+
+        sm = ScalarMappable(norm=norm, cmap=cmap)
+        sm.set_array([])
+        cbar = fig.colorbar(sm, ax=ax, fraction=0.04, pad=0.04)
+        cbar.set_label("congestion-factor (1.0 = free, higher = congested)")
+
+        if which == "post" and blocked:
+            ax.legend(handles=[Line2D([0], [0], color="#9e9e9e", lw=3,
+                                      label="Blocked road")],
+                      loc="lower right", fontsize=8, framealpha=0.9)
+
+        title_label = "Pre LLM events" if which == "pre" else "Post LLM events"
+        suffix = f"  -  {place_name}" if place_name else ""
+        ax.set_title(f"Congestion factor - {title_label}{suffix}",
+                     fontsize=12, fontweight="bold", pad=12)
+        ax.set_aspect("equal", adjustable="datalim")
+        ax.axis("off")
+
+        fig.savefig(output_path, dpi=180, bbox_inches="tight", facecolor="white")
+        plt.close(fig)
+        return output_path
+
+    pre_path = _render("pre", pre, pre_output_path)
+    post_path = _render("post", post, post_output_path)
+    print(f"   Congestion map (pre):  {pre_path}")
+    print(f"   Congestion map (post): {post_path}")
+    return pre_path, post_path
