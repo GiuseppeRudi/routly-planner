@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from collections import Counter
+from dataclasses import dataclass
 import json
+import math
 from pathlib import Path
 import random
 from typing import Any
@@ -12,10 +14,20 @@ from src.routly.domain.roads import ROAD_CAPACITY_CLASSES, road_capacity_class
 BackgroundRoute = tuple[float, list[str]]
 
 
+@dataclass(frozen=True)
+class CongestionWindowFactor:
+    start: int
+    factor: float
+
+
+DynamicCongestionProfile = dict[str, list[CongestionWindowFactor]]
+
+
 def generate_background_routes(
     roads: list[dict[str, Any]],
     num_vehicles: int,
     seed: int,
+    max_present_time: float | None = None,
 ) -> list[BackgroundRoute]:
     """Generate deterministic, cycle-free routes shared by PDDL and SUMO."""
     if num_vehicles <= 0 or not roads:
@@ -25,11 +37,24 @@ def generate_background_routes(
     adjacency: dict[str, list[str]] = {}
     road_from: dict[str, str] = {}
     road_to: dict[str, str] = {}
+    road_len: dict[str, float] = {}
+    road_speed: dict[str, float] = {}
 
     for road in roads:
         adjacency.setdefault(road["from"], []).append(road["id"])
         road_from[road["id"]] = road["from"]
         road_to[road["id"]] = road["to"]
+        road_len[road["id"]] = float(road.get("length", 0.0))
+        road_speed[road["id"]] = float(road.get("speed", 0.0) or 0.0)
+
+    # time(road) = length / speed.
+    def _route_seconds(route: list[str]) -> float:
+        total = 0.0
+        for rid in route:
+            spd = road_speed.get(rid, 0.0)
+            if spd > 0:
+                total += road_len.get(rid, 0.0) / spd
+        return total
 
     all_road_ids = [
         road_id
@@ -66,7 +91,13 @@ def generate_background_routes(
             visited_nodes.add(current_to)
 
         if len(route) >= 2:
-            depart = round(rng.uniform(1.0, 300.0), 1)
+            if max_present_time is not None:
+                latest_depart = max_present_time - _route_seconds(route)
+                if latest_depart < 1.0:
+                    continue          # can't finish before T -> discard route
+                depart = round(rng.uniform(1.0, latest_depart), 1)
+            else:
+                depart = round(rng.uniform(1.0, 300.0), 1)   # old behaviour
             routes.append((depart, route))
 
     routes.sort(key=lambda item: item[0])
@@ -160,12 +191,103 @@ def compute_congestion_factors(
         road_id = road["id"]
         threshold = thresholds[road_capacity_class(road)]
         vehicle_count = counts.get(road_id, 0)
-        factor = min(
+        factors[road_id] = _congestion_factor_for_count(
+            vehicle_count,
+            threshold,
             max_factor,
-            1.0 + (vehicle_count / threshold) * (max_factor - 1.0),
         )
-        factors[road_id] = round(factor, 2)
     return factors
+
+
+def compute_dynamic_congestion_profile(
+    roads: list[dict[str, Any]],
+    background_routes: list[BackgroundRoute],
+    max_factor: float,
+    vehicles_for_max_congestion_by_road_class: dict[str, int],
+    window_seconds: int,
+) -> DynamicCongestionProfile:
+    """
+    Compute congestion-factor changes by road and time window.
+
+    Each background vehicle contributes once to the window in which it enters a
+    road. The first value for every road is always the initial factor at t=0;
+    later entries are emitted only when the factor changes from the previous
+    window.
+    """
+    if window_seconds <= 0:
+        raise ValueError("window_seconds must be greater than zero")
+    if max_factor < 1.0:
+        raise ValueError("max_factor must be greater than or equal to 1.0")
+
+    thresholds = _validate_congestion_thresholds(
+        vehicles_for_max_congestion_by_road_class
+    )
+    roads_by_id = {road["id"]: road for road in roads}
+    counts_by_road_window: dict[str, Counter[int]] = {
+        road["id"]: Counter()
+        for road in roads
+    }
+    max_window_start = 0
+
+    for depart, route in background_routes:
+        current_time = float(depart)
+        for road_id in route:
+            road = roads_by_id.get(road_id)
+            if road is None:
+                continue
+
+            window_start = int(current_time // window_seconds) * window_seconds
+            counts_by_road_window[road_id][window_start] += 1
+            max_window_start = max(max_window_start, window_start)
+
+            speed = float(road.get("speed", 0))
+            if speed <= 0:
+                raise ValueError(f"Road {road_id} has non-positive speed")
+            current_time += float(road["length"]) / speed
+
+    profile: DynamicCongestionProfile = {}
+    window_starts = range(
+        0,
+        max_window_start + (2 * window_seconds),
+        window_seconds,
+    )
+
+    for road in roads:
+        road_id = road["id"]
+        threshold = thresholds[road_capacity_class(road)]
+        changes: list[CongestionWindowFactor] = []
+        previous_factor: float | None = None
+
+        for window_start in window_starts:
+            factor = _congestion_factor_for_count(
+                counts_by_road_window[road_id].get(window_start, 0),
+                threshold,
+                max_factor,
+            )
+            if previous_factor is None or factor != previous_factor:
+                changes.append(
+                    CongestionWindowFactor(
+                        start=window_start,
+                        factor=factor,
+                    )
+                )
+                previous_factor = factor
+
+        profile[road_id] = changes
+
+    return profile
+
+
+def _congestion_factor_for_count(
+    vehicle_count: int,
+    threshold: int,
+    max_factor: float,
+) -> float:
+    factor = min(
+        max_factor,
+        1.0 + (vehicle_count / threshold) * (max_factor - 1.0),
+    )
+    return round(factor, 2)
 
 
 def _validate_congestion_thresholds(
@@ -199,6 +321,39 @@ def _validate_congestion_thresholds(
         validated[road_class] = threshold
     return validated
 
+
+def estimate_route_duration_straight_line(
+    nodes_by_id: dict[str, dict[str, Any]],
+    roads: list[dict[str, Any]],
+    start_loc: str,
+    goal_loc: str,
+    speed: float | None = None,
+    congestion: float = 1.0,
+    detour_factor: float = 1.3,
+    safety_margin: float = 1.0,
+) -> float:
+    """Approximation of the start->goal duration (seconds).
+
+        distance ~= euclidean(start, goal) * detour_factor
+        time     ~= distance * congestion / speed
+
+    speed defaults to the average road speed-limit. `detour_factor` (~1.3)
+    compensates for real roads being longer than a straight line.
+    Returns 0.0 if a node coordinate is missing.
+    """
+    s = nodes_by_id.get(start_loc)
+    g = nodes_by_id.get(goal_loc)
+    if not s or not g:
+        return 0.0
+
+    if speed is None:
+        speeds = [float(r["speed"]) for r in roads if float(r.get("speed", 0)) > 0]
+        speed = sum(speeds) / len(speeds) if speeds else 1.0
+
+    straight = math.hypot(float(g["x"]) - float(s["x"]),
+                          float(g["y"]) - float(s["y"]))
+    distance = straight * detour_factor
+    return round(distance * congestion / speed * safety_margin, 1)
 
 def write_background_routes(
     background_routes: list[BackgroundRoute],

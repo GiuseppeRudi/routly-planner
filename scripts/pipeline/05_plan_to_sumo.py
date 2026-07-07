@@ -218,7 +218,7 @@ def write_and_launch_sumo_for_plan(
         vehicle_id=vehicle_id,
         background_vehicles=(
             features.congestion.num_background_vehicles
-            if features.congestion_in_sumo
+            if features.congestion_enabled
             else 0
         ),
         all_roads=mapping["roads"],
@@ -290,16 +290,16 @@ def main() -> None:
             )
 
     background_routes = None
-    if features.congestion_in_sumo and config.background_routes_path.exists():
+    if features.congestion_enabled and config.background_routes_path.exists():
         background_routes = load_background_routes(config.background_routes_path)
         validate_background_routes(background_routes, mapping["roads"])
         print(
             f"Loaded {len(background_routes)} shared background routes from "
             f"{config.background_routes_path}"
         )
-    elif features.congestion_in_pddl:
+    elif features.congestion_enabled:
         raise FileNotFoundError(
-            "Shared background routes are required in PDDL congestion mode. "
+            "Shared background routes are required when congestion.enabled=true. "
             f"Run step 3 first to create: {config.background_routes_path}"
         )
 

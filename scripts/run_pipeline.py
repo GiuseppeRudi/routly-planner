@@ -308,5 +308,10 @@ if __name__ == "__main__":
 # cambiare il colore da grigio a piu accesso e aggiungere una lista 
 
 # TODO 11. INSERIRE UNA MAPPA SATELLITARE CON LE STRADE E I NODI DELLA MAPPA PER AVERE UNA VISIONE PIU REALISTICA 
-# TODO DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E 
-# TODO PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API 
+# DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API
+
+# TODO 12. fare in modo che il secondo script tenga conto anche delle stazioni di benzina e quindi quando viene fatto
+# TODO il controllo se il path tra start e goal è percorribile deve anche tenere conto se il veicolo ha abbastanza benzina
+# TODO per arrivare al goal o se deve passare da una stazione di benzina per rifornirsi.
+
+# TODO 13. controllare un problema con route.edges in sumo_writer.py nella funzione write_rou_xml

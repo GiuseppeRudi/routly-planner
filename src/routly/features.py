@@ -45,10 +45,23 @@ class TrafficLightsConfig:
 
 
 @dataclass
+class DynamicCongestionConfig:
+    window_seconds: int = 30
+
+    def __post_init__(self) -> None:
+        if self.window_seconds <= 0:
+            raise ValueError("congestion.dynamic.window_seconds must be greater than zero")
+
+
+@dataclass
 class CongestionConfig:
-    mode: str = "none" # "none" | "sumo_only" | "pddl"
-    num_background_vehicles: int = 200  # used in sumo_only and pddl modes
+    enabled: bool = False
+    mode: str = "pddl" # "sumo" | "pddl"
+    type: str = "static" # "static" | "dynamic"
+    replanning: bool = False
+    num_background_vehicles: int = 200
     congestion_factor: float = 2.0 # speed divisor for congested roads in pddl mode
+    dynamic: DynamicCongestionConfig = field(default_factory=DynamicCongestionConfig)
     vehicles_for_max_congestion_by_road_class: dict[str, int] = field(
         default_factory=lambda: dict(DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS)
     )
@@ -71,17 +84,16 @@ class SumoRunConfig:
     open_event_map: bool = True
     open_congestion_map: bool = False
 
-@dataclass
 @dataclass(frozen=True)
 class FuelConfig:
     """Fuel feature configuration — only flags and ratios; the litres are
     derived from the map at build time."""
 
-    enabled: bool
-    stations_ratio: float # fraction of nodes that get a station
-    initial_fuel_ratio: float # fraction of full tank at the start
-    stations_source: str # "random" | "osm"
-    consumption_mode: str # "discrete" (burn at road entry) | "continuous" (burn in process)
+    enabled: bool = False
+    stations_ratio: float = 0.35 # fraction of nodes that get a station
+    initial_fuel_ratio: float = 0.15 # fraction of full tank at the start
+    stations_source: str = "random" # "random" | "osm"
+    consumption_mode: str = "discrete" # "discrete" (burn at road entry) | "continuous" (burn in process)
 
     def __post_init__(self) -> None:
         if not 0.0 < self.stations_ratio <= 1.0:
@@ -103,12 +115,24 @@ class FeatureConfig:
     fuel: FuelConfig = field(default_factory=FuelConfig)
 
     @property
+    def congestion_enabled(self) -> bool:
+        return self.congestion.enabled
+
+    @property
     def congestion_in_pddl(self) -> bool:
-        return self.congestion.mode == "pddl"
+        return self.congestion_enabled and self.congestion.mode == "pddl"
 
     @property
     def congestion_in_sumo(self) -> bool:
-        return self.congestion.mode in ("sumo_only", "pddl")
+        return self.congestion_enabled
+
+    @property
+    def static_congestion_in_pddl(self) -> bool:
+        return self.congestion_in_pddl and self.congestion.type == "static"
+
+    @property
+    def dynamic_congestion_in_pddl(self) -> bool:
+        return self.congestion_in_pddl and self.congestion.type == "dynamic"
 
     @property
     def label(self) -> str:
@@ -117,7 +141,7 @@ class FeatureConfig:
         if self.traffic_lights:
             parts.append("tl")
         if self.congestion_in_pddl:
-            parts.append("cong-pddl")
+            parts.append(f"cong-pddl-{self.congestion.type}")
         elif self.congestion_in_sumo:
             parts.append("cong-sumo")
         if self.llm_events.enabled:
@@ -157,17 +181,7 @@ class FeatureConfig:
             traffic_lights_enabled = bool(traffic_lights_raw)
             traffic_lights_config = TrafficLightsConfig()
 
-        cong_raw = f.get("congestion", {})
-        cong_mode = cong_raw.get("mode", "none")
-        cong = CongestionConfig(
-            mode=cong_mode,
-            num_background_vehicles=cong_raw.get("num_background_vehicles", 200),
-            congestion_factor=cong_raw.get("congestion_factor", 2.0),
-            vehicles_for_max_congestion_by_road_class=_congestion_thresholds(
-                cong_raw.get("vehicles_for_max_congestion_by_road_class"),
-                required=cong_mode != "none",
-            ),
-        )
+        cong = _congestion_config(f.get("congestion", {}))
 
         llm_raw = f.get("llm_events", {})
         llm = LLMEventsConfig(
@@ -227,6 +241,86 @@ def _duration_range(
     return DurationRange(
         minimum=int(raw.get("min", default_minimum)),
         maximum=int(raw.get("max", default_maximum)),
+    )
+
+
+def _congestion_config(raw: dict[str, Any] | bool | None) -> CongestionConfig:
+    if raw is None:
+        raw = {}
+
+    if isinstance(raw, bool):
+        return CongestionConfig(enabled=raw)
+
+    if not isinstance(raw, dict):
+        raise ValueError("features.congestion must be a mapping or a boolean")
+
+    mode_raw = raw.get("mode", "pddl")
+    legacy_mode = str(mode_raw).strip().lower()
+    if legacy_mode == "sumo_only":
+        raise ValueError(
+            "features.congestion.mode='sumo_only' is no longer supported; "
+            "use mode: 'sumo'."
+        )
+
+    enabled = bool(raw.get("enabled", legacy_mode != "none"))
+    if not enabled:
+        return CongestionConfig(
+            enabled=False,
+            mode="pddl" if legacy_mode == "none" else legacy_mode,
+            type=str(raw.get("type", "static")).strip().lower(),
+            replanning=bool(raw.get("replanning", False)),
+            num_background_vehicles=int(raw.get("num_background_vehicles", 200)),
+            congestion_factor=float(raw.get("congestion_factor", 2.0)),
+            dynamic=_dynamic_congestion_config(raw.get("dynamic")),
+            vehicles_for_max_congestion_by_road_class=_congestion_thresholds(
+                raw.get("vehicles_for_max_congestion_by_road_class"),
+                required=False,
+            ),
+        )
+
+    mode = legacy_mode
+    if mode == "none":
+        raise ValueError(
+            "features.congestion.mode='none' is no longer supported; "
+            "use congestion.enabled: false."
+        )
+    if mode not in {"sumo", "pddl"}:
+        raise ValueError("features.congestion.mode must be 'sumo' or 'pddl'")
+
+    congestion_type = str(raw.get("type", "static")).strip().lower()
+    if congestion_type not in {"static", "dynamic"}:
+        raise ValueError("features.congestion.type must be 'static' or 'dynamic'")
+    if mode == "sumo" and congestion_type == "dynamic":
+        raise ValueError(
+            "features.congestion.type='dynamic' is supported only with mode: 'pddl'."
+        )
+
+    replanning = bool(raw.get("replanning", False))
+    if replanning:
+        raise ValueError(
+            "features.congestion.replanning=true is reserved for a future phase; "
+            "set replanning: false for the current static/dynamic PDDL pipeline."
+        )
+
+    return CongestionConfig(
+        enabled=True,
+        mode=mode,
+        type=congestion_type,
+        replanning=False,
+        num_background_vehicles=int(raw.get("num_background_vehicles", 200)),
+        congestion_factor=float(raw.get("congestion_factor", 2.0)),
+        dynamic=_dynamic_congestion_config(raw.get("dynamic")),
+        vehicles_for_max_congestion_by_road_class=_congestion_thresholds(
+            raw.get("vehicles_for_max_congestion_by_road_class"),
+            required=True,
+        ),
+    )
+
+
+def _dynamic_congestion_config(raw: dict[str, Any] | None) -> DynamicCongestionConfig:
+    raw = raw or {}
+    return DynamicCongestionConfig(
+        window_seconds=int(raw.get("window_seconds", 30)),
     )
 
 

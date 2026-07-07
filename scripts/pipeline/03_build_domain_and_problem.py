@@ -10,7 +10,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.fuel import derive_fuel_parameters, write_fuel_stations
 from src.routly.utils import read_yaml
-from src.routly.domain.congestion import generate_background_routes, write_background_routes
+from src.routly.domain.congestion import estimate_route_duration_straight_line, generate_background_routes, write_background_routes
 from src.routly.config import load_config
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
@@ -91,11 +91,21 @@ def main() -> None:
     background_routes = []
     traffic_light_timings = {}
 
-    if features.congestion_in_sumo:
+    if features.congestion_enabled:
+        route_seconds = estimate_route_duration_straight_line(
+            node_map, # nodes_by_id
+            roads,
+            start_loc,
+            goal_loc,
+            detour_factor=1.3, # roads aren't straight lines
+            safety_margin=1.15, # small cushion
+        )
+
         background_routes = generate_background_routes(
             roads,
             features.congestion.num_background_vehicles,
             config.seed,
+            max_present_time=route_seconds if route_seconds > 0 else None,
         )
         write_background_routes(background_routes, config.background_routes_path)
         print(

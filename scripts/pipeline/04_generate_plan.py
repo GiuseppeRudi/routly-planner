@@ -27,7 +27,16 @@ from src.routly.pddl.mapping import (
     build_road_adjacency,
     extract_topology_for_llm,
 )
-from src.routly.pddl.problem_generator import recleanse_and_compute_dynamic_congestion
+from src.routly.pddl.problem_generator import (
+    DYNAMIC_PROFILE_BEGIN,
+    DYNAMIC_PROFILE_END,
+    DYNAMIC_WINDOWS_BEGIN,
+    DYNAMIC_WINDOWS_END,
+    build_dynamic_congestion_pddl_sections,
+    dynamic_congestion_diagnostic_lines,
+    recleanse_and_compute_dynamic_congestion,
+    recleanse_and_compute_dynamic_congestion_profile,
+)
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
 
@@ -36,6 +45,22 @@ SEVERITY_MIN = 1.5
 SEVERITY_MAX = 4.0
 
 EVENT_TYPES = {"accident", "roadworks", "robbery", "slowdown"}
+
+
+def _replace_marked_block(
+    content: str,
+    begin_marker: str,
+    end_marker: str,
+    replacement: str,
+) -> str:
+    start = content.find(begin_marker)
+    if start == -1:
+        raise ValueError(f"Missing PDDL marker: {begin_marker.strip()}")
+    end = content.find(end_marker, start)
+    if end == -1:
+        raise ValueError(f"Missing PDDL marker: {end_marker.strip()}")
+    end += len(end_marker)
+    return content[:start] + replacement + content[end:]
 
 
 def parse_args() -> argparse.Namespace:
@@ -506,27 +531,82 @@ def main() -> None:
     just_blocked_road_ids = [r for e in closure_events for r in e["roads"]]
     just_blocked_loc_ids = [loc["id"] for loc in blocked_locations]
 
-    new_factors, _ = recleanse_and_compute_dynamic_congestion(
-        roads=mapping["roads"],
-        blocked_roads=just_blocked_road_ids,
-        blocked_locations=just_blocked_loc_ids,
-        features=features,
-        seed=config.seed
-    )
+    if features.dynamic_congestion_in_pddl:
+        new_profile, _ = recleanse_and_compute_dynamic_congestion_profile(
+            roads=mapping["roads"],
+            blocked_roads=just_blocked_road_ids,
+            blocked_locations=just_blocked_loc_ids,
+            features=features,
+            seed=config.seed,
+        )
 
-    if new_factors:
-        print("Recalculating dynamic congestion factors based on new open network topology...")
-        updated_count = 0
-        for road_id, factor in new_factors.items():
-            if road_id in slowed_road_ids:
-                continue
-            
-            pattern = re.compile(rf"\(=\s*\(congestion-factor\s+{re.escape(road_id)}\)\s*[\d.]+\)")
-            replacement = f"(= (congestion-factor {road_id}) {round(factor, 4)})"
-            if pattern.search(modified_content):
-                modified_content = pattern.sub(replacement, modified_content, count=1)
-                updated_count += 1
-        print(f"✅ Dynamic topology recalculation completed. {updated_count} open roads updated in PDDL.")
+        if new_profile:
+            print("Recalculating time-windowed congestion profile based on new open network topology...")
+            updated_count = 0
+            for road_id, changes in new_profile.items():
+                if road_id in slowed_road_ids:
+                    continue
+
+                initial_factor = changes[0].factor if changes and changes[0].start == 0 else 1.0
+                pattern = re.compile(rf"\(=\s*\(congestion-factor\s+{re.escape(road_id)}\)\s*[\d.]+\)")
+                replacement = f"(= (congestion-factor {road_id}) {round(initial_factor, 4)})"
+                if pattern.search(modified_content):
+                    modified_content = pattern.sub(replacement, modified_content, count=1)
+                    updated_count += 1
+
+            windows_block, profile_block = build_dynamic_congestion_pddl_sections(
+                new_profile,
+                excluded_roads=slowed_road_ids,
+            )
+            modified_content = _replace_marked_block(
+                modified_content,
+                DYNAMIC_WINDOWS_BEGIN,
+                DYNAMIC_WINDOWS_END,
+                windows_block,
+            )
+            modified_content = _replace_marked_block(
+                modified_content,
+                DYNAMIC_PROFILE_BEGIN,
+                DYNAMIC_PROFILE_END,
+                profile_block,
+            )
+
+            future_updates = sum(
+                max(0, len(changes) - 1)
+                for road_id, changes in new_profile.items()
+                if road_id not in slowed_road_ids
+            )
+            for line in dynamic_congestion_diagnostic_lines(
+                new_profile,
+                excluded_roads=slowed_road_ids,
+            ):
+                print(line)
+            print(
+                "✅ Dynamic congestion profile recalculation completed. "
+                f"{updated_count} initial factors and {future_updates} future updates written."
+            )
+    else:
+        new_factors, _ = recleanse_and_compute_dynamic_congestion(
+            roads=mapping["roads"],
+            blocked_roads=just_blocked_road_ids,
+            blocked_locations=just_blocked_loc_ids,
+            features=features,
+            seed=config.seed
+        )
+
+        if new_factors:
+            print("Recalculating static congestion factors based on new open network topology...")
+            updated_count = 0
+            for road_id, factor in new_factors.items():
+                if road_id in slowed_road_ids:
+                    continue
+
+                pattern = re.compile(rf"\(=\s*\(congestion-factor\s+{re.escape(road_id)}\)\s*[\d.]+\)")
+                replacement = f"(= (congestion-factor {road_id}) {round(factor, 4)})"
+                if pattern.search(modified_content):
+                    modified_content = pattern.sub(replacement, modified_content, count=1)
+                    updated_count += 1
+            print(f"✅ Static topology recalculation completed. {updated_count} open roads updated in PDDL.")
 
     dynamic_problem_path.parent.mkdir(parents=True, exist_ok=True)
     with open(dynamic_problem_path, "w", encoding="utf-8") as f:
