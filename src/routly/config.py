@@ -90,6 +90,10 @@ class ProjectConfig:
         return self.runs_dir / "llm"
 
     @property
+    def controller_run_dir(self) -> Path:
+        return self.runs_dir / "controller"
+
+    @property
     def basic_pddl_dir(self) -> Path:
         return self.basic_run_dir / "pddl"
 
@@ -128,6 +132,30 @@ class ProjectConfig:
     @property
     def llm_sumo_dir(self) -> Path:
         return self.llm_run_dir / "sumo"
+
+    @property
+    def controller_pddl_dir(self) -> Path:
+        return self.controller_run_dir / "pddl"
+
+    @property
+    def controller_plans_dir(self) -> Path:
+        return self.controller_run_dir / "plans"
+
+    @property
+    def controller_images_dir(self) -> Path:
+        return self.controller_run_dir / "images"
+
+    @property
+    def controller_logs_dir(self) -> Path:
+        return self.controller_run_dir / "logs"
+
+    @property
+    def controller_artifacts_dir(self) -> Path:
+        return self.controller_run_dir / "artifacts"
+
+    @property
+    def controller_sumo_dir(self) -> Path:
+        return self.controller_run_dir / "sumo"
 
     @property
     def sumo_dir(self) -> Path:
@@ -194,6 +222,14 @@ class ProjectConfig:
         return self.llm_logs_dir / "incidents_log.json"
 
     @property
+    def controller_plan_path(self) -> Path:
+        return self.controller_plans_dir / "plan_controller.txt"
+
+    @property
+    def controller_summary_path(self) -> Path:
+        return self.controller_logs_dir / "controller_summary.json"
+
+    @property
     def sumo_nod_path(self) -> Path:
         return self.sumo_dir / "road_network.nod.xml"
 
@@ -220,6 +256,14 @@ class ProjectConfig:
     @property
     def dynamic_sumo_cfg_path(self) -> Path:
         return self.llm_sumo_dir / "road_network_dynamic.sumocfg"
+
+    @property
+    def controller_sumo_rou_path(self) -> Path:
+        return self.controller_sumo_dir / "road_network_controller.rou.xml"
+
+    @property
+    def controller_sumo_cfg_path(self) -> Path:
+        return self.controller_sumo_dir / "road_network_controller.sumocfg"
 
     @property
     def sumo_viewsettings_path(self) -> Path:

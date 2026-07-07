@@ -38,7 +38,7 @@ features:
   # congestion = {enabled: true, replanning: false, type: static, mode: sumo}
   # congestion = {enabled: true, replanning: false, type: static, mode: pddl}
   # congestion = {enabled: true, replanning: false, type: dynamic, mode: pddl}
-  # replanning: true is parsed but intentionally blocked until the replanning phase is implemented.
+  # congestion controller = {enabled: true, replanning: true, type: dynamic, mode: pddl}
   congestion:
     enabled: true
     mode: "pddl" # "sumo" | "pddl"
@@ -52,6 +52,12 @@ features:
       local: 20
       arterial: 35
       major: 50
+
+  # Shared settings for offline replanning controllers.
+  # The active controller is selected by fuel.replanning or congestion.replanning.
+  controller:
+    replan_window_seconds: 30
+    max_iterations: 50
 
   llm_events:
     # Runtime LLM provider/model are configured in .env:
@@ -82,7 +88,7 @@ features:
   
   fuel:
     enabled: false # if true max_nodes must be decreased
-    # replanning : true o false
+    replanning: false # true activates the offline fuel controller
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
     stations_source: random # "random" | "osm"

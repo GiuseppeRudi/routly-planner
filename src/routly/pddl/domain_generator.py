@@ -30,7 +30,7 @@ def build_road_network_domain(features: FeatureConfig | None = None) -> str:
 ;;    traffic_lights  : {features.traffic_lights}
 ;;    congestion      : enabled={features.congestion.enabled}, mode={features.congestion.mode}, type={features.congestion.type}
 ;;    llm_events      : {features.llm_events.enabled}
-;;    fuel            : {features.fuel.enabled}
+;;    fuel            : enabled={features.fuel.enabled}, replanning={features.fuel.replanning}, consumption={features.fuel.consumption_mode}
 ;; ============================================================
 
 (define (domain road-network)
@@ -52,7 +52,7 @@ def _build_predicates(f: FeatureConfig) -> str:
     if f.traffic_lights:
         lines.append("    (has-traffic-light ?l - location)")
 
-    if f.fuel.enabled:
+    if f.fuel_in_pddl:
         lines.append("    (has-fuel-station ?l - location)   ;; refuelling point")
 
     if f.dynamic_congestion_in_pddl:
@@ -96,7 +96,7 @@ def _build_functions(f: FeatureConfig) -> str:
         lines.append("    (light-wait           ?l - location)  ;; avg red-light wait (s)")
         lines.append("    (travel-time          ?v - vehicle)   ;; elapsed time incl. waits")
 
-    if f.fuel.enabled:
+    if f.fuel_in_pddl:
         lines.append("    (fuel-level            ?v - vehicle)  ;; current litres in tank")
         lines.append("    (fuel-capacity         ?v - vehicle)  ;; max tank size (litres)")
         lines.append("    (fuel-consumption-rate ?v - vehicle)  ;; litres per metre")
@@ -114,7 +114,7 @@ def _build_action(f: FeatureConfig) -> str:
             "\n      (not (location-blocked ?to))"
         )
 
-    if f.fuel.enabled:
+    if f.fuel_in_pddl:
         # Only enter a road if there is enough fuel to cross it. The matching
         # discrete burn is in the effect below, so the tank never goes negative
         # and the planner must refuel beforehand when a road is unaffordable.
@@ -124,7 +124,7 @@ def _build_action(f: FeatureConfig) -> str:
         )
 
     fuel_effect = ""
-    if f.fuel.enabled and f.fuel.consumption_mode == "discrete":
+    if f.fuel_in_pddl and f.fuel.consumption_mode == "discrete":
         # Discrete burn: subtract the whole road's fuel at entry instead of
         # integrating it in the process. Same litres per road, but fuel-level
         # changes only at action boundaries -> far smaller search space.
@@ -159,7 +159,7 @@ def _build_action(f: FeatureConfig) -> str:
 
 
 def _build_refuel(f: FeatureConfig) -> str:
-    if not f.fuel.enabled:
+    if not f.fuel_in_pddl:
         return ""
     return """\
   (:action refuel
@@ -178,7 +178,7 @@ def _build_refuel(f: FeatureConfig) -> str:
 
 def _build_process(f: FeatureConfig) -> str:
     fuel_effect = ""
-    if f.fuel.enabled and f.fuel.consumption_mode == "continuous":
+    if f.fuel_in_pddl and f.fuel.consumption_mode == "continuous":
         # Continuous burn integrated over time: litres = rate * speed * #t.
         # Physically smooth, but fuel-level changes every tick, which makes
         # the search far heavier -> prefer "discrete" unless you need this.

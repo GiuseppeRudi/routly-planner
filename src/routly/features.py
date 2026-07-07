@@ -83,18 +83,34 @@ class SumoRunConfig:
     open_event_map: bool = True
     open_congestion_map: bool = False
 
+
+@dataclass(frozen=True)
+class ControllerConfig:
+    replan_window_seconds: int = 30
+    max_iterations: int = 50
+
+    def __post_init__(self) -> None:
+        if self.replan_window_seconds <= 0:
+            raise ValueError("controller.replan_window_seconds must be greater than zero")
+        if self.max_iterations <= 0:
+            raise ValueError("controller.max_iterations must be greater than zero")
+
+
 @dataclass(frozen=True)
 class FuelConfig:
     """Fuel feature configuration — only flags and ratios; the litres are
     derived from the map at build time."""
 
     enabled: bool = False
+    replanning: bool = False
     stations_ratio: float = 0.35 # fraction of nodes that get a station
     initial_fuel_ratio: float = 0.15 # fraction of full tank at the start
     stations_source: str = "random" # "random" | "osm"
     consumption_mode: str = "discrete" # "discrete" (burn at road entry) | "continuous" (burn in process)
 
     def __post_init__(self) -> None:
+        if self.replanning and not self.enabled:
+            raise ValueError("fuel.replanning=true requires fuel.enabled=true")
         if not 0.0 < self.stations_ratio <= 1.0:
             raise ValueError("fuel.stations_ratio must be in (0, 1]")
         if not 0.0 < self.initial_fuel_ratio <= 1.0:
@@ -111,6 +127,7 @@ class FeatureConfig:
     congestion: CongestionConfig = field(default_factory=CongestionConfig)
     llm_events: LLMEventsConfig = field(default_factory=LLMEventsConfig)
     sumo: SumoRunConfig = field(default_factory=SumoRunConfig)
+    controller: ControllerConfig = field(default_factory=ControllerConfig)
     fuel: FuelConfig = field(default_factory=FuelConfig)
 
     @property
@@ -123,15 +140,47 @@ class FeatureConfig:
 
     @property
     def congestion_in_sumo(self) -> bool:
-        return self.congestion_enabled
+        return self.congestion_enabled and self.congestion.mode == "sumo"
 
     @property
     def static_congestion_in_pddl(self) -> bool:
-        return self.congestion_in_pddl and self.congestion.type == "static"
+        return (
+            self.congestion_in_pddl
+            and self.congestion.type == "static"
+            and not self.congestion.replanning
+        )
 
     @property
     def dynamic_congestion_in_pddl(self) -> bool:
-        return self.congestion_in_pddl and self.congestion.type == "dynamic"
+        return (
+            self.congestion_in_pddl
+            and self.congestion.type == "dynamic"
+            and not self.congestion.replanning
+        )
+
+    @property
+    def snapshot_congestion_in_pddl(self) -> bool:
+        return self.static_congestion_in_pddl or self.controller_for_congestion
+
+    @property
+    def controller_enabled(self) -> bool:
+        return self.controller_for_fuel or self.controller_for_congestion
+
+    @property
+    def controller_for_fuel(self) -> bool:
+        return self.fuel.enabled and self.fuel.replanning
+
+    @property
+    def controller_for_congestion(self) -> bool:
+        return self.congestion.enabled and self.congestion.replanning
+
+    @property
+    def fuel_in_pddl(self) -> bool:
+        return self.fuel.enabled and not self.fuel.replanning
+
+    @property
+    def fuel_in_controller(self) -> bool:
+        return self.fuel.enabled and self.fuel.replanning
 
     @property
     def label(self) -> str:
@@ -140,13 +189,16 @@ class FeatureConfig:
         if self.traffic_lights:
             parts.append("tl")
         if self.congestion_in_pddl:
-            parts.append(f"cong-pddl-{self.congestion.type}")
+            if self.controller_for_congestion:
+                parts.append("cong-controller")
+            else:
+                parts.append(f"cong-pddl-{self.congestion.type}")
         elif self.congestion_in_sumo:
             parts.append("cong-sumo")
         if self.llm_events.enabled:
             parts.append("llm")
         if self.fuel.enabled:
-            parts.append("fuel")
+            parts.append("fuel-controller" if self.fuel_in_controller else "fuel")
         return "_".join(parts) if parts else "base"
 
     # ── constructor ───────────────────────────────────────────────────────────
@@ -181,6 +233,7 @@ class FeatureConfig:
             traffic_lights_config = TrafficLightsConfig()
 
         cong = _congestion_config(f.get("congestion", {}))
+        controller = _controller_config(f.get("controller", {}))
 
         llm_raw = f.get("llm_events", {})
         llm = LLMEventsConfig(
@@ -205,8 +258,15 @@ class FeatureConfig:
 
         fuel_raw = f.get("fuel", False)
         if isinstance(fuel_raw, dict):
+            if "mode" in fuel_raw:
+                raise ValueError(
+                    "features.fuel.mode was removed; use "
+                    "features.fuel.replanning: true for the fuel controller "
+                    "or replanning: false for PDDL fuel."
+                )
             fuel = FuelConfig(
                 enabled=fuel_raw.get("enabled", True),
+                replanning=bool(fuel_raw.get("replanning", False)),
                 stations_ratio=float(fuel_raw.get("stations_ratio", 0.35)),
                 initial_fuel_ratio=float(fuel_raw.get("initial_fuel_ratio", 0.15)),
                 stations_source=fuel_raw.get("stations_source", "random"),
@@ -215,12 +275,15 @@ class FeatureConfig:
         else:
             fuel = FuelConfig(enabled=bool(fuel_raw))
 
+        _validate_controller_combination(controller, fuel, cong)
+
         return cls(
             traffic_lights=traffic_lights_enabled,
             traffic_lights_config=traffic_lights_config,
             congestion=cong,
             llm_events=llm,
             sumo=sumo,
+            controller=controller,
             fuel=fuel,
         )
 
@@ -259,14 +322,25 @@ def _congestion_config(raw: dict[str, Any] | bool | None) -> CongestionConfig:
             "features.congestion.mode='sumo_only' is no longer supported; "
             "use mode: 'sumo'."
         )
+    if legacy_mode == "windows":
+        raise ValueError(
+            "features.congestion.mode='windows' is not supported; use "
+            "mode: 'pddl', type: 'dynamic', and replanning: true for the "
+            "controller-based dynamic congestion flow."
+        )
 
-    enabled = bool(raw.get("enabled", legacy_mode != "none"))
+    enabled = bool(raw.get("enabled", bool(raw) and legacy_mode != "none"))
     if not enabled:
+        if bool(raw.get("replanning", False)):
+            raise ValueError(
+                "features.congestion.replanning=true requires "
+                "features.congestion.enabled=true."
+            )
         return CongestionConfig(
             enabled=False,
             mode="pddl" if legacy_mode == "none" else legacy_mode,
             type=str(raw.get("type", "static")).strip().lower(),
-            replanning=bool(raw.get("replanning", False)),
+            replanning=False,
             num_background_vehicles=int(raw.get("num_background_vehicles", 200)),
             congestion_factor=float(raw.get("congestion_factor", 2.0)),
             dynamic=_dynamic_congestion_config(raw.get("dynamic")),
@@ -294,17 +368,17 @@ def _congestion_config(raw: dict[str, Any] | bool | None) -> CongestionConfig:
         )
 
     replanning = bool(raw.get("replanning", False))
-    if replanning:
+    if replanning and (mode != "pddl" or congestion_type != "dynamic"):
         raise ValueError(
-            "features.congestion.replanning=true is reserved for a future phase; "
-            "set replanning: false for the current static/dynamic PDDL pipeline."
+            "features.congestion.replanning=true requires mode: 'pddl' "
+            "and type: 'dynamic'."
         )
 
     return CongestionConfig(
         enabled=True,
         mode=mode,
         type=congestion_type,
-        replanning=False,
+        replanning=replanning,
         num_background_vehicles=int(raw.get("num_background_vehicles", 200)),
         congestion_factor=float(raw.get("congestion_factor", 2.0)),
         dynamic=_dynamic_congestion_config(raw.get("dynamic")),
@@ -313,6 +387,46 @@ def _congestion_config(raw: dict[str, Any] | bool | None) -> CongestionConfig:
             required=True,
         ),
     )
+
+
+def _controller_config(raw: dict[str, Any] | bool | None) -> ControllerConfig:
+    if raw is None:
+        raw = {}
+
+    if isinstance(raw, bool):
+        raise ValueError(
+            "features.controller.enabled was removed; use fuel.replanning "
+            "or congestion.replanning to activate a controller."
+        )
+
+    if not isinstance(raw, dict):
+        raise ValueError("features.controller must be a mapping")
+
+    forbidden = sorted(set(raw) & {"enabled", "mode"})
+    if forbidden:
+        fields = ", ".join(f"features.controller.{field}" for field in forbidden)
+        raise ValueError(
+            f"{fields} were removed; use fuel.replanning or "
+            "congestion.replanning to activate the appropriate controller."
+        )
+
+    return ControllerConfig(
+        replan_window_seconds=int(raw.get("replan_window_seconds", 30)),
+        max_iterations=int(raw.get("max_iterations", 50)),
+    )
+
+
+def _validate_controller_combination(
+    controller: ControllerConfig,
+    fuel: FuelConfig,
+    congestion: CongestionConfig,
+) -> None:
+    _ = controller
+    if fuel.enabled and fuel.replanning and congestion.enabled and congestion.replanning:
+        raise ValueError(
+            "Fuel controller and congestion controller cannot be enabled "
+            "together in v1."
+        )
 
 
 def _dynamic_congestion_config(raw: dict[str, Any] | None) -> DynamicCongestionConfig:
@@ -365,7 +479,7 @@ def _congestion_thresholds(
 
 def _sumo_plans(raw: str | list[str]) -> list[str]:
     plans = [raw] if isinstance(raw, str) else list(raw)
-    valid = {"base", "dynamic"}
+    valid = {"base", "dynamic", "controller"}
     invalid = [plan for plan in plans if plan not in valid]
     if invalid:
         raise ValueError(

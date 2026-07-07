@@ -36,6 +36,7 @@ def build_road_network_problem(
     background_routes: list[BackgroundRoute] | None = None,
     traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
     fuel_params: FuelParameters | None = None,
+    congestion_factors_override: dict[str, float] | None = None,
     seed: int | None = None,
 ) -> str:
     if features is None:
@@ -55,7 +56,14 @@ def build_road_network_problem(
             seed,
         )
 
-    if features.static_congestion_in_pddl:
+    if congestion_factors_override is not None and features.congestion_in_pddl:
+        congestion_factors = dict(congestion_factors_override)
+        print(
+            f"Using overridden congestion factors for "
+            f"{len(congestion_factors)} roads."
+        )
+
+    elif features.snapshot_congestion_in_pddl:
         congestion_factors = compute_congestion_factors(
             roads,
             background_routes or [],
@@ -359,7 +367,7 @@ def _build_init(
             f"  (= (speed-limit {road_id}) {r['speed']})",
         ]
 
-        if features.static_congestion_in_pddl:
+        if features.snapshot_congestion_in_pddl:
             factor = congestion_factors.get(road_id, 1.0)
             lines.append(
                 f"  (= (congestion-factor {road_id}) {factor})"
@@ -395,7 +403,7 @@ def _build_init(
             else:
                 lines.append(f"  (= (light-wait {loc_id}) 0)")
 
-    if features.fuel.enabled and fuel_params is not None:
+    if features.fuel_in_pddl and fuel_params is not None:
         station_set = set(fuel_params.stations)
         lines += [
             f"  (= (fuel-level {vehicle_id}) {fuel_params.initial_fuel})",
