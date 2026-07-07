@@ -95,3 +95,4 @@ features:
     consumption_mode: continuous   # "discrete" | "continuous"
     # if consumption_mode = discrete, then max_nodes <= 150
     # if consumption_mode = continuous, then max_nodes <= 100
+    refuel_stop_seconds: float = 10.0

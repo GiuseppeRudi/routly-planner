@@ -6,6 +6,14 @@ from src.routly.controller.exceptions import (
     ControllerConfigurationError,
     ControllerError,
 )
+from src.routly.domain.congestion import (
+    compute_congestion_factors,        # <-- NEW
+    estimate_route_duration_straight_line,
+    generate_background_routes,
+    load_background_routes,
+    validate_background_routes,
+    write_background_routes,
+)
 from src.routly.controller.graph_utils import (
     build_weighted_road_graph,
     route_distance_from_plan_steps,
@@ -16,13 +24,6 @@ from src.routly.controller.models import (
     ControllerResult,
     ControllerRunRequest,
     ControllerSegment,
-)
-from src.routly.domain.congestion import (
-    estimate_route_duration_straight_line,
-    generate_background_routes,
-    load_background_routes,
-    validate_background_routes,
-    write_background_routes,
 )
 from src.routly.domain.traffic_lights import (
     generate_traffic_light_timings,
@@ -255,6 +256,23 @@ def run_fuel_controller(
             write_background_routes(
                 background_routes, config.background_routes_path
             )
+    
+    congestion_factors = None
+    if routing_features.congestion_in_pddl:
+        congestion_factors = compute_congestion_factors(
+            roads,
+            background_routes or [],
+            max_factor=routing_features.congestion.congestion_factor,
+            vehicles_for_max_congestion_by_road_class=(
+                routing_features.congestion.vehicles_for_max_congestion_by_road_class
+            ),
+        )
+        print(
+            f"Cached congestion factors for {len(congestion_factors)} roads "
+            f"from {len(background_routes or [])} background routes "
+            "(computed once, reused for all legs)."
+        )
+    
     prefix = f"{run_label}_" if run_label else ""
     domain_text = build_road_network_domain(routing_features)
     domain_path = pddl_dir / f"{prefix}domain_controller.pddl"
@@ -313,6 +331,7 @@ def run_fuel_controller(
                 background_routes=background_routes,
                 traffic_light_timings=traffic_light_timings,
                 fuel_params=None,
+                congestion_factors_override=congestion_factors,
                 seed=config.seed,
             )
             problem_path = (

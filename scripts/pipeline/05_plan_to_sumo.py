@@ -30,6 +30,7 @@ from src.routly.sumo.sumo_writer import (
     apply_traffic_light_timings,
     build_net,
     compute_simulation_end_time,
+    parse_refuel_stops,
     write_edg_xml,
     write_fuel_pois,
     write_nod_xml,
@@ -224,6 +225,12 @@ def write_and_launch_sumo_for_plan(
             except Exception as e:
                 print(f"WARNING: Failed to parse incidents log file ({e}). Routing fallback active.")
 
+    _refuel_stops = parse_refuel_stops(plan_text)
+    _total_dwell = (
+        features.fuel.refuel_stop_seconds * len(_refuel_stops)
+        if features.fuel.enabled else 0.0
+    )
+
     write_rou_xml(
         road_sequence,
         out_path=route_path,
@@ -238,9 +245,15 @@ def write_and_launch_sumo_for_plan(
         seed=config.seed,
         blocked_roads=blocked_roads,
         blocked_locations=blocked_locations,
+        refuel_stops=_refuel_stops,
+        refuel_seconds=(
+            features.fuel.refuel_stop_seconds if features.fuel.enabled else 0.0
+        ),
     )
 
-    end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)
+    end_time = compute_simulation_end_time(
+        plan_text, road_sequence, mapping, extra_seconds=_total_dwell
+    )
     additional = []
     if features.fuel.enabled and config.fuel_stations_path.exists():
         stations = load_fuel_stations(config.fuel_stations_path)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import os
+import re
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -207,6 +208,8 @@ def write_rou_xml(
     blocked_locations: list[str] | None = None,
     max_present_time: float | None = None,
     presence_safety_margin: float = 1.15,
+    refuel_stops: list[str] | None = None,
+    refuel_seconds: float = 0.0,
 ) -> None:
     """
     Write SUMO route XML.
@@ -225,6 +228,28 @@ def write_rou_xml(
                             depart=str(depart_time),
                             color="1,0,0")   # red — easy to spot
     ET.SubElement(vehicle, "route", edges=" ".join(edge_sequence))
+
+    if refuel_stops and refuel_seconds > 0 and all_roads:
+        road_to = {r["id"]: r["to"] for r in all_roads}
+        remaining = list(refuel_stops) # station occurrences, in plan order
+        for edge_id in edge_sequence: # scan in route order -> stops stay ordered
+            if not remaining:
+                break
+            dest = road_to.get(edge_id)
+            if dest is not None and dest in remaining:
+                ET.SubElement(
+                    vehicle,
+                    "stop",
+                    lane=f"{edge_id}_0", # single-lane edges -> lane index _0
+                    duration=f"{refuel_seconds:.1f}",
+                    parking="false", # halt on the lane (stays visible)
+                )
+                remaining.remove(dest)
+        if remaining:
+            print(
+                f"WARNING: {len(remaining)} refuel station(s) {remaining} not "
+                "matched to an edge in the route; no stop added for them."
+            )
 
     # ── background vehicles ───────────────────────────────────────────────────
     closed_edges = set(blocked_roads) if blocked_roads else set()
@@ -299,12 +324,22 @@ def write_rou_xml(
             ET.SubElement(bg, "route", edges=" ".join(route_edges))
     _write_pretty_xml(root, out_path)
 
+def parse_refuel_stops(plan_text: str) -> list[str]:
+    stops: list[str] = []
+    for line in plan_text.splitlines():
+        m = re.search(r";;\s*refuel at\s+(\S+)", line)
+        if not m:
+            m = re.search(r"\(\s*refuel\s+\S+\s+(\S+)\s*\)", line)
+        if m:
+            stops.append(m.group(1).strip().rstrip(")"))
+    return stops
 
 def compute_simulation_end_time(
     plan_text: str,
     road_sequence: list[str],
     mapping: dict,
     buffer: float = 30,
+    extra_seconds: float = 0.0,
 ) -> float:
     timestamps = extract_start_traversal_timestamps(plan_text)
 
@@ -320,7 +355,7 @@ def compute_simulation_end_time(
         if last_road and last_road.get("speed", 0) > 0:
             last_time += last_road["length"] / last_road["speed"]
 
-    end_time = round(last_time + buffer, 1)
+    end_time = round(last_time + buffer + extra_seconds, 1)
     print(f"Simulation end time: {end_time}s")
     return end_time
 
