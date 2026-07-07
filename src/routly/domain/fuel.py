@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Callable, Any
 import json
 import math
 from pathlib import Path
 import random
-from typing import Any
 
 from src.routly.features import FuelConfig
 
@@ -122,3 +122,92 @@ def write_fuel_stations(stations: list[str], path: str | Path) -> None:
 def load_fuel_stations(path: str | Path) -> list[str]:
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     return list(payload.get("stations", []))
+
+
+@dataclass(frozen=True)
+class FuelReachability:
+    """Result of the fuel reachability check, considering the available fuel."""
+
+    reachable: bool          # the goal is reachable (with or without refuelling)
+    needs_refuel: bool       # a refuelling stop is needed to reach the goal
+    message: str             # readable explanation
+    reachable_stations: list[str] = field(default_factory=list)
+
+
+def compute_fuel_reachability(
+    start_loc: str,
+    goal_loc: str,
+    fuel_params: "FuelParameters",
+    distances_from: Callable[[str], dict[str, float]],
+) -> FuelReachability:
+    inf = float("inf")
+    rate = fuel_params.consumption_per_meter
+    if rate <= 0:
+        return FuelReachability(
+            reachable=True,
+            needs_refuel=False,
+            message="Consumption rate <= 0; fuel is not a constraint.",
+        )
+
+    full_range = fuel_params.tank_capacity / rate
+    initial_range = fuel_params.initial_fuel / rate
+    stations = set(fuel_params.stations)
+
+    dist_start = distances_from(start_loc)
+    dist_to_goal = dist_start.get(goal_loc, inf)
+
+    # 1. direct reachability: goal within initial fuel range
+    if dist_to_goal <= initial_range:
+        return FuelReachability(
+            reachable=True,
+            needs_refuel=False,
+            message=(
+                f"Goal reachable on initial fuel "
+                f"({dist_to_goal:.0f} m <= initial range {initial_range:.0f} m)."
+            ),
+        )
+
+    goal_has_path = dist_to_goal < inf
+
+    # 2. Reachable station expansion: BFS-like, but with fuel range instead of hops.
+    reached = {
+        s
+        for s in stations
+        if s != start_loc and dist_start.get(s, inf) <= initial_range
+    }
+    all_reached = set(reached)
+    queue = sorted(reached)
+    while queue:
+        station = queue.pop(0)
+        dist_station = distances_from(station)
+        if dist_station.get(goal_loc, inf) <= full_range:
+            return FuelReachability(
+                reachable=True,
+                needs_refuel=True,
+                message=f"Goal reachable after refuelling (e.g. via {station}).",
+                reachable_stations=sorted(all_reached),
+            )
+        for other in sorted(stations):
+            if other not in all_reached and dist_station.get(other, inf) <= full_range:
+                all_reached.add(other)
+                queue.append(other)
+
+    # 3. Not reachable: distinguish topological vs fuel limitation.
+    if not goal_has_path:
+        message = f"{goal_loc} is not reachable from {start_loc} on the road network."
+    elif not reached:
+        message = (
+            f"No fuel station is reachable from {start_loc} on the initial fuel "
+            f"(range {initial_range:.0f} m) and the goal is {dist_to_goal:.0f} m away."
+        )
+    else:
+        message = (
+            f"Goal not reachable even after refuelling at the "
+            f"{len(all_reached)} reachable station(s)."
+        )
+    return FuelReachability(
+        reachable=False,
+        needs_refuel=len(reached) > 0,
+        message=message,
+        reachable_stations=sorted(all_reached),
+    )

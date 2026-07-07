@@ -72,7 +72,9 @@ def write_edg_xml(roads: list[dict], path: str | Path) -> None:
     _write_pretty_xml(root, path)
 
 
-def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path) -> None:
+def build_net(edge_file, node_file, net_file) -> None:
+    net_file = Path(net_file)
+    net_file.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         "netconvert",
         "--node-files", str(node_file),
@@ -81,7 +83,18 @@ def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path
         "--no-turnarounds", "true",
     ]
     print("Running:", " ".join(cmd))
-    subprocess.run(cmd, check=True)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
+    if result.returncode != 0 or not net_file.exists():
+        raise RuntimeError(
+            f"netconvert didn't produce the network: {net_file}\n"
+            f"return code: {result.returncode}\n"
+            f"--- netconvert stderr ---\n{result.stderr}"
+        )
+    print(f"Network created: {net_file}")
 
 
 def apply_traffic_light_timings(
@@ -333,21 +346,20 @@ def write_sumocfg(
     additional_files: list[str | Path] | None = None,
 ) -> None:
     cfg_file = Path(cfg_file)
-    cfg_dir = cfg_file.parent
-
-    def relative_to_cfg(path: str | Path) -> str:
-        return os.path.relpath(Path(path), start=cfg_dir).replace(os.sep, "/")
+    def cfg_path_value(path):
+        # percorso ASSOLUTO: SUMO non deve risolvere '../../../'
+        return str(Path(path).resolve()).replace(os.sep, "/")
 
     root = ET.Element("configuration")
 
     input_el = ET.SubElement(root, "input")
-    ET.SubElement(input_el, "net-file", value=relative_to_cfg(net_file))
-    ET.SubElement(input_el, "route-files", value=relative_to_cfg(route_file))
+    ET.SubElement(input_el, "net-file", value=cfg_path_value(net_file))
+    ET.SubElement(input_el, "route-files", value=cfg_path_value(route_file))
 
     if additional_files:
         ET.SubElement(
             input_el, "additional-files",
-            value=",".join(relative_to_cfg(p) for p in additional_files),
+            value=",".join(cfg_path_value(p) for p in additional_files),
         )
 
     time_el = ET.SubElement(root, "time")
@@ -367,6 +379,6 @@ def write_sumocfg(
 
     if view_file:
         gui_el = ET.SubElement(root, "gui_only")
-        ET.SubElement(gui_el, "gui-settings-file", value=relative_to_cfg(view_file))
+        ET.SubElement(gui_el, "gui-settings-file", value=cfg_path_value(view_file))
 
     _write_pretty_xml(root, cfg_file)

@@ -76,7 +76,7 @@ def resolve_plan_runs(
     if plan_override:
         return [("override", Path(plan_override))]
 
-    if features.controller_enabled:
+    if features.controller_for_congestion:
         if not config.controller_plan_path.exists():
             raise FileNotFoundError(
                 "Controller plan not found. Run the controller_run pipeline step "
@@ -126,7 +126,7 @@ def sumo_cfg_path_for_plan(config, plan_kind: str) -> Path:
     return config.sumo_cfg_path
 
 
-def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list[str], mapping: dict[str, Any]) -> None:
+def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list[str], mapping: dict[str, Any], station_ids: list[str]) -> None:
     if not features.sumo.open_event_map:
         return
     if "dynamic" not in plan_kinds:
@@ -159,7 +159,6 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
     start_loc = vehicles[0]["start"]["value"] if vehicles else None
     goal_loc = vehicles[0]["goal"]["value"] if vehicles else None
 
-    # Avvia la finestra interattiva Matplotlib
     viewer = EventMapViewer(
         mapping=mapping,
         original_roads=orig_roads,
@@ -168,7 +167,8 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
         blocked_locations=blocked_locs,
         start_loc=start_loc,
         goal_loc=goal_loc,
-        slowed_roads=slowed_roads
+        slowed_roads=slowed_roads,
+        station_ids=station_ids,
     )
     viewer.show()
 
@@ -218,7 +218,7 @@ def write_and_launch_sumo_for_plan(
                     elif isinstance(loc, str):
                         blocked_locations.append(loc)
                 
-                print(f"ℹ️ Loaded incident data for background filtering. Blocked infrastructure:")
+                print(f"Loaded incident data for background filtering. Blocked infrastructure:")
                 print(f"   Roads: {blocked_roads}")
                 print(f"   Junctions: {blocked_locations}")
             except Exception as e:
@@ -317,23 +317,29 @@ def main() -> None:
 
     plan_runs = resolve_plan_runs(config, features, args.plan_override)
 
-    # Assicurati che esista la cartella di output
     config.sumo_viewsettings_path.parent.mkdir(parents=True, exist_ok=True)
 
     sumo_template_view = PROJECT_ROOT / "config" / "sumo_view.xml"
     if sumo_template_view.exists():
         view_content = sumo_template_view.read_text(encoding="utf-8")
         config.sumo_viewsettings_path.write_text(view_content, encoding="utf-8")
-        print(f"🎨 Applicato tema grafico personalizzato da {sumo_template_view.name}")
+        print(f"Applicato tema grafico personalizzato da {sumo_template_view.name}")
     else:
         print(f"WARNING: File {sumo_template_view} non trovato. Caricamento view settings di fallback.")
         write_view_settings(config.sumo_viewsettings_path)
+    
+    fuel_station_ids = (
+        load_fuel_stations(config.fuel_stations_path)
+        if features.fuel.enabled and config.fuel_stations_path.exists()
+        else []
+    )
 
     open_event_map_before_sumo(
         config,
         features,
         [plan_kind for plan_kind, _ in plan_runs],
         mapping=mapping,
+        station_ids=fuel_station_ids,
     )
 
     for plan_kind, plan_path in plan_runs:

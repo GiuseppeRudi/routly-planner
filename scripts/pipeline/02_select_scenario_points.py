@@ -20,6 +20,13 @@ PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
+from src.routly.features import FeatureConfig
+from src.routly.domain.fuel import compute_fuel_reachability, derive_fuel_parameters
+from src.routly.controller.graph_utils import (
+    build_weighted_road_graph,
+    single_source_distances,
+)
+from src.routly.graph.graph_export import draw_fuel_stations
 
 
 # ============================================================
@@ -119,10 +126,12 @@ def validate_selected_pair(
     mapping: dict[str, Any],
     start_node: dict[str, Any],
     goal_node: dict[str, Any],
+    fuel_params=None,
+    graph=None,
 ) -> tuple[bool, str]:
     directed_graph = build_directed_graph_from_mapping(mapping)
     start_loc = start_node["id"]
-    goal_loc  = goal_node["id"]
+    goal_loc = goal_node["id"]
 
     outgoing = directed_graph.get(start_loc, [])
     if not outgoing:
@@ -132,10 +141,31 @@ def validate_selected_pair(
     if goal_loc not in reachable:
         return False, f"Invalid pair: {goal_loc} is not reachable from {start_loc}."
 
-    return True, (
+    base_msg = (
         f"Valid pair. START={start_loc}, GOAL={goal_loc}, "
         f"reachable locations={len(reachable)}."
     )
+
+    # fuel check
+    if fuel_params is not None:
+        if graph is None:
+            graph = build_weighted_road_graph(mapping)
+        fuel_check = compute_fuel_reachability(
+            start_loc,
+            goal_loc,
+            fuel_params,
+            distances_from=lambda loc: single_source_distances(graph, loc),
+        )
+        if not fuel_check.reachable:
+            return False, f"Fuel check failed: {fuel_check.message}"
+        suffix = (
+            " Refuelling required (a fuel station is on the way)."
+            if fuel_check.needs_refuel
+            else " Enough fuel to reach the goal without refuelling."
+        )
+        return True, base_msg + suffix
+
+    return True, base_msg
 
 
 # ============================================================
@@ -266,10 +296,18 @@ def draw_selected_point(
 
 class ScenarioPointSelector:
 
-    def __init__(self, mapping: dict[str, Any], place_name: str = "") -> None:
-        self.mapping       = mapping
+    def __init__(
+        self,
+        mapping: dict[str, Any],
+        place_name: str = "",
+        fuel_params=None,
+        fuel_graph=None,
+    ) -> None:
+        self.mapping = mapping
         self.mapping_nodes = mapping["nodes"]
-        self.place_name    = place_name
+        self.place_name = place_name
+        self.fuel_params = fuel_params
+        self.fuel_graph = fuel_graph
 
         self.start_node: dict[str, Any] | None = None
         self.goal_node:  dict[str, Any] | None = None
@@ -293,6 +331,16 @@ class ScenarioPointSelector:
 
         # ── map ────────────────────────────────────────────────────────────────
         draw_base_graph(self.ax, self.mapping)
+
+        # Fuel stations (only if the fuel feature is active).
+        # NOTE: pass station_ids explicitly -> with stations_source="random"
+        # the real stations are fuel_params.stations, not the mapping flag.
+        if self.fuel_params is not None and getattr(self.fuel_params, "stations", None):
+            draw_fuel_stations(
+                self.ax, self.mapping,
+                station_ids=self.fuel_params.stations,
+                zorder=5,
+            )
 
         # Equal aspect so the map is never stretched regardless of window shape.
         # 'datalim' adjusts the visible data range rather than the axes box,
@@ -576,7 +624,11 @@ class ScenarioPointSelector:
             return
 
         is_valid, message = validate_selected_pair(
-            self.mapping, self.start_node, self.goal_node
+            self.mapping,
+            self.start_node,
+            self.goal_node,
+            fuel_params=self.fuel_params,
+            graph=self.fuel_graph,
         )
 
         if not is_valid:
@@ -615,8 +667,15 @@ class ScenarioPointSelector:
 def select_start_goal_interactively(
     mapping: dict[str, Any],
     place_name: str = "",
+    fuel_params=None,
+    fuel_graph=None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    selector = ScenarioPointSelector(mapping, place_name=place_name)
+    selector = ScenarioPointSelector(
+        mapping,
+        place_name=place_name,
+        fuel_params=fuel_params,
+        fuel_graph=fuel_graph,
+    )
     return selector.run()
 
 
@@ -699,15 +758,34 @@ def main() -> None:
     print(f"  GraphML: {config.raw_graphml_path}")
     print(f"  Mapping: {config.mapping_path}")
 
-    graph   = load_graph(config.raw_graphml_path)
+    graph = load_graph(config.raw_graphml_path)
     mapping = load_mapping(config.mapping_path)
 
     if "nodes" not in mapping or "roads" not in mapping:
         raise KeyError("roads_mapping.json must contain 'nodes' and 'roads'.")
 
+    # --- prepare fuel parameters if the feature is enabled
+    fuel_params = None
+    fuel_graph = None
+    features = FeatureConfig.from_yaml(args.project_config)
+    if features.fuel.enabled:
+        fuel_params = derive_fuel_parameters(
+            nodes=mapping["nodes"],
+            config=features.fuel,
+            seed=config.seed,
+        )
+        fuel_graph = build_weighted_road_graph(mapping)
+        print(
+            f"  Fuel-aware selection: tank={fuel_params.tank_capacity:.1f} L, "
+            f"initial={fuel_params.initial_fuel:.1f} L, "
+            f"{len(fuel_params.stations)} station(s)."
+        )
+
     start_node, goal_node = select_start_goal_interactively(
         mapping,
         place_name=config.place_name,
+        fuel_params=fuel_params,
+        fuel_graph=fuel_graph,
     )
 
     scenario = build_scenario_yaml(
