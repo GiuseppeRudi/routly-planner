@@ -148,6 +148,11 @@ def parse_args() -> argparse.Namespace:
             "Example: python run_pipeline.py 1 3 5"
         ),
     )
+    parser.add_argument(
+        "--resume",
+        type=str,
+        help="Name or full path of an existing experiment folder to resume from.",
+    )
     return parser.parse_args()
 
 
@@ -159,11 +164,28 @@ def main() -> None:
     validate_existing_input_configs(pipeline_config)
 
     project_config_path = PROJECT_ROOT / pipeline_config["configs"]["project_config"]
-    project_config_raw = read_yaml(project_config_path)
-    experiment_name = resolve_experiment_name(project_config_raw)
-    os.environ[EXPERIMENT_NAME_ENV] = experiment_name
+    
+    # ── LOGICA DI RESUME (TASK 8) ──────────────────────────────────────────
+    if args.resume:
+        # Estrae l'ultimo blocco se viene passato un path completo (es. data/bologna/.../exp_folder)
+        experiment_name = Path(args.resume).name
+        os.environ[EXPERIMENT_NAME_ENV] = experiment_name
+        print(f"🔄 RESUME MODE ACTIVE: Targeting experiment folder '{experiment_name}'")
+    else:
+        project_config_raw = read_yaml(project_config_path)
+        experiment_name = resolve_experiment_name(project_config_raw)
+        os.environ[EXPERIMENT_NAME_ENV] = experiment_name
 
     project_config = load_config(project_config_path)
+    
+    # Controllo di sicurezza se l'utente ha provato a riprendere una cartella inesistente
+    if args.resume and not project_config.experiment_dir.exists():
+        raise FileNotFoundError(
+            f"❌ Error: The selected experiment folder does not exist at target destination:\n"
+            f"   {project_config.experiment_dir}"
+        )
+    # ───────────────────────────────────────────────────────────────────────
+
     snapshot_input_configs(project_config, project_config_path)
 
     all_steps = pipeline_config["run"]
@@ -280,11 +302,11 @@ if __name__ == "__main__":
 # TODO la possibilita di avviare una simulazione gia creata per far ripartire alcuni dei punti della simulazione precedente 
 
 
-# TODO 9. inserire gli eventi generati dall llm anche su sumo non solo sull immagine quindi blocket roads ma anche rallentamenti 
+# TODO 9. inserire gli eventi generati dall llm anche su sumo non solo sull immagine quindi blocked roads ma anche rallentamenti 
 
 # TODO 10. inserire nell immagine della comparazione delle congesitoni anche una visione migliore degli eventi generati dall llm 
 # cambiare il colore da grigio a piu accesso e aggiungere una lista 
 
-
 # TODO 11. INSERIRE UNA MAPPA SATELLITARE CON LE STRADE E I NODI DELLA MAPPA PER AVERE UNA VISIONE PIU REALISTICA 
-# DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API 
+# TODO DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E 
+# TODO PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API 
