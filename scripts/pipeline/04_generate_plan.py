@@ -18,6 +18,7 @@ from src.routly.config import load_config
 from src.routly.features import FeatureConfig
 from src.routly.graph.graph_export import (
     plot_event_map, plot_plan_from_mapping, open_congestion_map,
+    save_congestion_maps,
 )
 from src.routly.llm_client import call_llm
 from src.routly.llm.prompts import build_event_prompt
@@ -26,7 +27,6 @@ from src.routly.pddl.mapping import (
     build_road_adjacency,
     extract_topology_for_llm,
 )
-# ➔ Task 3: Import the dynamic congestion re-calculation module
 from src.routly.pddl.problem_generator import recleanse_and_compute_dynamic_congestion
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
@@ -564,6 +564,17 @@ def main() -> None:
         output_path=event_map_path, slowed_roads=slowed_roads,
     )
     print(f"   Event map saved: {event_map_path}")
+
+    save_congestion_maps(
+        mapping=mapping,
+        pre_problem_path=problem_path,
+        post_problem_path=dynamic_problem_path,
+        pre_output_path=config.congestion_map_pre_path,
+        post_output_path=config.congestion_map_post_path,
+        start_loc=start_loc,
+        goal_loc=goal_loc,
+        place_name=getattr(config, "place_name", ""),
+    )
 
     if features.sumo.open_congestion_map:
         print("\nOpening the interactive congestion map (pre vs post LLM events)...")

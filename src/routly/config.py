@@ -182,6 +182,14 @@ class ProjectConfig:
         return self.llm_images_dir / "event_map.png"
 
     @property
+    def congestion_map_pre_path(self) -> Path:
+        return self.llm_images_dir / "congestion_map_pre.png"
+
+    @property
+    def congestion_map_post_path(self) -> Path:
+        return self.llm_images_dir / "congestion_map_post.png"
+
+    @property
     def incidents_log_path(self) -> Path:
         return self.llm_logs_dir / "incidents_log.json"
 
