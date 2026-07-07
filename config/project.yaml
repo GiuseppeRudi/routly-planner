@@ -57,7 +57,7 @@ features:
     enabled: true
     backend: "ollama" # "ollama" | "lmstudio" | "groq"
     strategic_injection: true # if true, LLM picks roads from compact topology (start/goal/degree) instead of random sampling
-    prevent_unsolvable_blocks: false
+    prevent_unsolvable_blocks: true
     # false: gives an error in case of unsolvable paths
     # true: puts a slowdown instead of a blocked road that blocked the path to the goal state
     unsolvable_fallback: "slowdown" # "slowdown" | "skip"

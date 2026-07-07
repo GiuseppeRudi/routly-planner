@@ -5,8 +5,11 @@ import argparse
 import sys
 import webbrowser
 from typing import Any
-import json  # ➔ Added for incident log parsing
+import json
 import yaml
+import copy
+import xml.etree.ElementTree as ET
+
 
 # Bulletproof root path resolution independent of terminal prompt location
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -39,6 +42,8 @@ from src.routly.domain.traffic_lights import (
     load_traffic_light_timings,
     write_traffic_light_timings,
 )
+
+from src.routly.graph.graph_export import EventMapViewer
 
 
 def parse_args() -> argparse.Namespace:
@@ -109,20 +114,51 @@ def sumo_cfg_path_for_plan(config, plan_kind: str) -> Path:
     return config.sumo_cfg_path
 
 
-def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list[str]) -> None:
+def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list[str], mapping: dict[str, Any]) -> None:
     if not features.sumo.open_event_map:
         return
     if "dynamic" not in plan_kinds:
         return
 
-    event_map_path = config.event_map_path
-    if not event_map_path.exists():
-        print(f"WARNING: event map not found before SUMO launch: {event_map_path}")
-        return
+    print(f"\nOpening INTERACTIVE Event Comparison Map before SUMO launch...")
 
-    print(f"\nOpening event comparison map before SUMO: {event_map_path}")
-    webbrowser.open(event_map_path.resolve().as_uri())
+    # Legge i percorsi di base e dinamici generati nello Step 4
+    orig_roads = parse_start_traversal_roads(config.plan_path.read_text(encoding="utf-8")) if config.plan_path.exists() else []
+    repl_roads = parse_start_traversal_roads(config.dynamic_plan_path.read_text(encoding="utf-8")) if config.dynamic_plan_path.exists() else []
 
+    # Carica gli eventi LLM dal file log
+    blocked_roads, slowed_roads, blocked_locs = [], [], []
+    if config.incidents_log_path.exists():
+        try:
+            with open(config.incidents_log_path, "r", encoding="utf-8") as f:
+                log_data = json.load(f)
+                for ev in log_data.get("events", []):
+                    if ev.get("event_type") == "slowdown":
+                        slowed_roads.extend([{"id": r} for r in ev.get("roads", [])])
+                    else:
+                        blocked_roads.extend([{"id": r} for r in ev.get("roads", [])])
+                blocked_locs = log_data.get("blocked_locations", [])
+        except Exception:
+            pass
+
+    # Carica start e goal dal mapping/scenario
+    scenario_data = read_yaml(config.scenario_path) if config.scenario_path.exists() else {}
+    vehicles = scenario_data.get("vehicles", [])
+    start_loc = vehicles[0]["start"]["value"] if vehicles else None
+    goal_loc = vehicles[0]["goal"]["value"] if vehicles else None
+
+    # Avvia la finestra interattiva Matplotlib
+    viewer = EventMapViewer(
+        mapping=mapping,
+        original_roads=orig_roads,
+        recalculated_roads=repl_roads,
+        blocked_roads=blocked_roads,
+        blocked_locations=blocked_locs,
+        start_loc=start_loc,
+        goal_loc=goal_loc,
+        slowed_roads=slowed_roads
+    )
+    viewer.show()
 
 def write_and_launch_sumo_for_plan(
     plan_kind: str,
@@ -132,6 +168,7 @@ def write_and_launch_sumo_for_plan(
     features: FeatureConfig,
     vehicle_id: str,
     background_routes,
+    net_path: Path,
 ) -> None:
     print("\n" + "=" * 70)
     print(f"SUMO PLAN: {plan_kind}")
@@ -149,7 +186,6 @@ def write_and_launch_sumo_for_plan(
     route_path = sumo_route_path_for_plan(config, plan_kind)
     cfg_path = sumo_cfg_path_for_plan(config, plan_kind)
 
-    # ── TASK 2: LOAD INCIDENT DATA LOGS FOR BACKGROUND VEHICLE FILTERING ─────
     blocked_roads = []
     blocked_locations = []
 
@@ -160,12 +196,10 @@ def write_and_launch_sumo_for_plan(
                 with open(log_path, "r", encoding="utf-8") as log_f:
                     log_data = json.load(log_f)
                 
-                # Fetch only physical blocks (exclude slowdowns from routing exclusions)
                 for event in log_data.get("events", []):
                     if event.get("event_type") != "slowdown":
                         blocked_roads.extend(event.get("roads", []))
                 
-                # Fetch derived blocked intersections
                 for loc in log_data.get("blocked_locations", []):
                     if isinstance(loc, dict) and "id" in loc:
                         blocked_locations.append(loc["id"])
@@ -177,7 +211,6 @@ def write_and_launch_sumo_for_plan(
                 print(f"   Junctions: {blocked_locations}")
             except Exception as e:
                 print(f"WARNING: Failed to parse incidents log file ({e}). Routing fallback active.")
-    # ──────────────────────────────────────────────────────────────────────────
 
     write_rou_xml(
         road_sequence,
@@ -191,19 +224,19 @@ def write_and_launch_sumo_for_plan(
         all_roads=mapping["roads"],
         background_routes=background_routes,
         seed=config.seed,
-        blocked_roads=blocked_roads,         # ➔ Passed for filtering
-        blocked_locations=blocked_locations, # ➔ Passed for filtering
+        blocked_roads=blocked_roads,
+        blocked_locations=blocked_locations,
     )
 
     end_time = compute_simulation_end_time(plan_text, road_sequence, mapping)
     additional = []
     if features.fuel.enabled and config.fuel_stations_path.exists():
         stations = load_fuel_stations(config.fuel_stations_path)
-        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, config.sumo_net_path, "images/gas_station.png")
+        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, net_path, "images/gas_station.png")
         additional.append(config.fuel_poi_path)
 
     write_sumocfg(
-        net_file=config.sumo_net_path,
+        net_file=net_path,
         route_file=route_path,
         cfg_file=cfg_path,
         view_file=config.sumo_viewsettings_path,
@@ -272,30 +305,104 @@ def main() -> None:
 
     plan_runs = resolve_plan_runs(config, features, args.plan_override)
 
-    write_nod_xml(mapping["nodes"], config.sumo_nod_path, with_traffic_lights=features.traffic_lights)
-    write_edg_xml(mapping["roads"], config.sumo_edg_path)
-    build_net(config.sumo_edg_path, config.sumo_nod_path, config.sumo_net_path)
-    if features.traffic_lights:
-        apply_traffic_light_timings(
-            config.sumo_net_path,
-            traffic_light_timings,
-        )
+    # Assicurati che esista la cartella di output
+    config.sumo_viewsettings_path.parent.mkdir(parents=True, exist_ok=True)
 
-    write_view_settings(config.sumo_viewsettings_path)
+    sumo_template_view = PROJECT_ROOT / "config" / "sumo_view.xml"
+    if sumo_template_view.exists():
+        view_content = sumo_template_view.read_text(encoding="utf-8")
+        config.sumo_viewsettings_path.write_text(view_content, encoding="utf-8")
+        print(f"🎨 Applicato tema grafico personalizzato da {sumo_template_view.name}")
+    else:
+        print(f"WARNING: File {sumo_template_view} non trovato. Caricamento view settings di fallback.")
+        write_view_settings(config.sumo_viewsettings_path)
 
     open_event_map_before_sumo(
         config,
         features,
         [plan_kind for plan_kind, _ in plan_runs],
+        mapping=mapping,
     )
 
-    print("\nSUMO NETWORK FILES CREATED:")
-    print(f"  {config.sumo_nod_path}")
-    print(f"  {config.sumo_edg_path}")
-    print(f"  {config.sumo_net_path}")
-    print(f"  {config.sumo_viewsettings_path}")
-
     for plan_kind, plan_path in plan_runs:
+        if plan_kind == "dynamic":
+            nod_path = config.sumo_nod_path.parent / f"{config.sumo_nod_path.dash_stem if hasattr(config.sumo_nod_path, 'dash_stem') else config.sumo_nod_path.stem}_dynamic.nod.xml"
+            edg_path = config.sumo_edg_path.parent / f"{config.sumo_edg_path.dash_stem if hasattr(config.sumo_edg_path, 'dash_stem') else config.sumo_edg_path.stem}_dynamic.edg.xml"
+            net_path = config.sumo_net_path.parent / f"{config.sumo_net_path.dash_stem if hasattr(config.sumo_net_path, 'dash_stem') else config.sumo_net_path.stem}_dynamic.net.xml"
+        else:
+            nod_path = config.sumo_nod_path
+            edg_path = config.sumo_edg_path
+            net_path = config.sumo_net_path
+
+        local_roads = copy.deepcopy(mapping["roads"])
+        local_nodes = copy.deepcopy(mapping["nodes"])
+
+        blocked_roads_set = set()
+        slowed_roads_map = {}
+
+        if plan_kind == "dynamic" and features.llm_events.enabled:
+            log_path = config.incidents_log_path
+            if log_path.exists():
+                try:
+                    with open(log_path, "r", encoding="utf-8") as log_f:
+                        log_data = json.load(log_f)
+
+                    for event in log_data.get("events", []):
+                        if event.get("event_type") == "slowdown":
+                            severity = float(event.get("severity", 2.0))
+                            for r in event.get("roads", []):
+                                slowed_roads_map[r] = severity
+                        else:
+                            for r in event.get("roads", []):
+                                blocked_roads_set.add(r)
+
+                    for road in local_roads:
+                        r_id = road.get("id")
+                        if r_id in blocked_roads_set:
+                            road["speed"] = 0.01
+                            road["disallowed"] = "passenger"
+                        elif r_id in slowed_roads_map:
+                            if "speed" in road:
+                                road["speed"] = round(float(road["speed"]) / slowed_roads_map[r_id], 2)
+
+                    print(f"⚡ Rete DINAMICA: Applicati {len(blocked_roads_set)} blocchi fisici e {len(slowed_roads_map)} rallentamenti di velocità.")
+                except Exception as e:
+                    print(f"WARNING: Errore nell'applicazione delle modifiche stradali LLM ({e})")
+
+        # Scrittura dei file XML base per SUMO
+        write_nod_xml(local_nodes, nod_path, with_traffic_lights=features.traffic_lights)
+        write_edg_xml(local_roads, edg_path)
+
+        # ── INIEZIONE CHIRURGICA DEI COLORI DIRETTAMENTE DENTRO .EDG.XML (TASK 10 - APPROCCIO GIVEN) ──
+        if edg_path.exists():
+            try:
+                tree = ET.parse(edg_path)
+                root = tree.getroot()
+                for edge in root.findall("edge"):
+                    r_id = edge.get("id")
+                    if r_id in blocked_roads_set:
+                        edge.set("color", "230,76,60")    # Rosso acceso per interruzioni
+                    elif r_id in slowed_roads_map:
+                        edge.set("color", "241,196,15")   # Giallo per rallentamenti
+                    else:
+                        edge.set("color", "52,152,219")    # Blu per strade libere standard
+                tree.write(edg_path, encoding="utf-8", xml_declaration=True)
+                print(f"🎨 Colori nativi hardcodati con successo in {edg_path.name}.")
+            except Exception as e:
+                print(f"WARNING: Errore durante l'iniezione XML dei colori nativi ({e})")
+        # ─────────────────────────────────────────────────────────────────────────────────────────────
+
+        # Compilazione nativa del network con i colori incorporati
+        build_net(edg_path, nod_path, net_path)
+        
+        if features.traffic_lights:
+            apply_traffic_light_timings(net_path, traffic_light_timings)
+
+        print(f"\nSUMO NETWORK CREATED FOR {plan_kind.upper()}:")
+        print(f"  {nod_path}")
+        print(f"  {edg_path}")
+        print(f"  {net_path}")
+
         write_and_launch_sumo_for_plan(
             plan_kind=plan_kind,
             plan_path=plan_path,
@@ -304,6 +411,7 @@ def main() -> None:
             features=features,
             vehicle_id=vehicle_id,
             background_routes=background_routes,
+            net_path=net_path,
         )
 
 
