@@ -54,8 +54,9 @@ features:
       major: 50
 
   llm_events:
+    # Runtime LLM provider/model are configured in .env:
+    # ROUTLY_LLM_PROVIDER and ROUTLY_LLM_MODEL.
     enabled: true
-    backend: "ollama" # "ollama" | "lmstudio" | "groq"
     strategic_injection: true # if true, LLM picks roads from compact topology (start/goal/degree) instead of random sampling
     prevent_unsolvable_blocks: true
     # false: gives an error in case of unsolvable paths

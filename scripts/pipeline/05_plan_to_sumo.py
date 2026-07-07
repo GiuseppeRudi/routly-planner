@@ -369,11 +369,9 @@ def main() -> None:
                 except Exception as e:
                     print(f"WARNING: Errore nell'applicazione delle modifiche stradali LLM ({e})")
 
-        # Scrittura dei file XML base per SUMO
         write_nod_xml(local_nodes, nod_path, with_traffic_lights=features.traffic_lights)
         write_edg_xml(local_roads, edg_path)
 
-        # ── INIEZIONE CHIRURGICA DEI COLORI DIRETTAMENTE DENTRO .EDG.XML (TASK 10 - APPROCCIO GIVEN) ──
         if edg_path.exists():
             try:
                 tree = ET.parse(edg_path)
@@ -387,9 +385,8 @@ def main() -> None:
                     else:
                         edge.set("color", "52,152,219")    # Blu per strade libere standard
                 tree.write(edg_path, encoding="utf-8", xml_declaration=True)
-                print(f"🎨 Colori nativi hardcodati con successo in {edg_path.name}.")
             except Exception as e:
-                print(f"WARNING: Errore durante l'iniezione XML dei colori nativi ({e})")
+                print(f"WARNING: Error during the XML injection of the native colors ({e})")
         # ─────────────────────────────────────────────────────────────────────────────────────────────
 
         # Compilazione nativa del network con i colori incorporati

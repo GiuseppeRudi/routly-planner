@@ -444,7 +444,7 @@ def main() -> None:
     )
 
     try:
-        response_text = call_llm(prompt, backend=features.llm_events.backend, seed=config.seed)
+        response_text = call_llm(prompt, seed=config.seed)
         response_text = _extract_json_object(response_text)
         llm_decision = json.loads(response_text)
         raw_events = llm_decision["events"]

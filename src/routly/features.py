@@ -70,7 +70,6 @@ class CongestionConfig:
 @dataclass
 class LLMEventsConfig:
     enabled: bool = False
-    backend: str = "ollama"  # "ollama" | "lmstudio" | "groq" - which LLM server to call
     strategic_injection: bool = False  # if True, LLM uses compact problem topology
     # (start, goal, node degree) instead of a random road sample to pick targets
     prevent_unsolvable_blocks: bool = False
@@ -186,7 +185,6 @@ class FeatureConfig:
         llm_raw = f.get("llm_events", {})
         llm = LLMEventsConfig(
             enabled=llm_raw.get("enabled", False),
-            backend=llm_raw.get("backend", "ollama"),
             strategic_injection=llm_raw.get("strategic_injection", False),
             prevent_unsolvable_blocks=llm_raw.get("prevent_unsolvable_blocks", False),
             unsolvable_fallback=llm_raw.get("unsolvable_fallback", "slowdown"),

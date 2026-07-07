@@ -471,8 +471,8 @@ class CongestionMapViewer:
         if xf <= 0.19: self._scroll_list(-1 if event.button == "up" else 1)
 
     def _add_llm_events_panel(self):
-        t_title = self.fig.text(0.75, 0.90, "LLM INCIDENTS LOG", fontsize=10, fontweight="bold", color="#0057ff", va="top")
-        self.llm_text_elements.append(t_title)
+        # t_title = self.fig.text(0.75, 0.90, "LLM INCIDENTS LOG", fontsize=10, fontweight="bold", color="#0057ff", va="top")
+        # self.llm_text_elements.append(t_title)
 
         y_pos = 0.85
         for idx, ev in enumerate(self.llm_events_list, 1):

@@ -15,6 +15,7 @@ dependencies:
   - pyproj
   - fiona
   - folium
+  - contextily
 
   # Graphs and data
   - networkx
@@ -36,3 +37,4 @@ dependencies:
   - pip:
       - python-dotenv
       - rich
+      - traci
