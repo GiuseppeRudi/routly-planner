@@ -17,6 +17,18 @@ from src.routly.controller.models import (
     ControllerRunRequest,
     ControllerSegment,
 )
+from src.routly.domain.congestion import (
+    estimate_route_duration_straight_line,
+    generate_background_routes,
+    load_background_routes,
+    validate_background_routes,
+    write_background_routes,
+)
+from src.routly.domain.traffic_lights import (
+    generate_traffic_light_timings,
+    load_traffic_light_timings,
+    write_traffic_light_timings,
+)
 from src.routly.domain.fuel import FuelParameters, derive_fuel_parameters
 from src.routly.features import FeatureConfig
 from src.routly.pddl.domain_generator import build_road_network_domain
@@ -47,20 +59,16 @@ class FuelTargetDecision:
 def _routing_features(features: FeatureConfig) -> FeatureConfig:
     """Feature set used to plan a single leg.
 
-    Fuel accounting is done by the controller, and dynamic congestion is a
-    different controller's concern, so both are disabled for the per-leg PDDL.
-    Traffic lights are disabled too so the planner minimises *distance*
-    (`total-distance` metric), keeping plans consistent with the shortest-path
-    fuel estimates. Everything else is preserved.
+    Fuel accounting is done by the controller itself, so `fuel` is disabled in
+    the per-leg PDDL (otherwise the planner would double-count it). Traffic
+    lights and congestion are PRESERVED exactly as configured in project.yaml
+    so that each leg is routed the way the vehicle will actually be simulated:
+      * traffic_lights on  -> metric becomes travel-time (signal delays matter);
+      * congestion  on     -> congested roads get higher cost and are avoided.
+    Everything else is preserved.
     """
     routing_fuel = replace(features.fuel, enabled=False, replanning=False)
-    routing_congestion = replace(features.congestion, enabled=False, replanning=False)
-    return replace(
-        features,
-        fuel=routing_fuel,
-        congestion=routing_congestion,
-        traffic_lights=False,
-    )
+    return replace(features, fuel=routing_fuel)
 
 
 def select_fuel_target(
@@ -207,6 +215,46 @@ def run_fuel_controller(
 
     # Plan every leg as a pure routing problem (fuel is handled here).
     routing_features = _routing_features(features)
+    traffic_light_timings: dict = {}
+    if routing_features.traffic_lights:
+        if config.traffic_light_timings_path.exists():
+            traffic_light_timings = load_traffic_light_timings(
+                config.traffic_light_timings_path
+            )
+        else:
+            traffic_light_timings = generate_traffic_light_timings(
+                mapping["nodes"],
+                mapping["roads"],
+                routing_features.traffic_lights_config,
+                config.seed,
+            )
+            write_traffic_light_timings(
+                traffic_light_timings, config.traffic_light_timings_path
+            )
+
+    background_routes = None
+    if routing_features.congestion_enabled:
+        if config.background_routes_path.exists():
+            background_routes = load_background_routes(config.background_routes_path)
+            validate_background_routes(background_routes, mapping["roads"])
+        else:
+            route_seconds = estimate_route_duration_straight_line(
+                node_map,
+                mapping["roads"],
+                request.start_loc,
+                request.goal_loc,
+                detour_factor=1.3,
+                safety_margin=1.15,
+            )
+            background_routes = generate_background_routes(
+                mapping["roads"],
+                routing_features.congestion.num_background_vehicles,
+                config.seed,
+                max_present_time=route_seconds if route_seconds > 0 else None,
+            )
+            write_background_routes(
+                background_routes, config.background_routes_path
+            )
     prefix = f"{run_label}_" if run_label else ""
     domain_text = build_road_network_domain(routing_features)
     domain_path = pddl_dir / f"{prefix}domain_controller.pddl"
@@ -262,8 +310,8 @@ def run_fuel_controller(
                 vehicle_id=vehicle_id,
                 problem_name=f"fuel_{prefix}leg_{index:02d}",
                 features=routing_features,
-                background_routes=None,
-                traffic_light_timings=None,
+                background_routes=background_routes,
+                traffic_light_timings=traffic_light_timings,
                 fuel_params=None,
                 seed=config.seed,
             )
