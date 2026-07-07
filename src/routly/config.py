@@ -14,6 +14,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.routly.utils import read_yaml
 
 EXPERIMENT_NAME_ENV = "ROUTLY_EXPERIMENT_NAME"
+VALID_TRAVERSAL_MODELS = {"process", "compiled_duration"}
 
 
 @dataclass(frozen=True)
@@ -30,6 +31,7 @@ class ProjectConfig:
     max_nodes: int | None
 
     enhsp_jar: Path
+    traversal_model: str
     sumo_gui: str
     project_root: Path
 
@@ -302,6 +304,13 @@ def load_config(
         raise ValueError("Missing required project.seed in project configuration")
 
     project_root = Path(general_config.get("project_root", "."))
+    traversal_model = str(
+        planner_config.get("traversal_model", "process")
+    ).strip().lower()
+    if traversal_model not in VALID_TRAVERSAL_MODELS:
+        raise ValueError(
+            "planner.traversal_model must be 'process' or 'compiled_duration'"
+        )
 
     return ProjectConfig(
         seed=int(general_config["seed"]),
@@ -315,6 +324,7 @@ def load_config(
         max_nodes=graph_config.get("max_nodes"),
 
         enhsp_jar=Path(planner_config["enhsp_jar"]),
+        traversal_model=traversal_model,
         sumo_gui=sumo_config["sumo_gui"],
 
         project_root=project_root,

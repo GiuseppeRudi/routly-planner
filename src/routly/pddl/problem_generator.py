@@ -21,6 +21,9 @@ DYNAMIC_WINDOWS_END = "    ;; END DYNAMIC CONGESTION WINDOWS"
 DYNAMIC_PROFILE_BEGIN = "  ;; BEGIN DYNAMIC CONGESTION PROFILE"
 DYNAMIC_PROFILE_END = "  ;; END DYNAMIC CONGESTION PROFILE"
 DYNAMIC_CONGESTION_SEARCH_WARNING_UPDATES = 100
+TRAVERSAL_PROCESS = "process"
+TRAVERSAL_COMPILED_DURATION = "compiled_duration"
+VALID_TRAVERSAL_MODELS = {TRAVERSAL_PROCESS, TRAVERSAL_COMPILED_DURATION}
 
 
 # ── PUBLIC API ────────────────────────────────────────────────────────────────
@@ -38,9 +41,11 @@ def build_road_network_problem(
     fuel_params: FuelParameters | None = None,
     congestion_factors_override: dict[str, float] | None = None,
     seed: int | None = None,
+    traversal_model: str = TRAVERSAL_PROCESS,
 ) -> str:
     if features is None:
         features = FeatureConfig.base()
+    traversal_model = _validate_traversal_model(features, traversal_model)
 
     congestion_factors: dict[str, float] = {}
     dynamic_congestion_profile: DynamicCongestionProfile = {}
@@ -102,8 +107,9 @@ def build_road_network_problem(
     init_block     = _build_init(node_map, roads, start_loc, vehicle_id,
                                  features, congestion_factors,
                                  traffic_light_timings or {}, fuel_params,
-                                 dynamic_congestion_profile)
-    metric_line    = _build_metric(vehicle_id, features)
+                                 dynamic_congestion_profile,
+                                 traversal_model)
+    metric_line    = _build_metric(vehicle_id, features, traversal_model)
 
     return f"""\
 ;; ============================================================
@@ -343,18 +349,20 @@ def _build_init(
     traffic_light_timings: dict[str, TrafficLightTiming],
     fuel_params: FuelParameters | None = None,
     dynamic_congestion_profile: DynamicCongestionProfile | None = None,
+    traversal_model: str = TRAVERSAL_PROCESS,
 ) -> str:
     lines: list[str] = []
     dynamic_congestion_profile = dynamic_congestion_profile or {}
 
     # ── vehicle ───────────────────────────────────────────────────────────────
-    lines += [
-        f"  (at {vehicle_id} {start_loc})",
-        f"  (= (speed {vehicle_id}) 0)",
-        f"  (= (total-distance {vehicle_id}) 0)",
-        f"  (= (distance-remaining {vehicle_id}) 0)",
-    ]
-    if features.traffic_lights:
+    lines.append(f"  (at {vehicle_id} {start_loc})")
+    if traversal_model == TRAVERSAL_PROCESS:
+        lines += [
+            f"  (= (speed {vehicle_id}) 0)",
+            f"  (= (total-distance {vehicle_id}) 0)",
+            f"  (= (distance-remaining {vehicle_id}) 0)",
+        ]
+    if features.traffic_lights or traversal_model == TRAVERSAL_COMPILED_DURATION:
         lines.append(f"  (= (travel-time {vehicle_id}) 0)")
 
     # ── roads ─────────────────────────────────────────────────────────────────
@@ -363,25 +371,44 @@ def _build_init(
         lines += [
             f"  (connects {road_id} {r['from']} {r['to']})",
             f"  (road-open {road_id})",
-            f"  (= (road-length {road_id}) {r['length']})",
-            f"  (= (speed-limit {road_id}) {r['speed']})",
         ]
+        if traversal_model == TRAVERSAL_PROCESS:
+            lines += [
+                f"  (= (road-length {road_id}) {r['length']})",
+                f"  (= (speed-limit {road_id}) {r['speed']})",
+            ]
 
+        congestion_factor = 1.0
         if features.snapshot_congestion_in_pddl:
-            factor = congestion_factors.get(road_id, 1.0)
+            congestion_factor = congestion_factors.get(road_id, 1.0)
             lines.append(
-                f"  (= (congestion-factor {road_id}) {factor})"
+                f"  (= (congestion-factor {road_id}) {congestion_factor})"
             )
         elif features.dynamic_congestion_in_pddl:
-            factor = _initial_dynamic_congestion_factor(
+            congestion_factor = _initial_dynamic_congestion_factor(
                 dynamic_congestion_profile,
                 road_id,
             )
             lines.append(
-                f"  (= (congestion-factor {road_id}) {factor})"
+                f"  (= (congestion-factor {road_id}) {congestion_factor})"
             )
         elif features.llm_events.enabled:
             lines.append(f"  (= (congestion-factor {road_id}) 1.0)")
+
+        if traversal_model == TRAVERSAL_COMPILED_DURATION:
+            duration = compute_compiled_travel_duration(
+                road=r,
+                features=features,
+                congestion_factor=congestion_factor,
+                traffic_light_timings=traffic_light_timings,
+            )
+            lines.append(f"  (= (travel-duration {road_id}) {duration})")
+            if features.fuel_in_pddl and fuel_params is not None:
+                fuel_cost = round(
+                    float(r["length"]) * fuel_params.consumption_per_meter,
+                    6,
+                )
+                lines.append(f"  (= (fuel-cost {road_id}) {fuel_cost})")
 
     if features.dynamic_congestion_in_pddl:
         _, dynamic_profile_block = build_dynamic_congestion_pddl_sections(
@@ -408,8 +435,11 @@ def _build_init(
         lines += [
             f"  (= (fuel-level {vehicle_id}) {fuel_params.initial_fuel})",
             f"  (= (fuel-capacity {vehicle_id}) {fuel_params.tank_capacity})",
-            f"  (= (fuel-consumption-rate {vehicle_id}) {fuel_params.consumption_per_meter})",
         ]
+        if traversal_model == TRAVERSAL_PROCESS:
+            lines.append(
+                f"  (= (fuel-consumption-rate {vehicle_id}) {fuel_params.consumption_per_meter})"
+            )
         for node in node_map.values():
             if node["id"] in station_set:
                 lines.append(f"  (has-fuel-station {node['id']})")
@@ -419,10 +449,60 @@ def _build_init(
 
 # ── METRIC ────────────────────────────────────────────────────────────────────
 
-def _build_metric(vehicle_id: str, features: FeatureConfig) -> str:
+def _build_metric(
+    vehicle_id: str,
+    features: FeatureConfig,
+    traversal_model: str,
+) -> str:
+    if traversal_model == TRAVERSAL_COMPILED_DURATION:
+        return f"  (:metric minimize (travel-time {vehicle_id}))"
     if features.traffic_lights:
         return f"  (:metric minimize (travel-time {vehicle_id}))"
     return f"  (:metric minimize (total-distance {vehicle_id}))"
+
+
+def compute_compiled_travel_duration(
+    road: dict[str, Any],
+    features: FeatureConfig,
+    congestion_factor: float = 1.0,
+    traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
+) -> float:
+    speed = float(road.get("speed", 0) or 0)
+    if speed <= 0:
+        return 999999.0
+
+    duration = float(road["length"]) * float(congestion_factor) / speed
+    if features.traffic_lights:
+        timing = (traffic_light_timings or {}).get(road.get("to"))
+        if timing is not None:
+            duration += timing.average_wait
+    return round(duration, 4)
+
+
+def _validate_traversal_model(
+    features: FeatureConfig,
+    traversal_model: str,
+) -> str:
+    traversal_model = str(traversal_model).strip().lower()
+    if traversal_model not in VALID_TRAVERSAL_MODELS:
+        raise ValueError(
+            "traversal_model must be 'process' or 'compiled_duration'"
+        )
+    if traversal_model != TRAVERSAL_COMPILED_DURATION:
+        return traversal_model
+    if features.dynamic_congestion_in_pddl:
+        raise ValueError(
+            "planner.traversal_model='compiled_duration' does not support "
+            "features.congestion.type='dynamic' without replanning yet. "
+            "Use traversal_model='process' for dynamic PDDL congestion."
+        )
+    if features.fuel_in_pddl and features.fuel.consumption_mode == "continuous":
+        raise ValueError(
+            "planner.traversal_model='compiled_duration' requires "
+            "fuel.consumption_mode='discrete'. Continuous fuel consumption "
+            "is only supported by traversal_model='process'."
+        )
+    return traversal_model
 
 
 def _initial_dynamic_congestion_factor(

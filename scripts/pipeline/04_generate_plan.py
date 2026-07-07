@@ -33,12 +33,14 @@ from src.routly.pddl.problem_generator import (
     DYNAMIC_WINDOWS_BEGIN,
     DYNAMIC_WINDOWS_END,
     build_dynamic_congestion_pddl_sections,
+    compute_compiled_travel_duration,
     dynamic_congestion_diagnostic_lines,
     recleanse_and_compute_dynamic_congestion,
     recleanse_and_compute_dynamic_congestion_profile,
 )
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
+from src.routly.domain.traffic_lights import load_traffic_light_timings
 
 # Safety clamp for "slowdown" events: speed is divided by this factor.
 SEVERITY_MIN = 1.5
@@ -61,6 +63,41 @@ def _replace_marked_block(
         raise ValueError(f"Missing PDDL marker: {end_marker.strip()}")
     end += len(end_marker)
     return content[:start] + replacement + content[end:]
+
+
+def _replace_travel_duration(
+    content: str,
+    road_id: str,
+    duration: float,
+    comment: str = "",
+) -> str:
+    pattern = re.compile(
+        rf"\(=\s*\(travel-duration\s+{re.escape(road_id)}\)\s*[\d.]+\)"
+    )
+    replacement = f"(= (travel-duration {road_id}) {round(duration, 4)})"
+    if comment:
+        replacement += f"  ;; {comment}"
+    return pattern.sub(replacement, content, count=1)
+
+
+def _multiply_travel_duration(
+    content: str,
+    road_id: str,
+    multiplier: float,
+    comment: str = "",
+) -> str:
+    pattern = re.compile(
+        rf"\(=\s*\(travel-duration\s+{re.escape(road_id)}\)\s*([\d.]+)\)"
+    )
+
+    def replacement(match: re.Match) -> str:
+        duration = round(float(match.group(1)) * multiplier, 4)
+        line = f"(= (travel-duration {road_id}) {duration})"
+        if comment:
+            line += f"  ;; {comment}"
+        return line
+
+    return pattern.sub(replacement, content, count=1)
 
 
 def parse_args() -> argparse.Namespace:
@@ -415,6 +452,15 @@ def main() -> None:
 
     mapping = load_mapping(config.mapping_path)
     roads_by_id = {road["id"]: road for road in mapping["roads"]}
+    traffic_light_timings = {}
+    if (
+        config.traversal_model == "compiled_duration"
+        and features.traffic_lights
+        and config.traffic_light_timings_path.exists()
+    ):
+        traffic_light_timings = load_traffic_light_timings(
+            config.traffic_light_timings_path
+        )
     node_count = len(mapping["nodes"])
     road_count = len(all_roads)
     adjacency = build_road_adjacency(mapping, road_ids=set(all_roads))
@@ -506,6 +552,13 @@ def main() -> None:
                 replacement = f"(= (congestion-factor {road}) {severity})  ;; [DYNAMIC EVENT - slowdown] {event['description']}"
                 if pattern.search(modified_content):
                     modified_content = pattern.sub(replacement, modified_content, count=1)
+                if config.traversal_model == "compiled_duration":
+                    modified_content = _multiply_travel_duration(
+                        modified_content,
+                        road,
+                        severity,
+                        comment=f"[DYNAMIC EVENT - slowdown] {event['description']}",
+                    )
             continue
 
         for road in event["roads"]:
@@ -606,6 +659,20 @@ def main() -> None:
                 if pattern.search(modified_content):
                     modified_content = pattern.sub(replacement, modified_content, count=1)
                     updated_count += 1
+                if config.traversal_model == "compiled_duration":
+                    road_info = roads_by_id.get(road_id)
+                    if road_info is not None:
+                        duration = compute_compiled_travel_duration(
+                            road=road_info,
+                            features=features,
+                            congestion_factor=factor,
+                            traffic_light_timings=traffic_light_timings,
+                        )
+                        modified_content = _replace_travel_duration(
+                            modified_content,
+                            road_id,
+                            duration,
+                        )
             print(f"✅ Static topology recalculation completed. {updated_count} open roads updated in PDDL.")
 
     dynamic_problem_path.parent.mkdir(parents=True, exist_ok=True)

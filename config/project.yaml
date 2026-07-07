@@ -17,6 +17,7 @@ graph_simplification:
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
+  traversal_model: "compiled_duration" # "process" | "compiled_duration"
 
 sumo:
   sumo_gui: "sumo-gui"

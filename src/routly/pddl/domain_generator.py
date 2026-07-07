@@ -2,31 +2,46 @@ from __future__ import annotations
 
 from src.routly.features import FeatureConfig
 
+TRAVERSAL_PROCESS = "process"
+TRAVERSAL_COMPILED_DURATION = "compiled_duration"
+VALID_TRAVERSAL_MODELS = {TRAVERSAL_PROCESS, TRAVERSAL_COMPILED_DURATION}
 
-def build_road_network_domain(features: FeatureConfig | None = None) -> str:
+
+def build_road_network_domain(
+    features: FeatureConfig | None = None,
+    traversal_model: str = TRAVERSAL_PROCESS,
+) -> str:
     """
     Build a PDDL+ domain string conditioned on active features.
     """
     if features is None:
         features = FeatureConfig.base()
+    traversal_model = _validate_traversal_model(features, traversal_model)
 
-    predicates = _build_predicates(features)
-    functions = _build_functions(features)
-    action = _build_action(features)
-    refuel = _build_refuel(features)
-    process = _build_process(features)
-    events = _build_events(features)
+    predicates = _build_predicates(features, traversal_model)
+    functions = _build_functions(features, traversal_model)
+    action = _build_action(features, traversal_model)
+    refuel = _build_refuel(features, traversal_model)
+    process = _build_process(features, traversal_model)
+    events = _build_events(features, traversal_model)
 
     blocks = [predicates, functions, action]
     if refuel:
         blocks.append(refuel)
-    blocks += [process, events]
+    if process:
+        blocks.append(process)
+    if events:
+        blocks.append(events)
     body = "\n\n".join(blocks)
+    requirements = ":typing :numeric-fluents"
+    if traversal_model == TRAVERSAL_PROCESS:
+        requirements += " :time"
 
     return f"""\
 ;; ============================================================
 ;;  DOMAIN: road-network
 ;;  Features: {features.label}
+;;    traversal      : {traversal_model}
 ;;    traffic_lights  : {features.traffic_lights}
 ;;    congestion      : enabled={features.congestion.enabled}, mode={features.congestion.mode}, type={features.congestion.type}
 ;;    llm_events      : {features.llm_events.enabled}
@@ -34,7 +49,7 @@ def build_road_network_domain(features: FeatureConfig | None = None) -> str:
 ;; ============================================================
 
 (define (domain road-network)
-  (:requirements :typing :numeric-fluents :time)
+  (:requirements {requirements})
   (:types vehicle location road{_time_window_type(features)})
 
 {body}
@@ -42,7 +57,7 @@ def build_road_network_domain(features: FeatureConfig | None = None) -> str:
 """
 
 
-def _build_predicates(f: FeatureConfig) -> str:
+def _build_predicates(f: FeatureConfig, traversal_model: str) -> str:
     lines = [
         "  (:predicates",
         "    (connects  ?r - road  ?from - location  ?to - location)",
@@ -62,21 +77,25 @@ def _build_predicates(f: FeatureConfig) -> str:
         lines.append("    (road-blocked ?r - road)   ;; set by LLM event generator")
         lines.append("    (location-blocked ?l - location)   ;; derived from blocked roads")
 
-    lines += [
-        "    (at       ?v - vehicle  ?l - location)",
-        "    (on-road  ?v - vehicle  ?r - road)",
-        "    (moving   ?v - vehicle)",
-        "  )",
-    ]
+    lines.append("    (at       ?v - vehicle  ?l - location)")
+    if traversal_model == TRAVERSAL_PROCESS:
+        lines.append("    (on-road  ?v - vehicle  ?r - road)")
+        lines.append("    (moving   ?v - vehicle)")
+    lines.append("  )")
     return "\n".join(lines)
 
 
-def _build_functions(f: FeatureConfig) -> str:
+def _build_functions(f: FeatureConfig, traversal_model: str) -> str:
     lines = [
         "  (:functions",
-        "    (road-length          ?r - road)",
-        "    (speed-limit          ?r - road)",
     ]
+
+    if traversal_model == TRAVERSAL_PROCESS:
+        lines.append("    (road-length          ?r - road)")
+        lines.append("    (speed-limit          ?r - road)")
+    else:
+        lines.append("    (travel-duration      ?r - road)  ;; precomputed seconds to traverse")
+        lines.append("    (travel-time          ?v - vehicle)")
 
     if f.congestion_in_pddl or f.llm_events.enabled:
         lines.append("    (congestion-factor    ?r - road)  ;; 1.0=free, 2.0=half speed")
@@ -86,26 +105,36 @@ def _build_functions(f: FeatureConfig) -> str:
         lines.append("    (window-start         ?w - time-window)")
         lines.append("    (congestion-value     ?r - road ?w - time-window)")
 
-    lines += [
-        "    (distance-remaining   ?v - vehicle)",
-        "    (speed                ?v - vehicle)",
-        "    (total-distance       ?v - vehicle)",
-    ]
+    if traversal_model == TRAVERSAL_PROCESS:
+        lines += [
+            "    (distance-remaining   ?v - vehicle)",
+            "    (speed                ?v - vehicle)",
+            "    (total-distance       ?v - vehicle)",
+        ]
 
-    if f.traffic_lights:
+    if f.traffic_lights and traversal_model == TRAVERSAL_PROCESS:
         lines.append("    (light-wait           ?l - location)  ;; avg red-light wait (s)")
         lines.append("    (travel-time          ?v - vehicle)   ;; elapsed time incl. waits")
 
     if f.fuel_in_pddl:
         lines.append("    (fuel-level            ?v - vehicle)  ;; current litres in tank")
         lines.append("    (fuel-capacity         ?v - vehicle)  ;; max tank size (litres)")
-        lines.append("    (fuel-consumption-rate ?v - vehicle)  ;; litres per metre")
+        if traversal_model == TRAVERSAL_PROCESS:
+            lines.append("    (fuel-consumption-rate ?v - vehicle)  ;; litres per metre")
+        else:
+            lines.append("    (fuel-cost             ?r - road)     ;; precomputed litres per road")
 
     lines.append("  )")
     return "\n".join(lines)
 
 
-def _build_action(f: FeatureConfig) -> str:
+def _build_action(f: FeatureConfig, traversal_model: str) -> str:
+    if traversal_model == TRAVERSAL_COMPILED_DURATION:
+        return _build_compiled_duration_action(f)
+    return _build_process_start_action(f)
+
+
+def _build_process_start_action(f: FeatureConfig) -> str:
     extra_precond = ""
     if f.llm_events.enabled:
         extra_precond += (
@@ -158,25 +187,62 @@ def _build_action(f: FeatureConfig) -> str:
   )"""
 
 
-def _build_refuel(f: FeatureConfig) -> str:
+def _build_compiled_duration_action(f: FeatureConfig) -> str:
+    extra_precond = ""
+    if f.llm_events.enabled:
+        extra_precond += (
+            "\n      (not (road-blocked ?r))"
+            "\n      (not (location-blocked ?from))"
+            "\n      (not (location-blocked ?to))"
+        )
+
+    fuel_precond = ""
+    fuel_effect = ""
+    if f.fuel_in_pddl:
+        fuel_precond = "\n      (>= (fuel-level ?v) (fuel-cost ?r))"
+        fuel_effect = "\n      (decrease (fuel-level ?v) (fuel-cost ?r))"
+
+    return f"""\
+  ;; Compiled traversal: the road crossing is represented as one numeric action.
+  ;; This is the PDDL-compatible counterpart of a durative road action.
+  (:action traverse-road
+    :parameters (?v - vehicle ?r - road ?from - location ?to - location)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r){extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r)){fuel_effect}
+    )
+  )"""
+
+
+def _build_refuel(f: FeatureConfig, traversal_model: str) -> str:
     if not f.fuel_in_pddl:
         return ""
+    not_moving = "\n      (not (moving ?v))" if traversal_model == TRAVERSAL_PROCESS else ""
     return """\
   (:action refuel
     :parameters (?v - vehicle ?l - location)
     :precondition (and
       (at ?v ?l)
       (has-fuel-station ?l)
-      (not (moving ?v))
+      {not_moving}
       (< (fuel-level ?v) (fuel-capacity ?v))
     )
     :effect (and
       (assign (fuel-level ?v) (fuel-capacity ?v))
     )
-  )"""
+  )""".format(not_moving=not_moving)
 
 
-def _build_process(f: FeatureConfig) -> str:
+def _build_process(f: FeatureConfig, traversal_model: str) -> str:
+    if traversal_model == TRAVERSAL_COMPILED_DURATION:
+        return ""
+
     fuel_effect = ""
     if f.fuel_in_pddl and f.fuel.consumption_mode == "continuous":
         # Continuous burn integrated over time: litres = rate * speed * #t.
@@ -205,7 +271,10 @@ def _build_process(f: FeatureConfig) -> str:
   )"""
 
 
-def _build_events(f: FeatureConfig) -> str:
+def _build_events(f: FeatureConfig, traversal_model: str) -> str:
+    if traversal_model == TRAVERSAL_COMPILED_DURATION:
+        return ""
+
     events = []
 
     if f.traffic_lights:
@@ -289,3 +358,29 @@ def _build_events(f: FeatureConfig) -> str:
 
 def _time_window_type(f: FeatureConfig) -> str:
     return " time-window" if f.dynamic_congestion_in_pddl else ""
+
+
+def _validate_traversal_model(
+    features: FeatureConfig,
+    traversal_model: str,
+) -> str:
+    traversal_model = str(traversal_model).strip().lower()
+    if traversal_model not in VALID_TRAVERSAL_MODELS:
+        raise ValueError(
+            "traversal_model must be 'process' or 'compiled_duration'"
+        )
+    if traversal_model != TRAVERSAL_COMPILED_DURATION:
+        return traversal_model
+    if features.dynamic_congestion_in_pddl:
+        raise ValueError(
+            "planner.traversal_model='compiled_duration' does not support "
+            "features.congestion.type='dynamic' without replanning yet. "
+            "Use traversal_model='process' for dynamic PDDL congestion."
+        )
+    if features.fuel_in_pddl and features.fuel.consumption_mode == "continuous":
+        raise ValueError(
+            "planner.traversal_model='compiled_duration' requires "
+            "fuel.consumption_mode='discrete'. Continuous fuel consumption "
+            "is only supported by traversal_model='process'."
+        )
+    return traversal_model

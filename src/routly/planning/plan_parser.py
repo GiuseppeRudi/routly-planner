@@ -12,18 +12,18 @@ class PlanStep:
     to_loc: str
 
 
-START_TRAVERSAL_RE = re.compile(
+TRAVERSAL_ACTION_RE = re.compile(
     r"^\s*([\d.]+)\s*:\s*"
-    r"\(start-traversal\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)\)"
+    r"\((?:start-traversal|traverse-road)\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)\)"
 )
 
 
 def parse_start_traversal_steps(plan_text: str) -> list[PlanStep]:
-    """Extract timestamped start-traversal actions from an ENHSP plan."""
+    """Extract timestamped traversal actions from an ENHSP plan."""
     steps: list[PlanStep] = []
 
     for line in plan_text.splitlines():
-        match = START_TRAVERSAL_RE.search(line)
+        match = TRAVERSAL_ACTION_RE.search(line)
         if match:
             steps.append(
                 PlanStep(
@@ -38,10 +38,10 @@ def parse_start_traversal_steps(plan_text: str) -> list[PlanStep]:
 
 
 def parse_start_traversal_roads(plan_text: str) -> list[str]:
-    """Extract ordered road IDs from ENHSP plan lines."""
+    """Extract ordered road IDs from ENHSP traversal plan lines."""
     return [step.road_id for step in parse_start_traversal_steps(plan_text)]
 
 
 def extract_start_traversal_timestamps(plan_text: str) -> list[float]:
-    """Extract timestamps from start-traversal plan actions."""
+    """Extract timestamps from traversal plan actions."""
     return [step.timestamp for step in parse_start_traversal_steps(plan_text)]

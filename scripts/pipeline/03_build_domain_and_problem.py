@@ -144,9 +144,15 @@ def main() -> None:
         )
 
     # Generate domain
-    domain_text = build_road_network_domain(features)
+    domain_text = build_road_network_domain(
+        features,
+        traversal_model=config.traversal_model,
+    )
     write_pddl(domain_text, config.domain_path)
-    print(f"\nPDDL DOMAIN CREATED (with features: {features.label})")
+    print(
+        f"\nPDDL DOMAIN CREATED "
+        f"(features: {features.label}, traversal: {config.traversal_model})"
+    )
 
     # Generate problem
     problem_name = scenario.get("scenario", {}).get(
@@ -166,6 +172,7 @@ def main() -> None:
         traffic_light_timings=traffic_light_timings,
         fuel_params=fuel_params,
         seed=config.seed,
+        traversal_model=config.traversal_model,
     )
 
     write_pddl(problem_text, config.problem_path)
