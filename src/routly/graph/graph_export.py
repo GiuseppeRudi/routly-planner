@@ -61,6 +61,70 @@ def plot_plan_from_mapping(mapping: dict, planned_roads: list[str], output_path:
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
+def plot_controller_legs_from_mapping(
+    mapping: dict,
+    legs: list[list[str]],
+    output_path: str | Path,
+    fuel_stations: list[str] | None = None,
+    chosen_ids=None,
+    start_loc: str | None = None,
+    goal_loc: str | None = None,
+    leg_labels: list[str] | None = None,
+    title: str = "Controller replanning: path per leg (start -> goal)",
+) -> None:
+    """Draw the full start->goal controller path with each leg in its own colour."""
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    roads_by_id = {r["id"]: r for r in mapping["roads"]}
+    nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
+
+    fig, ax = plt.subplots(figsize=(12, 12))
+
+    # Faint base network.
+    for road in mapping["roads"]:
+        geom = road.get("geometry", [])
+        if len(geom) >= 2:
+            ax.plot([p[0] for p in geom], [p[1] for p in geom],
+                    linewidth=0.6, color="black", alpha=0.35, zorder=1)
+
+    # One distinct colour per leg (evenly spread across the colormap).
+    cmap = plt.get_cmap("turbo")
+    n_legs = max(len(legs), 1)
+    legend_handles = []
+    for i, leg_roads in enumerate(legs):
+        color = cmap((i + 0.5) / n_legs)
+        for road_id in leg_roads:
+            road = roads_by_id.get(road_id)
+            if road and len(road.get("geometry", [])) >= 2:
+                ax.plot([p[0] for p in road["geometry"]],
+                        [p[1] for p in road["geometry"]],
+                        linewidth=3.2, color=color, alpha=0.95, zorder=2,
+                        solid_capstyle="round")
+        label = (leg_labels[i] if leg_labels and i < len(leg_labels)
+                 else f"Leg {i}")
+        legend_handles.append(Line2D([0], [0], color=color, linewidth=3, label=label))
+
+    # Fuel stations (chosen ones highlighted, same style as the other maps).
+    draw_fuel_stations(ax, mapping, fuel_stations or [], chosen_ids=chosen_ids)
+
+    # Start / goal markers.
+    for loc, label, col in ((start_loc, "START", "#1f9e3a"),
+                            (goal_loc, "GOAL", "darkred")):
+        if loc and loc in nodes_by_id:
+            n = nodes_by_id[loc]
+            ax.scatter(float(n["x"]), float(n["y"]), s=110, color=col,
+                       edgecolors="white", linewidths=1.6, zorder=6)
+            ax.annotate(label, (float(n["x"]), float(n["y"])),
+                        textcoords="offset points", xytext=(6, 6),
+                        fontsize=10, fontweight="bold", color=col, zorder=7)
+
+    if legend_handles:
+        ax.legend(handles=legend_handles, loc="upper left", fontsize=9)
+    ax.set_title(title)
+    ax.set_aspect("equal", adjustable="box")
+    ax.axis("off")
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
 def _plot_roads(ax, roads_by_id: dict[str, dict], road_ids: list[str], color: str, linewidth: float, alpha: float, zorder: int, linestyle: str = "-") -> None:
     for road_id in road_ids:

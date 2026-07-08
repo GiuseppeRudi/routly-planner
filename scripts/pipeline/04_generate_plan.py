@@ -19,7 +19,7 @@ from src.routly.sumo.sumo_writer import parse_refuel_stops
 from src.routly.features import FeatureConfig
 from src.routly.graph.graph_export import (
     plot_event_map, plot_plan_from_mapping, open_congestion_map,
-    save_congestion_maps,
+    save_congestion_maps, plot_controller_legs_from_mapping,
 )
 from src.routly.llm_client import call_llm
 from src.routly.llm.prompts import build_event_prompt
@@ -165,6 +165,43 @@ def _controller_plan_and_plot(
         output_path=plan_image_path,
         fuel_stations=fuel_stations,
     )
+
+    if result.segments:
+        legs: list[list[str]] = []
+        leg_labels: list[str] = []
+        for seg in result.segments:
+            leg_roads: list[str] = []
+            if seg.plan_path and Path(seg.plan_path).exists():
+                leg_roads = parse_start_traversal_roads(
+                    Path(seg.plan_path).read_text(encoding="utf-8")
+                )
+            if not leg_roads:
+                continue
+            legs.append(leg_roads)
+            leg_labels.append(
+                f"Leg {seg.index}: {seg.start_loc} -> {seg.target_loc}"
+            )
+        if legs:
+            legs_image_path = plan_image_path.with_name(
+                plan_image_path.stem + "_legs" + plan_image_path.suffix
+            )
+            plot_controller_legs_from_mapping(
+                mapping=mapping,
+                legs=legs,
+                output_path=legs_image_path,
+                fuel_stations=fuel_stations,
+                chosen_ids=parse_refuel_stops(result.plan_text),
+                start_loc=start_loc,
+                goal_loc=goal_loc,
+                leg_labels=leg_labels,
+                title=(
+                    "Controller legs ("
+                    + (run_label or "basic")
+                    + "): start -> goal"
+                ),
+            )
+            print(f"  Legs image: {legs_image_path}")
+
     print("\nOUTPUT FILES (fuel controller):")
     print(f"  Plan:       {plan_path}")
     print(f"  Plan image: {plan_image_path}")
