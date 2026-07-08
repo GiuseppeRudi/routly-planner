@@ -15,6 +15,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.fuel import load_fuel_stations
 from src.routly.config import load_config
+from src.routly.sumo.sumo_writer import parse_refuel_stops
 from src.routly.features import FeatureConfig
 from src.routly.graph.graph_export import (
     plot_event_map, plot_plan_from_mapping, open_congestion_map,
@@ -771,16 +772,24 @@ def main() -> None:
     slowed_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"], "severity": event["severity"]} for event in events if event["event_type"] == "slowdown" for road in event["roads"]]
     
     event_map_path = config.event_map_path
-    plot_event_map(
-        mapping=mapping, original_roads=original_roads, recalculated_roads=recalculated_roads,
-        blocked_roads=blocked_roads, blocked_locations=blocked_locations, start_loc=start_loc, goal_loc=goal_loc,
-        output_path=event_map_path, slowed_roads=slowed_roads,
-    )
-
     fuel_station_ids = (
         load_fuel_stations(config.fuel_stations_path)
         if features.fuel.enabled and config.fuel_stations_path.exists()
         else []
+    )
+    chosen_station_ids = (
+        parse_refuel_stops(dynamic_plan_path.read_text(encoding="utf-8"))
+        if dynamic_plan_path.exists() else []
+    )
+
+    plot_event_map(
+        mapping=mapping, original_roads=original_roads,
+        recalculated_roads=recalculated_roads,
+        blocked_roads=blocked_roads, blocked_locations=blocked_locations,
+        start_loc=start_loc, goal_loc=goal_loc,
+        output_path=event_map_path, slowed_roads=slowed_roads,
+        station_ids=fuel_station_ids,
+        chosen_ids=chosen_station_ids,
     )
 
     print(f"   Event map saved: {event_map_path}")
@@ -795,6 +804,7 @@ def main() -> None:
         goal_loc=goal_loc,
         place_name=getattr(config, "place_name", ""),
         station_ids=fuel_station_ids,
+        chosen_ids=chosen_station_ids
     )
 
     if features.sumo.open_congestion_map:
@@ -807,6 +817,7 @@ def main() -> None:
             goal_loc=goal_loc,
             place_name=getattr(config, "place_name", ""),
             station_ids=fuel_station_ids,
+            chosen_ids=chosen_station_ids
         )
 
 

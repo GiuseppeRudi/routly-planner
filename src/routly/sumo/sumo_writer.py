@@ -154,24 +154,40 @@ def _read_net_offset(net_file) -> tuple[float, float]:
     dx, dy = (float(v) for v in loc.get("netOffset", "0,0").split(","))
     return dx, dy
 
-def write_fuel_pois(stations: list[str], nodes: list[dict], path: str | Path, net_file: str | Path, icon: Path | None = None) -> None:
-    """Write a SUMO additional file with one POI per fuel station."""
+def write_fuel_pois(stations: list[str], nodes: list[dict], path, net_file,
+                    icon=None, chosen=None) -> None:
+    """Write a SUMO additional file with one POI per fuel station.
+
+    Stations in 'chosen' get an extra red halo POI drawn underneath so the
+    stations selected by the planner/controller stand out.
+    """
+    from pathlib import Path
     nodes_by_id = {n["id"]: n for n in nodes}
+    chosen_set = set(chosen or [])
     root = ET.Element("additional")
     dx, dy = _read_net_offset(net_file)
     for sid in stations:
-        print(f"Adding fuel station POI for node {sid}")
+        print(f"Adding fuel station POI for node {sid}"
+              + (" [chosen]" if sid in chosen_set else ""))
         node = nodes_by_id.get(sid)
         if node is None:
             continue
+        cx = round(node["x"] + dx, 2)
+        cy = round(node["y"] + dy, 2)
+
+        # red halo UNDER the icon for chosen stations
+        if sid in chosen_set:
+            ET.SubElement(root, "poi", id=f"fuel_sel_{sid}",
+                x=str(cx), y=str(cy), type="fuel_chosen",
+                layer="9", width="22", height="22", color="1,0.15,0.15")
+
         poi = ET.SubElement(root, "poi", id=f"fuel_{sid}",
-            x=str(round(node["x"] + dx, 2)),   # shift in net coords
-            y=str(round(node["y"] + dy, 2)),
+            x=str(cx), y=str(cy),
             type="fuel", layer="10", width="10", height="10")
         if icon:
             poi.set("imgFile", str(Path(icon).resolve()))
         else:
-            poi.set("color", "0,0.6,0.2")
+            poi.set("color", "1,0.15,0.15" if sid in chosen_set else "0,0.6,0.2")
     _write_pretty_xml(root, path)
 
 def _phase_kind(phase: ET.Element) -> str:

@@ -69,7 +69,7 @@ def _plot_roads(ax, roads_by_id: dict[str, dict], road_ids: list[str], color: st
             ax.plot([p[0] for p in road["geometry"]], [p[1] for p in road["geometry"]], color=color, linewidth=linewidth, alpha=alpha, zorder=zorder, linestyle=linestyle, solid_capstyle="round")
 
 
-def plot_event_map(mapping: dict, original_roads: list[str], recalculated_roads: list[str], blocked_roads: list[dict], blocked_locations: list[dict] | None, start_loc: str | None, goal_loc: str | None, output_path: str | Path, slowed_roads: list[dict] | None = None, station_ids=None) -> None:
+def plot_event_map(mapping: dict, original_roads: list[str], recalculated_roads: list[str], blocked_roads: list[dict], blocked_locations: list[dict] | None, start_loc: str | None, goal_loc: str | None, output_path: str | Path, slowed_roads: list[dict] | None = None, station_ids=None, chosen_ids=None) -> None:
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     roads_by_id = {road["id"]: road for road in mapping["roads"]}
@@ -104,13 +104,14 @@ def plot_event_map(mapping: dict, original_roads: list[str], recalculated_roads:
         Line2D([0], [0], color="#FFD700", linewidth=4, linestyle="--", label="Slowdowns"),
         Line2D([0], [0], marker="X", color="w", markerfacecolor="#e64b35", markersize=10, label="Blocked intersections"),
         Line2D([0], [0], marker="s", color="w", markerfacecolor="#1f9e3a", markersize=9, label="Fuel stations"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#ffd400", markeredgecolor="#d81e1e", markersize=11, label="Chosen fuel station"),
     ]
     ax.legend(handles=legend_handles, loc="upper left")
     ax.set_title("Dynamic event map: original vs recalculated route")
     ax.set_aspect("equal", adjustable="box")
     ax.axis("off")
 
-    draw_fuel_stations(ax, mapping, station_ids)
+    draw_fuel_stations(ax, mapping, station_ids, chosen_ids=chosen_ids)
 
     try:
         import contextily as ctx
@@ -145,29 +146,34 @@ def _load_gas_icon():
     return _GAS_ICON_CACHE
 
 def draw_fuel_stations(ax, mapping: dict, station_ids: list[str] | None = None,
-                       zoom: float = 0.3, zorder: int = 10) -> None:
-    # print(station_ids)
-
+                       chosen_ids=None, zoom: float = 0.3, zorder: int = 10) -> None:
     nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
     if station_ids is None:
         station_ids = [n["id"] for n in mapping["nodes"] if n.get("fuel_station")]
-    coords = [(nodes_by_id[s]["x"], nodes_by_id[s]["y"])
-              for s in station_ids if s in nodes_by_id]
-    if not coords:
+    chosen = set(chosen_ids or [])
+    items = [(s, nodes_by_id[s]["x"], nodes_by_id[s]["y"])
+             for s in station_ids if s in nodes_by_id]
+    if not items:
         return
+
+    # Highlight ring UNDER the icon for chosen stations (gold fill, red edge).
+    chosen_pts = [(x, y) for (s, x, y) in items if s in chosen]
+    if chosen_pts:
+        ax.scatter([p[0] for p in chosen_pts], [p[1] for p in chosen_pts],
+                   marker="o", s=340, facecolors="#ffd400", edgecolors="#d81e1e",
+                   linewidths=2.6, alpha=0.95, zorder=zorder - 1)
 
     icon = _load_gas_icon()
     if icon is not None:
-        for x, y in coords:
+        for (s, x, y) in items:
             ab = AnnotationBbox(OffsetImage(icon, zoom=zoom), (x, y),
                                 frameon=False, pad=0.0, zorder=zorder)
             ax.add_artist(ab)
-    else:  # fallback
-        xs = [c[0] for c in coords]
-        ys = [c[1] for c in coords]
-        ax.scatter(xs, ys, marker="s", s=60, color="#1f9e3a",
-                   edgecolors="white", linewidths=1.4, zorder=zorder)
-        for x, y in coords:
+    else:  # fallback: colour-code the marker itself
+        for (s, x, y) in items:
+            col = "#d81e1e" if s in chosen else "#1f9e3a"
+            ax.scatter([x], [y], marker="s", s=60, color=col,
+                       edgecolors="white", linewidths=1.4, zorder=zorder)
             ax.annotate("F", (x, y), ha="center", va="center", color="white",
                         fontsize=4, fontweight="bold", zorder=zorder + 1)
 
@@ -176,9 +182,10 @@ def draw_fuel_stations(ax, mapping: dict, station_ids: list[str] | None = None,
 # 1. EVENT MAP VIEWER 
 # ═════════════════════
 class EventMapViewer:
-    def __init__(self, mapping, original_roads, recalculated_roads, blocked_roads, blocked_locations, start_loc=None, goal_loc=None, slowed_roads=None, station_ids=None):
+    def __init__(self, mapping, original_roads, recalculated_roads, blocked_roads, blocked_locations, start_loc=None, goal_loc=None, slowed_roads=None, station_ids=None, chosen_ids=None):
         self.mapping = mapping
         self.station_ids = station_ids
+        self.chosen_ids = chosen_ids
         self.roads_by_id = {r["id"]: r for r in mapping["roads"]}
         self.nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
         self.original_ids = original_roads or []
@@ -254,7 +261,7 @@ class EventMapViewer:
                 self.ax.scatter(float(n["x"]), float(n["y"]), s=120, color=col, edgecolors="white", zorder=12)
                 self.ax.annotate(label, (float(n["x"]), float(n["y"])), textcoords="offset points", xytext=(6, 6), fontsize=10, fontweight="bold", color="white", zorder=13)
 
-        draw_fuel_stations(self.ax, self.mapping, self.station_ids)
+        draw_fuel_stations(self.ax, self.mapping, self.station_ids, chosen_ids=self.chosen_ids)
         self.ax.set_aspect("equal", adjustable="datalim")
         self.ax.axis("off")
         self.ax.set_title("Interactive Event Comparison: Original vs Replanned Route", fontsize=12, fontweight="bold", pad=10)
@@ -328,9 +335,10 @@ class CongestionMapViewer:
     PRE_LABEL = "Pre LLM events"
     POST_LABEL = "Post LLM events"
 
-    def __init__(self, mapping, pre_factors, post_factors, start_loc=None, goal_loc=None, place_name="", blocked_roads=None, slowdown_roads=None, llm_events_list=None, station_ids=None):
+    def __init__(self, mapping, pre_factors, post_factors, start_loc=None, goal_loc=None, place_name="", blocked_roads=None, slowdown_roads=None, llm_events_list=None, station_ids=None, chosen_ids=None):
         self.mapping = mapping
         self.station_ids = station_ids
+        self.chosen_ids = chosen_ids
         self.nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
         self.roads = list(mapping["roads"])
         self.pre = pre_factors or {}
@@ -401,7 +409,7 @@ class CongestionMapViewer:
                 self.road_lines[road["id"]] = line
 
         self.ax.scatter([self._xy(n)[0] for n in self.mapping["nodes"]], [self._xy(n)[1] for n in self.mapping["nodes"]], s=8, color="#333333", zorder=3, alpha=0.6)
-        draw_fuel_stations(self.ax, self.mapping, self.station_ids)
+        draw_fuel_stations(self.ax, self.mapping, self.station_ids, chosen_ids=self.chosen_ids)
 
         for loc, label, col in ((self.start_loc, "START", "purple"), (self.goal_loc, "GOAL", "darkred")):
             if loc and loc in self.nodes_by_id:
@@ -642,7 +650,7 @@ def parse_slowdown_roads(pddl_path: str | Path) -> set[str]:
     return set(_SLOWDOWN_RE.findall(path.read_text(encoding="utf-8"))) if path.exists() else set()
 
 
-def open_congestion_map(mapping, pre_problem_path, post_problem_path, start_loc=None, goal_loc=None, place_name="", station_ids=None):
+def open_congestion_map(mapping, pre_problem_path, post_problem_path, start_loc=None, goal_loc=None, place_name="", station_ids=None, chosen_ids=None):
     pre, post = parse_congestion_factors(pre_problem_path), parse_congestion_factors(post_problem_path)
     blocked, slowdowns = parse_blocked_roads(post_problem_path), parse_slowdown_roads(post_problem_path)
     llm_events_list = []
@@ -655,7 +663,7 @@ def open_congestion_map(mapping, pre_problem_path, post_problem_path, start_loc=
     if not pre and not post and not blocked:
         print("WARNING: no congestion-factor/road-blocked fluent found. Congestion map skipped.")
         return None
-    viewer = CongestionMapViewer(mapping, pre, post, start_loc, goal_loc, place_name, blocked_roads=blocked, slowdown_roads=slowdowns, llm_events_list=llm_events_list, station_ids=station_ids)
+    viewer = CongestionMapViewer(mapping, pre, post, start_loc, goal_loc, place_name, blocked_roads=blocked, slowdown_roads=slowdowns, llm_events_list=llm_events_list, station_ids=station_ids, chosen_ids=chosen_ids)
     viewer.show()
     return viewer
 
@@ -669,6 +677,7 @@ def save_congestion_maps(
     goal_loc=None,
     place_name="",
     station_ids=None,
+    chosen_ids=None
 ):
     """Render and save the pre/post congestion-factor maps as two PNG images."""
     pre = parse_congestion_factors(pre_problem_path)
@@ -723,7 +732,7 @@ def save_congestion_maps(
         node_ys = [float(n["y"]) for n in mapping["nodes"]]
         ax.scatter(node_xs, node_ys, s=8, color="#333333", zorder=3, alpha=0.6)
 
-        draw_fuel_stations(ax, mapping, station_ids)
+        draw_fuel_stations(ax, mapping, station_ids, chosen_ids=chosen_ids)
 
         for loc, label, color in ((start_loc, "START", "purple"),
                                   (goal_loc, "GOAL", "darkred")):

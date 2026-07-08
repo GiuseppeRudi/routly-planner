@@ -37,6 +37,7 @@ from src.routly.sumo.sumo_writer import (
     write_rou_xml,
     write_sumocfg,
     write_view_settings,
+    parse_refuel_stops,
 )
 from src.routly.domain.traffic_lights import (
     generate_traffic_light_timings,
@@ -139,6 +140,11 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
     orig_roads = parse_start_traversal_roads(config.plan_path.read_text(encoding="utf-8")) if config.plan_path.exists() else []
     repl_roads = parse_start_traversal_roads(config.dynamic_plan_path.read_text(encoding="utf-8")) if config.dynamic_plan_path.exists() else []
 
+    chosen_ids = (
+        parse_refuel_stops(config.dynamic_plan_path.read_text(encoding="utf-8"))
+        if config.dynamic_plan_path.exists() else []
+    )
+
     # Carica gli eventi LLM dal file log
     blocked_roads, slowed_roads, blocked_locs = [], [], []
     if config.incidents_log_path.exists():
@@ -170,6 +176,7 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
         goal_loc=goal_loc,
         slowed_roads=slowed_roads,
         station_ids=station_ids,
+        chosen_ids=chosen_ids,
     )
     viewer.show()
 
@@ -257,7 +264,7 @@ def write_and_launch_sumo_for_plan(
     additional = []
     if features.fuel.enabled and config.fuel_stations_path.exists():
         stations = load_fuel_stations(config.fuel_stations_path)
-        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, net_path, "images/gas_station.png")
+        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, net_path, "images/gas_station.png", chosen=_refuel_stops,)
         additional.append(config.fuel_poi_path)
 
     write_sumocfg(
