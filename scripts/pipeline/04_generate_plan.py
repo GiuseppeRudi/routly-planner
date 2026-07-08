@@ -14,6 +14,11 @@ PROJECT_ROOT = SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.fuel import load_fuel_stations
+from src.routly.domain.congestion import (
+    DynamicRoadSelection,
+    compute_congestion_factors,
+    select_dynamic_roads,
+)
 from src.routly.config import load_config
 from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
@@ -134,19 +139,11 @@ def _run_and_plot(
             domain_path=config.domain_path,
             problem_path=problem_path,
             plan_path=plan_path,
+            java_heap_mb=config.java_heap_mb,
         )
-    except Exception as e:
-        # ENHSP throws an exception on exit code 4294967295 when unsolvable.
-        # We catch it directly here, print the clean alert, and break the pipeline with exit code 1.
-        print("\n" + "!" * 75)
-        print("CRITICAL ERROR: PLAN UNSOLVABLE")
-        print("!" * 75)
-        print(f"The planner could NOT find any valid route for: {problem_path.name}")
-        print("Reason: The network graph topology has been physically disconnected.")
-        print("Either the Start, the Goal, or the main connecting arteries are blocked.")
-        print("Closing execution cleanly without throwing system tracebacks.")
-        print("!" * 75 + "\n")
-        sys.exit(1)  # ➔ Changed to 1 to force run_pipeline.py to halt immediately
+    except Exception as exc:
+        _print_planner_failure(exc, problem_path, config.java_heap_mb)
+        sys.exit(1)  # force run_pipeline.py to halt immediately
 
     # Safety checkpoint if no exception was raised but the file is still missing
     if not plan_path.exists():
@@ -154,12 +151,21 @@ def _run_and_plot(
         print("CRITICAL ERROR: PLAN UNSOLVABLE")
         print("!" * 75)
         print(f"The planner could NOT find any valid route for: {problem_path.name}")
-        print("Reason: Plan file missing. Graph might be disconnected.")
+        print("Reason: Plan file missing. Graph might be disconnected or ENHSP stopped before writing a solution.")
         print("!" * 75 + "\n")
-        sys.exit(1)  # ➔ Changed to 1 to force run_pipeline.py to halt immediately
+        sys.exit(1)  # force run_pipeline.py to halt immediately
+
+    plan_text = plan_path.read_text(encoding="utf-8")
+    if "Problem Solved" not in plan_text and "Found Plan:" not in plan_text:
+        print("\n" + "!" * 75)
+        print("CRITICAL ERROR: PLAN UNSOLVABLE")
+        print("!" * 75)
+        print(f"The planner could NOT find any valid route for: {problem_path.name}")
+        print("Reason: ENHSP finished without a solved plan.")
+        print("!" * 75 + "\n")
+        sys.exit(1)
 
     mapping = load_mapping(mapping_path)
-    plan_text = plan_path.read_text(encoding="utf-8")
     planned_roads = parse_start_traversal_roads(plan_text)
 
     if not planned_roads:
@@ -183,6 +189,58 @@ def _run_and_plot(
     print(f"  Plan:       {plan_path}")
     print(f"  Plan image: {plan_image_path}")
     return planned_roads
+
+
+def _print_planner_failure(
+    exc: Exception,
+    problem_path: Path,
+    java_heap_mb: int,
+) -> None:
+    message = str(exc)
+    lower_message = message.lower()
+    is_memory_error = (
+        "outofmemoryerror" in lower_message
+        or "java heap space" in lower_message
+        or "gc overhead" in lower_message
+    )
+    is_unsolvable = (
+        "unsolvable" in lower_message
+        or "no plan" in lower_message
+        or "problem not solvable" in lower_message
+    )
+
+    print("\n" + "!" * 75)
+    if is_memory_error:
+        print("CRITICAL ERROR: PLANNER RAN OUT OF MEMORY")
+        print("!" * 75)
+        print(f"Problem: {problem_path.name}")
+        print(
+            "Reason: ENHSP exhausted the Java heap during grounding/search. "
+            "This is a scalability issue, not proof that the route is physically disconnected."
+        )
+        print(f"Configured Java heap: {java_heap_mb} MB")
+        print(
+            "Possible mitigations: increase planner.java_heap_mb, reduce dynamic "
+            "congestion windows/roads, enable macro-roads, or use static congestion."
+        )
+    elif is_unsolvable:
+        print("CRITICAL ERROR: PLAN UNSOLVABLE")
+        print("!" * 75)
+        print(f"Problem: {problem_path.name}")
+        print(
+            "Reason: ENHSP reported no valid plan. Check blocked roads, start/goal "
+            "connectivity, fuel constraints, and generated PDDL facts."
+        )
+    else:
+        print("CRITICAL ERROR: ENHSP FAILED")
+        print("!" * 75)
+        print(f"Problem: {problem_path.name}")
+        print("Reason: ENHSP terminated with an unexpected error.")
+
+    if message:
+        print("\nENHSP error excerpt:")
+        print(message[-2000:])
+    print("!" * 75 + "\n")
 
 def _connected_components(roads: list[str], adjacency: dict[str, set[str]]) -> list[list[str]]:
     """Split `roads` into its connected components according to `adjacency`."""
@@ -607,7 +665,7 @@ def main() -> None:
     just_blocked_loc_ids = [loc["id"] for loc in blocked_locations]
 
     if features.dynamic_congestion_in_pddl:
-        new_profile, _ = recleanse_and_compute_dynamic_congestion_profile(
+        new_profile, new_bg_routes = recleanse_and_compute_dynamic_congestion_profile(
             roads=mapping["roads"],
             blocked_roads=just_blocked_road_ids,
             blocked_locations=just_blocked_loc_ids,
@@ -617,12 +675,55 @@ def main() -> None:
 
         if new_profile:
             print("Recalculating time-windowed congestion profile based on new open network topology...")
+            node_map = {node["id"]: node for node in mapping["nodes"]}
+            new_static_factors = compute_congestion_factors(
+                mapping["roads"],
+                new_bg_routes,
+                max_factor=features.congestion.congestion_factor,
+                vehicles_for_max_congestion_by_road_class=(
+                    features.congestion.vehicles_for_max_congestion_by_road_class
+                ),
+            )
+            dynamic_road_selection = select_dynamic_roads(
+                roads=mapping["roads"],
+                nodes_by_id=node_map,
+                start_loc=start_loc,
+                goal_loc=goal_loc,
+                background_routes=new_bg_routes,
+                dynamic_profile=new_profile,
+                congestion_type=features.congestion.type,
+                hybrid_config=features.congestion.dynamic.hybrid,
+            )
+            slowed_severity_by_road = {
+                road_id: event["severity"]
+                for event in events
+                if event["event_type"] == "slowdown"
+                for road_id in event["roads"]
+            }
+            if slowed_severity_by_road:
+                for road_id, severity in slowed_severity_by_road.items():
+                    new_static_factors[road_id] = severity
+                dynamic_road_selection = DynamicRoadSelection(
+                    dynamic_roads=(
+                        dynamic_road_selection.dynamic_roads
+                        - set(slowed_severity_by_road)
+                    ),
+                    static_roads=(
+                        dynamic_road_selection.static_roads
+                        | set(slowed_severity_by_road)
+                    ),
+                    reasons_by_road=dynamic_road_selection.reasons_by_road,
+                )
             updated_count = 0
-            for road_id, changes in new_profile.items():
+            for road_id, road_info in roads_by_id.items():
                 if road_id in slowed_road_ids:
                     continue
 
-                initial_factor = changes[0].factor if changes and changes[0].start == 0 else 1.0
+                if road_id in dynamic_road_selection.static_roads:
+                    initial_factor = new_static_factors.get(road_id, 1.0)
+                else:
+                    changes = new_profile.get(road_id, [])
+                    initial_factor = changes[0].factor if changes and changes[0].start == 0 else 1.0
                 pattern = re.compile(rf"\(=\s*\(congestion-factor\s+{re.escape(road_id)}\)\s*[\d.]+\)")
                 replacement = f"(= (congestion-factor {road_id}) {round(initial_factor, 4)})"
                 if pattern.search(modified_content):
@@ -631,7 +732,12 @@ def main() -> None:
 
             windows_block, profile_block = build_dynamic_congestion_pddl_sections(
                 new_profile,
-                excluded_roads=slowed_road_ids,
+                roads=mapping["roads"],
+                features=features,
+                traversal_model=config.traversal_model,
+                dynamic_road_selection=dynamic_road_selection,
+                congestion_factors=new_static_factors,
+                traffic_light_timings=traffic_light_timings,
             )
             modified_content = _replace_marked_block(
                 modified_content,
@@ -646,19 +752,16 @@ def main() -> None:
                 profile_block,
             )
 
-            future_updates = sum(
-                max(0, len(changes) - 1)
-                for road_id, changes in new_profile.items()
-                if road_id not in slowed_road_ids
-            )
+            active_dynamic_roads = dynamic_road_selection.dynamic_roads
             for line in dynamic_congestion_diagnostic_lines(
                 new_profile,
-                excluded_roads=slowed_road_ids,
+                active_dynamic_roads,
             ):
                 print(line)
             print(
                 "✅ Dynamic congestion profile recalculation completed. "
-                f"{updated_count} initial factors and {future_updates} future updates written."
+                f"{updated_count} initial factors and "
+                f"{len(active_dynamic_roads)} dynamic roads written."
             )
     else:
         new_factors, _ = recleanse_and_compute_dynamic_congestion(

@@ -14,7 +14,14 @@ from src.routly.domain.fuel import (
     write_fuel_stations,
 )
 from src.routly.utils import read_yaml
-from src.routly.domain.congestion import estimate_route_duration_straight_line, generate_background_routes, write_background_routes
+from src.routly.domain.congestion import (
+    compute_dynamic_congestion_profile,
+    estimate_route_duration_straight_line,
+    generate_background_routes,
+    global_window_starts,
+    select_dynamic_roads,
+    write_background_routes,
+)
 from src.routly.config import load_config
 from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
@@ -153,10 +160,42 @@ def main() -> None:
             f"rate={fuel_params.consumption_per_meter} L/m"
         )
 
+    time_window_starts: list[int] = []
+    objects_declared_in_domain = False
+    if features.dynamic_congestion_in_pddl:
+        dynamic_profile = compute_dynamic_congestion_profile(
+            roads,
+            background_routes,
+            max_factor=features.congestion.congestion_factor,
+            vehicles_for_max_congestion_by_road_class=(
+                features.congestion.vehicles_for_max_congestion_by_road_class
+            ),
+            window_seconds=features.congestion.dynamic.window_seconds,
+        )
+        dynamic_selection = select_dynamic_roads(
+            roads=roads,
+            nodes_by_id=node_map,
+            start_loc=start_loc,
+            goal_loc=goal_loc,
+            background_routes=background_routes,
+            dynamic_profile=dynamic_profile,
+            congestion_type=features.congestion.type,
+            hybrid_config=features.congestion.dynamic.hybrid,
+        )
+        time_window_starts = global_window_starts(
+            dynamic_profile,
+            dynamic_selection.dynamic_roads,
+        )
+        print(
+            f"Dynamic congestion domain windows: {len(time_window_starts)} "
+            f"({time_window_starts[0]}..{time_window_starts[-1]} s)"
+        )
+
     # Generate domain
     domain_text = build_road_network_domain(
         features,
         traversal_model=config.traversal_model,
+        time_window_starts=time_window_starts,
     )
     write_pddl(domain_text, config.domain_path)
     print(
@@ -183,6 +222,7 @@ def main() -> None:
         fuel_params=fuel_params,
         seed=config.seed,
         traversal_model=config.traversal_model,
+        objects_declared_in_domain=objects_declared_in_domain,
     )
 
     write_pddl(problem_text, config.problem_path)

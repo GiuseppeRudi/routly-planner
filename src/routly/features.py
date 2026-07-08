@@ -45,8 +45,35 @@ class TrafficLightsConfig:
 
 
 @dataclass
+class HybridCongestionConfig:
+    top_k_traffic_roads: int = 50
+    min_temporal_variation: float = 0.25
+    corridor_width_meters: float = 250.0
+    candidate_paths: int = 5
+
+    def __post_init__(self) -> None:
+        if self.top_k_traffic_roads < 0:
+            raise ValueError(
+                "congestion.dynamic.hybrid.top_k_traffic_roads must be greater than or equal to zero"
+            )
+        if self.min_temporal_variation < 0:
+            raise ValueError(
+                "congestion.dynamic.hybrid.min_temporal_variation must be greater than or equal to zero"
+            )
+        if self.corridor_width_meters < 0:
+            raise ValueError(
+                "congestion.dynamic.hybrid.corridor_width_meters must be greater than or equal to zero"
+            )
+        if self.candidate_paths < 0:
+            raise ValueError(
+                "congestion.dynamic.hybrid.candidate_paths must be greater than or equal to zero"
+            )
+
+
+@dataclass
 class DynamicCongestionConfig:
     window_seconds: int = 30
+    hybrid: HybridCongestionConfig = field(default_factory=HybridCongestionConfig)
 
     def __post_init__(self) -> None:
         if self.window_seconds <= 0:
@@ -57,7 +84,7 @@ class DynamicCongestionConfig:
 class CongestionConfig:
     enabled: bool = False
     mode: str = "pddl" # "sumo" | "pddl"
-    type: str = "static" # "static" | "dynamic"
+    type: str = "static" # "static" | "dynamic" | "hybrid"
     replanning: bool = False
     num_background_vehicles: int = 200
     congestion_factor: float = 2.0 # speed divisor for congested roads in pddl mode
@@ -178,7 +205,15 @@ class FeatureConfig:
     def dynamic_congestion_in_pddl(self) -> bool:
         return (
             self.congestion_in_pddl
-            and self.congestion.type == "dynamic"
+            and self.congestion.type in {"dynamic", "hybrid"}
+            and not self.congestion.replanning
+        )
+
+    @property
+    def hybrid_congestion_in_pddl(self) -> bool:
+        return (
+            self.congestion_in_pddl
+            and self.congestion.type == "hybrid"
             and not self.congestion.replanning
         )
 
@@ -388,11 +423,14 @@ def _congestion_config(raw: dict[str, Any] | bool | None) -> CongestionConfig:
         raise ValueError("features.congestion.mode must be 'sumo' or 'pddl'")
 
     congestion_type = str(raw.get("type", "static")).strip().lower()
-    if congestion_type not in {"static", "dynamic"}:
-        raise ValueError("features.congestion.type must be 'static' or 'dynamic'")
-    if mode == "sumo" and congestion_type == "dynamic":
+    if congestion_type not in {"static", "dynamic", "hybrid"}:
         raise ValueError(
-            "features.congestion.type='dynamic' is supported only with mode: 'pddl'."
+            "features.congestion.type must be 'static', 'dynamic', or 'hybrid'"
+        )
+    if mode == "sumo" and congestion_type in {"dynamic", "hybrid"}:
+        raise ValueError(
+            "features.congestion.type='dynamic' and type='hybrid' are supported "
+            "only with mode: 'pddl'."
         )
 
     replanning = bool(raw.get("replanning", False))
@@ -484,6 +522,19 @@ def _dynamic_congestion_config(raw: dict[str, Any] | None) -> DynamicCongestionC
     raw = raw or {}
     return DynamicCongestionConfig(
         window_seconds=int(raw.get("window_seconds", 30)),
+        hybrid=_hybrid_congestion_config(raw.get("hybrid")),
+    )
+
+
+def _hybrid_congestion_config(
+    raw: dict[str, Any] | None,
+) -> HybridCongestionConfig:
+    raw = raw or {}
+    return HybridCongestionConfig(
+        top_k_traffic_roads=int(raw.get("top_k_traffic_roads", 50)),
+        min_temporal_variation=float(raw.get("min_temporal_variation", 0.25)),
+        corridor_width_meters=float(raw.get("corridor_width_meters", 250.0)),
+        candidate_paths=int(raw.get("candidate_paths", 5)),
     )
 
 

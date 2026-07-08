@@ -31,6 +31,7 @@ class ProjectConfig:
     max_nodes: int | None
 
     enhsp_jar: Path
+    java_heap_mb: int
     traversal_model: str
     sumo_gui: str
     project_root: Path
@@ -344,6 +345,7 @@ def load_config(
         max_nodes=graph_config.get("max_nodes"),
 
         enhsp_jar=Path(planner_config["enhsp_jar"]),
+        java_heap_mb=int(planner_config.get("java_heap_mb", 4096)),
         traversal_model=traversal_model,
         sumo_gui=sumo_config["sumo_gui"],
 

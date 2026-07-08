@@ -17,6 +17,7 @@ graph_simplification:
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
+  java_heap_mb: 8192
   traversal_model: "compiled_duration" # "process" | "compiled_duration"
 
 sumo:
@@ -46,16 +47,22 @@ features:
   # congestion = {enabled: true, replanning: false, type: static, mode: sumo}
   # congestion = {enabled: true, replanning: false, type: static, mode: pddl}
   # congestion = {enabled: true, replanning: false, type: dynamic, mode: pddl}
+  # congestion = {enabled: true, replanning: false, type: hybrid, mode: pddl}
   # congestion controller = {enabled: true, replanning: true, type: dynamic, mode: pddl}
   congestion:
     enabled: true
     mode: "pddl" # "sumo" | "pddl"
-    type: "static" # "static" | "dynamic"
+    type: "hybrid" # "static" | "dynamic" | "hybrid"
     replanning: false
     num_background_vehicles: 200
     congestion_factor: 2.0
     dynamic:
       window_seconds: 30
+      hybrid:
+        top_k_traffic_roads: 50
+        min_temporal_variation: 0.25
+        corridor_width_meters: 250
+        candidate_paths: 5
     vehicles_for_max_congestion_by_road_class:
       local: 20
       arterial: 35

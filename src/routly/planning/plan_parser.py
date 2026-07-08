@@ -14,7 +14,20 @@ class PlanStep:
 
 TRAVERSAL_ACTION_RE = re.compile(
     r"^\s*([\d.]+)\s*:\s*"
-    r"\((?:start-traversal|traverse-road)\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)\)"
+    r"\((?:start-traversal|traverse-road)(?:-[^\s\)]*)?"
+    r"\s+\S+\s+(\S+)\s+(\S+)\s+(\S+)(?:\s+\S+)?\)"
+)
+
+ROAD_SPECIFIC_TRAVERSAL_ACTION_RE = re.compile(
+    r"^\s*([\d.]+)\s*:\s*"
+    r"\((?:start-traversal|traverse-road)-(?:static|dynamic)-"
+    r"([^\s\)]+?)(?:-tw_\d+)?\s+\S+\)"
+)
+
+LINE_GRAPH_TRAVERSAL_ACTION_RE = re.compile(
+    r"^\s*([\d.]+)\s*:\s*"
+    r"\((?:traverse-road|finish-road)(?:-[^\s\)]*)?"
+    r"\s+\S+\s+(\S+)(?:\s+\S+)?\)"
 )
 
 
@@ -31,6 +44,30 @@ def parse_start_traversal_steps(plan_text: str) -> list[PlanStep]:
                     road_id=match.group(2),
                     from_loc=match.group(3),
                     to_loc=match.group(4),
+                )
+            )
+            continue
+
+        match = ROAD_SPECIFIC_TRAVERSAL_ACTION_RE.search(line)
+        if match:
+            steps.append(
+                PlanStep(
+                    timestamp=float(match.group(1)),
+                    road_id=match.group(2),
+                    from_loc="",
+                    to_loc="",
+                )
+            )
+            continue
+
+        match = LINE_GRAPH_TRAVERSAL_ACTION_RE.search(line)
+        if match:
+            steps.append(
+                PlanStep(
+                    timestamp=float(match.group(1)),
+                    road_id=match.group(2),
+                    from_loc="",
+                    to_loc="",
                 )
             )
 
