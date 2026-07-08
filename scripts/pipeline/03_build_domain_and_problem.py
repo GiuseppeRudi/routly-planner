@@ -8,10 +8,15 @@ from typing import Any
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.routly.domain.fuel import derive_fuel_parameters, write_fuel_stations
+from src.routly.domain.fuel import (
+    derive_fuel_parameters,
+    load_fuel_stations,
+    write_fuel_stations,
+)
 from src.routly.utils import read_yaml
 from src.routly.domain.congestion import estimate_route_duration_straight_line, generate_background_routes, write_background_routes
 from src.routly.config import load_config
+from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.pddl.pddl_writer import write_pddl
@@ -71,12 +76,11 @@ def main() -> None:
 
     features = FeatureConfig.from_yaml(args.project_config)
 
-    mapping_path = Path(
-        scenario.get("map", {}).get("mapping_path", config.mapping_path)
+    mapping_path, _ = require_macro_artifacts(
+        scenario,
+        config,
+        enabled=features.road_abstraction.enabled,
     )
-
-    if not mapping_path.is_absolute():
-        mapping_path = PROJECT_ROOT / mapping_path
 
     print("Building PDDL domain and problem from scenario and mapping")
     # print(f"  Scenario: {scenario_path}")
@@ -131,10 +135,16 @@ def main() -> None:
     
     fuel_params = None
     if features.fuel.enabled:
+        station_override = (
+            load_fuel_stations(config.fuel_stations_path)
+            if features.road_abstraction.enabled and config.fuel_stations_path.exists()
+            else None
+        )
         fuel_params = derive_fuel_parameters(
             nodes=mapping["nodes"],
             config=features.fuel,
             seed=config.seed,
+            stations_override=station_override,
         )
         write_fuel_stations(fuel_params.stations, config.fuel_stations_path)
         print(

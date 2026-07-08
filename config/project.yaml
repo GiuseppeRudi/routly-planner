@@ -35,6 +35,13 @@ features:
       min: 20
       max: 30
 
+  road_abstraction:
+    enabled: true
+    max_segments_per_macro: 8
+    max_length_meters: 1500
+    speed_tolerance_ratio: 0.15
+    require_same_capacity_class: true
+
   # No congestion = {enabled: false}
   # congestion = {enabled: true, replanning: false, type: static, mode: sumo}
   # congestion = {enabled: true, replanning: false, type: static, mode: pddl}

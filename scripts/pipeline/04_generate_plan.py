@@ -15,6 +15,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.fuel import load_fuel_stations
 from src.routly.config import load_config
+from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
 from src.routly.graph.graph_export import (
     plot_event_map, plot_plan_from_mapping, open_congestion_map,
@@ -41,6 +42,7 @@ from src.routly.pddl.problem_generator import (
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
 from src.routly.domain.traffic_lights import load_traffic_light_timings
+from src.routly.utils import read_yaml
 
 # Safety clamp for "slowdown" events: speed is divided by this factor.
 SEVERITY_MIN = 1.5
@@ -110,7 +112,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--plan-image-override", help="Path to alternative plan image output file")
     return parser.parse_args()
 
-def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path: Path, plan_image_path: Path) -> list[str]:
+def _run_and_plot(
+    config,
+    features: FeatureConfig,
+    problem_path: Path,
+    plan_path: Path,
+    plan_image_path: Path,
+    mapping_path: Path,
+) -> list[str]:
 
     # Clean up any previous solution file to avoid false positives
     if plan_path.exists():
@@ -149,7 +158,7 @@ def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path
         print("!" * 75 + "\n")
         sys.exit(1)  # ➔ Changed to 1 to force run_pipeline.py to halt immediately
 
-    mapping = load_mapping(config.mapping_path)
+    mapping = load_mapping(mapping_path)
     plan_text = plan_path.read_text(encoding="utf-8")
     planned_roads = parse_start_traversal_roads(plan_text)
 
@@ -420,8 +429,21 @@ def main() -> None:
     plan_image_path = Path(args.plan_image_override) if args.plan_image_override else config.plan_image_path
 
     features = FeatureConfig.from_yaml(args.project_config)
+    scenario = read_yaml(config.scenario_path)
+    mapping_path, _ = require_macro_artifacts(
+        scenario,
+        config,
+        enabled=features.road_abstraction.enabled,
+    )
 
-    original_roads = _run_and_plot(config, features, problem_path, plan_path, plan_image_path)
+    original_roads = _run_and_plot(
+        config,
+        features,
+        problem_path,
+        plan_path,
+        plan_image_path,
+        mapping_path,
+    )
 
     if not features.llm_events.enabled:
         return
@@ -440,7 +462,7 @@ def main() -> None:
     with open(problem_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    all_roads = re.findall(r"\(road-open\s+(road_\d+)\)", content)
+    all_roads = re.findall(r"\(road-open\s+([^\s\)]+)\)", content)
     if not all_roads:
         print("❌ No open roads found in the base PDDL file! Skipping dynamic event injection.")
         return
@@ -450,7 +472,7 @@ def main() -> None:
     start_loc = start_match.group(1) if start_match else None
     goal_loc = goal_match.group(1) if goal_match else None
 
-    mapping = load_mapping(config.mapping_path)
+    mapping = load_mapping(mapping_path)
     roads_by_id = {road["id"]: road for road in mapping["roads"]}
     traffic_light_timings = {}
     if (
@@ -699,7 +721,14 @@ def main() -> None:
         json.dump(log_payload, log_f, indent=2, ensure_ascii=False)
     print(f"  Incidents log successfully saved to: {log_path.name}")
 
-    recalculated_roads = _run_and_plot(config, features, dynamic_problem_path, dynamic_plan_path, dynamic_plan_image_path)
+    recalculated_roads = _run_and_plot(
+        config,
+        features,
+        dynamic_problem_path,
+        dynamic_plan_path,
+        dynamic_plan_image_path,
+        mapping_path,
+    )
 
     blocked_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"]} for event in closure_events for road in event["roads"]]
     slowed_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"], "severity": event["severity"]} for event in events if event["event_type"] == "slowdown" for road in event["roads"]]

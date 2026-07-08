@@ -4,6 +4,7 @@ configs:
 run:
   - build_map
   - select_scenario_points
+  - build_macro_roads
   - build_domain_and_problem
   - generate_plan
   # Controller flow scaffold:

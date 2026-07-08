@@ -118,6 +118,27 @@ class FuelConfig:
         if self.consumption_mode not in ("discrete", "continuous"):
             raise ValueError("fuel.consumption_mode must be 'discrete' or 'continuous'")
 
+
+@dataclass(frozen=True)
+class RoadAbstractionConfig:
+    enabled: bool = False
+    max_segments_per_macro: int = 8
+    max_length_meters: float = 1500.0
+    speed_tolerance_ratio: float = 0.15
+    require_same_capacity_class: bool = True
+
+    def __post_init__(self) -> None:
+        if self.max_segments_per_macro <= 1:
+            raise ValueError(
+                "road_abstraction.max_segments_per_macro must be greater than 1"
+            )
+        if self.max_length_meters <= 0:
+            raise ValueError("road_abstraction.max_length_meters must be positive")
+        if self.speed_tolerance_ratio < 0:
+            raise ValueError(
+                "road_abstraction.speed_tolerance_ratio must be greater than or equal to 0"
+            )
+
 @dataclass
 class FeatureConfig:
     traffic_lights: bool = False
@@ -129,6 +150,9 @@ class FeatureConfig:
     sumo: SumoRunConfig = field(default_factory=SumoRunConfig)
     controller: ControllerConfig = field(default_factory=ControllerConfig)
     fuel: FuelConfig = field(default_factory=FuelConfig)
+    road_abstraction: RoadAbstractionConfig = field(
+        default_factory=RoadAbstractionConfig
+    )
 
     @property
     def congestion_enabled(self) -> bool:
@@ -199,6 +223,8 @@ class FeatureConfig:
             parts.append("llm")
         if self.fuel.enabled:
             parts.append("fuel-controller" if self.fuel_in_controller else "fuel")
+        if self.road_abstraction.enabled:
+            parts.append("macro")
         return "_".join(parts) if parts else "base"
 
     # ── constructor ───────────────────────────────────────────────────────────
@@ -234,6 +260,7 @@ class FeatureConfig:
 
         cong = _congestion_config(f.get("congestion", {}))
         controller = _controller_config(f.get("controller", {}))
+        road_abstraction = _road_abstraction_config(f.get("road_abstraction", {}))
 
         llm_raw = f.get("llm_events", {})
         llm = LLMEventsConfig(
@@ -285,6 +312,7 @@ class FeatureConfig:
             sumo=sumo,
             controller=controller,
             fuel=fuel,
+            road_abstraction=road_abstraction,
         )
 
     @classmethod
@@ -427,6 +455,29 @@ def _validate_controller_combination(
             "Fuel controller and congestion controller cannot be enabled "
             "together in v1."
         )
+
+
+def _road_abstraction_config(
+    raw: dict[str, Any] | bool | None,
+) -> RoadAbstractionConfig:
+    if raw is None:
+        raw = {}
+
+    if isinstance(raw, bool):
+        return RoadAbstractionConfig(enabled=raw)
+
+    if not isinstance(raw, dict):
+        raise ValueError("features.road_abstraction must be a mapping or a boolean")
+
+    return RoadAbstractionConfig(
+        enabled=bool(raw.get("enabled", False)),
+        max_segments_per_macro=int(raw.get("max_segments_per_macro", 8)),
+        max_length_meters=float(raw.get("max_length_meters", 1500.0)),
+        speed_tolerance_ratio=float(raw.get("speed_tolerance_ratio", 0.15)),
+        require_same_capacity_class=bool(
+            raw.get("require_same_capacity_class", True)
+        ),
+    )
 
 
 def _dynamic_congestion_config(raw: dict[str, Any] | None) -> DynamicCongestionConfig:

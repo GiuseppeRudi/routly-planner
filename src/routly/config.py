@@ -172,8 +172,28 @@ class ProjectConfig:
         return self.map_dir / "roads_mapping.json"
 
     @property
-    def graph_image_path(self) -> Path:
+    def macro_mapping_path(self) -> Path:
+        return self.map_dir / "roads_mapping_macro.json"
+
+    @property
+    def macro_report_json_path(self) -> Path:
+        return self.map_dir / "macro_roads_report.json"
+
+    @property
+    def macro_comparison_image_path(self) -> Path:
+        return self.map_dir / "macro_roads_comparison.png"
+
+    @property
+    def legacy_graph_image_path(self) -> Path:
         return self.map_dir / "road_network_graph.png"
+
+    @property
+    def graph_base_image_path(self) -> Path:
+        return self.map_dir / "road_network_graph_base.png"
+
+    @property
+    def graph_macro_image_path(self) -> Path:
+        return self.map_dir / "road_network_graph_macro.png"
 
     @property
     def plan_image_path(self) -> Path:

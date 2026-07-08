@@ -12,6 +12,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
 from src.routly.controller import ControllerRunRequest, run_controller
+from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.utils import read_yaml
@@ -55,11 +56,11 @@ def main() -> None:
     scenario = read_yaml(config.scenario_path)
     vehicle_id, start_loc, goal_loc = extract_vehicle_start_goal(scenario)
 
-    mapping_path = Path(
-        scenario.get("map", {}).get("mapping_path", config.mapping_path)
+    mapping_path, _ = require_macro_artifacts(
+        scenario,
+        config,
+        enabled=features.road_abstraction.enabled,
     )
-    if not mapping_path.is_absolute():
-        mapping_path = PROJECT_ROOT / mapping_path
     mapping = load_mapping(mapping_path)
 
     for directory in [

@@ -25,6 +25,7 @@ dependencies:
 
   # Visualization
   - matplotlib
+  - pillow
   - plotly
 
   # Development
