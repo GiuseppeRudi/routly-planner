@@ -7,7 +7,7 @@ from src.routly.controller.exceptions import (
     ControllerError,
 )
 from src.routly.domain.congestion import (
-    compute_congestion_factors,        # <-- NEW
+    compute_congestion_factors,
     estimate_route_duration_straight_line,
     generate_background_routes,
     load_background_routes,
@@ -38,11 +38,9 @@ from src.routly.pddl.problem_generator import build_road_network_problem
 from src.routly.planning.plan_parser import parse_start_traversal_steps
 from src.routly.planning.planner_runner import run_enhsp
 
-_FUEL_EPSILON = 1e-6  # liters tolerance for float comparisons
+_FUEL_EPSILON = 1e-6
 
-# Fraction of the real autonomy we allow the target selection to plan for. The
-# margin absorbs the gap between the optimal shortest-path estimate and the
-# (possibly longer) satisficing plan returned by ENHSP. 1.0 = no margin.
+# Reserve fuel for the gap between shortest-path estimates and ENHSP plans.
 ROUTING_SAFETY_FACTOR = 0.9
 
 
@@ -107,7 +105,7 @@ def select_fuel_target(
     dist_cur = single_source_distances(graph, current_loc)
     dist_to_goal = dist_cur.get(goal_loc, inf)
 
-    # 1. Goal reachable right now (within margin) and not blacklisted.
+    # Prefer the goal when the current usable range can reach it.
     if goal_loc not in excluded and dist_to_goal <= autonomy:
         return FuelTargetDecision(
             target_loc=goal_loc,
@@ -117,7 +115,7 @@ def select_fuel_target(
             estimated_distance_target_to_goal=0.0,
         )
 
-    # 2. Otherwise consider reachable stations (excluding blacklisted ones).
+    # Otherwise consider reachable stations that have not failed this leg.
     reachable_stations = [
         s
         for s in fuel_params.stations
@@ -192,17 +190,14 @@ def run_fuel_controller(
     config = request.project_config
     mapping = request.mapping
 
-    # Where to write the controller's intermediate PDDL/plan artifacts. Callers
-    # (e.g. step 04) route these into the EXISTING run folders -- basic for the
-    # base plan, llm for the events plan -- so no separate 'controller' folder
-    # is created. When not provided, fall back to the controller dirs.
+    # Integrated callers place artifacts in basic or LLM run directories.
+    # Standalone controller runs use the dedicated controller directories.
     pddl_dir = pddl_dir if pddl_dir is not None else config.controller_pddl_dir
     plans_dir = plans_dir if plans_dir is not None else config.controller_plans_dir
     for _directory in (pddl_dir, plans_dir):
         _directory.mkdir(parents=True, exist_ok=True)
 
-    # Optionally close roads (e.g. LLM-generated closures). Removing a road from
-    # the road list is equivalent to closing it for both routing and PDDL.
+    # Remove blocked roads from both the routing graph and per-leg PDDL.
     blocked = set(blocked_road_ids or ())
     roads = [road for road in mapping["roads"] if road["id"] not in blocked]
     roads_by_id = {road["id"]: road for road in roads}
@@ -217,7 +212,7 @@ def run_fuel_controller(
     rate = fuel_params.consumption_per_meter
     full_range = fuel_params.tank_capacity / rate if rate > 0 else float("inf")
 
-    # Plan every leg as a pure routing problem (fuel is handled here).
+    # Keep per-leg PDDL focused on routing because the controller accounts for fuel.
     routing_features = _routing_features(features)
     traffic_light_timings: dict = {}
     if routing_features.traffic_lights:
@@ -307,9 +302,7 @@ def run_fuel_controller(
             reached_goal = True
             break
 
-        # Inner retry: the ENHSP plan may be longer than the optimal estimate.
-        # If a leg proves unaffordable, blacklist that target and pick a closer
-        # one; select_fuel_target raises only when nothing admissible is left.
+        # Retry with a closer target when the ENHSP route exceeds the estimate.
         excluded: set[str] = set()
         while True:
             decision = select_fuel_target(
@@ -367,8 +360,7 @@ def run_fuel_controller(
             leg_fuel = leg_distance * rate
 
             if leg_fuel > fuel_current + _FUEL_EPSILON:
-                # Real plan longer than the optimal estimate: this target is too
-                # far to reach safely. Blacklist it and try a closer one.
+                # Exclude targets whose resolved route exceeds the available fuel.
                 print(
                     f"   Controller: leg {index} to {target} needs "
                     f"{leg_fuel:.3f} L over {leg_distance:.0f} m but only "
@@ -377,7 +369,7 @@ def run_fuel_controller(
                 excluded.add(target)
                 continue
 
-            break  # affordable leg found
+            break
 
         fuel_current -= leg_fuel
 
@@ -421,7 +413,7 @@ def run_fuel_controller(
             )
         )
 
-        # Guard against non-progress loops.
+        # Reject non-progressing legs before they can form a controller loop.
         if reached == current_loc:
             raise ControllerError(
                 f"Fuel controller made no progress at {current_loc} "

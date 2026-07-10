@@ -29,9 +29,7 @@ from src.routly.controller.graph_utils import (
 from src.routly.graph.graph_export import draw_fuel_stations
 
 
-# ============================================================
 # CLI
-# ============================================================
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -41,9 +39,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-# ============================================================
 # Loading utilities
-# ============================================================
 
 def load_mapping(path: Path) -> dict[str, Any]:
     if not path.exists():
@@ -57,9 +53,7 @@ def load_graph(path: Path) -> nx.MultiDiGraph:
     return ox.load_graphml(path)
 
 
-# ============================================================
 # Mapping utilities
-# ============================================================
 
 def get_node_xy(node: dict[str, Any]) -> tuple[float, float]:
     if "x" not in node or "y" not in node:
@@ -92,9 +86,7 @@ def find_nearest_mapping_node(
     return best_node, best_distance
 
 
-# ============================================================
 # Reachability validation
-# ============================================================
 
 def build_directed_graph_from_mapping(mapping: dict[str, Any]) -> dict[str, list[str]]:
     directed_graph: dict[str, list[str]] = {}
@@ -146,7 +138,7 @@ def validate_selected_pair(
         f"reachable locations={len(reachable)}."
     )
 
-    # fuel check
+    # Validate fuel reachability after topological reachability succeeds.
     if fuel_params is not None:
         if graph is None:
             graph = build_weighted_road_graph(mapping)
@@ -168,9 +160,7 @@ def validate_selected_pair(
     return True, base_msg
 
 
-# ============================================================
-# Window constants & centering
-# ============================================================
+# Window constants and centering
 
 WIN_W, WIN_H = 1400, 760
 DPI          = 100
@@ -182,7 +172,7 @@ def center_window(fig: plt.Figure, width: int, height: int) -> None:
     try:
         window = manager.window
 
-        # TkAgg
+        # Center TkAgg windows with screen dimensions.
         if hasattr(window, "winfo_screenwidth"):
             window.update_idletasks()
             sw = window.winfo_screenwidth()
@@ -192,7 +182,7 @@ def center_window(fig: plt.Figure, width: int, height: int) -> None:
             window.geometry(f"{width}x{height}+{x}+{y}")
             return
 
-        # QtAgg
+        # Center QtAgg windows with the available screen geometry.
         if hasattr(window, "screen") and hasattr(window, "move"):
             geo = window.screen().availableGeometry()
             x = geo.x() + (geo.width()  - width)  // 2
@@ -207,14 +197,14 @@ def center_window(fig: plt.Figure, width: int, height: int) -> None:
 
 def schedule_initial_draw(fig: plt.Figure) -> None:
     """
-    Schedule a forced redraw 80ms after the event loop starts.
-    This is the only reliable fix for buttons not appearing on first render
-    in TkAgg on Windows — plt.show() hands off to the Tk event loop before
-    the canvas has been fully painted.
+    Schedule a redraw after the GUI event loop starts.
+
+    TkAgg may hand control to the Tk event loop before the canvas is fully
+    painted, which can hide controls until the first resize.
     """
     manager = plt.get_current_fig_manager()
     try:
-        # TkAgg: use Tk's after() scheduler
+        # Schedule the redraw through TkAgg's event loop.
         manager.window.after(80, lambda: (
             fig.canvas.draw(),
             fig.canvas.flush_events(),
@@ -224,7 +214,7 @@ def schedule_initial_draw(fig: plt.Figure) -> None:
         pass
 
     try:
-        # QtAgg: use a single-shot QTimer
+        # Schedule the redraw through a single-shot QtAgg timer.
         from PyQt5.QtCore import QTimer
         QTimer.singleShot(80, lambda: (
             fig.canvas.draw(),
@@ -234,9 +224,7 @@ def schedule_initial_draw(fig: plt.Figure) -> None:
         pass
 
 
-# ============================================================
 # Drawing helpers
-# ============================================================
 
 def draw_base_graph(ax: plt.Axes, mapping: dict[str, Any]) -> None:
     nodes_by_id = {node["id"]: node for node in mapping["nodes"]}
@@ -290,9 +278,7 @@ def draw_selected_point(
     return artists
 
 
-# ============================================================
 # Selector class
-# ============================================================
 
 class ScenarioPointSelector:
 
@@ -314,27 +300,21 @@ class ScenarioPointSelector:
         self.confirmed = False
         self.selected_artists: list[Any] = []
 
-        # ── disable the default matplotlib toolbar BEFORE creating the figure ──
-        # This removes zoom/pan buttons so our custom scroll/drag takes over.
+        # Disable the default toolbar so custom zoom and pan handlers take over.
         matplotlib.rcParams["toolbar"] = "None"
 
-        # ── figure ─────────────────────────────────────────────────────────────
         self.fig, self.ax = plt.subplots(
             figsize=(WIN_W / DPI, WIN_H / DPI),
             dpi=DPI,
         )
-        self.fig.canvas.manager.set_window_title("Routly — Scenario point selector")
+        self.fig.canvas.manager.set_window_title("Routly - Scenario point selector")
 
-        # bottom=0.14 reserves space for buttons+status.
-        # top=0.88 reserves space for title+place label.
+        # Reserve vertical space for controls, status, title, and place name.
         self.fig.subplots_adjust(left=0.04, right=0.98, top=0.88, bottom=0.14)
 
-        # ── map ────────────────────────────────────────────────────────────────
         draw_base_graph(self.ax, self.mapping)
 
-        # Fuel stations (only if the fuel feature is active).
-        # NOTE: pass station_ids explicitly -> with stations_source="random"
-        # the real stations are fuel_params.stations, not the mapping flag.
+        # Use the generated station set because random stations are not node flags.
         if self.fuel_params is not None and getattr(self.fuel_params, "stations", None):
             draw_fuel_stations(
                 self.ax, self.mapping,
@@ -348,7 +328,6 @@ class ScenarioPointSelector:
         self.ax.set_aspect("equal", adjustable="datalim")
         self.ax.set_axis_off()
 
-        # ── title ──────────────────────────────────────────────────────────────
         self.fig.text(
             0.5, 0.935,
             "Double-click START, then double-click GOAL  |  "
@@ -357,7 +336,6 @@ class ScenarioPointSelector:
             fontsize=10, fontweight="bold",
         )
 
-        # ── place name label ───────────────────────────────────────────────────
         if place_name:
             self.fig.text(
                 0.5, 0.908,
@@ -366,14 +344,12 @@ class ScenarioPointSelector:
                 fontsize=9, style="italic", color="#555555",
             )
 
-        # ── status bar ─────────────────────────────────────────────────────────
         self.status_text = self.fig.text(
             0.04, 0.09,
             "Double-click a node to select START, then GOAL.",
             fontsize=8.5, ha="left", va="center", color="#333333",
         )
 
-        # ── buttons ────────────────────────────────────────────────────────────
         confirm_ax = self.fig.add_axes([0.60, 0.025, 0.11, 0.050])
         reset_ax   = self.fig.add_axes([0.73, 0.025, 0.11, 0.050])
         exit_ax    = self.fig.add_axes([0.86, 0.025, 0.10, 0.050])
@@ -386,31 +362,24 @@ class ScenarioPointSelector:
         self.reset_button.on_clicked(self.on_reset_clicked)
         self.exit_button.on_clicked(self.on_exit_clicked)
 
-        # ── pan state ──────────────────────────────────────────────────────────
         self._pan_active:     bool                    = False
         self._pan_start_data: tuple[float, float] | None = None
         self._pan_xlim:       tuple[float, float] | None = None
         self._pan_ylim:       tuple[float, float] | None = None
-        # Flag: if the mouse moved while the button was held, it was a drag,
-        # not a click — so we should not treat the release as a selection event.
+        # Track movement so drag releases are not treated as selections.
         self._pan_did_move:   bool = False
 
-        # ── event connections ──────────────────────────────────────────────────
         canvas = self.fig.canvas
         canvas.mpl_connect("button_press_event",   self.on_mouse_press)
         canvas.mpl_connect("motion_notify_event",  self.on_mouse_motion)
         canvas.mpl_connect("button_release_event", self.on_mouse_release)
         canvas.mpl_connect("scroll_event",         self.on_scroll)
-        # NOTE: no resize_event connection — resizing is left to the OS/backend.
-        # ax.set_aspect('equal') keeps the map proportions correct automatically.
+        # Equal aspect preserves map proportions without a resize handler.
 
-        # ── initial render ─────────────────────────────────────────────────────
         self.fig.canvas.draw()
         center_window(self.fig, WIN_W, WIN_H)
 
-    # ══════════════════════════════════════════════════════════════════════════
     # Helpers
-    # ══════════════════════════════════════════════════════════════════════════
 
     def set_status(self, message: str) -> None:
         self.status_text.set_text(message)
@@ -438,7 +407,7 @@ class ScenarioPointSelector:
                 draw_selected_point(self.ax, self.goal_node, "GOAL", "#d62728")
             )
 
-        # straight-line distance
+        # Show straight-line distance once both endpoints are available.
         if self.start_node is not None and self.goal_node is not None:
             x1, y1 = get_node_xy(self.start_node)
             x2, y2 = get_node_xy(self.goal_node)
@@ -473,9 +442,7 @@ class ScenarioPointSelector:
 
         self.fig.canvas.draw_idle()
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # Scroll zoom — centered on cursor
-    # ══════════════════════════════════════════════════════════════════════════
+    # Cursor-centered zoom
 
     def on_scroll(self, event: Any) -> None:
         if event.inaxes != self.ax:
@@ -483,7 +450,7 @@ class ScenarioPointSelector:
         if event.xdata is None or event.ydata is None:
             return
 
-        # scroll up (step > 0) → zoom in → factor < 1 (shrink limits)
+        # Shrink limits when scrolling up and expand them when scrolling down.
         factor = 0.85 if event.step > 0 else 1.0 / 0.85
 
         cx, cy   = event.xdata, event.ydata
@@ -494,9 +461,7 @@ class ScenarioPointSelector:
         self.ax.set_ylim(cy + (yb - cy) * factor, cy + (yt - cy) * factor)
         self.fig.canvas.draw_idle()
 
-    # ══════════════════════════════════════════════════════════════════════════
     # Drag pan
-    # ══════════════════════════════════════════════════════════════════════════
 
     def on_mouse_motion(self, event: Any) -> None:
         if not self._pan_active:
@@ -518,9 +483,7 @@ class ScenarioPointSelector:
     def on_mouse_release(self, event: Any) -> None:
         self._pan_active = False
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # Mouse press — dispatch to pan / right-click remove / double-click select
-    # ══════════════════════════════════════════════════════════════════════════
+    # Mouse input dispatch
 
     def on_mouse_press(self, event: Any) -> None:
         if event.inaxes != self.ax:
@@ -528,7 +491,7 @@ class ScenarioPointSelector:
         if event.xdata is None or event.ydata is None:
             return
 
-        # ── right click: remove nearest selected node ─────────────────────
+        # Right-click removes the nearest selected endpoint.
         if event.button == MouseButton.RIGHT:
             self._handle_right_click(event.xdata, event.ydata)
             return
@@ -539,14 +502,13 @@ class ScenarioPointSelector:
         is_double = getattr(event, "dblclick", False)
 
         if is_double:
-            # ── double click: select node ─────────────────────────────────
-            # Stop any pan that was in progress (shouldn't happen, but safe).
+            # Double-click selects the nearest node and cancels any pending pan.
             self._pan_active  = False
             self._pan_did_move = False
             self._do_select(event.xdata, event.ydata)
 
         else:
-            # ── single press: start pan ───────────────────────────────────
+            # Single-click starts a pan operation.
             self._pan_active      = True
             self._pan_did_move    = False
             self._pan_start_data  = (event.xdata, event.ydata)
@@ -594,7 +556,7 @@ class ScenarioPointSelector:
             self.redraw_selected_points()
             return
 
-        # Both set — remove the one closest to the click
+        # Remove whichever endpoint is closest to the click.
         sx, sy = get_node_xy(self.start_node)
         gx, gy = get_node_xy(self.goal_node)
 
@@ -607,9 +569,7 @@ class ScenarioPointSelector:
 
         self.redraw_selected_points()
 
-    # ══════════════════════════════════════════════════════════════════════════
     # Button handlers
-    # ══════════════════════════════════════════════════════════════════════════
 
     def on_reset_clicked(self, event: Any) -> None:
         self.start_node = None
@@ -636,7 +596,7 @@ class ScenarioPointSelector:
             return
 
         self.confirmed = True
-        self.set_status(f"Confirmed! {message}  Closing…")
+        self.set_status(f"Confirmed! {message} Closing...")
         self.fig.canvas.draw_idle()
         plt.pause(0.35)
         plt.close(self.fig)
@@ -645,15 +605,10 @@ class ScenarioPointSelector:
         self.confirmed = False
         plt.close(self.fig)
 
-    # ══════════════════════════════════════════════════════════════════════════
     # Run
-    # ══════════════════════════════════════════════════════════════════════════
 
     def run(self) -> tuple[dict[str, Any], dict[str, Any]]:
-        # Schedule a forced redraw 80ms after the event loop starts.
-        # This is the reliable fix for the "buttons invisible until resize" bug
-        # on TkAgg/Windows: the canvas hasn't been fully painted when plt.show()
-        # first renders the window, so we redraw slightly after.
+        # Delay the first redraw until the GUI backend has painted the canvas.
         schedule_initial_draw(self.fig)
 
         plt.show()
@@ -679,9 +634,7 @@ def select_start_goal_interactively(
     return selector.run()
 
 
-# ============================================================
 # Scenario YAML writing
-# ============================================================
 
 def enrich_selected_node(
     mapping_node: dict[str, Any],
@@ -745,9 +698,7 @@ def write_scenario_yaml(scenario: dict[str, Any], output_path: Path) -> None:
     print(f"  {output_path}")
 
 
-# ============================================================
 # Main
-# ============================================================
 
 def main() -> None:
     args = parse_args()
@@ -764,7 +715,7 @@ def main() -> None:
     if "nodes" not in mapping or "roads" not in mapping:
         raise KeyError("roads_mapping.json must contain 'nodes' and 'roads'.")
 
-    # --- prepare fuel parameters if the feature is enabled
+    # Derive fuel constraints before validating selectable endpoints.
     fuel_params = None
     fuel_graph = None
     features = FeatureConfig.from_yaml(args.project_config)

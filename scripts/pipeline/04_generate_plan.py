@@ -8,7 +8,7 @@ import re
 import json
 import datetime
 
-# Bulletproof path resolution independent of terminal working directory
+# Resolve imports relative to the repository instead of the current shell.
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -55,7 +55,7 @@ from src.routly.controller.fuel_controller import run_fuel_controller
 from src.routly.domain.traffic_lights import load_traffic_light_timings
 from src.routly.utils import read_yaml
 
-# Safety clamp for "slowdown" events: speed is divided by this factor.
+# Bound slowdown factors before applying them to road speeds.
 SEVERITY_MIN = 1.5
 SEVERITY_MAX = 4.0
 
@@ -302,13 +302,12 @@ def _run_and_plot(
     domain_path: Path | None = None,
 ) -> list[str]:
 
-    # Clean up any previous solution file to avoid false positives
+    # Remove stale output so a failed planner run cannot reuse an old plan.
     if plan_path.exists():
         plan_path.unlink()
 
     print(f"\nRunning ENHSP planner on: {problem_path.name}")
     
-    # ── TRY-EXCEPT LOGICAL BLOCK TO CATCH UNHANDLED PLANNER EXIT CODES ──
     try:
         run_enhsp(
             enhsp_jar=config.enhsp_jar,
@@ -319,9 +318,9 @@ def _run_and_plot(
         )
     except Exception as exc:
         _print_planner_failure(exc, problem_path, config.java_heap_mb)
-        sys.exit(1)  # force run_pipeline.py to halt immediately
+        sys.exit(1)
 
-    # Safety checkpoint if no exception was raised but the file is still missing
+    # Treat missing output as failure even when ENHSP returns without an exception.
     if not plan_path.exists():
         print("\n" + "!" * 75)
         print("CRITICAL ERROR: PLAN UNSOLVABLE")
@@ -329,7 +328,7 @@ def _run_and_plot(
         print(f"The planner could NOT find any valid route for: {problem_path.name}")
         print("Reason: Plan file missing. Graph might be disconnected or ENHSP stopped before writing a solution.")
         print("!" * 75 + "\n")
-        sys.exit(1)  # force run_pipeline.py to halt immediately
+        sys.exit(1)
 
     plan_text = plan_path.read_text(encoding="utf-8")
     if "Problem Solved" not in plan_text and "Found Plan:" not in plan_text:
@@ -351,8 +350,7 @@ def _run_and_plot(
         print(f"The planner finished but returned 0 roads for: {problem_path.name}")
         print("Aborting pipeline execution safely to prevent subsequent SUMO crashes.")
         print("!" * 75 + "\n")
-        sys.exit(1)  # ➔ Changed to 1 to force run_pipeline.py to halt immediately
-    # ───────────────────────────────────────────────────────────────────
+        sys.exit(1)
 
     print(f"Roads in plan: {len(planned_roads)}")
     fuel_stations = (
@@ -688,19 +686,22 @@ def main() -> None:
     print(f" LLM STATUS : {features.llm_events.enabled}")
     print("=" * 70)
 
-    # --- LLM event injection + dynamic re-plan ---
+    # Build the event-adjusted problem and request a new plan.
     dynamic_problem_path = config.dynamic_problem_path
     dynamic_plan_path = config.dynamic_plan_path
     dynamic_plan_image_path = config.dynamic_plan_image_path
     log_path = config.incidents_log_path
 
-    print(f"\n📋 Cloning problem structure to handle dynamic event...")
+    print("\nCloning the problem structure for dynamic events...")
     with open(problem_path, "r", encoding="utf-8") as f:
         content = f.read()
 
     all_roads = re.findall(r"\(road-open\s+([^\s\)]+)\)", content)
     if not all_roads:
-        print("❌ No open roads found in the base PDDL file! Skipping dynamic event injection.")
+        print(
+            "WARNING: no open roads were found in the base PDDL file; "
+            "skipping dynamic event injection."
+        )
         return
 
     start_match = re.search(r";;\s*Start:\s*(loc_\d+)", content)
@@ -771,8 +772,6 @@ def main() -> None:
             "description": "Generic incident detected by the urban monitoring system.",
         }]
 
-    # FORCE CORNER CASE DEBUG: Chiude a forza la prima strada del percorso base isolando l'avvio
-    #events = [{"event_type": "accident", "roads": [original_roads[0]], "description": "Critical artery collapse."}]
     print(f"\nLLM generated {len(events)} event(s):")
     for i, event in enumerate(events, 1):
         if event["event_type"] == "slowdown":
@@ -794,9 +793,9 @@ def main() -> None:
     print(f"\nAUTOMATED EVENTS INJECTED ({len(events)}):")
     for event in events:
         if event["event_type"] == "slowdown":
-            print(f"  ➔ [slowdown, severity={event['severity']}] Slowed roads: {event['roads']}")
+            print(f"  - [slowdown, severity={event['severity']}] Slowed roads: {event['roads']}")
         else:
-            print(f"  ➔ [{event['event_type']}] Blocked roads: {event['roads']}")
+            print(f"  - [{event['event_type']}] Blocked roads: {event['roads']}")
         print(f"     Scenario: {event['description']}")
     print()
 
@@ -961,11 +960,11 @@ def main() -> None:
                 dynamic_domain_path = config.dynamic_domain_path
                 write_pddl(dynamic_domain_text, dynamic_domain_path)
                 print(
-                    "✅ Dynamic road-specific domain regenerated: "
+                    "Dynamic road-specific domain regenerated: "
                     f"{dynamic_domain_path}"
                 )
             print(
-                "✅ Dynamic congestion profile recalculation completed. "
+                "Dynamic congestion profile recalculation completed. "
                 f"{updated_count} initial factors and "
                 f"{len(active_dynamic_roads)} dynamic roads written."
             )
@@ -1004,7 +1003,10 @@ def main() -> None:
                             road_id,
                             duration,
                         )
-            print(f"✅ Static topology recalculation completed. {updated_count} open roads updated in PDDL.")
+            print(
+                "Static topology recalculation completed. "
+                f"{updated_count} open roads updated in PDDL."
+            )
 
     dynamic_problem_path.parent.mkdir(parents=True, exist_ok=True)
     with open(dynamic_problem_path, "w", encoding="utf-8") as f:

@@ -80,14 +80,14 @@ def plot_controller_legs_from_mapping(
 
     fig, ax = plt.subplots(figsize=(12, 12))
 
-    # Faint base network.
+    # Draw the base network below every highlighted route.
     for road in mapping["roads"]:
         geom = road.get("geometry", [])
         if len(geom) >= 2:
             ax.plot([p[0] for p in geom], [p[1] for p in geom],
                     linewidth=0.6, color="black", alpha=0.35, zorder=1)
 
-    # One distinct colour per leg (evenly spread across the colormap).
+    # Assign one evenly spaced colormap value to each leg.
     cmap = plt.get_cmap("turbo")
     n_legs = max(len(legs), 1)
     legend_handles = []
@@ -104,10 +104,10 @@ def plot_controller_legs_from_mapping(
                  else f"Leg {i}")
         legend_handles.append(Line2D([0], [0], color=color, linewidth=3, label=label))
 
-    # Fuel stations (chosen ones highlighted, same style as the other maps).
+    # Match fuel-station styling across all map views.
     draw_fuel_stations(ax, mapping, fuel_stations or [], chosen_ids=chosen_ids)
 
-    # Start / goal markers.
+    # Draw start and goal markers above roads and stations.
     for loc, label, col in ((start_loc, "START", "#1f9e3a"),
                             (goal_loc, "GOAL", "darkred")):
         if loc and loc in nodes_by_id:
@@ -144,16 +144,16 @@ def plot_event_map(mapping: dict, original_roads: list[str], recalculated_roads:
 
     fig, ax = plt.subplots(figsize=(14, 14))
     _plot_roads(ax, roads_by_id, [road["id"] for road in mapping["roads"]], color="#ffffff", linewidth=0.75, alpha=0.4, zorder=1)
-    _plot_roads(ax, roads_by_id, original_roads, color="#0057ff", linewidth=8.0, alpha=0.58, zorder=3) # ➔ Cambiato in Blu
+    _plot_roads(ax, roads_by_id, original_roads, color="#0057ff", linewidth=8.0, alpha=0.58, zorder=3)
     _plot_roads(ax, roads_by_id, recalculated_roads, color="#00a75a", linewidth=5.0, alpha=0.82, zorder=4)
-    _plot_roads(ax, roads_by_id, blocked_ids, color="#e64b35", linewidth=11.0, alpha=0.28, zorder=6) # ➔ Cambiato in Rosso Faded
-    _plot_roads(ax, roads_by_id, blocked_ids, color="#e64b35", linewidth=3.6, alpha=0.96, zorder=8)  # ➔ Cambiato in Rosso Solido
+    _plot_roads(ax, roads_by_id, blocked_ids, color="#e64b35", linewidth=11.0, alpha=0.28, zorder=6)
+    _plot_roads(ax, roads_by_id, blocked_ids, color="#e64b35", linewidth=3.6, alpha=0.96, zorder=8)
     _plot_roads(ax, roads_by_id, slowed_ids, color="#FFD700", linewidth=4.2, alpha=0.96, zorder=7, linestyle="--")
 
     for location_id in blocked_location_ids:
         node = nodes_by_id.get(location_id)
         if node:
-            ax.scatter(node["x"], node["y"], marker="X", s=170, color="#e64b35", edgecolors="white", linewidths=1.6, zorder=11) # ➔ Cambiato in Rosso
+            ax.scatter(node["x"], node["y"], marker="X", s=170, color="#e64b35", edgecolors="white", linewidths=1.6, zorder=11)
 
     for loc, label, col in ((start_loc, "START", "purple"), (goal_loc, "GOAL", "darkred")):
         if loc and loc in nodes_by_id:
@@ -187,14 +187,14 @@ def plot_event_map(mapping: dict, original_roads: list[str], recalculated_roads:
     plt.close(fig)
 
 _GAS_ICON_PATH = Path(__file__).resolve().parents[3] / "images" / "gas_station.png"
-_GAS_ICON_CACHE = None # ndarray
-_GAS_ICON_MISSING = False # True if the icon file is failed to load
+_GAS_ICON_CACHE = None
+_GAS_ICON_MISSING = False
 
 from PIL import Image
 import numpy as np
 
 def _load_gas_icon():
-    """Carica e RIDUCE il PNG una sola volta (icone piccole = redraw veloce)."""
+    """Load and cache the reduced fuel-station icon."""
     global _GAS_ICON_CACHE, _GAS_ICON_MISSING
     if _GAS_ICON_MISSING:
         return None
@@ -202,7 +202,7 @@ def _load_gas_icon():
         try:
             with Image.open(_GAS_ICON_PATH) as img:
                 img = img.convert("RGBA")
-                img.thumbnail((48, 48))          # <-- downscale una volta sola
+                img.thumbnail((48, 48))
                 _GAS_ICON_CACHE = np.asarray(img)
         except Exception:
             _GAS_ICON_MISSING = True
@@ -220,7 +220,7 @@ def draw_fuel_stations(ax, mapping: dict, station_ids: list[str] | None = None,
     if not items:
         return
 
-    # Highlight ring UNDER the icon for chosen stations (gold fill, red edge).
+    # Draw selected-station rings below their icons.
     chosen_pts = [(x, y) for (s, x, y) in items if s in chosen]
     if chosen_pts:
         ax.scatter([p[0] for p in chosen_pts], [p[1] for p in chosen_pts],
@@ -233,7 +233,8 @@ def draw_fuel_stations(ax, mapping: dict, station_ids: list[str] | None = None,
             ab = AnnotationBbox(OffsetImage(icon, zoom=zoom), (x, y),
                                 frameon=False, pad=0.0, zorder=zorder)
             ax.add_artist(ab)
-    else:  # fallback: colour-code the marker itself
+    else:
+        # Use simple color-coded markers when the icon cannot be loaded.
         for (s, x, y) in items:
             col = "#d81e1e" if s in chosen else "#1f9e3a"
             ax.scatter([x], [y], marker="s", s=60, color=col,
@@ -242,9 +243,7 @@ def draw_fuel_stations(ax, mapping: dict, station_ids: list[str] | None = None,
                         fontsize=4, fontweight="bold", zorder=zorder + 1)
 
 
-# ═════════════════════
-# 1. EVENT MAP VIEWER 
-# ═════════════════════
+# Event map viewer
 class EventMapViewer:
     def __init__(self, mapping, original_roads, recalculated_roads, blocked_roads, blocked_locations, start_loc=None, goal_loc=None, slowed_roads=None, station_ids=None, chosen_ids=None):
         self.mapping = mapping
@@ -291,7 +290,7 @@ class EventMapViewer:
         for rid in self.original_ids:
             r = self.roads_by_id.get(rid)
             if r and len(r.get("geometry", [])) >= 2:
-                (ln,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#0057ff", linewidth=8.0, alpha=0.65, zorder=3) # ➔ Cambiato in Blu
+                (ln,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#0057ff", linewidth=8.0, alpha=0.65, zorder=3)
                 self.artists_orig.append(ln)
 
         for rid in self.recalculated_ids:
@@ -303,8 +302,8 @@ class EventMapViewer:
         for rid in self.blocked_ids:
             r = self.roads_by_id.get(rid)
             if r and len(r.get("geometry", [])) >= 2:
-                (ln1,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#e64b35", linewidth=11.0, alpha=0.28, zorder=6) # ➔ Cambiato in Rosso Faded
-                (ln2,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#e64b35", linewidth=3.6, alpha=0.96, zorder=8)  # ➔ Cambiato in Rosso Solido
+                (ln1,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#e64b35", linewidth=11.0, alpha=0.28, zorder=6)
+                (ln2,) = self.ax.plot([p[0] for p in r["geometry"]], [p[1] for p in r["geometry"]], color="#e64b35", linewidth=3.6, alpha=0.96, zorder=8)
                 self.artists_events.extend([ln1, ln2])
 
         for rid in self.slowed_ids:
@@ -316,7 +315,7 @@ class EventMapViewer:
         for lid in self.blocked_loc_ids:
             n = self.nodes_by_id.get(lid)
             if n:
-                sc = self.ax.scatter(float(n["x"]), float(n["y"]), marker="X", s=170, color="#e64b35", edgecolors="white", linewidths=1.6, zorder=11) # ➔ Cambiato in Rosso
+                sc = self.ax.scatter(float(n["x"]), float(n["y"]), marker="X", s=170, color="#e64b35", edgecolors="white", linewidths=1.6, zorder=11)
                 self.artists_events.append(sc)
 
         for loc, label, col in ((self.start_loc, "START", "purple"), (self.goal_loc, "GOAL", "darkred")):
@@ -375,7 +374,7 @@ class EventMapViewer:
             self.ax.set_xlim(self.base_xlim)
             self.ax.set_ylim(self.base_ylim)
         except Exception as e:
-            print(f"⚠️ Errore caricamento basemap: {e}")
+            print(f"WARNING: could not load the basemap ({e})")
 
         self.fig.canvas.draw_idle()
 
@@ -392,9 +391,7 @@ class EventMapViewer:
         plt.show()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# 2. CONGESTION MAP VIEWER (LAYOUT A 3 COLONNE: UI SINISTRA, MAPPA, LOG DESTRA)
-# ══════════════════════════════════════════════════════════════════════════════
+# Congestion map viewer
 class CongestionMapViewer:
     PRE_LABEL = "Pre LLM events"
     POST_LABEL = "Post LLM events"
@@ -514,7 +511,7 @@ class CongestionMapViewer:
             ctx.add_basemap(self.ax, crs=_get_crs(self.mapping), source=source, alpha=0.6, zorder=0)
             self.ax.set_xlim(self.base_xlim); self.ax.set_ylim(self.base_ylim)
         except Exception as e:
-            print(f"Errore basemap: {e}")
+            print(f"WARNING: could not load the basemap ({e})")
         self.fig.canvas.draw_idle()
 
     def _add_switch(self):
@@ -591,9 +588,6 @@ class CongestionMapViewer:
         if xf <= 0.19: self._scroll_list(-1 if event.button == "up" else 1)
 
     def _add_llm_events_panel(self):
-        # t_title = self.fig.text(0.75, 0.90, "LLM INCIDENTS LOG", fontsize=10, fontweight="bold", color="#0057ff", va="top")
-        # self.llm_text_elements.append(t_title)
-
         y_pos = 0.85
         for idx, ev in enumerate(self.llm_events_list, 1):
             if y_pos < 0.08: break
@@ -601,8 +595,8 @@ class CongestionMapViewer:
             desc = ev.get("description", "No description provided.")
             roads = ev.get("roads", [])
             wrapped_desc = "\n  ".join([desc[i:i+30] for i in range(0, len(desc), 30)])
-            ev_text = f"• Event {idx} ({etype})\n  Roads: {', '.join(roads[:2])}{'...' if len(roads)>2 else ''}\n  Reason: {wrapped_desc}"
-            border_color = "#e64b35" if etype != "SLOWDOWN" else "#FFD700" # ➔ Cambiato in Rosso
+            ev_text = f"- Event {idx} ({etype})\n  Roads: {', '.join(roads[:2])}{'...' if len(roads)>2 else ''}\n  Reason: {wrapped_desc}"
+            border_color = "#e64b35" if etype != "SLOWDOWN" else "#FFD700"
             t_ev = self.fig.text(0.75, y_pos, ev_text, fontsize=8, va="top", bbox=dict(boxstyle="round,pad=0.3", facecolor="#fdfdfd", edgecolor=border_color, alpha=0.9))
             self.llm_text_elements.append(t_ev); y_pos -= 0.13
 
@@ -755,7 +749,7 @@ def save_congestion_maps(
 
     nodes_by_id = {n["id"]: n for n in mapping["nodes"]}
 
-    # Shared color normalization across pre and post -> consistent comparison.
+    # Share color normalization between pre-event and post-event maps.
     all_vals = list(pre.values()) + list(post.values())
     vmin = min(all_vals) if all_vals else 1.0
     vmax = max(all_vals) if all_vals else 2.0
@@ -786,7 +780,7 @@ def save_congestion_maps(
                 continue
             rid = road["id"]
             if which == "post" and rid in blocked:
-                color = "#9e9e9e" # grey = blocked road (matches viewer)
+                color = "#9e9e9e"
             else:
                 color = cmap(norm(factors.get(rid, 1.0)))
             ax.plot(xs, ys, color=color, linewidth=1.54, alpha=0.9,

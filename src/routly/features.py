@@ -68,11 +68,11 @@ class DynamicCongestionConfig:
 @dataclass
 class CongestionConfig:
     enabled: bool = False
-    mode: str = "pddl" # "sumo" | "pddl"
-    type: str = "static" # "static" | "dynamic" | "hybrid"
+    mode: str = "pddl"
+    type: str = "static"
     replanning: bool = False
     num_background_vehicles: int = 200
-    congestion_factor: float = 2.0 # speed divisor for congested roads in pddl mode
+    congestion_factor: float = 2.0
     dynamic: DynamicCongestionConfig = field(default_factory=DynamicCongestionConfig)
     vehicles_for_max_congestion_by_road_class: dict[str, int] = field(
         default_factory=lambda: dict(DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS)
@@ -82,10 +82,10 @@ class CongestionConfig:
 @dataclass
 class LLMEventsConfig:
     enabled: bool = False
-    strategic_injection: bool = False  # if True, LLM uses compact problem topology
-    # (start, goal, node degree) instead of a random road sample to pick targets
+    # Prefer topology near start, goal, and high-degree nodes.
+    strategic_injection: bool = False
     prevent_unsolvable_blocks: bool = False
-    unsolvable_fallback: str = "slowdown" # "slowdown" | "skip"
+    unsolvable_fallback: str = "slowdown"
     unsolvable_fallback_severity: float = 5.0
 
 
@@ -110,16 +110,15 @@ class ControllerConfig:
 
 @dataclass(frozen=True)
 class FuelConfig:
-    """Fuel feature configuration — only flags and ratios; the litres are
-    derived from the map at build time."""
+    """Fuel feature configuration with map-derived litre values."""
 
     enabled: bool = False
     replanning: bool = False
-    stations_ratio: float = 0.35 # fraction of nodes that get a station
-    initial_fuel_ratio: float = 0.15 # fraction of full tank at the start
-    stations_source: str = "random" # "random" | "osm"
-    consumption_mode: str = "discrete" # "discrete" (burn at road entry) | "continuous" (burn in process)
-    refuel_stop_seconds: int = 30 # seconds to stop at a fuel station
+    stations_ratio: float = 0.35
+    initial_fuel_ratio: float = 0.15
+    stations_source: str = "random"
+    consumption_mode: str = "discrete"
+    refuel_stop_seconds: int = 30
 
     def __post_init__(self) -> None:
         if self.replanning and not self.enabled:
@@ -249,8 +248,6 @@ class FeatureConfig:
         if self.road_abstraction.enabled:
             parts.append("macro")
         return "_".join(parts) if parts else "base"
-
-    # ── constructor ───────────────────────────────────────────────────────────
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> FeatureConfig:

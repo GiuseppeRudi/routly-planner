@@ -8,15 +8,20 @@ The selected area is the center of Bologna, Italy. The goal is to extract a simp
 
 ```text
 OpenStreetMap
-    ↓
+    |
+    v
 OSMnx / SUMO
-    ↓
+    |
+    v
 Simplified road graph
-    ↓
+    |
+    v
 PDDL domain and problem
-    ↓
+    |
+    v
 Planner
-    ↓
+    |
+    v
 Generated route / urban plan
 ```
 

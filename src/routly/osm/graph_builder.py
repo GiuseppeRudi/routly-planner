@@ -9,7 +9,6 @@ import osmnx as ox
 
 def keep_largest_strong_component(graph: nx.MultiDiGraph, is_strongly_connected: bool) -> nx.MultiDiGraph:
     graph = ox.truncate.largest_component(graph, strongly=is_strongly_connected)
-    # print(f"  Largest component: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
     return graph
 
 
@@ -27,14 +26,11 @@ def crop_around_center(
     bfs_nodes = list(nx.bfs_tree(graph, center_node).nodes)[:max_nodes]
     cropped = graph.subgraph(bfs_nodes).copy()
 
-    # print(f"  Center: lat={center[0]:.4f}, lon={center[1]:.4f}")
-    # print(f"  Cropped graph: {len(cropped.nodes)} nodes, {len(cropped.edges)} edges")
     return cropped
 
 
 def add_projected_coordinates(graph: nx.MultiDiGraph) -> tuple[nx.MultiDiGraph, nx.MultiDiGraph]:
 
-    # print("Projecting graph to metric coordinates...")
     projected = ox.project_graph(graph)
 
     for node_id in graph.nodes:
@@ -48,25 +44,24 @@ def save_graphml(graph: nx.MultiDiGraph, path: str | Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     ox.save_graphml(graph, filepath=path)
-    # print(f"  Saved GraphML: {path}")
 
 
 def find_osm_fuel_nodes(graph, place_name, distance_meters) -> set:
     """osmids (graph node keys) closest to real amenity=fuel POIs."""
-    center = ox.geocode(place_name) # (lat, lon)
+    center = ox.geocode(place_name)
     try:
         pois = ox.features_from_point(
             (center[0], center[1]),
             tags={"amenity": "fuel"},
-            dist=distance_meters, # same area as the road graph
+            dist=distance_meters,
         )
-    except Exception as exc: # network / empty / old osmnx
+    except Exception as exc:
         print(f"  WARNING: OSM fuel query failed ({exc}); no real stations.")
         return set()
     if pois.empty:
         return set()
-    pts = pois.geometry.representative_point() # handles node + polygon POIs
-    nearest = ox.distance.nearest_nodes( # unprojected graph -> X=lon, Y=lat
+    pts = pois.geometry.representative_point()
+    nearest = ox.distance.nearest_nodes(
         graph, X=pts.x.tolist(), Y=pts.y.tolist()
     )
     return {int(v) for v in np.atleast_1d(nearest)}

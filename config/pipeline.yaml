@@ -10,5 +10,4 @@ run:
   # The fuel controller runs inside generate_plan so it can share the LLM event flow.
   # A congestion controller run replaces generate_plan automatically when
   # congestion.replanning=true.
-  # - controller_run
   - plan_to_sumo

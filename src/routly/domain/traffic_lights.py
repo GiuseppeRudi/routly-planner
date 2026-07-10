@@ -19,7 +19,7 @@ class IntersectionComplexity(str, Enum):
     COMPLEX = "complex"
 
 
-# Where each complexity class sits inside a configured [min, max] phase band.
+# Map each complexity class to a segment of the configured duration range.
 _COMPLEXITY_BANDS: dict["IntersectionComplexity", tuple[float, float]] = {
     IntersectionComplexity.SIMPLE: (0.0, 1.0 / 3.0),
     IntersectionComplexity.MEDIUM: (1.0 / 3.0, 2.0 / 3.0),
@@ -32,8 +32,7 @@ class TrafficLightTiming:
     green: int
     yellow: int
     red: int
-    # Complexity class that produced these durations (kept for inspection,
-    # logging and the generated JSON; defaults keep older callers working).
+    # Preserve the source class for logs, JSON output, and older callers.
     complexity: str = IntersectionComplexity.SIMPLE.value
 
     @property
@@ -43,7 +42,7 @@ class TrafficLightTiming:
         return round((self.red * self.red) / (2 * cycle_duration), 2)
 
 
-# Road-type contribution to the complexity score.
+# Rank road capacity for intersection-complexity scoring.
 _CLASS_RANK = {"local": 0, "arterial": 1, "major": 2}
 
 
@@ -89,20 +88,25 @@ def classify_intersection(
       * how many streets meet at the node (geometric complexity), and
       * the highest-capacity incident road.
     """
-    # Geometric complexity from the number of approaching streets.
-    if approaches <= 2: degree_level = 0  # through-node / pedestrian crossing
-    elif approaches == 3: degree_level = 1  # T-junction
-    else: degree_level = 2  # crossroads (4-way) or larger
+    # Derive geometric complexity from the number of approaches.
+    if approaches <= 2:
+        degree_level = 0
+    elif approaches == 3:
+        degree_level = 1
+    else:
+        degree_level = 2
 
-    # Road-type complexity from the highest-capacity incident road.
+    # Derive road complexity from the highest-capacity incident road.
     road_level = max(
         (_CLASS_RANK[road_capacity_class(road)] for road in incident_roads),
         default=0,
     )
 
-    score = degree_level + road_level  # 0..4
-    if score <= 0: return IntersectionComplexity.SIMPLE
-    if score <= 2: return IntersectionComplexity.MEDIUM
+    score = degree_level + road_level
+    if score <= 0:
+        return IntersectionComplexity.SIMPLE
+    if score <= 2:
+        return IntersectionComplexity.MEDIUM
     return IntersectionComplexity.COMPLEX
 
 

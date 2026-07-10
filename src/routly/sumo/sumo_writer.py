@@ -178,7 +178,7 @@ def write_fuel_pois(stations: list[str], nodes: list[dict], path, net_file,
         cx = round(node["x"] + dx, 2)
         cy = round(node["y"] + dy, 2)
 
-        # red halo UNDER the icon for chosen stations
+        # Draw selected-station halos below their icons.
         if sid in chosen_set:
             ET.SubElement(root, "poi", id=f"fuel_sel_{sid}",
                 x=str(cx), y=str(cy), type="fuel_chosen",
@@ -241,17 +241,17 @@ def write_rou_xml(
     ET.SubElement(root, "vType", id="car", accel="2.6", decel="4.5",
                   sigma="0.5", length="5.0", maxSpeed="13.9")
 
-    # ── planned vehicle ───────────────────────────────────────────────────────
+    # Write the planned vehicle first.
     vehicle = ET.SubElement(root, "vehicle",
                             id=vehicle_id, type="car",
                             depart=str(depart_time),
-                            color="1,0,0")   # red — easy to spot
+                            color="1,0,0")
     ET.SubElement(vehicle, "route", edges=" ".join(edge_sequence))
 
     if refuel_stops and refuel_seconds > 0 and all_roads:
         road_to = {r["id"]: r["to"] for r in all_roads}
-        remaining = list(refuel_stops) # station occurrences, in plan order
-        for edge_id in edge_sequence: # scan in route order -> stops stay ordered
+        remaining = list(refuel_stops)
+        for edge_id in edge_sequence:
             if not remaining:
                 break
             dest = road_to.get(edge_id)
@@ -259,9 +259,9 @@ def write_rou_xml(
                 ET.SubElement(
                     vehicle,
                     "stop",
-                    lane=f"{edge_id}_0", # single-lane edges -> lane index _0
+                    lane=f"{edge_id}_0",
                     duration=f"{refuel_seconds:.1f}",
-                    parking="false", # halt on the lane (stays visible)
+                    parking="false",
                 )
                 remaining.remove(dest)
         if remaining:
@@ -270,7 +270,7 @@ def write_rou_xml(
                 "matched to an edge in the route; no stop added for them."
             )
 
-    # ── background vehicles ───────────────────────────────────────────────────
+    # Write background traffic after the planned vehicle.
     closed_edges = set(blocked_roads) if blocked_roads else set()
     closed_nodes = set(blocked_locations) if blocked_locations else set()
 
@@ -281,7 +281,7 @@ def write_rou_xml(
             road_nodes[r["id"]] = (r["from"], r["to"])
             road_by_id[r["id"]] = r
     
-    # time(road) = length / speed. Roads missing from the table are ignored.
+    # Estimate route time from road length and speed when metadata is available.
     def _route_seconds(edges):
         total = 0.0
         for rid in edges:
@@ -293,8 +293,7 @@ def write_rou_xml(
                 total += float(r["length"]) / speed
         return total
 
-    # if no explicit cap was given, derive it from the *actual* planned
-    # route (we already have it here, so no estimate is needed).
+    # Derive the presence horizon from the resolved plan when no cap is set.
     if max_present_time is None and road_by_id:
         planned = _route_seconds(edge_sequence)
         if planned > 0:
@@ -306,7 +305,7 @@ def write_rou_xml(
             raise ValueError(
                 "A global seed is required when generating background routes"
             )
-        # Filter the pool so random background routes do not even pick blocked infrastructure
+        # Exclude blocked infrastructure before generating background routes.
         filtered_all_roads = [
             r for r in all_roads
             if r["id"] not in closed_edges
@@ -316,7 +315,7 @@ def write_rou_xml(
         
         bg_routes = generate_background_routes(filtered_all_roads, background_vehicles, seed)
     elif bg_routes is not None:
-        # If background routes are pre-calculated, filter out any route touching blocked components
+        # Remove precomputed routes that touch blocked infrastructure.
         filtered_bg_routes = []
         for depart, route in bg_routes:
             route_edges = route.edges if hasattr(route, "edges") else route
@@ -420,7 +419,7 @@ def write_sumocfg(
 ) -> None:
     cfg_file = Path(cfg_file)
     def cfg_path_value(path):
-        # percorso ASSOLUTO: SUMO non deve risolvere '../../../'
+        # Use an absolute path so SUMO does not resolve parent-directory segments.
         return str(Path(path).resolve()).replace(os.sep, "/")
 
     root = ET.Element("configuration")

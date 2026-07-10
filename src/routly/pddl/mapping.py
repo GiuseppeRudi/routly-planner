@@ -64,7 +64,7 @@ def graph_to_mapping(
 
         entry = {
             "id": loc_id, "x": data["x_proj"], "y": data["y_proj"],
-            "traffic_light": is_tl, "fuel_station": is_fuel,  # NEW key
+            "traffic_light": is_tl, "fuel_station": is_fuel,
         }
         node_map[node] = entry
         nodes_for_json.append(dict(entry))
@@ -111,8 +111,6 @@ def graph_to_mapping(
         "roads": roads_for_json,
     }
 
-    #print(f"  Locations: {len(nodes_for_json)}")
-    #print(f"  Roads:     {len(roads_for_json)}")
     tl_count = sum(1 for n in nodes_for_json if n.get("traffic_light"))
     print(f"  Traffic lights: {tl_count} / {len(nodes_for_json)} nodes")
 
@@ -123,7 +121,6 @@ def write_mapping(mapping: dict, path: str | Path) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(mapping, indent=2), encoding="utf-8")
-    #print(f"Mapping written: {path}")
 
 
 def load_mapping(path: str | Path) -> dict:

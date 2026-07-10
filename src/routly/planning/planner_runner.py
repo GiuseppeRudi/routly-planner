@@ -22,16 +22,14 @@ def run_enhsp(
 
     cmd = [
         "java",
-        f"-Xmx{java_heap_mb}m",     # max heap — prevents OOM on large problems
-        f"-Xms{java_heap_mb // 4}m", # initial heap — reduces GC pauses at startup
+        f"-Xmx{java_heap_mb}m",
+        f"-Xms{java_heap_mb // 4}m",
         "-jar",
         str(enhsp_jar),
         "-o", str(domain_path),
         "-f", str(problem_path)]
 
     print("Running ENHSP")
-    # print("  " + " ".join(cmd))
-
     try:
         start = time.time()
         with plan_path.open("w", encoding="utf-8") as outfile:

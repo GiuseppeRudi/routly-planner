@@ -131,7 +131,7 @@ def generate_background_routes(
         road_len[road["id"]] = float(road.get("length", 0.0))
         road_speed[road["id"]] = float(road.get("speed", 0.0) or 0.0)
 
-    # time(road) = length / speed.
+    # Compute occupancy from travel time: road length divided by speed.
     def _route_seconds(route: list[str]) -> float:
         total = 0.0
         for rid in route:
@@ -178,10 +178,10 @@ def generate_background_routes(
             if max_present_time is not None:
                 latest_depart = max_present_time - _route_seconds(route)
                 if latest_depart < 1.0:
-                    continue          # can't finish before T -> discard route
+                    continue
                 depart = round(rng.uniform(1.0, latest_depart), 1)
             else:
-                depart = round(rng.uniform(1.0, 300.0), 1)   # old behaviour
+                depart = round(rng.uniform(1.0, 300.0), 1)
             routes.append((depart, route))
 
     routes.sort(key=lambda item: item[0])
@@ -265,10 +265,6 @@ def compute_congestion_factors(
     )
 
     counts = count_vehicles_per_road(background_routes)
-    
-    # print(
-    #     f"Vehicle counts for congestion computation: "
-    #     f"{ {road_id: count for road_id, count in counts.items() if count > 0} }")
     
     factors: dict[str, float] = {}
     for road in roads:

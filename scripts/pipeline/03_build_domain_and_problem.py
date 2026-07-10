@@ -90,9 +90,6 @@ def main() -> None:
     )
 
     print("Building PDDL domain and problem from scenario and mapping")
-    # print(f"  Scenario: {scenario_path}")
-    # print(f"  Mapping:  {mapping_path}")
-
     mapping = load_mapping(mapping_path)
 
     vehicle_id, start_loc, goal_loc = extract_vehicle_start_goal(scenario)
@@ -104,12 +101,12 @@ def main() -> None:
 
     if features.congestion_enabled:
         route_seconds = estimate_route_duration_straight_line(
-            node_map, # nodes_by_id
+            node_map,
             roads,
             start_loc,
             goal_loc,
-            detour_factor=1.3, # roads aren't straight lines
-            safety_margin=1.15, # small cushion
+            detour_factor=1.3,
+            safety_margin=1.15,
         )
 
         background_routes = generate_background_routes(
@@ -216,7 +213,6 @@ def main() -> None:
             f"(features: {features.label}, traversal: {config.traversal_model})"
         )
 
-    # Generate problem
     problem_name = scenario.get("scenario", {}).get(
         "name",
         f"{config.place_slug}_problem",

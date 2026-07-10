@@ -670,9 +670,7 @@ def _build_process(f: FeatureConfig, traversal_model: str) -> str:
 
     fuel_effect = ""
     if f.fuel_in_pddl and f.fuel.consumption_mode == "continuous":
-        # Continuous burn integrated over time: litres = rate * speed * #t.
-        # Physically smooth, but fuel-level changes every tick, which makes
-        # the search far heavier -> prefer "discrete" unless you need this.
+        # Continuous burn is physically smooth but expands numeric search state.
         fuel_effect = (
             "\n      (decrease (fuel-level ?v) "
             "(* #t (* (speed ?v) (fuel-consumption-rate ?v))))"
@@ -725,7 +723,7 @@ def _build_events(
   )""")
 
         events.append("""\
-  ;; Arrive at a signalized intersection — adds average red-light wait
+  ;; Arrive at a signalized intersection and add the average red-light wait.
   (:event arrive-at-traffic-light
     :parameters (?v - vehicle ?r - road ?from - location ?to - location)
     :precondition (and

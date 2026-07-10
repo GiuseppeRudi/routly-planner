@@ -9,14 +9,14 @@ import random
 
 from src.routly.features import FuelConfig
 
-# Map-driven tunables
-# What actually controls difficulty is scale-invariant:
+# Map-driven fuel parameters
+# Planning difficulty depends on these scale-invariant relationships:
 #   full-tank range = _TANK_RANGE_FRACTION * map_diagonal
-#   start range = initial_fuel_ratio  * full-tank range
-# capacity & consumption are cosmetic litres that grow with the map.
-_TANK_RANGE_FRACTION = 0.5 # a full tank covers  about 50% of the map diagonal
-_BASE_CONSUMPTION_PER_KM = 7.0  # litres/km at the reference map size
-_REFERENCE_SPAN_KM = 5.0 # map diagonal treated as the "1x" size
+#   start range = initial_fuel_ratio * full-tank range
+# Capacity and consumption provide map-scaled litre values.
+_TANK_RANGE_FRACTION = 0.5
+_BASE_CONSUMPTION_PER_KM = 7.0
+_REFERENCE_SPAN_KM = 5.0
 
 @dataclass(frozen=True)
 class FuelParameters:
@@ -65,7 +65,7 @@ def generate_fuel_stations(
         osm_ids = sorted(n["id"] for n in nodes if n.get("fuel_station"))
         if osm_ids:
             chosen = set(osm_ids)
-            if len(chosen) < target: # top up to the density target
+            if len(chosen) < target:
                 rng = random.Random(seed)
                 pool = [lid for lid in location_ids if lid not in chosen]
                 chosen.update(rng.sample(pool, min(target - len(chosen), len(pool))))
@@ -99,7 +99,7 @@ def derive_fuel_parameters(
 
     scale = (span_km / _REFERENCE_SPAN_KM) if span_km > 0 else 1.0
     consumption_per_meter = (_BASE_CONSUMPTION_PER_KM * scale) / 1000.0
-    consumption_per_meter = max(consumption_per_meter, 1e-6)  # never zero
+    consumption_per_meter = max(consumption_per_meter, 1e-6)
 
     range_full_m = _TANK_RANGE_FRACTION * span_m
     tank_capacity = max(round(consumption_per_meter * range_full_m, 3), 1e-3)
@@ -133,9 +133,9 @@ def load_fuel_stations(path: str | Path) -> list[str]:
 class FuelReachability:
     """Result of the fuel reachability check, considering the available fuel."""
 
-    reachable: bool          # the goal is reachable (with or without refuelling)
-    needs_refuel: bool       # a refuelling stop is needed to reach the goal
-    message: str             # readable explanation
+    reachable: bool
+    needs_refuel: bool
+    message: str
     reachable_stations: list[str] = field(default_factory=list)
 
 
@@ -161,7 +161,7 @@ def compute_fuel_reachability(
     dist_start = distances_from(start_loc)
     dist_to_goal = dist_start.get(goal_loc, inf)
 
-    # 1. direct reachability: goal within initial fuel range
+    # Return immediately when initial fuel can reach the goal.
     if dist_to_goal <= initial_range:
         return FuelReachability(
             reachable=True,
@@ -174,7 +174,7 @@ def compute_fuel_reachability(
 
     goal_has_path = dist_to_goal < inf
 
-    # 2. Reachable station expansion: BFS-like, but with fuel range instead of hops.
+    # Expand reachable stations by fuel range instead of graph hops.
     reached = {
         s
         for s in stations
@@ -197,7 +197,7 @@ def compute_fuel_reachability(
                 all_reached.add(other)
                 queue.append(other)
 
-    # 3. Not reachable: distinguish topological vs fuel limitation.
+    # Distinguish topological disconnection from insufficient fuel coverage.
     if not goal_has_path:
         message = f"{goal_loc} is not reachable from {start_loc} on the road network."
     elif not reached:
