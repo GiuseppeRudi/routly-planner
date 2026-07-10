@@ -124,7 +124,7 @@ features:
 
   
   fuel:
-    enabled: true # if true max_nodes must be decreased
+    enabled: false # if true max_nodes must be decreased
     replanning: false # true activates the offline fuel controller
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
