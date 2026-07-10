@@ -21,11 +21,12 @@ from src.routly.domain.congestion import (
     select_dynamic_roads,
 )
 from src.routly.config import load_config
+from src.routly.sumo.sumo_writer import parse_refuel_stops
 from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
 from src.routly.graph.graph_export import (
     plot_event_map, plot_plan_from_mapping, open_congestion_map,
-    save_congestion_maps,
+    save_congestion_maps, plot_controller_legs_from_mapping,
 )
 from src.routly.llm_client import call_llm
 from src.routly.llm.prompts import build_event_prompt
@@ -49,6 +50,8 @@ from src.routly.pddl.domain_generator import build_road_network_domain
 from src.routly.pddl.pddl_writer import write_pddl
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
+from src.routly.controller import ControllerRunRequest
+from src.routly.controller.fuel_controller import run_fuel_controller
 from src.routly.domain.traffic_lights import load_traffic_light_timings
 from src.routly.utils import read_yaml
 
@@ -120,6 +123,163 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--plan-image-override", help="Path to alternative plan image output file")
     return parser.parse_args()
 
+def _extract_vehicle_start_goal(scenario: dict) -> tuple[str, str, str]:
+    vehicles = scenario.get("vehicles", [])
+    if not vehicles:
+        raise ValueError("Scenario YAML does not contain any vehicle.")
+    vehicle = vehicles[0]
+    return (
+        vehicle.get("id", "car1"),
+        vehicle["start"]["value"],
+        vehicle["goal"]["value"],
+    )
+
+
+def _controller_plan_and_plot(
+    config,
+    features: "FeatureConfig",
+    mapping: dict,
+    scenario: dict,
+    plan_path: "Path",
+    plan_image_path: "Path",
+    blocked_road_ids: set[str] | None = None,
+    run_label: str = "",
+) -> list[str]:
+    """Generate a plan with the fuel controller, save it, and plot it."""
+    vehicle_id, start_loc, goal_loc = _extract_vehicle_start_goal(scenario)
+
+    if run_label == "events":
+        pddl_dir, plans_dir = config.llm_pddl_dir, config.llm_plans_dir
+    else:
+        pddl_dir, plans_dir = config.basic_pddl_dir, config.basic_plans_dir
+    for directory in (pddl_dir, plans_dir):
+        directory.mkdir(parents=True, exist_ok=True)
+
+    try:
+        result = run_fuel_controller(
+            ControllerRunRequest(
+                project_config=config,
+                features=features,
+                scenario=scenario,
+                mapping=mapping,
+                vehicle_id=vehicle_id,
+                start_loc=start_loc,
+                goal_loc=goal_loc,
+            ),
+            blocked_road_ids=blocked_road_ids,
+            run_label=run_label,
+            pddl_dir=pddl_dir,
+            plans_dir=plans_dir,
+        )
+    except Exception as e:
+        print("\n" + "!" * 75)
+        print("CRITICAL ERROR: FUEL CONTROLLER COULD NOT REACH THE GOAL")
+        print("!" * 75)
+        print(f"Reason: {e}")
+        print("!" * 75 + "\n")
+        sys.exit(1)
+
+    if result.status != "success" or not result.plan_text:
+        print("\n" + "!" * 75)
+        print("CRITICAL ERROR: FUEL CONTROLLER PLAN UNSOLVABLE")
+        print("!" * 75)
+        print(f"Reason: {result.message}")
+        print("!" * 75 + "\n")
+        sys.exit(1)
+
+    plan_path.parent.mkdir(parents=True, exist_ok=True)
+    plan_path.write_text(result.plan_text, encoding="utf-8")
+
+    planned_roads = parse_start_traversal_roads(result.plan_text)
+    if not planned_roads:
+        print("\n" + "!" * 75)
+        print("CRITICAL ERROR: FUEL CONTROLLER PLAN RESOLVED TO EMPTY PATH")
+        print("!" * 75 + "\n")
+        sys.exit(1)
+
+    print(f"Roads in controller plan ({run_label or 'base'}): {len(planned_roads)}")
+    print(f"  {result.message}")
+
+    fuel_stations = (
+        load_fuel_stations(config.fuel_stations_path)
+        if features.fuel.enabled and config.fuel_stations_path.exists()
+        else []
+    )
+    plot_plan_from_mapping(
+        mapping=mapping,
+        planned_roads=planned_roads,
+        output_path=plan_image_path,
+        fuel_stations=fuel_stations,
+    )
+
+    if result.segments:
+        legs: list[list[str]] = []
+        leg_labels: list[str] = []
+        for seg in result.segments:
+            leg_roads: list[str] = []
+            if seg.plan_path and Path(seg.plan_path).exists():
+                leg_roads = parse_start_traversal_roads(
+                    Path(seg.plan_path).read_text(encoding="utf-8")
+                )
+            if not leg_roads:
+                continue
+            legs.append(leg_roads)
+            leg_labels.append(
+                f"Leg {seg.index}: {seg.start_loc} -> {seg.target_loc}"
+            )
+        if legs:
+            legs_image_path = plan_image_path.with_name(
+                plan_image_path.stem + "_legs" + plan_image_path.suffix
+            )
+            plot_controller_legs_from_mapping(
+                mapping=mapping,
+                legs=legs,
+                output_path=legs_image_path,
+                fuel_stations=fuel_stations,
+                chosen_ids=parse_refuel_stops(result.plan_text),
+                start_loc=start_loc,
+                goal_loc=goal_loc,
+                leg_labels=leg_labels,
+                title=(
+                    "Controller legs ("
+                    + (run_label or "basic")
+                    + "): start -> goal"
+                ),
+            )
+            print(f"  Legs image: {legs_image_path}")
+
+    print("\nOUTPUT FILES (fuel controller):")
+    print(f"  Plan:       {plan_path}")
+    print(f"  Plan image: {plan_image_path}")
+    return planned_roads
+
+
+def plan_and_plot(
+    config,
+    features: "FeatureConfig",
+    problem_path: "Path",
+    plan_path: "Path",
+    plan_image_path: "Path",
+    *,
+    mapping: dict | None = None,
+    scenario: dict | None = None,
+    blocked_road_ids: set[str] | None = None,
+    run_label: str = "",
+) -> list[str]:
+    """Dispatcher: fuel controller if enabled, otherwise ENHSP planner."""
+    if features.fuel_in_controller:
+        if mapping is None:
+            mapping = load_mapping(config.mapping_path)
+        if scenario is None:
+            scenario = read_yaml(config.scenario_path)
+        return _controller_plan_and_plot(
+            config, features, mapping, scenario,
+            plan_path, plan_image_path,
+            blocked_road_ids=blocked_road_ids, run_label=run_label,
+        )
+    return _run_and_plot(config, features, problem_path, plan_path, plan_image_path)
+
+def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path: Path, plan_image_path: Path) -> list[str]:
 def _run_and_plot(
     config,
     features: FeatureConfig,
@@ -498,6 +658,12 @@ def main() -> None:
         enabled=features.road_abstraction.enabled,
     )
 
+    original_roads = plan_and_plot(
+        config, features, problem_path, plan_path, plan_image_path,
+        run_label="base",
+    )
+
+    # print(features)
     original_roads = _run_and_plot(
         config,
         features,
@@ -555,7 +721,7 @@ def main() -> None:
 
     print(f"   Mode: {'STRATEGIC' if features.llm_events.strategic_injection else 'NEUTRAL'} TOPOLOGY-BASED GENERATION (LLM)")
     if start_loc is None or goal_loc is None:
-        print("❌ Could not extract start/goal from PDDL header. Skipping injection.")
+        print("Could not extract start/goal from PDDL header. Skipping injection.")
         return
     topology = extract_topology_for_llm(
         mapping=mapping,
@@ -791,6 +957,8 @@ def main() -> None:
                     f"{dynamic_domain_path}"
                 )
             print(
+                "Dynamic congestion profile recalculation completed. "
+                f"{updated_count} initial factors and {future_updates} future updates written."
                 "✅ Dynamic congestion profile recalculation completed. "
                 f"{updated_count} initial factors and "
                 f"{len(active_dynamic_roads)} dynamic roads written."
@@ -816,6 +984,7 @@ def main() -> None:
                 if pattern.search(modified_content):
                     modified_content = pattern.sub(replacement, modified_content, count=1)
                     updated_count += 1
+            print(f"Static topology recalculation completed. {updated_count} open roads updated in PDDL.")
                 if config.traversal_model == "compiled_duration":
                     road_info = roads_by_id.get(road_id)
                     if road_info is not None:
@@ -856,6 +1025,12 @@ def main() -> None:
         json.dump(log_payload, log_f, indent=2, ensure_ascii=False)
     print(f"  Incidents log successfully saved to: {log_path.name}")
 
+    recalculated_roads = plan_and_plot(
+        config, features, dynamic_problem_path, dynamic_plan_path,
+        dynamic_plan_image_path,
+        mapping=mapping,
+        blocked_road_ids=set(just_blocked_road_ids),
+        run_label="events",
     recalculated_roads = _run_and_plot(
         config,
         features,
@@ -870,11 +1045,26 @@ def main() -> None:
     slowed_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"], "severity": event["severity"]} for event in events if event["event_type"] == "slowdown" for road in event["roads"]]
     
     event_map_path = config.event_map_path
-    plot_event_map(
-        mapping=mapping, original_roads=original_roads, recalculated_roads=recalculated_roads,
-        blocked_roads=blocked_roads, blocked_locations=blocked_locations, start_loc=start_loc, goal_loc=goal_loc,
-        output_path=event_map_path, slowed_roads=slowed_roads,
+    fuel_station_ids = (
+        load_fuel_stations(config.fuel_stations_path)
+        if features.fuel.enabled and config.fuel_stations_path.exists()
+        else []
     )
+    chosen_station_ids = (
+        parse_refuel_stops(dynamic_plan_path.read_text(encoding="utf-8"))
+        if dynamic_plan_path.exists() else []
+    )
+
+    plot_event_map(
+        mapping=mapping, original_roads=original_roads,
+        recalculated_roads=recalculated_roads,
+        blocked_roads=blocked_roads, blocked_locations=blocked_locations,
+        start_loc=start_loc, goal_loc=goal_loc,
+        output_path=event_map_path, slowed_roads=slowed_roads,
+        station_ids=fuel_station_ids,
+        chosen_ids=chosen_station_ids,
+    )
+
     print(f"   Event map saved: {event_map_path}")
 
     save_congestion_maps(
@@ -886,6 +1076,8 @@ def main() -> None:
         start_loc=start_loc,
         goal_loc=goal_loc,
         place_name=getattr(config, "place_name", ""),
+        station_ids=fuel_station_ids,
+        chosen_ids=chosen_station_ids
     )
 
     if features.sumo.open_congestion_map:
@@ -897,6 +1089,8 @@ def main() -> None:
             start_loc=start_loc,
             goal_loc=goal_loc,
             place_name=getattr(config, "place_name", ""),
+            station_ids=fuel_station_ids,
+            chosen_ids=chosen_station_ids
         )
 
 

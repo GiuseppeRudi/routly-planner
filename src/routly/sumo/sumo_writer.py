@@ -73,7 +73,9 @@ def write_edg_xml(roads: list[dict], path: str | Path) -> None:
     _write_pretty_xml(root, path)
 
 
-def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path) -> None:
+def build_net(edge_file, node_file, net_file) -> None:
+    net_file = Path(net_file)
+    net_file.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         "netconvert",
         "--node-files", str(node_file),
@@ -85,7 +87,18 @@ def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path
         "--no-turnarounds.fringe", "false",
     ]
     print("Running:", " ".join(cmd))
-    subprocess.run(cmd, check=True)
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
+    if result.returncode != 0 or not net_file.exists():
+        raise RuntimeError(
+            f"netconvert didn't produce the network: {net_file}\n"
+            f"return code: {result.returncode}\n"
+            f"--- netconvert stderr ---\n{result.stderr}"
+        )
+    print(f"Network created: {net_file}")
 
 
 def apply_traffic_light_timings(
@@ -144,24 +157,40 @@ def _read_net_offset(net_file) -> tuple[float, float]:
     dx, dy = (float(v) for v in loc.get("netOffset", "0,0").split(","))
     return dx, dy
 
-def write_fuel_pois(stations: list[str], nodes: list[dict], path: str | Path, net_file: str | Path, icon: Path | None = None) -> None:
-    """Write a SUMO additional file with one POI per fuel station."""
+def write_fuel_pois(stations: list[str], nodes: list[dict], path, net_file,
+                    icon=None, chosen=None) -> None:
+    """Write a SUMO additional file with one POI per fuel station.
+
+    Stations in 'chosen' get an extra red halo POI drawn underneath so the
+    stations selected by the planner/controller stand out.
+    """
+    from pathlib import Path
     nodes_by_id = {n["id"]: n for n in nodes}
+    chosen_set = set(chosen or [])
     root = ET.Element("additional")
     dx, dy = _read_net_offset(net_file)
     for sid in stations:
-        print(f"Adding fuel station POI for node {sid}")
+        print(f"Adding fuel station POI for node {sid}"
+              + (" [chosen]" if sid in chosen_set else ""))
         node = nodes_by_id.get(sid)
         if node is None:
             continue
+        cx = round(node["x"] + dx, 2)
+        cy = round(node["y"] + dy, 2)
+
+        # red halo UNDER the icon for chosen stations
+        if sid in chosen_set:
+            ET.SubElement(root, "poi", id=f"fuel_sel_{sid}",
+                x=str(cx), y=str(cy), type="fuel_chosen",
+                layer="9", width="22", height="22", color="1,0.15,0.15")
+
         poi = ET.SubElement(root, "poi", id=f"fuel_{sid}",
-            x=str(round(node["x"] + dx, 2)),   # shift in net coords
-            y=str(round(node["y"] + dy, 2)),
+            x=str(cx), y=str(cy),
             type="fuel", layer="10", width="10", height="10")
         if icon:
             poi.set("imgFile", str(Path(icon).resolve()))
         else:
-            poi.set("color", "0,0.6,0.2")
+            poi.set("color", "1,0.15,0.15" if sid in chosen_set else "0,0.6,0.2")
     _write_pretty_xml(root, path)
 
 def _phase_kind(phase: ET.Element) -> str:
@@ -198,6 +227,8 @@ def write_rou_xml(
     blocked_locations: list[str] | None = None,
     max_present_time: float | None = None,
     presence_safety_margin: float = 1.15,
+    refuel_stops: list[str] | None = None,
+    refuel_seconds: float = 0.0,
 ) -> None:
     """
     Write SUMO route XML.
@@ -216,6 +247,28 @@ def write_rou_xml(
                             depart=str(depart_time),
                             color="1,0,0")   # red — easy to spot
     ET.SubElement(vehicle, "route", edges=" ".join(edge_sequence))
+
+    if refuel_stops and refuel_seconds > 0 and all_roads:
+        road_to = {r["id"]: r["to"] for r in all_roads}
+        remaining = list(refuel_stops) # station occurrences, in plan order
+        for edge_id in edge_sequence: # scan in route order -> stops stay ordered
+            if not remaining:
+                break
+            dest = road_to.get(edge_id)
+            if dest is not None and dest in remaining:
+                ET.SubElement(
+                    vehicle,
+                    "stop",
+                    lane=f"{edge_id}_0", # single-lane edges -> lane index _0
+                    duration=f"{refuel_seconds:.1f}",
+                    parking="false", # halt on the lane (stays visible)
+                )
+                remaining.remove(dest)
+        if remaining:
+            print(
+                f"WARNING: {len(remaining)} refuel station(s) {remaining} not "
+                "matched to an edge in the route; no stop added for them."
+            )
 
     # ── background vehicles ───────────────────────────────────────────────────
     closed_edges = set(blocked_roads) if blocked_roads else set()
@@ -290,12 +343,22 @@ def write_rou_xml(
             ET.SubElement(bg, "route", edges=" ".join(route_edges))
     _write_pretty_xml(root, out_path)
 
+def parse_refuel_stops(plan_text: str) -> list[str]:
+    stops: list[str] = []
+    for line in plan_text.splitlines():
+        m = re.search(r";;\s*refuel at\s+(\S+)", line)
+        if not m:
+            m = re.search(r"\(\s*refuel\s+\S+\s+(\S+)\s*\)", line)
+        if m:
+            stops.append(m.group(1).strip().rstrip(")"))
+    return stops
 
 def compute_simulation_end_time(
     plan_text: str,
     road_sequence: list[str],
     mapping: dict,
     buffer: float = 30,
+    extra_seconds: float = 0.0,
 ) -> float:
     timestamps = extract_start_traversal_timestamps(plan_text)
 
@@ -321,7 +384,7 @@ def compute_simulation_end_time(
         if last_road and last_road.get("speed", 0) > 0:
             last_time += last_road["length"] / last_road["speed"]
 
-    end_time = round(last_time + buffer, 1)
+    end_time = round(last_time + buffer + extra_seconds, 1)
     print(f"Simulation end time: {end_time}s")
     return end_time
 
@@ -356,21 +419,20 @@ def write_sumocfg(
     additional_files: list[str | Path] | None = None,
 ) -> None:
     cfg_file = Path(cfg_file)
-    cfg_dir = cfg_file.parent
-
-    def relative_to_cfg(path: str | Path) -> str:
-        return os.path.relpath(Path(path), start=cfg_dir).replace(os.sep, "/")
+    def cfg_path_value(path):
+        # percorso ASSOLUTO: SUMO non deve risolvere '../../../'
+        return str(Path(path).resolve()).replace(os.sep, "/")
 
     root = ET.Element("configuration")
 
     input_el = ET.SubElement(root, "input")
-    ET.SubElement(input_el, "net-file", value=relative_to_cfg(net_file))
-    ET.SubElement(input_el, "route-files", value=relative_to_cfg(route_file))
+    ET.SubElement(input_el, "net-file", value=cfg_path_value(net_file))
+    ET.SubElement(input_el, "route-files", value=cfg_path_value(route_file))
 
     if additional_files:
         ET.SubElement(
             input_el, "additional-files",
-            value=",".join(relative_to_cfg(p) for p in additional_files),
+            value=",".join(cfg_path_value(p) for p in additional_files),
         )
 
     time_el = ET.SubElement(root, "time")
@@ -390,6 +452,6 @@ def write_sumocfg(
 
     if view_file:
         gui_el = ET.SubElement(root, "gui_only")
-        ET.SubElement(gui_el, "gui-settings-file", value=relative_to_cfg(view_file))
+        ET.SubElement(gui_el, "gui-settings-file", value=cfg_path_value(view_file))
 
     _write_pretty_xml(root, cfg_file)

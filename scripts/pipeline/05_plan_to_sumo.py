@@ -43,12 +43,14 @@ from src.routly.sumo.sumo_writer import (
     apply_traffic_light_timings,
     build_net,
     compute_simulation_end_time,
+    parse_refuel_stops,
     write_edg_xml,
     write_fuel_pois,
     write_nod_xml,
     write_rou_xml,
     write_sumocfg,
     write_view_settings,
+    parse_refuel_stops,
 )
 from src.routly.domain.traffic_lights import (
     generate_traffic_light_timings,
@@ -89,7 +91,7 @@ def resolve_plan_runs(
     if plan_override:
         return [("override", Path(plan_override))]
 
-    if features.controller_enabled:
+    if features.controller_for_congestion:
         if not config.controller_plan_path.exists():
             raise FileNotFoundError(
                 "Controller plan not found. Run the controller_run pipeline step "
@@ -139,7 +141,7 @@ def sumo_cfg_path_for_plan(config, plan_kind: str) -> Path:
     return config.sumo_cfg_path
 
 
-def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list[str], mapping: dict[str, Any]) -> None:
+def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list[str], mapping: dict[str, Any], station_ids: list[str]) -> None:
     if not features.sumo.open_event_map:
         return
     if "dynamic" not in plan_kinds:
@@ -150,6 +152,11 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
     # Legge i percorsi di base e dinamici generati nello Step 4
     orig_roads = parse_start_traversal_roads(config.plan_path.read_text(encoding="utf-8")) if config.plan_path.exists() else []
     repl_roads = parse_start_traversal_roads(config.dynamic_plan_path.read_text(encoding="utf-8")) if config.dynamic_plan_path.exists() else []
+
+    chosen_ids = (
+        parse_refuel_stops(config.dynamic_plan_path.read_text(encoding="utf-8"))
+        if config.dynamic_plan_path.exists() else []
+    )
 
     # Carica gli eventi LLM dal file log
     blocked_roads, slowed_roads, blocked_locs = [], [], []
@@ -172,7 +179,6 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
     start_loc = vehicles[0]["start"]["value"] if vehicles else None
     goal_loc = vehicles[0]["goal"]["value"] if vehicles else None
 
-    # Avvia la finestra interattiva Matplotlib
     viewer = EventMapViewer(
         mapping=mapping,
         original_roads=orig_roads,
@@ -181,7 +187,9 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
         blocked_locations=blocked_locs,
         start_loc=start_loc,
         goal_loc=goal_loc,
-        slowed_roads=slowed_roads
+        slowed_roads=slowed_roads,
+        station_ids=station_ids,
+        chosen_ids=chosen_ids,
     )
     viewer.show()
 
@@ -291,12 +299,17 @@ def write_and_launch_sumo_for_plan(
                     elif isinstance(loc, str):
                         blocked_locations.append(loc)
                 
-                print(f"ℹ️ Loaded incident data for background filtering. Blocked infrastructure:")
+                print(f"Loaded incident data for background filtering. Blocked infrastructure:")
                 print(f"   Roads: {blocked_roads}")
                 print(f"   Junctions: {blocked_locations}")
             except Exception as e:
                 print(f"WARNING: Failed to parse incidents log file ({e}). Routing fallback active.")
 
+    _refuel_stops = parse_refuel_stops(plan_text)
+    _total_dwell = (
+        features.fuel.refuel_stop_seconds * len(_refuel_stops)
+        if features.fuel.enabled else 0.0
+    )
     sumo_background_routes = _filter_background_routes_for_blocked_components(
         background_routes,
         sumo_mapping["roads"],
@@ -323,23 +336,19 @@ def write_and_launch_sumo_for_plan(
         seed=config.seed,
         blocked_roads=blocked_roads,
         blocked_locations=blocked_locations,
+        refuel_stops=_refuel_stops,
+        refuel_seconds=(
+            features.fuel.refuel_stop_seconds if features.fuel.enabled else 0.0
+        ),
     )
 
     end_time = compute_simulation_end_time(
-        plan_text,
-        planning_road_sequence,
-        planning_mapping,
-    )
+        plan_text, planning_road_sequence, planning_mapping, extra_seconds=_total_dwell)
     additional = []
     if features.fuel.enabled and config.fuel_stations_path.exists():
         stations = load_fuel_stations(config.fuel_stations_path)
-        write_fuel_pois(
-            stations,
-            sumo_mapping["nodes"],
-            config.fuel_poi_path,
-            net_path,
-            "images/gas_station.png",
-        )
+        write_fuel_pois(stations, sumo_mapping["nodes"], config.fuel_poi_path, net_path, "images/gas_station.png", chosen=_refuel_stops,)
+  
         additional.append(config.fuel_poi_path)
 
     write_sumocfg(
@@ -433,23 +442,29 @@ def main() -> None:
 
     plan_runs = resolve_plan_runs(config, features, args.plan_override)
 
-    # Assicurati che esista la cartella di output
     config.sumo_viewsettings_path.parent.mkdir(parents=True, exist_ok=True)
 
     sumo_template_view = PROJECT_ROOT / "config" / "sumo_view.xml"
     if sumo_template_view.exists():
         view_content = sumo_template_view.read_text(encoding="utf-8")
         config.sumo_viewsettings_path.write_text(view_content, encoding="utf-8")
-        print(f"🎨 Applicato tema grafico personalizzato da {sumo_template_view.name}")
+        print(f"Applicato tema grafico personalizzato da {sumo_template_view.name}")
     else:
         print(f"WARNING: File {sumo_template_view} non trovato. Caricamento view settings di fallback.")
         write_view_settings(config.sumo_viewsettings_path)
+    
+    fuel_station_ids = (
+        load_fuel_stations(config.fuel_stations_path)
+        if features.fuel.enabled and config.fuel_stations_path.exists()
+        else []
+    )
 
     open_event_map_before_sumo(
         config,
         features,
         [plan_kind for plan_kind, _ in plan_runs],
         mapping=planning_mapping,
+        station_ids=fuel_station_ids,
     )
 
     for plan_kind, plan_path in plan_runs:

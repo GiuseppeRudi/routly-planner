@@ -13,7 +13,7 @@ graph_simplification:
   keep_largest_component: true
   remove_isolated_nodes: true
   distance_meters: 1000
-  max_nodes: 500
+  max_nodes: 300
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
@@ -124,11 +124,12 @@ features:
 
   
   fuel:
-    enabled: false # if true max_nodes must be decreased
-    replanning: false # true activates the offline fuel controller
+    enabled: true # if true max_nodes must be decreased
+    replanning: true # true activates the offline fuel controller
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
     stations_source: random # "random" | "osm"
-    consumption_mode: discrete   # "discrete" | "continuous"
+    consumption_mode: continuous   # "discrete" | "continuous"
     # if consumption_mode = discrete, then max_nodes <= 150
     # if consumption_mode = continuous, then max_nodes <= 100
+    refuel_stop_seconds: float = 10.0

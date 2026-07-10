@@ -119,6 +119,7 @@ class FuelConfig:
     initial_fuel_ratio: float = 0.15 # fraction of full tank at the start
     stations_source: str = "random" # "random" | "osm"
     consumption_mode: str = "discrete" # "discrete" (burn at road entry) | "continuous" (burn in process)
+    refuel_stop_seconds: int = 30 # seconds to stop at a fuel station
 
     def __post_init__(self) -> None:
         if self.replanning and not self.enabled:
@@ -129,6 +130,8 @@ class FuelConfig:
             raise ValueError("fuel.initial_fuel_ratio must be in (0, 1]")
         if self.consumption_mode not in ("discrete", "continuous"):
             raise ValueError("fuel.consumption_mode must be 'discrete' or 'continuous'")
+        if self.refuel_stop_seconds < 0:
+            raise ValueError("fuel.refuel_stop_seconds must be >= 0")
 
 
 @dataclass(frozen=True)
