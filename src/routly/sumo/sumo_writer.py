@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import os
+import re
 import subprocess
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
@@ -78,7 +79,10 @@ def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path
         "--node-files", str(node_file),
         "--edge-files", str(edge_file),
         "--output-file", str(net_file),
-        "--no-turnarounds", "true",
+        "--no-turnarounds", "false",
+        "--no-turnarounds.tls", "false",
+        "--no-turnarounds.geometry", "false",
+        "--no-turnarounds.fringe", "false",
     ]
     print("Running:", " ".join(cmd))
     subprocess.run(cmd, check=True)
@@ -295,11 +299,21 @@ def compute_simulation_end_time(
 ) -> float:
     timestamps = extract_start_traversal_timestamps(plan_text)
 
+    metric_time = _extract_plan_metric_time(plan_text)
+
     if not timestamps:
+        if metric_time is not None:
+            end_time = round(metric_time + buffer, 1)
+            print(f"Simulation end time from plan metric: {end_time}s")
+            return end_time
         print("WARNING: no timestamps found in plan. Using end=3600.")
         return 3600
 
     last_time = max(timestamps)
+    if last_time <= 0 and metric_time is not None:
+        end_time = round(metric_time + buffer, 1)
+        print(f"Simulation end time from plan metric: {end_time}s")
+        return end_time
 
     if road_sequence:
         roads_by_id = {road["id"]: road for road in mapping["roads"]}
@@ -310,6 +324,15 @@ def compute_simulation_end_time(
     end_time = round(last_time + buffer, 1)
     print(f"Simulation end time: {end_time}s")
     return end_time
+
+
+def _extract_plan_metric_time(plan_text: str) -> float | None:
+    match = re.search(r"Metric\s*(?:\(Search\))?\s*:\s*([\d.]+)", plan_text)
+    if not match:
+        match = re.search(r"Elapsed Time\s*:\s*([\d.]+)", plan_text)
+    if not match:
+        return None
+    return float(match.group(1))
 
 
 def write_view_settings(path: str | Path) -> None:

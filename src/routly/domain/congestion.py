@@ -23,6 +23,90 @@ class CongestionWindowFactor:
 DynamicCongestionProfile = dict[str, list[CongestionWindowFactor]]
 
 
+@dataclass(frozen=True)
+class DynamicRoadSelection:
+    dynamic_roads: set[str]
+    static_roads: set[str]
+    reasons_by_road: dict[str, tuple[str, ...]]
+
+
+def select_dynamic_roads(
+    roads: list[dict[str, Any]],
+    nodes_by_id: dict[str, dict[str, Any]],
+    start_loc: str,
+    goal_loc: str,
+    background_routes: list[BackgroundRoute],
+    dynamic_profile: DynamicCongestionProfile,
+    congestion_type: str,
+    hybrid_config: Any,
+) -> DynamicRoadSelection:
+    """Select which roads keep time-window costs in the optimized model.
+
+    ``dynamic`` marks every road as dynamic. ``hybrid`` keeps only roads whose
+    congestion factor changes enough across time windows; all other roads
+    receive one static cost.
+    """
+    road_ids = {str(road["id"]) for road in roads}
+    congestion_type = str(congestion_type).strip().lower()
+
+    if congestion_type == "dynamic":
+        return DynamicRoadSelection(
+            dynamic_roads=set(road_ids),
+            static_roads=set(),
+            reasons_by_road={road_id: ("all_roads_dynamic",) for road_id in road_ids},
+        )
+
+    if congestion_type != "hybrid":
+        return DynamicRoadSelection(
+            dynamic_roads=set(),
+            static_roads=set(road_ids),
+            reasons_by_road={},
+        )
+
+    _ = nodes_by_id, start_loc, goal_loc, background_routes
+
+    min_variation = float(getattr(hybrid_config, "min_temporal_variation", 0.25))
+    reasons: dict[str, tuple[str, ...]] = {}
+    for road_id, changes in dynamic_profile.items():
+        if road_id not in road_ids:
+            continue
+        values = [change.factor for change in changes]
+        if values and (max(values) - min(values)) >= min_variation:
+            reasons[road_id] = ("temporal_variation",)
+
+    dynamic_roads = set(reasons)
+
+    return DynamicRoadSelection(
+        dynamic_roads=dynamic_roads,
+        static_roads=road_ids - dynamic_roads,
+        reasons_by_road=dict(sorted(reasons.items())),
+    )
+
+
+def global_window_starts(
+    dynamic_profile: DynamicCongestionProfile,
+    dynamic_roads: set[str] | None = None,
+) -> list[int]:
+    starts = {0}
+    selected = dynamic_roads if dynamic_roads is not None else set(dynamic_profile)
+    for road_id in selected:
+        starts.update(change.start for change in dynamic_profile.get(road_id, []))
+    return sorted(starts)
+
+
+def congestion_factor_at_window(
+    dynamic_profile: DynamicCongestionProfile,
+    road_id: str,
+    window_start: int,
+) -> float:
+    factor = 1.0
+    for change in sorted(dynamic_profile.get(road_id, []), key=lambda item: item.start):
+        if change.start > window_start:
+            break
+        factor = change.factor
+    return factor
+
+
 def generate_background_routes(
     roads: list[dict[str, Any]],
     num_vehicles: int,

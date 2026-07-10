@@ -8,10 +8,22 @@ from typing import Any
 PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.routly.domain.fuel import derive_fuel_parameters, write_fuel_stations
+from src.routly.domain.fuel import (
+    derive_fuel_parameters,
+    load_fuel_stations,
+    write_fuel_stations,
+)
 from src.routly.utils import read_yaml
-from src.routly.domain.congestion import estimate_route_duration_straight_line, generate_background_routes, write_background_routes
+from src.routly.domain.congestion import (
+    compute_dynamic_congestion_profile,
+    estimate_route_duration_straight_line,
+    generate_background_routes,
+    global_window_starts,
+    select_dynamic_roads,
+    write_background_routes,
+)
 from src.routly.config import load_config
+from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.pddl.pddl_writer import write_pddl
@@ -71,12 +83,11 @@ def main() -> None:
 
     features = FeatureConfig.from_yaml(args.project_config)
 
-    mapping_path = Path(
-        scenario.get("map", {}).get("mapping_path", config.mapping_path)
+    mapping_path, _ = require_macro_artifacts(
+        scenario,
+        config,
+        enabled=features.road_abstraction.enabled,
     )
-
-    if not mapping_path.is_absolute():
-        mapping_path = PROJECT_ROOT / mapping_path
 
     print("Building PDDL domain and problem from scenario and mapping")
     # print(f"  Scenario: {scenario_path}")
@@ -131,10 +142,16 @@ def main() -> None:
     
     fuel_params = None
     if features.fuel.enabled:
+        station_override = (
+            load_fuel_stations(config.fuel_stations_path)
+            if features.road_abstraction.enabled and config.fuel_stations_path.exists()
+            else None
+        )
         fuel_params = derive_fuel_parameters(
             nodes=mapping["nodes"],
             config=features.fuel,
             seed=config.seed,
+            stations_override=station_override,
         )
         write_fuel_stations(fuel_params.stations, config.fuel_stations_path)
         print(
@@ -143,10 +160,55 @@ def main() -> None:
             f"rate={fuel_params.consumption_per_meter} L/m"
         )
 
+    time_window_starts: list[int] = []
+    dynamic_road_ids: set[str] = set()
+    objects_declared_in_domain = False
+    if features.dynamic_congestion_in_pddl:
+        dynamic_profile = compute_dynamic_congestion_profile(
+            roads,
+            background_routes,
+            max_factor=features.congestion.congestion_factor,
+            vehicles_for_max_congestion_by_road_class=(
+                features.congestion.vehicles_for_max_congestion_by_road_class
+            ),
+            window_seconds=features.congestion.dynamic.window_seconds,
+        )
+        dynamic_selection = select_dynamic_roads(
+            roads=roads,
+            nodes_by_id=node_map,
+            start_loc=start_loc,
+            goal_loc=goal_loc,
+            background_routes=background_routes,
+            dynamic_profile=dynamic_profile,
+            congestion_type=features.congestion.type,
+            hybrid_config=features.congestion.dynamic.hybrid,
+        )
+        time_window_starts = global_window_starts(
+            dynamic_profile,
+            dynamic_selection.dynamic_roads,
+        )
+        dynamic_road_ids = set(dynamic_selection.dynamic_roads)
+        print(
+            f"Dynamic congestion domain windows: {len(time_window_starts)} "
+            f"({time_window_starts[0]}..{time_window_starts[-1]} s)"
+        )
+
     # Generate domain
-    domain_text = build_road_network_domain(features)
+    domain_text = build_road_network_domain(
+        features,
+        traversal_model=config.traversal_model,
+        state_representation=config.state_representation,
+        action_generation=config.action_generation,
+        time_window_starts=time_window_starts,
+        roads=roads,
+        dynamic_road_ids=dynamic_road_ids,
+        location_ids=list(node_map),
+    )
     write_pddl(domain_text, config.domain_path)
-    print(f"\nPDDL DOMAIN CREATED (with features: {features.label})")
+    print(
+        f"\nPDDL DOMAIN CREATED "
+        f"(features: {features.label}, traversal: {config.traversal_model})"
+    )
 
     # Generate problem
     problem_name = scenario.get("scenario", {}).get(
@@ -166,6 +228,10 @@ def main() -> None:
         traffic_light_timings=traffic_light_timings,
         fuel_params=fuel_params,
         seed=config.seed,
+        traversal_model=config.traversal_model,
+        state_representation=config.state_representation,
+        action_generation=config.action_generation,
+        objects_declared_in_domain=objects_declared_in_domain,
     )
 
     write_pddl(problem_text, config.problem_path)

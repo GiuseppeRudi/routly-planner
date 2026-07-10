@@ -45,8 +45,20 @@ class TrafficLightsConfig:
 
 
 @dataclass
+class HybridCongestionConfig:
+    min_temporal_variation: float = 0.25
+
+    def __post_init__(self) -> None:
+        if self.min_temporal_variation < 0:
+            raise ValueError(
+                "congestion.dynamic.hybrid.min_temporal_variation must be greater than or equal to zero"
+            )
+
+
+@dataclass
 class DynamicCongestionConfig:
     window_seconds: int = 30
+    hybrid: HybridCongestionConfig = field(default_factory=HybridCongestionConfig)
 
     def __post_init__(self) -> None:
         if self.window_seconds <= 0:
@@ -57,7 +69,7 @@ class DynamicCongestionConfig:
 class CongestionConfig:
     enabled: bool = False
     mode: str = "pddl" # "sumo" | "pddl"
-    type: str = "static" # "static" | "dynamic"
+    type: str = "static" # "static" | "dynamic" | "hybrid"
     replanning: bool = False
     num_background_vehicles: int = 200
     congestion_factor: float = 2.0 # speed divisor for congested roads in pddl mode
@@ -118,6 +130,27 @@ class FuelConfig:
         if self.consumption_mode not in ("discrete", "continuous"):
             raise ValueError("fuel.consumption_mode must be 'discrete' or 'continuous'")
 
+
+@dataclass(frozen=True)
+class RoadAbstractionConfig:
+    enabled: bool = False
+    max_segments_per_macro: int = 8
+    max_length_meters: float = 1500.0
+    speed_tolerance_ratio: float = 0.15
+    require_same_capacity_class: bool = True
+
+    def __post_init__(self) -> None:
+        if self.max_segments_per_macro <= 1:
+            raise ValueError(
+                "road_abstraction.max_segments_per_macro must be greater than 1"
+            )
+        if self.max_length_meters <= 0:
+            raise ValueError("road_abstraction.max_length_meters must be positive")
+        if self.speed_tolerance_ratio < 0:
+            raise ValueError(
+                "road_abstraction.speed_tolerance_ratio must be greater than or equal to 0"
+            )
+
 @dataclass
 class FeatureConfig:
     traffic_lights: bool = False
@@ -129,6 +162,9 @@ class FeatureConfig:
     sumo: SumoRunConfig = field(default_factory=SumoRunConfig)
     controller: ControllerConfig = field(default_factory=ControllerConfig)
     fuel: FuelConfig = field(default_factory=FuelConfig)
+    road_abstraction: RoadAbstractionConfig = field(
+        default_factory=RoadAbstractionConfig
+    )
 
     @property
     def congestion_enabled(self) -> bool:
@@ -154,7 +190,15 @@ class FeatureConfig:
     def dynamic_congestion_in_pddl(self) -> bool:
         return (
             self.congestion_in_pddl
-            and self.congestion.type == "dynamic"
+            and self.congestion.type in {"dynamic", "hybrid"}
+            and not self.congestion.replanning
+        )
+
+    @property
+    def hybrid_congestion_in_pddl(self) -> bool:
+        return (
+            self.congestion_in_pddl
+            and self.congestion.type == "hybrid"
             and not self.congestion.replanning
         )
 
@@ -199,6 +243,8 @@ class FeatureConfig:
             parts.append("llm")
         if self.fuel.enabled:
             parts.append("fuel-controller" if self.fuel_in_controller else "fuel")
+        if self.road_abstraction.enabled:
+            parts.append("macro")
         return "_".join(parts) if parts else "base"
 
     # ── constructor ───────────────────────────────────────────────────────────
@@ -234,6 +280,7 @@ class FeatureConfig:
 
         cong = _congestion_config(f.get("congestion", {}))
         controller = _controller_config(f.get("controller", {}))
+        road_abstraction = _road_abstraction_config(f.get("road_abstraction", {}))
 
         llm_raw = f.get("llm_events", {})
         llm = LLMEventsConfig(
@@ -285,6 +332,7 @@ class FeatureConfig:
             sumo=sumo,
             controller=controller,
             fuel=fuel,
+            road_abstraction=road_abstraction,
         )
 
     @classmethod
@@ -360,11 +408,14 @@ def _congestion_config(raw: dict[str, Any] | bool | None) -> CongestionConfig:
         raise ValueError("features.congestion.mode must be 'sumo' or 'pddl'")
 
     congestion_type = str(raw.get("type", "static")).strip().lower()
-    if congestion_type not in {"static", "dynamic"}:
-        raise ValueError("features.congestion.type must be 'static' or 'dynamic'")
-    if mode == "sumo" and congestion_type == "dynamic":
+    if congestion_type not in {"static", "dynamic", "hybrid"}:
         raise ValueError(
-            "features.congestion.type='dynamic' is supported only with mode: 'pddl'."
+            "features.congestion.type must be 'static', 'dynamic', or 'hybrid'"
+        )
+    if mode == "sumo" and congestion_type in {"dynamic", "hybrid"}:
+        raise ValueError(
+            "features.congestion.type='dynamic' and type='hybrid' are supported "
+            "only with mode: 'pddl'."
         )
 
     replanning = bool(raw.get("replanning", False))
@@ -429,10 +480,43 @@ def _validate_controller_combination(
         )
 
 
+def _road_abstraction_config(
+    raw: dict[str, Any] | bool | None,
+) -> RoadAbstractionConfig:
+    if raw is None:
+        raw = {}
+
+    if isinstance(raw, bool):
+        return RoadAbstractionConfig(enabled=raw)
+
+    if not isinstance(raw, dict):
+        raise ValueError("features.road_abstraction must be a mapping or a boolean")
+
+    return RoadAbstractionConfig(
+        enabled=bool(raw.get("enabled", False)),
+        max_segments_per_macro=int(raw.get("max_segments_per_macro", 8)),
+        max_length_meters=float(raw.get("max_length_meters", 1500.0)),
+        speed_tolerance_ratio=float(raw.get("speed_tolerance_ratio", 0.15)),
+        require_same_capacity_class=bool(
+            raw.get("require_same_capacity_class", True)
+        ),
+    )
+
+
 def _dynamic_congestion_config(raw: dict[str, Any] | None) -> DynamicCongestionConfig:
     raw = raw or {}
     return DynamicCongestionConfig(
         window_seconds=int(raw.get("window_seconds", 30)),
+        hybrid=_hybrid_congestion_config(raw.get("hybrid")),
+    )
+
+
+def _hybrid_congestion_config(
+    raw: dict[str, Any] | None,
+) -> HybridCongestionConfig:
+    raw = raw or {}
+    return HybridCongestionConfig(
+        min_temporal_variation=float(raw.get("min_temporal_variation", 0.25)),
     )
 
 
