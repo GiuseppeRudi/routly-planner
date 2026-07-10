@@ -68,11 +68,11 @@ class DynamicCongestionConfig:
 @dataclass
 class CongestionConfig:
     enabled: bool = False
-    mode: str = "pddl" # "sumo" | "pddl"
-    type: str = "static" # "static" | "dynamic" | "hybrid"
+    mode: str = "pddl"
+    type: str = "static"
     replanning: bool = False
     num_background_vehicles: int = 200
-    congestion_factor: float = 2.0 # speed divisor for congested roads in pddl mode
+    congestion_factor: float = 2.0
     dynamic: DynamicCongestionConfig = field(default_factory=DynamicCongestionConfig)
     vehicles_for_max_congestion_by_road_class: dict[str, int] = field(
         default_factory=lambda: dict(DEFAULT_CONGESTION_THRESHOLDS_BY_ROAD_CLASS)
@@ -82,10 +82,10 @@ class CongestionConfig:
 @dataclass
 class LLMEventsConfig:
     enabled: bool = False
-    strategic_injection: bool = False  # if True, LLM uses compact problem topology
-    # (start, goal, node degree) instead of a random road sample to pick targets
+    # Prefer topology near start, goal, and high-degree nodes.
+    strategic_injection: bool = False
     prevent_unsolvable_blocks: bool = False
-    unsolvable_fallback: str = "slowdown" # "slowdown" | "skip"
+    unsolvable_fallback: str = "slowdown"
     unsolvable_fallback_severity: float = 5.0
 
 
@@ -110,15 +110,15 @@ class ControllerConfig:
 
 @dataclass(frozen=True)
 class FuelConfig:
-    """Fuel feature configuration — only flags and ratios; the litres are
-    derived from the map at build time."""
+    """Fuel feature configuration with map-derived litre values."""
 
     enabled: bool = False
     replanning: bool = False
-    stations_ratio: float = 0.35 # fraction of nodes that get a station
-    initial_fuel_ratio: float = 0.15 # fraction of full tank at the start
-    stations_source: str = "random" # "random" | "osm"
-    consumption_mode: str = "discrete" # "discrete" (burn at road entry) | "continuous" (burn in process)
+    stations_ratio: float = 0.35
+    initial_fuel_ratio: float = 0.15
+    stations_source: str = "random"
+    consumption_mode: str = "discrete"
+    refuel_stop_seconds: int = 30
 
     def __post_init__(self) -> None:
         if self.replanning and not self.enabled:
@@ -129,6 +129,8 @@ class FuelConfig:
             raise ValueError("fuel.initial_fuel_ratio must be in (0, 1]")
         if self.consumption_mode not in ("discrete", "continuous"):
             raise ValueError("fuel.consumption_mode must be 'discrete' or 'continuous'")
+        if self.refuel_stop_seconds < 0:
+            raise ValueError("fuel.refuel_stop_seconds must be >= 0")
 
 
 @dataclass(frozen=True)
@@ -247,8 +249,6 @@ class FeatureConfig:
             parts.append("macro")
         return "_".join(parts) if parts else "base"
 
-    # ── constructor ───────────────────────────────────────────────────────────
-
     @classmethod
     def from_yaml(cls, path: str | Path) -> FeatureConfig:
         raw = _read_yaml(Path(path))
@@ -322,7 +322,15 @@ class FeatureConfig:
         else:
             fuel = FuelConfig(enabled=bool(fuel_raw))
 
-        _validate_controller_combination(controller, fuel, cong)
+        traversal_model = str(
+            raw.get("planner", {}).get("traversal_model", "process")
+        ).strip().lower()
+        _validate_controller_combination(
+            controller,
+            fuel,
+            cong,
+            traversal_model=traversal_model,
+        )
 
         return cls(
             traffic_lights=traffic_lights_enabled,
@@ -471,12 +479,25 @@ def _validate_controller_combination(
     controller: ControllerConfig,
     fuel: FuelConfig,
     congestion: CongestionConfig,
+    traversal_model: str,
 ) -> None:
     _ = controller
     if fuel.enabled and fuel.replanning and congestion.enabled and congestion.replanning:
         raise ValueError(
             "Fuel controller and congestion controller cannot be enabled "
-            "together in v1."
+            "together: set exactly one of features.fuel.replanning and "
+            "features.congestion.replanning to true."
+        )
+
+    controller_enabled = (
+        (fuel.enabled and fuel.replanning)
+        or (congestion.enabled and congestion.replanning)
+    )
+    if controller_enabled and traversal_model != "process":
+        raise ValueError(
+            "Controller replanning requires planner.traversal_model='process'. "
+            "Both the fuel controller and the congestion controller are "
+            "incompatible with traversal_model='compiled_duration'."
         )
 
 

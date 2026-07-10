@@ -14,6 +14,9 @@ PIPELINE_CONFIG_PATH = PROJECT_ROOT / "config" / "pipeline.yaml"
 sys.path.insert(0, str(PROJECT_ROOT))
 from src.routly.config import EXPERIMENT_NAME_ENV, load_config, resolve_experiment_name
 from src.routly.utils import read_yaml
+from src.routly.features import FeatureConfig
+
+RESUME_LAST = "__RESUME_LAST__"
 
 SCRIPT_REGISTRY = {
     "build_map": {
@@ -135,6 +138,16 @@ def run_step(step_name: str, config: dict[str, Any]) -> None:
             f"Pipeline stopped: step '{step_name}' failed with exit code {result.returncode}."
         )
 
+PLAN_STEP = "generate_plan"
+CONTROLLER_STEP = "controller_run"
+
+def resolve_plan_step(step_name: str, project_config_path: "Path") -> str:
+    """Automatically resolve the plan step to either 'generate_plan' or 'controller_run' based on the project config."""
+    if step_name not in (PLAN_STEP, CONTROLLER_STEP):
+        return step_name
+
+    features = FeatureConfig.from_yaml(str(project_config_path))
+    return CONTROLLER_STEP if features.controller_for_congestion else PLAN_STEP
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -159,11 +172,34 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--resume",
+        nargs="?",
+        const=RESUME_LAST, # only when the flag is present without a value, it will be set to RESUME_LAST
+        default=None, # when the flag is not present, it will be set to None
         type=str,
-        help="Name or full path of an existing experiment folder to resume from.",
+        help=(
+            "Resume an existing experiment.\n"
+            "  --resume NAME_OR_PATH : resume that specific experiment.\n"
+            "  --resume  (no value)  : resume the MOST RECENT experiment.\n"
+            "Note: put step numbers BEFORE the flag, e.g. "
+            "'python scripts/run_pipeline.py 2 --resume'."
+        ),
     )
     return parser.parse_args()
 
+def _find_last_experiment_name(project_config_path: Path) -> str:
+    cfg = load_config(project_config_path)
+    base = cfg.map_scenario_dir  # data/<place>/<scenario>
+    if not base.exists():
+        raise FileNotFoundError(
+            f"No experiments directory found to resume from: {base}"
+        )
+    candidates = [d for d in base.iterdir() if d.is_dir()]
+    if not candidates:
+        raise FileNotFoundError(
+            f"No existing experiment folders to resume in: {base}"
+        )
+    last = max(candidates, key=lambda d: d.stat().st_mtime)
+    return last.name
 
 def main() -> None:
     args = parse_args()
@@ -174,26 +210,30 @@ def main() -> None:
 
     project_config_path = PROJECT_ROOT / pipeline_config["configs"]["project_config"]
     
-    # ── LOGICA DI RESUME (TASK 8) ──────────────────────────────────────────
-    if args.resume:
-        # Estrae l'ultimo blocco se viene passato un path completo (es. data/bologna/.../exp_folder)
-        experiment_name = Path(args.resume).name
+
+    if args.resume is not None:
+        if args.resume == RESUME_LAST:
+            # --resume without a value: resume the most recent experiment
+            experiment_name = _find_last_experiment_name(project_config_path)
+            print(f"RESUME MODE: no name given, resuming LATEST experiment '{experiment_name}'")
+        else:
+            # --resume <name_or_path>: resume that specific experiment
+            experiment_name = Path(args.resume).name
+            print(f"RESUME MODE ACTIVE: Targeting experiment folder '{experiment_name}'")
         os.environ[EXPERIMENT_NAME_ENV] = experiment_name
-        print(f"🔄 RESUME MODE ACTIVE: Targeting experiment folder '{experiment_name}'")
     else:
         project_config_raw = read_yaml(project_config_path)
         experiment_name = resolve_experiment_name(project_config_raw)
         os.environ[EXPERIMENT_NAME_ENV] = experiment_name
 
     project_config = load_config(project_config_path)
-    
-    # Controllo di sicurezza se l'utente ha provato a riprendere una cartella inesistente
-    if args.resume and not project_config.experiment_dir.exists():
+
+    # secure check: if --resume is used, the target experiment folder must exist
+    if args.resume is not None and not project_config.experiment_dir.exists():
         raise FileNotFoundError(
-            f"❌ Error: The selected experiment folder does not exist at target destination:\n"
-            f"   {project_config.experiment_dir}"
+            f"Error: The selected experiment folder does not exist at target destination:\n"
+            f"{project_config.experiment_dir}"
         )
-    # ───────────────────────────────────────────────────────────────────────
 
     snapshot_input_configs(project_config, project_config_path)
 
@@ -210,15 +250,28 @@ def main() -> None:
     else:
         run_steps = all_steps
 
+    # Automatically resolve the plan step to either 'generate_plan' or 'controller_run' based on the project config.
+    resolved_steps = [
+        resolve_plan_step(step_name, project_config_path)
+        for step_name in run_steps
+    ]
+
     print("Routly pipeline")
     print(f"Experiment: {project_config.experiment_name}")
     print(f"Output dir:  {project_config.experiment_dir}")
     print("Steps to run:")
-    for step_name in run_steps:
-        idx = all_steps.index(step_name) + 1
-        print(f"  {idx}. {step_name}")
+    for idx, (original, resolved) in enumerate(
+        zip(run_steps, resolved_steps), start=1
+    ):
+        if resolved != original:
+            print(
+                f"  {idx}. {resolved}  "
+                f"(auto-selected from features, replaces '{original}')"
+            )
+        else:
+            print(f"  {idx}. {resolved}")
 
-    for step_name in run_steps:
+    for step_name in resolved_steps:
         run_step(step_name, pipeline_config)
 
     print("\nPipeline completed successfully.")

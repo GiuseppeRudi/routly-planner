@@ -38,7 +38,7 @@ TRAVERSAL_COMPILED_DURATION = "compiled_duration"
 VALID_TRAVERSAL_MODELS = {TRAVERSAL_PROCESS, TRAVERSAL_COMPILED_DURATION}
 
 
-# ── PUBLIC API ────────────────────────────────────────────────────────────────
+# Public API
 
 def build_road_network_problem(
     node_map: dict[str, Any],
@@ -202,17 +202,14 @@ def recleanse_and_compute_dynamic_congestion(
     features: FeatureConfig,
     seed: int,
 ) -> tuple[dict[str, float], list[Any]]:
-    """
-    TASK 3: Re-generate background traffic routes on the remaining open network topology
-    and re-compute fresh static congestion factors for the PDDL planner input.
-    """
+    """Recompute background routes and static factors on the open network."""
     if not features.congestion_in_pddl:
         return {}, []
 
     closed_edges = set(blocked_roads)
     closed_nodes = set(blocked_locations)
 
-    # Filter out blocked components from the routing pool for background vehicles
+    # Exclude blocked roads and locations from background routing.
     filtered_roads = [
         r for r in roads
         if r["id"] not in closed_edges
@@ -220,14 +217,14 @@ def recleanse_and_compute_dynamic_congestion(
         and r["to"] not in closed_nodes
     ]
 
-    # Re-generate background traffic routes exclusively using the safe open network paths
+    # Generate replacement traffic only on the remaining topology.
     new_bg_routes = generate_background_routes(
         filtered_roads,
         features.congestion.num_background_vehicles,
         seed
     )
 
-    # Re-compute static congestion factors for all network edges based on the new traffic distribution.
+    # Recompute factors for all roads from the replacement traffic distribution.
     new_factors = compute_congestion_factors(
         roads,
         new_bg_routes,
@@ -402,7 +399,7 @@ def dynamic_congestion_diagnostic_lines(
     return lines
 
 
-# ── OBJECTS ───────────────────────────────────────────────────────────────────
+# Objects
 
 def _build_objects(
     node_map: dict[str, Any],
@@ -471,7 +468,7 @@ def _build_objects(
   )"""
 
 
-# ── INIT ──────────────────────────────────────────────────────────────────────
+# Initial state
 
 def _build_init(
     node_map: dict[str, Any],
@@ -497,7 +494,7 @@ def _build_init(
         reasons_by_road={},
     )
 
-    # ── vehicle ───────────────────────────────────────────────────────────────
+    # Initialize vehicle state.
     line_graph = _uses_line_graph_traversal(
         features,
         traversal_model,
@@ -520,7 +517,7 @@ def _build_init(
     if features.traffic_lights or traversal_model == TRAVERSAL_COMPILED_DURATION:
         lines.append(f"  (= (travel-time {vehicle_id}) 0)")
 
-    # ── roads ─────────────────────────────────────────────────────────────────
+    # Initialize road topology and costs.
     roads_by_from: dict[str, list[dict[str, Any]]] = {}
     for road in roads:
         roads_by_from.setdefault(str(road["from"]), []).append(road)
@@ -594,7 +591,7 @@ def _build_init(
         if dynamic_profile_block:
             lines.append(dynamic_profile_block)
 
-    # ── nodes: traffic lights ─────────────────────────────────────────────────
+    # Initialize traffic-light state by node.
     if features.traffic_lights:
         for node_info in node_map.values():
             loc_id = node_info["id"]
@@ -624,7 +621,7 @@ def _build_init(
     return "\n".join(lines)
 
 
-# ── METRIC ────────────────────────────────────────────────────────────────────
+# Metric
 
 def _build_metric(
     vehicle_id: str,
@@ -722,19 +719,12 @@ def _validate_planner_axes(
             )
         return state_representation, action_generation
 
-    if (
-        state_representation == STATE_REPRESENTATION_LINE_GRAPH
-        and action_generation == ACTION_GENERATION_PARAMETERIZED
-    ):
-        raise ValueError(
-            "state_representation='line_graph' requires "
-            "action_generation='compiled'."
-        )
-
     if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
         raise ValueError(
-            "state_representation='line_graph' with action_generation='compiled' "
-            "is recognized but not implemented yet."
+            "state_representation='line_graph' with "
+            f"action_generation='{action_generation}' is recognized but not "
+            "implemented yet; line-graph support is reserved for future "
+            "development."
         )
 
     return state_representation, action_generation
