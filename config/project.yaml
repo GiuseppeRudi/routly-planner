@@ -64,10 +64,10 @@ features:
     dynamic:
       window_seconds: 30
       hybrid:
-        top_k_traffic_roads: 50
-        min_temporal_variation: 0.25
-        corridor_width_meters: 250
-        candidate_paths: 5
+        # Hybrid marks a road as dynamic only when its congestion factor
+        # varies enough across time windows: max(window)-min(window) >= threshold.
+        # Roads below the threshold remain static for the planner.
+        min_temporal_variation: 0.10
     vehicles_for_max_congestion_by_road_class:
       local: 20
       arterial: 35

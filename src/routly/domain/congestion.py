@@ -42,9 +42,9 @@ def select_dynamic_roads(
 ) -> DynamicRoadSelection:
     """Select which roads keep time-window costs in the optimized model.
 
-    ``dynamic`` marks every road as dynamic. ``hybrid`` keeps only roads that
-    matter for traffic, temporal variation, the start-goal corridor, or quick
-    candidate paths; all other roads receive one static cost.
+    ``dynamic`` marks every road as dynamic. ``hybrid`` keeps only roads whose
+    congestion factor changes enough across time windows; all other roads
+    receive one static cost.
     """
     road_ids = {str(road["id"]) for road in roads}
     congestion_type = str(congestion_type).strip().lower()
@@ -63,62 +63,23 @@ def select_dynamic_roads(
             reasons_by_road={},
         )
 
-    reasons: dict[str, set[str]] = {}
-
-    def mark(road_id: str, reason: str) -> None:
-        if road_id in road_ids:
-            reasons.setdefault(road_id, set()).add(reason)
-
-    top_k = int(getattr(hybrid_config, "top_k_traffic_roads", 50))
-    if top_k > 0:
-        for road_id, _ in sorted(
-            count_vehicles_per_road(background_routes).items(),
-            key=lambda item: (-item[1], item[0]),
-        )[:top_k]:
-            mark(road_id, "top_traffic")
+    _ = nodes_by_id, start_loc, goal_loc, background_routes
 
     min_variation = float(getattr(hybrid_config, "min_temporal_variation", 0.25))
-    if min_variation > 0:
-        for road_id, changes in dynamic_profile.items():
-            values = [change.factor for change in changes]
-            if values and (max(values) - min(values)) >= min_variation:
-                mark(road_id, "temporal_variation")
-
-    corridor_width = float(getattr(hybrid_config, "corridor_width_meters", 250.0))
-    if corridor_width > 0:
-        for road_id in _roads_near_start_goal_corridor(
-            roads,
-            nodes_by_id,
-            start_loc,
-            goal_loc,
-            corridor_width,
-        ):
-            mark(road_id, "start_goal_corridor")
-
-    candidate_paths = int(getattr(hybrid_config, "candidate_paths", 5))
-    if candidate_paths > 0:
-        for road_id in _roads_on_candidate_paths(
-            roads,
-            start_loc,
-            goal_loc,
-            candidate_paths,
-        ):
-            mark(road_id, "candidate_path")
+    reasons: dict[str, tuple[str, ...]] = {}
+    for road_id, changes in dynamic_profile.items():
+        if road_id not in road_ids:
+            continue
+        values = [change.factor for change in changes]
+        if values and (max(values) - min(values)) >= min_variation:
+            reasons[road_id] = ("temporal_variation",)
 
     dynamic_roads = set(reasons)
-    if not dynamic_roads:
-        raise ValueError(
-            "Hybrid congestion did not select any dynamic road. "
-            "Relax congestion.dynamic.hybrid thresholds or use type: dynamic."
-        )
 
     return DynamicRoadSelection(
         dynamic_roads=dynamic_roads,
         static_roads=road_ids - dynamic_roads,
-        reasons_by_road={
-            road_id: tuple(sorted(road_reasons))
-            for road_id, road_reasons in sorted(reasons.items())
-        },
+        reasons_by_road=dict(sorted(reasons.items())),
     )
 
 
@@ -399,114 +360,6 @@ def compute_dynamic_congestion_profile(
         profile[road_id] = changes
 
     return profile
-
-
-def _roads_near_start_goal_corridor(
-    roads: list[dict[str, Any]],
-    nodes_by_id: dict[str, dict[str, Any]],
-    start_loc: str,
-    goal_loc: str,
-    corridor_width_meters: float,
-) -> set[str]:
-    start = _node_point(nodes_by_id.get(start_loc))
-    goal = _node_point(nodes_by_id.get(goal_loc))
-    if start is None or goal is None:
-        return set()
-
-    selected: set[str] = set()
-    for road in roads:
-        points = _road_points(road, nodes_by_id)
-        if any(
-            _distance_point_to_segment(point, start, goal) <= corridor_width_meters
-            for point in points
-        ):
-            selected.add(str(road["id"]))
-    return selected
-
-
-def _roads_on_candidate_paths(
-    roads: list[dict[str, Any]],
-    start_loc: str,
-    goal_loc: str,
-    candidate_paths: int,
-) -> set[str]:
-    try:
-        import networkx as nx
-    except ImportError:
-        return set()
-
-    graph = nx.DiGraph()
-    for road in roads:
-        source = str(road["from"])
-        target = str(road["to"])
-        road_id = str(road["id"])
-        length = max(float(road.get("length", 0.0)), 0.001)
-        existing = graph.get_edge_data(source, target)
-        if existing is None or length < float(existing.get("weight", math.inf)):
-            graph.add_edge(source, target, weight=length, road_id=road_id)
-
-    if start_loc not in graph or goal_loc not in graph:
-        return set()
-
-    selected: set[str] = set()
-    try:
-        paths = nx.shortest_simple_paths(graph, start_loc, goal_loc, weight="weight")
-        for _, path in zip(range(candidate_paths), paths):
-            for source, target in zip(path, path[1:]):
-                edge = graph.get_edge_data(source, target)
-                if edge and "road_id" in edge:
-                    selected.add(str(edge["road_id"]))
-    except (nx.NetworkXNoPath, nx.NodeNotFound):
-        return set()
-    return selected
-
-
-def _road_points(
-    road: dict[str, Any],
-    nodes_by_id: dict[str, dict[str, Any]],
-) -> list[tuple[float, float]]:
-    points: list[tuple[float, float]] = []
-    for point in road.get("geometry") or []:
-        try:
-            points.append((float(point[0]), float(point[1])))
-        except (TypeError, ValueError, IndexError):
-            continue
-    if points:
-        return points
-
-    fallback = [
-        _node_point(nodes_by_id.get(str(road.get("from")))),
-        _node_point(nodes_by_id.get(str(road.get("to")))),
-    ]
-    return [point for point in fallback if point is not None]
-
-
-def _node_point(node: dict[str, Any] | None) -> tuple[float, float] | None:
-    if not node:
-        return None
-    try:
-        return float(node["x"]), float(node["y"])
-    except (KeyError, TypeError, ValueError):
-        return None
-
-
-def _distance_point_to_segment(
-    point: tuple[float, float],
-    start: tuple[float, float],
-    goal: tuple[float, float],
-) -> float:
-    px, py = point
-    sx, sy = start
-    gx, gy = goal
-    dx = gx - sx
-    dy = gy - sy
-    denom = dx * dx + dy * dy
-    if denom <= 0:
-        return math.hypot(px - sx, py - sy)
-    t = max(0.0, min(1.0, ((px - sx) * dx + (py - sy) * dy) / denom))
-    closest_x = sx + t * dx
-    closest_y = sy + t * dy
-    return math.hypot(px - closest_x, py - closest_y)
 
 
 def _congestion_factor_for_count(

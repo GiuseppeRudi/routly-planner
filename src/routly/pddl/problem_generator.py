@@ -329,7 +329,11 @@ def dynamic_congestion_pddl_stats(
     dynamic_congestion_profile: DynamicCongestionProfile,
     dynamic_roads: set[str] | None = None,
 ) -> dict[str, int]:
-    included_roads = dynamic_roads or set(dynamic_congestion_profile)
+    included_roads = (
+        set(dynamic_congestion_profile)
+        if dynamic_roads is None
+        else set(dynamic_roads)
+    )
     window_starts = global_window_starts(
         dynamic_congestion_profile,
         included_roads,
@@ -371,6 +375,11 @@ def dynamic_congestion_diagnostic_lines(
             "(one advance-window transition per future global window)."
         ),
     ]
+    if stats["roads"] == 0:
+        lines.append(
+            "No road exceeded min_temporal_variation; hybrid congestion behaves "
+            "like static congestion for this run."
+        )
     if stats["window_values"] >= DYNAMIC_CONGESTION_SEARCH_WARNING_UPDATES:
         lines.append(
             "WARNING: dynamic PDDL congestion still increases the numeric model. "

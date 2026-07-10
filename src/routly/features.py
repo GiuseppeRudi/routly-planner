@@ -46,27 +46,12 @@ class TrafficLightsConfig:
 
 @dataclass
 class HybridCongestionConfig:
-    top_k_traffic_roads: int = 50
     min_temporal_variation: float = 0.25
-    corridor_width_meters: float = 250.0
-    candidate_paths: int = 5
 
     def __post_init__(self) -> None:
-        if self.top_k_traffic_roads < 0:
-            raise ValueError(
-                "congestion.dynamic.hybrid.top_k_traffic_roads must be greater than or equal to zero"
-            )
         if self.min_temporal_variation < 0:
             raise ValueError(
                 "congestion.dynamic.hybrid.min_temporal_variation must be greater than or equal to zero"
-            )
-        if self.corridor_width_meters < 0:
-            raise ValueError(
-                "congestion.dynamic.hybrid.corridor_width_meters must be greater than or equal to zero"
-            )
-        if self.candidate_paths < 0:
-            raise ValueError(
-                "congestion.dynamic.hybrid.candidate_paths must be greater than or equal to zero"
             )
 
 
@@ -531,10 +516,7 @@ def _hybrid_congestion_config(
 ) -> HybridCongestionConfig:
     raw = raw or {}
     return HybridCongestionConfig(
-        top_k_traffic_roads=int(raw.get("top_k_traffic_roads", 50)),
         min_temporal_variation=float(raw.get("min_temporal_variation", 0.25)),
-        corridor_width_meters=float(raw.get("corridor_width_meters", 250.0)),
-        candidate_paths=int(raw.get("candidate_paths", 5)),
     )
 
 

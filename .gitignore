@@ -31,6 +31,7 @@ conda-meta/
 cache/
 data/
 docs/
+tests/
 
 # Generated PDDL outputs
 pddl/problems/generated_*.pddl
