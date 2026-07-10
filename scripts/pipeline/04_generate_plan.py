@@ -740,7 +740,8 @@ def main() -> None:
                 roads=mapping["roads"],
                 features=features,
                 traversal_model=config.traversal_model,
-                compiled_duration_mode=config.compiled_duration_mode,
+                state_representation=config.state_representation,
+                action_generation=config.action_generation,
                 dynamic_road_selection=dynamic_road_selection,
                 congestion_factors=new_static_factors,
                 traffic_light_timings=traffic_light_timings,
@@ -766,7 +767,8 @@ def main() -> None:
                 print(line)
             if (
                 config.traversal_model == "compiled_duration"
-                and config.compiled_duration_mode == "road_specific"
+                and config.state_representation == "node_based"
+                and config.action_generation == "compiled"
             ):
                 dynamic_window_starts = global_window_starts(
                     new_profile,
@@ -775,7 +777,8 @@ def main() -> None:
                 dynamic_domain_text = build_road_network_domain(
                     features,
                     traversal_model=config.traversal_model,
-                    compiled_duration_mode=config.compiled_duration_mode,
+                    state_representation=config.state_representation,
+                    action_generation=config.action_generation,
                     time_window_starts=dynamic_window_starts,
                     roads=mapping["roads"],
                     dynamic_road_ids=active_dynamic_roads,

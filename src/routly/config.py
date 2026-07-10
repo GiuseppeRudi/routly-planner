@@ -15,17 +15,17 @@ from src.routly.utils import read_yaml
 
 EXPERIMENT_NAME_ENV = "ROUTLY_EXPERIMENT_NAME"
 VALID_TRAVERSAL_MODELS = {"process", "compiled_duration"}
-COMPILED_DURATION_MODE_GENERIC = "generic"
-COMPILED_DURATION_MODE_ROAD_SPECIFIC = "road_specific"
-COMPILED_DURATION_MODE_LINE_GRAPH = "line_graph"
-VALID_COMPILED_DURATION_MODES = {
-    COMPILED_DURATION_MODE_GENERIC,
-    COMPILED_DURATION_MODE_ROAD_SPECIFIC,
-    COMPILED_DURATION_MODE_LINE_GRAPH,
+STATE_REPRESENTATION_NODE_BASED = "node_based"
+STATE_REPRESENTATION_LINE_GRAPH = "line_graph"
+VALID_STATE_REPRESENTATIONS = {
+    STATE_REPRESENTATION_NODE_BASED,
+    STATE_REPRESENTATION_LINE_GRAPH,
 }
-IMPLEMENTED_COMPILED_DURATION_MODES = {
-    COMPILED_DURATION_MODE_GENERIC,
-    COMPILED_DURATION_MODE_ROAD_SPECIFIC,
+ACTION_GENERATION_PARAMETERIZED = "parameterized"
+ACTION_GENERATION_COMPILED = "compiled"
+VALID_ACTION_GENERATION_MODES = {
+    ACTION_GENERATION_PARAMETERIZED,
+    ACTION_GENERATION_COMPILED,
 }
 
 
@@ -45,7 +45,8 @@ class ProjectConfig:
     enhsp_jar: Path
     java_heap_mb: int
     traversal_model: str
-    compiled_duration_mode: str
+    state_representation: str
+    action_generation: str
     sumo_gui: str
     project_root: Path
 
@@ -350,30 +351,12 @@ def load_config(
             "planner.traversal_model must be 'process' or 'compiled_duration'"
         )
 
-    compiled_duration_mode = str(
-        planner_config.get(
-            "compiled_duration_mode",
-            COMPILED_DURATION_MODE_GENERIC,
-        )
-    ).strip().lower()
-    if compiled_duration_mode not in VALID_COMPILED_DURATION_MODES:
-        raise ValueError(
-            "planner.compiled_duration_mode must be 'generic', "
-            "'road_specific', or 'line_graph'"
-        )
-    if compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH:
-        raise ValueError(
-            "planner.compiled_duration_mode='line_graph' is recognized but "
-            "not implemented yet. Use 'generic' or 'road_specific'."
-        )
-    if (
-        traversal_model != "compiled_duration"
-        and compiled_duration_mode != COMPILED_DURATION_MODE_GENERIC
-    ):
-        raise ValueError(
-            "planner.compiled_duration_mode can be non-generic only when "
-            "planner.traversal_model='compiled_duration'."
-        )
+    state_representation, action_generation = _resolve_planner_axes(planner_config)
+    _validate_planner_mode_axes(
+        traversal_model,
+        state_representation,
+        action_generation,
+    )
 
     return ProjectConfig(
         seed=int(general_config["seed"]),
@@ -389,11 +372,79 @@ def load_config(
         enhsp_jar=Path(planner_config["enhsp_jar"]),
         java_heap_mb=int(planner_config.get("java_heap_mb", 4096)),
         traversal_model=traversal_model,
-        compiled_duration_mode=compiled_duration_mode,
+        state_representation=state_representation,
+        action_generation=action_generation,
         sumo_gui=sumo_config["sumo_gui"],
 
         project_root=project_root,
     )
+
+
+def _resolve_planner_axes(
+    planner_config: dict[str, Any],
+) -> tuple[str, str]:
+    state_raw = planner_config.get("state_representation")
+    action_raw = planner_config.get("action_generation")
+
+    if state_raw is None and action_raw is None:
+        return STATE_REPRESENTATION_NODE_BASED, ACTION_GENERATION_PARAMETERIZED
+
+    if state_raw is None or action_raw is None:
+        raise ValueError(
+            "planner.state_representation and planner.action_generation must "
+            "be configured together."
+        )
+
+    state_representation = str(state_raw).strip().lower()
+    action_generation = str(action_raw).strip().lower()
+    if state_representation not in VALID_STATE_REPRESENTATIONS:
+        raise ValueError(
+            "planner.state_representation must be 'node_based' or 'line_graph'"
+        )
+    if action_generation not in VALID_ACTION_GENERATION_MODES:
+        raise ValueError(
+            "planner.action_generation must be 'parameterized' or 'compiled'"
+        )
+
+    return state_representation, action_generation
+
+
+def _validate_planner_mode_axes(
+    traversal_model: str,
+    state_representation: str,
+    action_generation: str,
+) -> None:
+    if traversal_model != "compiled_duration":
+        if (
+            state_representation != STATE_REPRESENTATION_NODE_BASED
+            or action_generation != ACTION_GENERATION_PARAMETERIZED
+        ):
+            raise ValueError(
+                "planner.state_representation/action_generation are only "
+                "configurable when planner.traversal_model='compiled_duration'. "
+                "Use node_based/parameterized with traversal_model='process'."
+            )
+        return
+
+    if (
+        state_representation == STATE_REPRESENTATION_LINE_GRAPH
+        and action_generation == ACTION_GENERATION_PARAMETERIZED
+    ):
+        raise ValueError(
+            "planner.state_representation='line_graph' requires "
+            "planner.action_generation='compiled'. The parameterized "
+            "line-graph variant is intentionally unsupported."
+        )
+
+    if (
+        state_representation == STATE_REPRESENTATION_LINE_GRAPH
+        and action_generation == ACTION_GENERATION_COMPILED
+    ):
+        raise ValueError(
+            "planner.state_representation='line_graph' with "
+            "planner.action_generation='compiled' is recognized but not "
+            "implemented yet."
+        )
 
 
 def resolve_experiment_name(project_config: dict[str, Any]) -> str:

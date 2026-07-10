@@ -79,7 +79,10 @@ def build_net(edge_file: str | Path, node_file: str | Path, net_file: str | Path
         "--node-files", str(node_file),
         "--edge-files", str(edge_file),
         "--output-file", str(net_file),
-        "--no-turnarounds", "true",
+        "--no-turnarounds", "false",
+        "--no-turnarounds.tls", "false",
+        "--no-turnarounds.geometry", "false",
+        "--no-turnarounds.fringe", "false",
     ]
     print("Running:", " ".join(cmd))
     subprocess.run(cmd, check=True)

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from src.routly.config import (
-    COMPILED_DURATION_MODE_GENERIC,
-    COMPILED_DURATION_MODE_LINE_GRAPH,
-    COMPILED_DURATION_MODE_ROAD_SPECIFIC,
-    VALID_COMPILED_DURATION_MODES,
+    ACTION_GENERATION_COMPILED,
+    ACTION_GENERATION_PARAMETERIZED,
+    STATE_REPRESENTATION_LINE_GRAPH,
+    STATE_REPRESENTATION_NODE_BASED,
+    VALID_ACTION_GENERATION_MODES,
+    VALID_STATE_REPRESENTATIONS,
 )
 from src.routly.features import FeatureConfig
 
@@ -16,7 +18,8 @@ VALID_TRAVERSAL_MODELS = {TRAVERSAL_PROCESS, TRAVERSAL_COMPILED_DURATION}
 def build_road_network_domain(
     features: FeatureConfig | None = None,
     traversal_model: str = TRAVERSAL_PROCESS,
-    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
     time_window_starts: list[int] | None = None,
     roads: list[dict] | None = None,
     dynamic_road_ids: set[str] | None = None,
@@ -28,26 +31,28 @@ def build_road_network_domain(
     if features is None:
         features = FeatureConfig.base()
     traversal_model = _validate_traversal_model(features, traversal_model)
-    compiled_duration_mode = _validate_compiled_duration_mode(
+    state_representation, action_generation = _validate_planner_axes(
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
+        action_generation,
     )
 
     time_window_starts = _normalize_time_window_starts(features, time_window_starts)
     if (
         traversal_model == TRAVERSAL_COMPILED_DURATION
-        and compiled_duration_mode == COMPILED_DURATION_MODE_ROAD_SPECIFIC
+        and state_representation == STATE_REPRESENTATION_NODE_BASED
+        and action_generation == ACTION_GENERATION_COMPILED
         and not roads
     ):
         raise ValueError(
-            "compiled_duration_mode='road_specific' requires roads to build "
-            "road-specific actions."
+            "node_based/compiled requires roads to build road-specific actions."
         )
 
     types = _build_types(
         features,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
+        action_generation,
         time_window_starts,
         roads or [],
         location_ids or [],
@@ -58,7 +63,8 @@ def build_road_network_domain(
     action = _build_action(
         features,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
+        action_generation,
         time_window_starts,
         roads or [],
         dynamic_road_ids,
@@ -83,8 +89,9 @@ def build_road_network_domain(
 ;; ============================================================
 ;;  DOMAIN: road-network
 ;;  Features: {features.label}
-;;    traversal      : {traversal_model}
-;;    compiled mode  : {compiled_duration_mode}
+;;    traversal             : {traversal_model}
+;;    state representation  : {state_representation}
+;;    action generation     : {action_generation}
 ;;    traffic_lights  : {features.traffic_lights}
 ;;    congestion      : enabled={features.congestion.enabled}, mode={features.congestion.mode}, type={features.congestion.type}
 ;;    llm_events      : {features.llm_events.enabled}
@@ -117,16 +124,18 @@ def _normalize_time_window_starts(
 def _build_types(
     f: FeatureConfig,
     traversal_model: str,
-    compiled_duration_mode: str,
+    state_representation: str,
+    action_generation: str,
     time_window_starts: list[int],
     roads: list[dict],
     location_ids: list[str],
     dynamic_road_ids: set[str] | None,
 ) -> str:
-    if not _uses_road_specific_compiled_actions(
+    if not _uses_node_compiled_actions(
         f,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
+        action_generation,
         roads,
         dynamic_road_ids,
     ):
@@ -173,17 +182,19 @@ def _build_types(
     return "\n".join(lines)
 
 
-def _uses_road_specific_compiled_actions(
+def _uses_node_compiled_actions(
     f: FeatureConfig,
     traversal_model: str,
-    compiled_duration_mode: str,
+    state_representation: str,
+    action_generation: str,
     roads: list[dict],
     dynamic_road_ids: set[str] | None,
 ) -> bool:
     _ = f, roads, dynamic_road_ids
     return (
         traversal_model == TRAVERSAL_COMPILED_DURATION
-        and compiled_duration_mode == COMPILED_DURATION_MODE_ROAD_SPECIFIC
+        and state_representation == STATE_REPRESENTATION_NODE_BASED
+        and action_generation == ACTION_GENERATION_COMPILED
     )
 
 
@@ -276,20 +287,24 @@ def _build_functions(
 def _build_action(
     f: FeatureConfig,
     traversal_model: str,
-    compiled_duration_mode: str,
+    state_representation: str,
+    action_generation: str,
     time_window_starts: list[int],
     roads: list[dict],
     dynamic_road_ids: set[str] | None,
 ) -> str:
     if traversal_model == TRAVERSAL_COMPILED_DURATION:
-        if compiled_duration_mode == COMPILED_DURATION_MODE_ROAD_SPECIFIC:
+        if (
+            state_representation == STATE_REPRESENTATION_NODE_BASED
+            and action_generation == ACTION_GENERATION_COMPILED
+        ):
             return _build_compiled_duration_road_actions(
                 f,
                 time_window_starts,
                 roads,
                 dynamic_road_ids or set(),
             )
-        if compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH:
+        if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
             return _build_compiled_duration_line_graph_action(
                 f,
                 time_window_starts,
@@ -790,13 +805,6 @@ def _window_type(window_id: str) -> str:
     return f"window_type_{window_id}"
 
 
-def _uses_line_graph_traversal(
-    f: FeatureConfig,
-    traversal_model: str,
-) -> bool:
-    return False
-
-
 def _validate_traversal_model(
     features: FeatureConfig,
     traversal_model: str,
@@ -817,27 +825,47 @@ def _validate_traversal_model(
     return traversal_model
 
 
-def _validate_compiled_duration_mode(
+def _validate_planner_axes(
     traversal_model: str,
-    compiled_duration_mode: str,
-) -> str:
-    compiled_duration_mode = str(compiled_duration_mode).strip().lower()
-    if compiled_duration_mode not in VALID_COMPILED_DURATION_MODES:
+    state_representation: str,
+    action_generation: str,
+) -> tuple[str, str]:
+    state_representation = str(state_representation).strip().lower()
+    action_generation = str(action_generation).strip().lower()
+    if state_representation not in VALID_STATE_REPRESENTATIONS:
         raise ValueError(
-            "compiled_duration_mode must be 'generic', 'road_specific', "
-            "or 'line_graph'"
+            "state_representation must be 'node_based' or 'line_graph'"
         )
-    if compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH:
+    if action_generation not in VALID_ACTION_GENERATION_MODES:
         raise ValueError(
-            "compiled_duration_mode='line_graph' is recognized but not "
-            "implemented yet."
+            "action_generation must be 'parameterized' or 'compiled'"
         )
+
+    if traversal_model != TRAVERSAL_COMPILED_DURATION:
+        if (
+            state_representation != STATE_REPRESENTATION_NODE_BASED
+            or action_generation != ACTION_GENERATION_PARAMETERIZED
+        ):
+            raise ValueError(
+                "traversal_model='process' supports only "
+                "state_representation='node_based' and "
+                "action_generation='parameterized'."
+            )
+        return state_representation, action_generation
+
     if (
-        traversal_model != TRAVERSAL_COMPILED_DURATION
-        and compiled_duration_mode != COMPILED_DURATION_MODE_GENERIC
+        state_representation == STATE_REPRESENTATION_LINE_GRAPH
+        and action_generation == ACTION_GENERATION_PARAMETERIZED
     ):
         raise ValueError(
-            "compiled_duration_mode can be non-generic only with "
-            "traversal_model='compiled_duration'."
+            "state_representation='line_graph' requires "
+            "action_generation='compiled'."
         )
-    return compiled_duration_mode
+
+    if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
+        raise ValueError(
+            "state_representation='line_graph' with action_generation='compiled' "
+            "is recognized but not implemented yet."
+        )
+
+    return state_representation, action_generation

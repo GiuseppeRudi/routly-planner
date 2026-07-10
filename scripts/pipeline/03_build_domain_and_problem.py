@@ -197,7 +197,8 @@ def main() -> None:
     domain_text = build_road_network_domain(
         features,
         traversal_model=config.traversal_model,
-        compiled_duration_mode=config.compiled_duration_mode,
+        state_representation=config.state_representation,
+        action_generation=config.action_generation,
         time_window_starts=time_window_starts,
         roads=roads,
         dynamic_road_ids=dynamic_road_ids,
@@ -228,7 +229,8 @@ def main() -> None:
         fuel_params=fuel_params,
         seed=config.seed,
         traversal_model=config.traversal_model,
-        compiled_duration_mode=config.compiled_duration_mode,
+        state_representation=config.state_representation,
+        action_generation=config.action_generation,
         objects_declared_in_domain=objects_declared_in_domain,
     )
 

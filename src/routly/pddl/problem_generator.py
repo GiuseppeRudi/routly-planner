@@ -3,10 +3,12 @@ from __future__ import annotations
 from typing import Any
 
 from src.routly.config import (
-    COMPILED_DURATION_MODE_GENERIC,
-    COMPILED_DURATION_MODE_LINE_GRAPH,
-    COMPILED_DURATION_MODE_ROAD_SPECIFIC,
-    VALID_COMPILED_DURATION_MODES,
+    ACTION_GENERATION_COMPILED,
+    ACTION_GENERATION_PARAMETERIZED,
+    STATE_REPRESENTATION_LINE_GRAPH,
+    STATE_REPRESENTATION_NODE_BASED,
+    VALID_ACTION_GENERATION_MODES,
+    VALID_STATE_REPRESENTATIONS,
 )
 from src.routly.domain.fuel import FuelParameters
 from src.routly.domain.congestion import (
@@ -52,17 +54,23 @@ def build_road_network_problem(
     congestion_factors_override: dict[str, float] | None = None,
     seed: int | None = None,
     traversal_model: str = TRAVERSAL_PROCESS,
-    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
     objects_declared_in_domain: bool = False,
 ) -> str:
     if features is None:
         features = FeatureConfig.base()
     traversal_model = _validate_traversal_model(features, traversal_model)
-    compiled_duration_mode = _validate_compiled_duration_mode(
+    state_representation, action_generation = _validate_planner_axes(
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
+        action_generation,
     )
-    if _uses_road_specific_compiled_actions(traversal_model, compiled_duration_mode):
+    if _uses_node_compiled_actions(
+        traversal_model,
+        state_representation,
+        action_generation,
+    ):
         objects_declared_in_domain = False
 
     congestion_factors: dict[str, float] = {}
@@ -142,7 +150,8 @@ def build_road_network_problem(
         dynamic_road_selection,
         objects_declared_in_domain,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
+        action_generation,
     )
     init_block     = _build_init(node_map, roads, start_loc, vehicle_id,
                                  features, congestion_factors,
@@ -151,14 +160,15 @@ def build_road_network_problem(
                                  dynamic_road_selection,
                                  goal_loc,
                                  traversal_model,
-                                 compiled_duration_mode)
+                                 state_representation,
+                                 action_generation)
     metric_line    = _build_metric(vehicle_id, features, traversal_model)
     goal_line      = _build_goal(
         vehicle_id,
         goal_loc,
         features,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
     )
 
     return f"""\
@@ -278,7 +288,8 @@ def build_dynamic_congestion_pddl_sections(
     roads: list[dict[str, Any]] | None = None,
     features: FeatureConfig | None = None,
     traversal_model: str = TRAVERSAL_PROCESS,
-    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
     dynamic_road_selection: DynamicRoadSelection | None = None,
     congestion_factors: dict[str, float] | None = None,
     traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
@@ -310,7 +321,8 @@ def build_dynamic_congestion_pddl_sections(
     windows_block = _build_dynamic_congestion_windows_block(
         window_starts,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
+        action_generation,
     )
     profile_block = _build_dynamic_congestion_profile_block(
         dynamic_congestion_profile,
@@ -401,7 +413,8 @@ def _build_objects(
     dynamic_road_selection: DynamicRoadSelection,
     objects_declared_in_domain: bool,
     traversal_model: str,
-    compiled_duration_mode: str,
+    state_representation: str,
+    action_generation: str,
 ) -> str:
     loc_ids  = " ".join(info["id"] for info in node_map.values())
     road_ids = " ".join(r["id"] for r in roads)
@@ -415,10 +428,15 @@ def _build_objects(
         dynamic_windows_block = _build_dynamic_congestion_windows_block(
             window_starts,
             traversal_model,
-            compiled_duration_mode,
+            state_representation,
+            action_generation,
         )
 
-    if _uses_road_specific_compiled_actions(traversal_model, compiled_duration_mode):
+    if _uses_node_compiled_actions(
+        traversal_model,
+        state_representation,
+        action_generation,
+    ):
         lines = [
             "  (:objects",
             f"    {vehicle_id} - vehicle",
@@ -468,7 +486,8 @@ def _build_init(
     dynamic_road_selection: DynamicRoadSelection | None = None,
     goal_loc: str = "",
     traversal_model: str = TRAVERSAL_PROCESS,
-    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
 ) -> str:
     lines: list[str] = []
     dynamic_congestion_profile = dynamic_congestion_profile or {}
@@ -482,7 +501,7 @@ def _build_init(
     line_graph = _uses_line_graph_traversal(
         features,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
     )
     if line_graph:
         start_roads = [road for road in roads if road["from"] == start_loc]
@@ -566,7 +585,8 @@ def _build_init(
             roads=roads,
             features=features,
             traversal_model=traversal_model,
-            compiled_duration_mode=compiled_duration_mode,
+            state_representation=state_representation,
+            action_generation=action_generation,
             dynamic_road_selection=dynamic_road_selection,
             congestion_factors=congestion_factors,
             traffic_light_timings=traffic_light_timings,
@@ -625,12 +645,12 @@ def _build_goal(
     goal_loc: str,
     features: FeatureConfig,
     traversal_model: str,
-    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
 ) -> str:
     if _uses_line_graph_traversal(
         features,
         traversal_model,
-        compiled_duration_mode,
+        state_representation,
     ):
         return f"  (:goal (reached-goal {vehicle_id}))"
     return f"  (:goal (at {vehicle_id} {goal_loc}))"
@@ -674,39 +694,61 @@ def _validate_traversal_model(
     return traversal_model
 
 
-def _validate_compiled_duration_mode(
+def _validate_planner_axes(
     traversal_model: str,
-    compiled_duration_mode: str,
-) -> str:
-    compiled_duration_mode = str(compiled_duration_mode).strip().lower()
-    if compiled_duration_mode not in VALID_COMPILED_DURATION_MODES:
+    state_representation: str,
+    action_generation: str,
+) -> tuple[str, str]:
+    state_representation = str(state_representation).strip().lower()
+    action_generation = str(action_generation).strip().lower()
+    if state_representation not in VALID_STATE_REPRESENTATIONS:
         raise ValueError(
-            "compiled_duration_mode must be 'generic', 'road_specific', "
-            "or 'line_graph'"
+            "state_representation must be 'node_based' or 'line_graph'"
         )
-    if compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH:
+    if action_generation not in VALID_ACTION_GENERATION_MODES:
         raise ValueError(
-            "compiled_duration_mode='line_graph' is recognized but not "
-            "implemented yet."
+            "action_generation must be 'parameterized' or 'compiled'"
         )
+
+    if traversal_model != TRAVERSAL_COMPILED_DURATION:
+        if (
+            state_representation != STATE_REPRESENTATION_NODE_BASED
+            or action_generation != ACTION_GENERATION_PARAMETERIZED
+        ):
+            raise ValueError(
+                "traversal_model='process' supports only "
+                "state_representation='node_based' and "
+                "action_generation='parameterized'."
+            )
+        return state_representation, action_generation
+
     if (
-        traversal_model != TRAVERSAL_COMPILED_DURATION
-        and compiled_duration_mode != COMPILED_DURATION_MODE_GENERIC
+        state_representation == STATE_REPRESENTATION_LINE_GRAPH
+        and action_generation == ACTION_GENERATION_PARAMETERIZED
     ):
         raise ValueError(
-            "compiled_duration_mode can be non-generic only with "
-            "traversal_model='compiled_duration'."
+            "state_representation='line_graph' requires "
+            "action_generation='compiled'."
         )
-    return compiled_duration_mode
+
+    if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
+        raise ValueError(
+            "state_representation='line_graph' with action_generation='compiled' "
+            "is recognized but not implemented yet."
+        )
+
+    return state_representation, action_generation
 
 
-def _uses_road_specific_compiled_actions(
+def _uses_node_compiled_actions(
     traversal_model: str,
-    compiled_duration_mode: str,
+    state_representation: str,
+    action_generation: str,
 ) -> bool:
     return (
         traversal_model == TRAVERSAL_COMPILED_DURATION
-        and compiled_duration_mode == COMPILED_DURATION_MODE_ROAD_SPECIFIC
+        and state_representation == STATE_REPRESENTATION_NODE_BASED
+        and action_generation == ACTION_GENERATION_COMPILED
     )
 
 
@@ -723,13 +765,15 @@ def _initial_dynamic_congestion_factor(
 def _build_dynamic_congestion_windows_block(
     window_starts: list[int],
     traversal_model: str = TRAVERSAL_PROCESS,
-    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
 ) -> str:
     lines = ["", "", DYNAMIC_WINDOWS_BEGIN]
     if window_starts:
-        if _uses_road_specific_compiled_actions(
+        if _uses_node_compiled_actions(
             traversal_model,
-            compiled_duration_mode,
+            state_representation,
+            action_generation,
         ):
             lines += [
                 f"    {_window_id(start)} - {_window_type(_window_id(start))}"
@@ -844,10 +888,10 @@ def _window_type(window_id: str) -> str:
 def _uses_line_graph_traversal(
     features: FeatureConfig,
     traversal_model: str,
-    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
 ) -> bool:
     _ = features
     return (
         traversal_model == TRAVERSAL_COMPILED_DURATION
-        and compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH
+        and state_representation == STATE_REPRESENTATION_LINE_GRAPH
     )
