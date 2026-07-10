@@ -19,6 +19,11 @@ planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
   java_heap_mb: 8192
   traversal_model: "compiled_duration" # "process" | "compiled_duration"
+  # Only used when traversal_model = "compiled_duration".
+  # generic: current parameterized action (?road ?from ?to).
+  # road_specific: one grounded action schema per road/window to reduce grounding.
+  # line_graph: planned future mode; recognized but not implemented yet.
+  compiled_duration_mode: "road_specific" # "generic" | "road_specific" | "line_graph"
 
 sumo:
   sumo_gui: "sumo-gui"

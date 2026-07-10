@@ -161,6 +161,7 @@ def main() -> None:
         )
 
     time_window_starts: list[int] = []
+    dynamic_road_ids: set[str] = set()
     objects_declared_in_domain = False
     if features.dynamic_congestion_in_pddl:
         dynamic_profile = compute_dynamic_congestion_profile(
@@ -186,6 +187,7 @@ def main() -> None:
             dynamic_profile,
             dynamic_selection.dynamic_roads,
         )
+        dynamic_road_ids = set(dynamic_selection.dynamic_roads)
         print(
             f"Dynamic congestion domain windows: {len(time_window_starts)} "
             f"({time_window_starts[0]}..{time_window_starts[-1]} s)"
@@ -195,7 +197,11 @@ def main() -> None:
     domain_text = build_road_network_domain(
         features,
         traversal_model=config.traversal_model,
+        compiled_duration_mode=config.compiled_duration_mode,
         time_window_starts=time_window_starts,
+        roads=roads,
+        dynamic_road_ids=dynamic_road_ids,
+        location_ids=list(node_map),
     )
     write_pddl(domain_text, config.domain_path)
     print(
@@ -222,6 +228,7 @@ def main() -> None:
         fuel_params=fuel_params,
         seed=config.seed,
         traversal_model=config.traversal_model,
+        compiled_duration_mode=config.compiled_duration_mode,
         objects_declared_in_domain=objects_declared_in_domain,
     )
 

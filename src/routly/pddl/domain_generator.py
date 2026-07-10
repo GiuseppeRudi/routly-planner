@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+from src.routly.config import (
+    COMPILED_DURATION_MODE_GENERIC,
+    COMPILED_DURATION_MODE_LINE_GRAPH,
+    COMPILED_DURATION_MODE_ROAD_SPECIFIC,
+    VALID_COMPILED_DURATION_MODES,
+)
 from src.routly.features import FeatureConfig
 
 TRAVERSAL_PROCESS = "process"
@@ -10,6 +16,7 @@ VALID_TRAVERSAL_MODELS = {TRAVERSAL_PROCESS, TRAVERSAL_COMPILED_DURATION}
 def build_road_network_domain(
     features: FeatureConfig | None = None,
     traversal_model: str = TRAVERSAL_PROCESS,
+    compiled_duration_mode: str = COMPILED_DURATION_MODE_GENERIC,
     time_window_starts: list[int] | None = None,
     roads: list[dict] | None = None,
     dynamic_road_ids: set[str] | None = None,
@@ -21,12 +28,26 @@ def build_road_network_domain(
     if features is None:
         features = FeatureConfig.base()
     traversal_model = _validate_traversal_model(features, traversal_model)
+    compiled_duration_mode = _validate_compiled_duration_mode(
+        traversal_model,
+        compiled_duration_mode,
+    )
 
     time_window_starts = _normalize_time_window_starts(features, time_window_starts)
+    if (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
+        and compiled_duration_mode == COMPILED_DURATION_MODE_ROAD_SPECIFIC
+        and not roads
+    ):
+        raise ValueError(
+            "compiled_duration_mode='road_specific' requires roads to build "
+            "road-specific actions."
+        )
 
-    constants = _build_constants(
+    types = _build_types(
         features,
         traversal_model,
+        compiled_duration_mode,
         time_window_starts,
         roads or [],
         location_ids or [],
@@ -37,6 +58,7 @@ def build_road_network_domain(
     action = _build_action(
         features,
         traversal_model,
+        compiled_duration_mode,
         time_window_starts,
         roads or [],
         dynamic_road_ids,
@@ -45,10 +67,7 @@ def build_road_network_domain(
     process = _build_process(features, traversal_model)
     events = _build_events(features, traversal_model, time_window_starts)
 
-    blocks = []
-    if constants:
-        blocks.append(constants)
-    blocks += [predicates, functions, action]
+    blocks = [predicates, functions, action]
     if refuel:
         blocks.append(refuel)
     if process:
@@ -65,6 +84,7 @@ def build_road_network_domain(
 ;;  DOMAIN: road-network
 ;;  Features: {features.label}
 ;;    traversal      : {traversal_model}
+;;    compiled mode  : {compiled_duration_mode}
 ;;    traffic_lights  : {features.traffic_lights}
 ;;    congestion      : enabled={features.congestion.enabled}, mode={features.congestion.mode}, type={features.congestion.type}
 ;;    llm_events      : {features.llm_events.enabled}
@@ -73,7 +93,7 @@ def build_road_network_domain(
 
 (define (domain road-network)
   (:requirements {requirements})
-  (:types vehicle location road{_time_window_type(features)})
+{types}
 
 {body}
 )
@@ -94,51 +114,77 @@ def _normalize_time_window_starts(
     return starts
 
 
-def _build_constants(
+def _build_types(
     f: FeatureConfig,
     traversal_model: str,
+    compiled_duration_mode: str,
     time_window_starts: list[int],
     roads: list[dict],
     location_ids: list[str],
     dynamic_road_ids: set[str] | None,
 ) -> str:
-    lines: list[str] = []
-    if _uses_road_specific_compiled_actions(
+    if not _uses_road_specific_compiled_actions(
         f,
         traversal_model,
+        compiled_duration_mode,
         roads,
         dynamic_road_ids,
     ):
-        road_ids = sorted(str(road["id"]) for road in roads)
-        loc_ids = sorted(
+        return f"  (:types vehicle location road{_time_window_type(f)})"
+
+    road_types = sorted(_road_type(str(road["id"])) for road in roads)
+    loc_types = sorted(
+        _location_type(loc_id)
+        for loc_id in (
             set(location_ids)
             | {str(road["from"]) for road in roads}
             | {str(road["to"]) for road in roads}
         )
+    )
+
+    base_types = "vehicle location road"
+    if f.dynamic_congestion_in_pddl:
+        base_types += " time-window"
+
+    lines: list[str] = [
+        "  (:types",
+        f"    {base_types} - object",
+    ]
+    if loc_types:
         lines += [
-            f"    {' '.join(loc_ids)}",
+            f"    {' '.join(loc_types)}",
             "    - location",
-            f"    {' '.join(road_ids)}",
+        ]
+    if road_types:
+        lines += [
+            f"    {' '.join(road_types)}",
             "    - road",
         ]
-
-    if not lines:
-        return ""
-    return (
-        "  (:constants\n"
-        + "\n".join(lines)
-        + "\n"
-        "  )"
-    )
+    if f.dynamic_congestion_in_pddl and time_window_starts:
+        window_types = " ".join(
+            _window_type(_window_id(start))
+            for start in time_window_starts
+        )
+        lines += [
+            f"    {window_types}",
+            "    - time-window",
+        ]
+    lines.append("  )")
+    return "\n".join(lines)
 
 
 def _uses_road_specific_compiled_actions(
     f: FeatureConfig,
     traversal_model: str,
+    compiled_duration_mode: str,
     roads: list[dict],
     dynamic_road_ids: set[str] | None,
 ) -> bool:
-    return False
+    _ = f, roads, dynamic_road_ids
+    return (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
+        and compiled_duration_mode == COMPILED_DURATION_MODE_ROAD_SPECIFIC
+    )
 
 
 def _build_predicates(
@@ -230,11 +276,24 @@ def _build_functions(
 def _build_action(
     f: FeatureConfig,
     traversal_model: str,
+    compiled_duration_mode: str,
     time_window_starts: list[int],
     roads: list[dict],
     dynamic_road_ids: set[str] | None,
 ) -> str:
     if traversal_model == TRAVERSAL_COMPILED_DURATION:
+        if compiled_duration_mode == COMPILED_DURATION_MODE_ROAD_SPECIFIC:
+            return _build_compiled_duration_road_actions(
+                f,
+                time_window_starts,
+                roads,
+                dynamic_road_ids or set(),
+            )
+        if compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH:
+            return _build_compiled_duration_line_graph_action(
+                f,
+                time_window_starts,
+            )
         return _build_compiled_duration_action(
             f,
             time_window_starts,
@@ -492,77 +551,63 @@ def _build_compiled_duration_road_actions(
     dynamic_road_ids: set[str],
 ) -> str:
     actions: list[str] = []
+    extra_precond, fuel_precond, fuel_effect = _compiled_common_guards_and_effects(f)
+    static_sim_time_effect = ""
+    if f.dynamic_congestion_in_pddl:
+        static_sim_time_effect = "\n      (increase (sim-time) (travel-duration ?r))"
 
     for road in roads:
         road_id = str(road["id"])
         from_loc = str(road["from"])
         to_loc = str(road["to"])
-        extra_precond, fuel_precond, fuel_effect = _compiled_hardcoded_guards(
-            f,
-            road_id,
-            from_loc,
-            to_loc,
+        road_type = _road_type(road_id)
+        from_type = _location_type(from_loc)
+        to_type = _location_type(to_loc)
+        static_road_precond = (
+            "\n      (static-road ?r)"
+            if f.dynamic_congestion_in_pddl
+            else ""
         )
 
         if road_id not in dynamic_road_ids:
             actions.append(f"""\
   (:action traverse-road-static-{road_id}
-    :parameters (?v - vehicle)
+    :parameters (?v - vehicle ?r - {road_type} ?from - {from_type} ?to - {to_type})
     :precondition (and
-      (at ?v {from_loc})
-      (road-open {road_id}){extra_precond}{fuel_precond}
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r){static_road_precond}{extra_precond}{fuel_precond}
     )
     :effect (and
-      (not (at ?v {from_loc}))
-      (at ?v {to_loc})
-      (increase (travel-time ?v) (travel-duration {road_id}))
-      (increase (sim-time) (travel-duration {road_id})){fuel_effect}
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r)){static_sim_time_effect}{fuel_effect}
     )
   )""")
             continue
 
         for start in time_window_starts:
             window_id = _window_id(start)
+            window_type = _window_type(window_id)
             actions.append(f"""\
   (:action traverse-road-dynamic-{road_id}-{window_id}
-    :parameters (?v - vehicle)
+    :parameters (?v - vehicle ?r - {road_type} ?from - {from_type} ?to - {to_type} ?w - {window_type})
     :precondition (and
-      (at ?v {from_loc})
-      (road-open {road_id})
-      (current-window {window_id}){extra_precond}{fuel_precond}
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w){extra_precond}{fuel_precond}
     )
     :effect (and
-      (not (at ?v {from_loc}))
-      (at ?v {to_loc})
-      (increase (travel-time ?v) (travel-duration-window {road_id} {window_id}))
-      (increase (sim-time) (travel-duration-window {road_id} {window_id})){fuel_effect}
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w)){fuel_effect}
     )
   )""")
 
     return "\n\n".join(actions)
-
-
-def _compiled_hardcoded_guards(
-    f: FeatureConfig,
-    road_id: str,
-    from_loc: str,
-    to_loc: str,
-) -> tuple[str, str, str]:
-    extra_precond = ""
-    if f.llm_events.enabled:
-        extra_precond += (
-            f"\n      (not (road-blocked {road_id}))"
-            f"\n      (not (location-blocked {from_loc}))"
-            f"\n      (not (location-blocked {to_loc}))"
-        )
-
-    fuel_precond = ""
-    fuel_effect = ""
-    if f.fuel_in_pddl:
-        fuel_precond = f"\n      (>= (fuel-level ?v) (fuel-cost {road_id}))"
-        fuel_effect = f"\n      (decrease (fuel-level ?v) (fuel-cost {road_id}))"
-
-    return extra_precond, fuel_precond, fuel_effect
 
 
 def _compiled_common_guards_and_effects(
@@ -733,6 +778,18 @@ def _window_id(window_start: int) -> str:
     return f"tw_{window_start:05d}"
 
 
+def _location_type(location_id: str) -> str:
+    return f"loc_type_{location_id}"
+
+
+def _road_type(road_id: str) -> str:
+    return f"road_type_{road_id}"
+
+
+def _window_type(window_id: str) -> str:
+    return f"window_type_{window_id}"
+
+
 def _uses_line_graph_traversal(
     f: FeatureConfig,
     traversal_model: str,
@@ -758,3 +815,29 @@ def _validate_traversal_model(
             "is only supported by traversal_model='process'."
         )
     return traversal_model
+
+
+def _validate_compiled_duration_mode(
+    traversal_model: str,
+    compiled_duration_mode: str,
+) -> str:
+    compiled_duration_mode = str(compiled_duration_mode).strip().lower()
+    if compiled_duration_mode not in VALID_COMPILED_DURATION_MODES:
+        raise ValueError(
+            "compiled_duration_mode must be 'generic', 'road_specific', "
+            "or 'line_graph'"
+        )
+    if compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH:
+        raise ValueError(
+            "compiled_duration_mode='line_graph' is recognized but not "
+            "implemented yet."
+        )
+    if (
+        traversal_model != TRAVERSAL_COMPILED_DURATION
+        and compiled_duration_mode != COMPILED_DURATION_MODE_GENERIC
+    ):
+        raise ValueError(
+            "compiled_duration_mode can be non-generic only with "
+            "traversal_model='compiled_duration'."
+        )
+    return compiled_duration_mode

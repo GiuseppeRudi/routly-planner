@@ -15,6 +15,18 @@ from src.routly.utils import read_yaml
 
 EXPERIMENT_NAME_ENV = "ROUTLY_EXPERIMENT_NAME"
 VALID_TRAVERSAL_MODELS = {"process", "compiled_duration"}
+COMPILED_DURATION_MODE_GENERIC = "generic"
+COMPILED_DURATION_MODE_ROAD_SPECIFIC = "road_specific"
+COMPILED_DURATION_MODE_LINE_GRAPH = "line_graph"
+VALID_COMPILED_DURATION_MODES = {
+    COMPILED_DURATION_MODE_GENERIC,
+    COMPILED_DURATION_MODE_ROAD_SPECIFIC,
+    COMPILED_DURATION_MODE_LINE_GRAPH,
+}
+IMPLEMENTED_COMPILED_DURATION_MODES = {
+    COMPILED_DURATION_MODE_GENERIC,
+    COMPILED_DURATION_MODE_ROAD_SPECIFIC,
+}
 
 
 @dataclass(frozen=True)
@@ -33,6 +45,7 @@ class ProjectConfig:
     enhsp_jar: Path
     java_heap_mb: int
     traversal_model: str
+    compiled_duration_mode: str
     sumo_gui: str
     project_root: Path
 
@@ -221,6 +234,10 @@ class ProjectConfig:
         return self.llm_pddl_dir / "problem_dynamic.pddl"
 
     @property
+    def dynamic_domain_path(self) -> Path:
+        return self.llm_pddl_dir / "domain_dynamic.pddl"
+
+    @property
     def dynamic_plan_path(self) -> Path:
         return self.llm_plans_dir / "plan_dynamic.sol"
 
@@ -333,6 +350,31 @@ def load_config(
             "planner.traversal_model must be 'process' or 'compiled_duration'"
         )
 
+    compiled_duration_mode = str(
+        planner_config.get(
+            "compiled_duration_mode",
+            COMPILED_DURATION_MODE_GENERIC,
+        )
+    ).strip().lower()
+    if compiled_duration_mode not in VALID_COMPILED_DURATION_MODES:
+        raise ValueError(
+            "planner.compiled_duration_mode must be 'generic', "
+            "'road_specific', or 'line_graph'"
+        )
+    if compiled_duration_mode == COMPILED_DURATION_MODE_LINE_GRAPH:
+        raise ValueError(
+            "planner.compiled_duration_mode='line_graph' is recognized but "
+            "not implemented yet. Use 'generic' or 'road_specific'."
+        )
+    if (
+        traversal_model != "compiled_duration"
+        and compiled_duration_mode != COMPILED_DURATION_MODE_GENERIC
+    ):
+        raise ValueError(
+            "planner.compiled_duration_mode can be non-generic only when "
+            "planner.traversal_model='compiled_duration'."
+        )
+
     return ProjectConfig(
         seed=int(general_config["seed"]),
         experiment_name=resolve_experiment_name(project_config),
@@ -347,6 +389,7 @@ def load_config(
         enhsp_jar=Path(planner_config["enhsp_jar"]),
         java_heap_mb=int(planner_config.get("java_heap_mb", 4096)),
         traversal_model=traversal_model,
+        compiled_duration_mode=compiled_duration_mode,
         sumo_gui=sumo_config["sumo_gui"],
 
         project_root=project_root,

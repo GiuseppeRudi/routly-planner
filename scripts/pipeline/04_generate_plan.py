@@ -17,6 +17,7 @@ from src.routly.domain.fuel import load_fuel_stations
 from src.routly.domain.congestion import (
     DynamicRoadSelection,
     compute_congestion_factors,
+    global_window_starts,
     select_dynamic_roads,
 )
 from src.routly.config import load_config
@@ -44,6 +45,8 @@ from src.routly.pddl.problem_generator import (
     recleanse_and_compute_dynamic_congestion,
     recleanse_and_compute_dynamic_congestion_profile,
 )
+from src.routly.pddl.domain_generator import build_road_network_domain
+from src.routly.pddl.pddl_writer import write_pddl
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
 from src.routly.domain.traffic_lights import load_traffic_light_timings
@@ -124,6 +127,7 @@ def _run_and_plot(
     plan_path: Path,
     plan_image_path: Path,
     mapping_path: Path,
+    domain_path: Path | None = None,
 ) -> list[str]:
 
     # Clean up any previous solution file to avoid false positives
@@ -136,7 +140,7 @@ def _run_and_plot(
     try:
         run_enhsp(
             enhsp_jar=config.enhsp_jar,
-            domain_path=config.domain_path,
+            domain_path=domain_path or config.domain_path,
             problem_path=problem_path,
             plan_path=plan_path,
             java_heap_mb=config.java_heap_mb,
@@ -663,6 +667,7 @@ def main() -> None:
     slowed_road_ids = {r for e in events if e["event_type"] == "slowdown" for r in e["roads"]}
     just_blocked_road_ids = [r for e in closure_events for r in e["roads"]]
     just_blocked_loc_ids = [loc["id"] for loc in blocked_locations]
+    dynamic_domain_path: Path | None = None
 
     if features.dynamic_congestion_in_pddl:
         new_profile, new_bg_routes = recleanse_and_compute_dynamic_congestion_profile(
@@ -735,6 +740,7 @@ def main() -> None:
                 roads=mapping["roads"],
                 features=features,
                 traversal_model=config.traversal_model,
+                compiled_duration_mode=config.compiled_duration_mode,
                 dynamic_road_selection=dynamic_road_selection,
                 congestion_factors=new_static_factors,
                 traffic_light_timings=traffic_light_timings,
@@ -758,6 +764,29 @@ def main() -> None:
                 active_dynamic_roads,
             ):
                 print(line)
+            if (
+                config.traversal_model == "compiled_duration"
+                and config.compiled_duration_mode == "road_specific"
+            ):
+                dynamic_window_starts = global_window_starts(
+                    new_profile,
+                    active_dynamic_roads,
+                )
+                dynamic_domain_text = build_road_network_domain(
+                    features,
+                    traversal_model=config.traversal_model,
+                    compiled_duration_mode=config.compiled_duration_mode,
+                    time_window_starts=dynamic_window_starts,
+                    roads=mapping["roads"],
+                    dynamic_road_ids=active_dynamic_roads,
+                    location_ids=[node["id"] for node in mapping["nodes"]],
+                )
+                dynamic_domain_path = config.dynamic_domain_path
+                write_pddl(dynamic_domain_text, dynamic_domain_path)
+                print(
+                    "✅ Dynamic road-specific domain regenerated: "
+                    f"{dynamic_domain_path}"
+                )
             print(
                 "✅ Dynamic congestion profile recalculation completed. "
                 f"{updated_count} initial factors and "
@@ -831,6 +860,7 @@ def main() -> None:
         dynamic_plan_path,
         dynamic_plan_image_path,
         mapping_path,
+        domain_path=dynamic_domain_path,
     )
 
     blocked_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"]} for event in closure_events for road in event["roads"]]
