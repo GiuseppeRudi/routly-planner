@@ -85,6 +85,7 @@ def derive_fuel_parameters(
     nodes: list[dict[str, Any]],
     config: FuelConfig,
     seed: int,
+    stations_override: list[str] | None = None,
 ) -> FuelParameters:
     """Size tank and consumption from the map extent, and stations from a %.
 
@@ -104,7 +105,11 @@ def derive_fuel_parameters(
     tank_capacity = max(round(consumption_per_meter * range_full_m, 3), 1e-3)
     initial_fuel = round(config.initial_fuel_ratio * tank_capacity, 3)
 
-    stations = generate_fuel_stations(nodes, config, seed)
+    stations = (
+        sorted(stations_override)
+        if stations_override is not None
+        else generate_fuel_stations(nodes, config, seed)
+    )
     return FuelParameters(
         tank_capacity=tank_capacity,
         initial_fuel=initial_fuel,

@@ -22,10 +22,23 @@ from src.routly.domain.congestion import (
     load_background_routes,
     validate_background_routes,
 )
+from src.routly.domain.macro_roads import (
+    expand_background_routes,
+    expand_incident_road_ids,
+    expand_road_sequence,
+    load_macro_expansion,
+    macro_expansion_from_mapping,
+    require_macro_artifacts,
+    validate_expanded_background_routes_for_sumo,
+)
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.sumo.sumo_runner import launch_sumo_gui
+from src.routly.sumo.route_validation import (
+    filter_background_routes_by_sumo_connections,
+    validate_sumo_route,
+)
 from src.routly.sumo.sumo_writer import (
     apply_traffic_light_timings,
     build_net,
@@ -180,14 +193,64 @@ def open_event_map_before_sumo(config, features: FeatureConfig, plan_kinds: list
     )
     viewer.show()
 
+
+def _filter_background_routes_for_blocked_components(
+    background_routes,
+    roads: list[dict[str, Any]],
+    blocked_roads: list[str],
+    blocked_locations: list[str],
+):
+    if background_routes is None:
+        return None
+
+    closed_edges = set(blocked_roads)
+    closed_nodes = set(blocked_locations)
+    road_nodes = {
+        road["id"]: (road["from"], road["to"])
+        for road in roads
+    }
+    filtered = []
+    for depart, route in background_routes:
+        valid = True
+        for edge_id in route:
+            if edge_id in closed_edges:
+                valid = False
+                break
+            endpoints = road_nodes.get(edge_id)
+            if endpoints is None:
+                continue
+            if endpoints[0] in closed_nodes or endpoints[1] in closed_nodes:
+                valid = False
+                break
+        if valid:
+            filtered.append((depart, route))
+    return filtered
+
+
+def _log_dropped_background_routes(plan_kind: str, dropped) -> None:
+    if not dropped:
+        return
+    print(
+        f"WARNING: discarded {len(dropped)} background route(s) for "
+        f"{plan_kind} because SUMO net.xml has no edge connection."
+    )
+    for item in dropped[:3]:
+        print(
+            f"  - {item.route_id}: {item.from_edge} -> {item.to_edge} "
+            f"at segment {item.pair_index}"
+        )
+
+
 def write_and_launch_sumo_for_plan(
     plan_kind: str,
     plan_path: Path,
     config,
-    mapping: dict[str, Any],
+    sumo_mapping: dict[str, Any],
+    planning_mapping: dict[str, Any],
     features: FeatureConfig,
     vehicle_id: str,
     background_routes,
+    macro_expansion: dict[str, Any] | None,
     net_path: Path,
 ) -> None:
     print("\n" + "=" * 70)
@@ -196,12 +259,17 @@ def write_and_launch_sumo_for_plan(
     print(f"Reading plan file: {plan_path}")
 
     plan_text = plan_path.read_text(encoding="utf-8")
-    road_sequence = parse_start_traversal_roads(plan_text)
+    planning_road_sequence = parse_start_traversal_roads(plan_text)
+    road_sequence = expand_road_sequence(planning_road_sequence, macro_expansion)
 
-    if not road_sequence:
+    if not planning_road_sequence:
         print("WARNING: no road sequence found in plan. Check ENHSP output format.")
 
-    print(f"Found route with {len(road_sequence)} roads.")
+    print(
+        f"Found route with {len(planning_road_sequence)} planning roads "
+        f"({len(road_sequence)} SUMO roads)."
+    )
+    validate_sumo_route(road_sequence, net_path, vehicle_id)
 
     route_path = sumo_route_path_for_plan(config, plan_kind)
     cfg_path = sumo_cfg_path_for_plan(config, plan_kind)
@@ -218,7 +286,12 @@ def write_and_launch_sumo_for_plan(
                 
                 for event in log_data.get("events", []):
                     if event.get("event_type") != "slowdown":
-                        blocked_roads.extend(event.get("roads", []))
+                        blocked_roads.extend(
+                            expand_incident_road_ids(
+                                event.get("roads", []),
+                                macro_expansion,
+                            )
+                        )
                 
                 for loc in log_data.get("blocked_locations", []):
                     if isinstance(loc, dict) and "id" in loc:
@@ -237,6 +310,17 @@ def write_and_launch_sumo_for_plan(
         features.fuel.refuel_stop_seconds * len(_refuel_stops)
         if features.fuel.enabled else 0.0
     )
+    sumo_background_routes = _filter_background_routes_for_blocked_components(
+        background_routes,
+        sumo_mapping["roads"],
+        blocked_roads,
+        blocked_locations,
+    )
+    sumo_background_routes, dropped_routes = filter_background_routes_by_sumo_connections(
+        sumo_background_routes,
+        net_path,
+    )
+    _log_dropped_background_routes(plan_kind, dropped_routes)
 
     write_rou_xml(
         road_sequence,
@@ -247,8 +331,8 @@ def write_and_launch_sumo_for_plan(
             if features.congestion_enabled
             else 0
         ),
-        all_roads=mapping["roads"],
-        background_routes=background_routes,
+        all_roads=sumo_mapping["roads"],
+        background_routes=sumo_background_routes,
         seed=config.seed,
         blocked_roads=blocked_roads,
         blocked_locations=blocked_locations,
@@ -259,12 +343,12 @@ def write_and_launch_sumo_for_plan(
     )
 
     end_time = compute_simulation_end_time(
-        plan_text, road_sequence, mapping, extra_seconds=_total_dwell
-    )
+        plan_text, planning_road_sequence, planning_mapping, extra_seconds=_total_dwell)
     additional = []
     if features.fuel.enabled and config.fuel_stations_path.exists():
         stations = load_fuel_stations(config.fuel_stations_path)
-        write_fuel_pois(stations, mapping["nodes"], config.fuel_poi_path, net_path, "images/gas_station.png", chosen=_refuel_stops,)
+        write_fuel_pois(stations, sumo_mapping["nodes"], config.fuel_poi_path, net_path, "images/gas_station.png", chosen=_refuel_stops,)
+  
         additional.append(config.fuel_poi_path)
 
     write_sumocfg(
@@ -296,13 +380,26 @@ def main() -> None:
     vehicle_id = get_vehicle_id_from_scenario(scenario)
     features = FeatureConfig.from_yaml(args.project_config)
 
-    mapping_path = Path(
+    original_mapping_path = Path(
         scenario.get("map", {}).get("mapping_path", config.mapping_path)
     )
-    if not mapping_path.is_absolute():
-        mapping_path = PROJECT_ROOT / mapping_path
+    if not original_mapping_path.is_absolute():
+        original_mapping_path = PROJECT_ROOT / original_mapping_path
 
-    mapping = load_mapping(mapping_path)
+    planning_mapping_path, macro_expansion_path = require_macro_artifacts(
+        scenario,
+        config,
+        enabled=features.road_abstraction.enabled,
+    )
+    original_mapping = load_mapping(original_mapping_path)
+    planning_mapping = load_mapping(planning_mapping_path)
+    macro_expansion = load_macro_expansion(macro_expansion_path)
+    if macro_expansion is None and features.road_abstraction.enabled:
+        macro_expansion = macro_expansion_from_mapping(
+            planning_mapping,
+            original_mapping_path=original_mapping_path,
+            planning_mapping_path=planning_mapping_path,
+        )
     traffic_light_timings = {}
     if features.traffic_lights:
         if config.traffic_light_timings_path.exists():
@@ -311,8 +408,8 @@ def main() -> None:
             )
         else:
             traffic_light_timings = generate_traffic_light_timings(
-                mapping["nodes"],
-                mapping["roads"],
+                planning_mapping["nodes"],
+                planning_mapping["roads"],
                 features.traffic_lights_config,
                 config.seed,
             )
@@ -324,7 +421,15 @@ def main() -> None:
     background_routes = None
     if features.congestion_enabled and config.background_routes_path.exists():
         background_routes = load_background_routes(config.background_routes_path)
-        validate_background_routes(background_routes, mapping["roads"])
+        validate_background_routes(background_routes, planning_mapping["roads"])
+        background_routes = expand_background_routes(
+            background_routes,
+            macro_expansion,
+        )
+        validate_expanded_background_routes_for_sumo(
+            background_routes,
+            original_mapping["roads"],
+        )
         print(
             f"Loaded {len(background_routes)} shared background routes from "
             f"{config.background_routes_path}"
@@ -358,7 +463,7 @@ def main() -> None:
         config,
         features,
         [plan_kind for plan_kind, _ in plan_runs],
-        mapping=mapping,
+        mapping=planning_mapping,
         station_ids=fuel_station_ids,
     )
 
@@ -372,8 +477,8 @@ def main() -> None:
             edg_path = config.sumo_edg_path
             net_path = config.sumo_net_path
 
-        local_roads = copy.deepcopy(mapping["roads"])
-        local_nodes = copy.deepcopy(mapping["nodes"])
+        local_roads = copy.deepcopy(original_mapping["roads"])
+        local_nodes = copy.deepcopy(original_mapping["nodes"])
 
         blocked_roads_set = set()
         slowed_roads_map = {}
@@ -388,10 +493,16 @@ def main() -> None:
                     for event in log_data.get("events", []):
                         if event.get("event_type") == "slowdown":
                             severity = float(event.get("severity", 2.0))
-                            for r in event.get("roads", []):
+                            for r in expand_incident_road_ids(
+                                event.get("roads", []),
+                                macro_expansion,
+                            ):
                                 slowed_roads_map[r] = severity
                         else:
-                            for r in event.get("roads", []):
+                            for r in expand_incident_road_ids(
+                                event.get("roads", []),
+                                macro_expansion,
+                            ):
                                 blocked_roads_set.add(r)
 
                     for road in local_roads:
@@ -442,10 +553,12 @@ def main() -> None:
             plan_kind=plan_kind,
             plan_path=plan_path,
             config=config,
-            mapping=mapping,
+            sumo_mapping=original_mapping,
+            planning_mapping=planning_mapping,
             features=features,
             vehicle_id=vehicle_id,
             background_routes=background_routes,
+            macro_expansion=macro_expansion,
             net_path=net_path,
         )
 

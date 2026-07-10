@@ -27,6 +27,10 @@ SCRIPT_REGISTRY = {
         "script": "scripts/pipeline/02_select_scenario_points.py",
         "args": ["project_config"],
     },
+    "build_macro_roads": {
+        "script": "scripts/pipeline/build_macro_roads.py",
+        "args": ["project_config"],
+    },
     "build_domain_and_problem": {
         "script": "scripts/pipeline/03_build_domain_and_problem.py",
         "args": ["project_config"],
@@ -159,10 +163,11 @@ def parse_args() -> argparse.Namespace:
             "Step numbers to run (1-based). Run all if omitted.\n"
             "  1 = build_map\n"
             "  2 = select_scenario_points\n"
-            "  3 = build_domain_and_problem\n"
-            "  4 = generate_plan or controller_run, depending on config/pipeline.yaml\n"
-            "  5 = plan_to_sumo\n"
-            "Example: python run_pipeline.py 1 3 5"
+            "  3 = build_macro_roads\n"
+            "  4 = build_domain_and_problem\n"
+            "  5 = generate_plan or controller_run, depending on config/pipeline.yaml\n"
+            "  6 = plan_to_sumo\n"
+            "Example: python run_pipeline.py 1 4 6"
         ),
     )
     parser.add_argument(
