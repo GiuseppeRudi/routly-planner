@@ -267,6 +267,10 @@ class ProjectConfig:
         return self.controller_plans_dir / "plan_controller.txt"
 
     @property
+    def controller_domain_path(self) -> Path:
+        return self.controller_pddl_dir / "domain.pddl"
+
+    @property
     def controller_summary_path(self) -> Path:
         return self.controller_logs_dir / "controller_summary.json"
 
@@ -426,24 +430,12 @@ def _validate_planner_mode_axes(
             )
         return
 
-    if (
-        state_representation == STATE_REPRESENTATION_LINE_GRAPH
-        and action_generation == ACTION_GENERATION_PARAMETERIZED
-    ):
-        raise ValueError(
-            "planner.state_representation='line_graph' requires "
-            "planner.action_generation='compiled'. The parameterized "
-            "line-graph variant is intentionally unsupported."
-        )
-
-    if (
-        state_representation == STATE_REPRESENTATION_LINE_GRAPH
-        and action_generation == ACTION_GENERATION_COMPILED
-    ):
+    if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
         raise ValueError(
             "planner.state_representation='line_graph' with "
-            "planner.action_generation='compiled' is recognized but not "
-            "implemented yet."
+            f"planner.action_generation='{action_generation}' is recognized "
+            "but not implemented yet; line-graph support is reserved for "
+            "future development."
         )
 
 

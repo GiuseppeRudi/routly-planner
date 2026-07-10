@@ -853,19 +853,12 @@ def _validate_planner_axes(
             )
         return state_representation, action_generation
 
-    if (
-        state_representation == STATE_REPRESENTATION_LINE_GRAPH
-        and action_generation == ACTION_GENERATION_PARAMETERIZED
-    ):
-        raise ValueError(
-            "state_representation='line_graph' requires "
-            "action_generation='compiled'."
-        )
-
     if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
         raise ValueError(
-            "state_representation='line_graph' with action_generation='compiled' "
-            "is recognized but not implemented yet."
+            "state_representation='line_graph' with "
+            f"action_generation='{action_generation}' is recognized but not "
+            "implemented yet; line-graph support is reserved for future "
+            "development."
         )
 
     return state_representation, action_generation

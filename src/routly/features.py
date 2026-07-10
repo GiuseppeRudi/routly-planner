@@ -325,7 +325,15 @@ class FeatureConfig:
         else:
             fuel = FuelConfig(enabled=bool(fuel_raw))
 
-        _validate_controller_combination(controller, fuel, cong)
+        traversal_model = str(
+            raw.get("planner", {}).get("traversal_model", "process")
+        ).strip().lower()
+        _validate_controller_combination(
+            controller,
+            fuel,
+            cong,
+            traversal_model=traversal_model,
+        )
 
         return cls(
             traffic_lights=traffic_lights_enabled,
@@ -474,12 +482,25 @@ def _validate_controller_combination(
     controller: ControllerConfig,
     fuel: FuelConfig,
     congestion: CongestionConfig,
+    traversal_model: str,
 ) -> None:
     _ = controller
     if fuel.enabled and fuel.replanning and congestion.enabled and congestion.replanning:
         raise ValueError(
             "Fuel controller and congestion controller cannot be enabled "
-            "together in v1."
+            "together: set exactly one of features.fuel.replanning and "
+            "features.congestion.replanning to true."
+        )
+
+    controller_enabled = (
+        (fuel.enabled and fuel.replanning)
+        or (congestion.enabled and congestion.replanning)
+    )
+    if controller_enabled and traversal_model != "process":
+        raise ValueError(
+            "Controller replanning requires planner.traversal_model='process'. "
+            "Both the fuel controller and the congestion controller are "
+            "incompatible with traversal_model='compiled_duration'."
         )
 
 

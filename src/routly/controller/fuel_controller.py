@@ -167,6 +167,7 @@ def run_fuel_controller(
     run_label: str = "",
     pddl_dir: "Path | None" = None,
     plans_dir: "Path | None" = None,
+    domain_path: "Path | None" = None,
 ) -> ControllerResult:
     """Run the offline fuel controller for a single vehicle.
 
@@ -178,6 +179,8 @@ def run_fuel_controller(
         run_label: optional prefix for the artifact filenames (e.g. "base" or
             "events") so multiple runs in the same experiment do not overwrite
             each other.
+        domain_path: canonical domain output for this controller run. If omitted,
+            the standalone controller uses runs/controller/pddl/domain.pddl.
     """
     features = request.features
     if not features.fuel_in_controller:
@@ -275,7 +278,7 @@ def run_fuel_controller(
     
     prefix = f"{run_label}_" if run_label else ""
     domain_text = build_road_network_domain(routing_features)
-    domain_path = pddl_dir / f"{prefix}domain_controller.pddl"
+    domain_path = domain_path or config.controller_domain_path
     write_pddl(domain_text, domain_path)
 
     vehicle_id = request.vehicle_id

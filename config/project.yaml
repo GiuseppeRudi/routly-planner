@@ -18,7 +18,7 @@ graph_simplification:
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
   java_heap_mb: 8192
-  traversal_model: "compiled_duration" # "process" | "compiled_duration"
+  traversal_model: "process" # "process" | "compiled_duration"
   # traversal_model controls how road traversal is represented in PDDL.
   # process: original PDDL+ model with start action + continuous process + arrival event.
   #          It is always node_based + parameterized.
@@ -27,20 +27,22 @@ planner:
   #
   # state_representation:
   #   node_based: vehicle state is a graph node/location; roads are traversal edges.
-  #   line_graph: vehicle state is a road/edge; planned only with compiled actions,
-  #               not with a parameterized road x road schema.
+  #   line_graph: vehicle state is a road/edge. Both parameterized and compiled
+  #               action generation are recognized, but neither is implemented yet.
   #
   # action_generation:
   #   parameterized: one generic PDDL action schema, grounded by the planner.
   #   compiled: generate only valid road/window action schemas in Python.
   #
-  # Implemented now:
+  # Valid combinations:
+  #   process + node_based + parameterized (the only process combination)
   #   compiled_duration + node_based + parameterized
   #   compiled_duration + node_based + compiled
-  # Planned next:
+  # Recognized for future development (currently raises "not implemented yet"):
+  #   compiled_duration + line_graph + parameterized
   #   compiled_duration + line_graph + compiled
   state_representation: "node_based" # "node_based" | "line_graph"
-  action_generation: "compiled" # "parameterized" | "compiled"
+  action_generation: "parameterized" # "parameterized" | "compiled"
 
 sumo:
   sumo_gui: "sumo-gui"
@@ -74,8 +76,8 @@ features:
   congestion:
     enabled: true
     mode: "pddl" # "sumo" | "pddl"
-    type: "hybrid" # "static" | "dynamic" | "hybrid"
-    replanning: false
+    type: "static" # "static" | "dynamic" | "hybrid"
+    replanning: false # requires traversal_model=process; mutually exclusive with fuel.replanning
     num_background_vehicles: 200
     congestion_factor: 2.0
     dynamic:
@@ -92,6 +94,9 @@ features:
 
   # Shared settings for offline replanning controllers.
   # The active controller is selected by fuel.replanning or congestion.replanning.
+  # Exactly one replanning flag may be true. Both controllers require:
+  # planner.traversal_model=process, state_representation=node_based,
+  # action_generation=parameterized.
   controller:
     replan_window_seconds: 30
     max_iterations: 50
@@ -125,7 +130,7 @@ features:
   
   fuel:
     enabled: true # if true max_nodes must be decreased
-    replanning: true # true activates the offline fuel controller
+    replanning: true # requires traversal_model=process; mutually exclusive with congestion.replanning
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
     stations_source: random # "random" | "osm"

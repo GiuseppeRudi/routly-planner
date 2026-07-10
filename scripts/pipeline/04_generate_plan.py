@@ -150,8 +150,10 @@ def _controller_plan_and_plot(
 
     if run_label == "events":
         pddl_dir, plans_dir = config.llm_pddl_dir, config.llm_plans_dir
+        controller_domain_path = config.dynamic_domain_path
     else:
         pddl_dir, plans_dir = config.basic_pddl_dir, config.basic_plans_dir
+        controller_domain_path = config.domain_path
     for directory in (pddl_dir, plans_dir):
         directory.mkdir(parents=True, exist_ok=True)
 
@@ -170,6 +172,7 @@ def _controller_plan_and_plot(
             run_label=run_label,
             pddl_dir=pddl_dir,
             plans_dir=plans_dir,
+            domain_path=controller_domain_path,
         )
     except Exception as e:
         print("\n" + "!" * 75)
@@ -260,6 +263,8 @@ def plan_and_plot(
     problem_path: "Path",
     plan_path: "Path",
     plan_image_path: "Path",
+    mapping_path: "Path",
+    domain_path: "Path | None" = None,
     *,
     mapping: dict | None = None,
     scenario: dict | None = None,
@@ -269,7 +274,7 @@ def plan_and_plot(
     """Dispatcher: fuel controller if enabled, otherwise ENHSP planner."""
     if features.fuel_in_controller:
         if mapping is None:
-            mapping = load_mapping(config.mapping_path)
+            mapping = load_mapping(mapping_path)
         if scenario is None:
             scenario = read_yaml(config.scenario_path)
         return _controller_plan_and_plot(
@@ -277,9 +282,16 @@ def plan_and_plot(
             plan_path, plan_image_path,
             blocked_road_ids=blocked_road_ids, run_label=run_label,
         )
-    return _run_and_plot(config, features, problem_path, plan_path, plan_image_path)
+    return _run_and_plot(
+        config,
+        features,
+        problem_path,
+        plan_path,
+        plan_image_path,
+        mapping_path,
+        domain_path=domain_path,
+    )
 
-def _run_and_plot(config, features: FeatureConfig, problem_path: Path, plan_path: Path, plan_image_path: Path) -> list[str]:
 def _run_and_plot(
     config,
     features: FeatureConfig,
@@ -659,18 +671,14 @@ def main() -> None:
     )
 
     original_roads = plan_and_plot(
-        config, features, problem_path, plan_path, plan_image_path,
-        run_label="base",
-    )
-
-    # print(features)
-    original_roads = _run_and_plot(
         config,
         features,
         problem_path,
         plan_path,
         plan_image_path,
         mapping_path,
+        scenario=scenario,
+        run_label="base",
     )
 
     if not features.llm_events.enabled:
@@ -957,8 +965,6 @@ def main() -> None:
                     f"{dynamic_domain_path}"
                 )
             print(
-                "Dynamic congestion profile recalculation completed. "
-                f"{updated_count} initial factors and {future_updates} future updates written."
                 "✅ Dynamic congestion profile recalculation completed. "
                 f"{updated_count} initial factors and "
                 f"{len(active_dynamic_roads)} dynamic roads written."
@@ -984,7 +990,6 @@ def main() -> None:
                 if pattern.search(modified_content):
                     modified_content = pattern.sub(replacement, modified_content, count=1)
                     updated_count += 1
-            print(f"Static topology recalculation completed. {updated_count} open roads updated in PDDL.")
                 if config.traversal_model == "compiled_duration":
                     road_info = roads_by_id.get(road_id)
                     if road_info is not None:
@@ -1026,12 +1031,6 @@ def main() -> None:
     print(f"  Incidents log successfully saved to: {log_path.name}")
 
     recalculated_roads = plan_and_plot(
-        config, features, dynamic_problem_path, dynamic_plan_path,
-        dynamic_plan_image_path,
-        mapping=mapping,
-        blocked_road_ids=set(just_blocked_road_ids),
-        run_label="events",
-    recalculated_roads = _run_and_plot(
         config,
         features,
         dynamic_problem_path,
@@ -1039,6 +1038,10 @@ def main() -> None:
         dynamic_plan_image_path,
         mapping_path,
         domain_path=dynamic_domain_path,
+        mapping=mapping,
+        scenario=scenario,
+        blocked_road_ids=set(just_blocked_road_ids),
+        run_label="events",
     )
 
     blocked_roads = [{"id": road, "event_type": event["event_type"], "description": event["description"]} for event in closure_events for road in event["roads"]]

@@ -7,8 +7,8 @@ run:
   - build_macro_roads
   - build_domain_and_problem
   - generate_plan
-  # Controller flow scaffold:
-  # replace generate_plan with controller_run when fuel.replanning=true
-  # or congestion.replanning=true.
+  # The fuel controller runs inside generate_plan so it can share the LLM event flow.
+  # A congestion controller run replaces generate_plan automatically when
+  # congestion.replanning=true.
   # - controller_run
   - plan_to_sumo
