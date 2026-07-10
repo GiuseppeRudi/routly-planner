@@ -24,12 +24,20 @@ SCRIPT_REGISTRY = {
         "script": "scripts/pipeline/02_select_scenario_points.py",
         "args": ["project_config"],
     },
+    "build_macro_roads": {
+        "script": "scripts/pipeline/build_macro_roads.py",
+        "args": ["project_config"],
+    },
     "build_domain_and_problem": {
         "script": "scripts/pipeline/03_build_domain_and_problem.py",
         "args": ["project_config"],
     },
     "generate_plan": {
         "script": "scripts/pipeline/04_generate_plan.py",
+        "args": ["project_config"],
+    },
+    "controller_run": {
+        "script": "scripts/pipeline/controller_run.py",
         "args": ["project_config"],
     },
     "plan_to_sumo": {
@@ -142,10 +150,11 @@ def parse_args() -> argparse.Namespace:
             "Step numbers to run (1-based). Run all if omitted.\n"
             "  1 = build_map\n"
             "  2 = select_scenario_points\n"
-            "  3 = build_domain_and_problem\n"
-            "  4 = generate_plan\n"
-            "  5 = plan_to_sumo\n"
-            "Example: python run_pipeline.py 1 3 5"
+            "  3 = build_macro_roads\n"
+            "  4 = build_domain_and_problem\n"
+            "  5 = generate_plan or controller_run, depending on config/pipeline.yaml\n"
+            "  6 = plan_to_sumo\n"
+            "Example: python run_pipeline.py 1 4 6"
         ),
     )
     parser.add_argument(
@@ -298,17 +307,17 @@ if __name__ == "__main__":
 
 
 # MINOR PROBLEM 
-# TODO 8. iL run_pipeline ora crea una nuova cartella per ogni esecuzione dello script, ora dobbiamo dare 
-# TODO la possibilita di avviare una simulazione gia creata per far ripartire alcuni dei punti della simulazione precedente 
+# SOLVED 8. iL run_pipeline ora crea una nuova cartella per ogni esecuzione dello script, ora dobbiamo dare 
+# SOLVED la possibilita di avviare una simulazione gia creata per far ripartire alcuni dei punti della simulazione precedente 
 
 
-# TODO 9. inserire gli eventi generati dall llm anche su sumo non solo sull immagine quindi blocked roads ma anche rallentamenti 
+# SOLVED 9. inserire gli eventi generati dall llm anche su sumo non solo sull immagine quindi blocked roads ma anche rallentamenti 
 
-# TODO 10. inserire nell immagine della comparazione delle congesitoni anche una visione migliore degli eventi generati dall llm 
+# SOLVED 10. inserire nell immagine della comparazione delle congesitoni anche una visione migliore degli eventi generati dall llm 
 # cambiare il colore da grigio a piu accesso e aggiungere una lista 
 
-# TODO 11. INSERIRE UNA MAPPA SATELLITARE CON LE STRADE E I NODI DELLA MAPPA PER AVERE UNA VISIONE PIU REALISTICA 
-# DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E PLAN DOPO EVENTI LLM USANDO OPENSTREETMAP API
+# SOLVED 11. INSERIRE UNA MAPPA SATELLITARE CON LE STRADE E I NODI DELLA MAPPA PER AVERE UNA VISIONE PIU REALISTICA 
+# DELLA SIMULAZIONE E DEGLI EVENTI GENERATI DALL LLM SULL'IMMAGINE CHE MOSTRA LA COMPRAZIONE TRA ORIGINAL PLAN E PLAN DOPO EVENTI LLM USANDO contextily
 
 # TODO 12. fare in modo che il secondo script tenga conto anche delle stazioni di benzina e quindi quando viene fatto
 # TODO il controllo se il path tra start e goal è percorribile deve anche tenere conto se il veicolo ha abbastanza benzina

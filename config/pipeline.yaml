@@ -4,6 +4,11 @@ configs:
 run:
   - build_map
   - select_scenario_points
+  - build_macro_roads
   - build_domain_and_problem
   - generate_plan
+  # Controller flow scaffold:
+  # replace generate_plan with controller_run when fuel.replanning=true
+  # or congestion.replanning=true.
+  # - controller_run
   - plan_to_sumo

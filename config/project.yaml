@@ -17,6 +17,30 @@ graph_simplification:
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
+  java_heap_mb: 8192
+  traversal_model: "compiled_duration" # "process" | "compiled_duration"
+  # traversal_model controls how road traversal is represented in PDDL.
+  # process: original PDDL+ model with start action + continuous process + arrival event.
+  #          It is always node_based + parameterized.
+  # compiled_duration: road traversal is a direct numeric action. In this mode
+  #          state_representation and action_generation select the grounding strategy.
+  #
+  # state_representation:
+  #   node_based: vehicle state is a graph node/location; roads are traversal edges.
+  #   line_graph: vehicle state is a road/edge; planned only with compiled actions,
+  #               not with a parameterized road x road schema.
+  #
+  # action_generation:
+  #   parameterized: one generic PDDL action schema, grounded by the planner.
+  #   compiled: generate only valid road/window action schemas in Python.
+  #
+  # Implemented now:
+  #   compiled_duration + node_based + parameterized
+  #   compiled_duration + node_based + compiled
+  # Planned next:
+  #   compiled_duration + line_graph + compiled
+  state_representation: "node_based" # "node_based" | "line_graph"
+  action_generation: "compiled" # "parameterized" | "compiled"
 
 sumo:
   sumo_gui: "sumo-gui"
@@ -34,24 +58,43 @@ features:
       min: 20
       max: 30
 
+  road_abstraction:
+    enabled: true
+    max_segments_per_macro: 8
+    max_length_meters: 1500
+    speed_tolerance_ratio: 0.15
+    require_same_capacity_class: true
+
   # No congestion = {enabled: false}
   # congestion = {enabled: true, replanning: false, type: static, mode: sumo}
   # congestion = {enabled: true, replanning: false, type: static, mode: pddl}
   # congestion = {enabled: true, replanning: false, type: dynamic, mode: pddl}
-  # replanning: true is parsed but intentionally blocked until the replanning phase is implemented.
+  # congestion = {enabled: true, replanning: false, type: hybrid, mode: pddl}
+  # congestion controller = {enabled: true, replanning: true, type: dynamic, mode: pddl}
   congestion:
     enabled: true
     mode: "pddl" # "sumo" | "pddl"
-    type: "static" # "static" | "dynamic"
+    type: "hybrid" # "static" | "dynamic" | "hybrid"
     replanning: false
     num_background_vehicles: 200
     congestion_factor: 2.0
     dynamic:
       window_seconds: 30
+      hybrid:
+        # Hybrid marks a road as dynamic only when its congestion factor
+        # varies enough across time windows: max(window)-min(window) >= threshold.
+        # Roads below the threshold remain static for the planner.
+        min_temporal_variation: 0.10
     vehicles_for_max_congestion_by_road_class:
       local: 20
       arterial: 35
       major: 50
+
+  # Shared settings for offline replanning controllers.
+  # The active controller is selected by fuel.replanning or congestion.replanning.
+  controller:
+    replan_window_seconds: 30
+    max_iterations: 50
 
   llm_events:
     # Runtime LLM provider/model are configured in .env:
@@ -82,7 +125,7 @@ features:
   
   fuel:
     enabled: false # if true max_nodes must be decreased
-    # replanning : true o false
+    replanning: false # true activates the offline fuel controller
     stations_ratio: 0.15 # % of the nodes become fuel stations
     initial_fuel_ratio: 0.8 # start with % of a full tank
     stations_source: random # "random" | "osm"

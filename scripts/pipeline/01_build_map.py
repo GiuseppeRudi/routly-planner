@@ -8,7 +8,7 @@ PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.config import load_config
-from src.routly.graph.graph_export import plot_graph
+from src.routly.graph.mapping_plot import plot_mapping_graph
 
 from src.routly.osm.graph_builder import (
     add_projected_coordinates,
@@ -18,6 +18,11 @@ from src.routly.osm.graph_builder import (
 )
 
 from src.routly.pddl.mapping import graph_to_mapping, write_mapping
+
+
+def remove_legacy_graph_image(config) -> None:
+    if config.legacy_graph_image_path.exists():
+        config.legacy_graph_image_path.unlink()
 
 
 def parse_args() -> argparse.Namespace:
@@ -50,12 +55,6 @@ def main() -> None:
         distance_meters=config.distance_meters,
     )
 
-    plot_graph(
-        graph,
-        config.graph_image_path,
-        title=f"{config.place_name} Road Network — Routly",
-    )
-
     graph, projected_graph = add_projected_coordinates(graph)
     save_graphml(graph, config.raw_graphml_path)
 
@@ -65,9 +64,15 @@ def main() -> None:
     print(f"Identified {len(fuel_osmids)} fuel stations in OSM data.")
     mapping = graph_to_mapping(graph, projected_graph, fuel_osmids)
     write_mapping(mapping, config.mapping_path)
+    remove_legacy_graph_image(config)
+    plot_mapping_graph(
+        mapping,
+        config.graph_base_image_path,
+        title=f"{config.place_name} Road Network (base)",
+    )
 
     print("\nOUTPUT FILES:")
-    print(f"  Graph image:  {config.graph_image_path}")
+    print(f"  Base graph image:  {config.graph_base_image_path}")
     print(f"  GraphML:      {config.raw_graphml_path}")
     print(f"  Mapping:      {config.mapping_path}")
     print("\nNEXT STEP:")

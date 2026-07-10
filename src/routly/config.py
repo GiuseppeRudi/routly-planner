@@ -14,6 +14,19 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.routly.utils import read_yaml
 
 EXPERIMENT_NAME_ENV = "ROUTLY_EXPERIMENT_NAME"
+VALID_TRAVERSAL_MODELS = {"process", "compiled_duration"}
+STATE_REPRESENTATION_NODE_BASED = "node_based"
+STATE_REPRESENTATION_LINE_GRAPH = "line_graph"
+VALID_STATE_REPRESENTATIONS = {
+    STATE_REPRESENTATION_NODE_BASED,
+    STATE_REPRESENTATION_LINE_GRAPH,
+}
+ACTION_GENERATION_PARAMETERIZED = "parameterized"
+ACTION_GENERATION_COMPILED = "compiled"
+VALID_ACTION_GENERATION_MODES = {
+    ACTION_GENERATION_PARAMETERIZED,
+    ACTION_GENERATION_COMPILED,
+}
 
 
 @dataclass(frozen=True)
@@ -30,6 +43,10 @@ class ProjectConfig:
     max_nodes: int | None
 
     enhsp_jar: Path
+    java_heap_mb: int
+    traversal_model: str
+    state_representation: str
+    action_generation: str
     sumo_gui: str
     project_root: Path
 
@@ -90,6 +107,10 @@ class ProjectConfig:
         return self.runs_dir / "llm"
 
     @property
+    def controller_run_dir(self) -> Path:
+        return self.runs_dir / "controller"
+
+    @property
     def basic_pddl_dir(self) -> Path:
         return self.basic_run_dir / "pddl"
 
@@ -130,6 +151,30 @@ class ProjectConfig:
         return self.llm_run_dir / "sumo"
 
     @property
+    def controller_pddl_dir(self) -> Path:
+        return self.controller_run_dir / "pddl"
+
+    @property
+    def controller_plans_dir(self) -> Path:
+        return self.controller_run_dir / "plans"
+
+    @property
+    def controller_images_dir(self) -> Path:
+        return self.controller_run_dir / "images"
+
+    @property
+    def controller_logs_dir(self) -> Path:
+        return self.controller_run_dir / "logs"
+
+    @property
+    def controller_artifacts_dir(self) -> Path:
+        return self.controller_run_dir / "artifacts"
+
+    @property
+    def controller_sumo_dir(self) -> Path:
+        return self.controller_run_dir / "sumo"
+
+    @property
     def sumo_dir(self) -> Path:
         return self.experiment_dir / "sumo"
 
@@ -142,8 +187,28 @@ class ProjectConfig:
         return self.map_dir / "roads_mapping.json"
 
     @property
-    def graph_image_path(self) -> Path:
+    def macro_mapping_path(self) -> Path:
+        return self.map_dir / "roads_mapping_macro.json"
+
+    @property
+    def macro_report_json_path(self) -> Path:
+        return self.map_dir / "macro_roads_report.json"
+
+    @property
+    def macro_comparison_image_path(self) -> Path:
+        return self.map_dir / "macro_roads_comparison.png"
+
+    @property
+    def legacy_graph_image_path(self) -> Path:
         return self.map_dir / "road_network_graph.png"
+
+    @property
+    def graph_base_image_path(self) -> Path:
+        return self.map_dir / "road_network_graph_base.png"
+
+    @property
+    def graph_macro_image_path(self) -> Path:
+        return self.map_dir / "road_network_graph_macro.png"
 
     @property
     def plan_image_path(self) -> Path:
@@ -170,6 +235,10 @@ class ProjectConfig:
         return self.llm_pddl_dir / "problem_dynamic.pddl"
 
     @property
+    def dynamic_domain_path(self) -> Path:
+        return self.llm_pddl_dir / "domain_dynamic.pddl"
+
+    @property
     def dynamic_plan_path(self) -> Path:
         return self.llm_plans_dir / "plan_dynamic.sol"
 
@@ -192,6 +261,14 @@ class ProjectConfig:
     @property
     def incidents_log_path(self) -> Path:
         return self.llm_logs_dir / "incidents_log.json"
+
+    @property
+    def controller_plan_path(self) -> Path:
+        return self.controller_plans_dir / "plan_controller.txt"
+
+    @property
+    def controller_summary_path(self) -> Path:
+        return self.controller_logs_dir / "controller_summary.json"
 
     @property
     def sumo_nod_path(self) -> Path:
@@ -220,6 +297,14 @@ class ProjectConfig:
     @property
     def dynamic_sumo_cfg_path(self) -> Path:
         return self.llm_sumo_dir / "road_network_dynamic.sumocfg"
+
+    @property
+    def controller_sumo_rou_path(self) -> Path:
+        return self.controller_sumo_dir / "road_network_controller.rou.xml"
+
+    @property
+    def controller_sumo_cfg_path(self) -> Path:
+        return self.controller_sumo_dir / "road_network_controller.sumocfg"
 
     @property
     def sumo_viewsettings_path(self) -> Path:
@@ -258,6 +343,20 @@ def load_config(
         raise ValueError("Missing required project.seed in project configuration")
 
     project_root = Path(general_config.get("project_root", "."))
+    traversal_model = str(
+        planner_config.get("traversal_model", "process")
+    ).strip().lower()
+    if traversal_model not in VALID_TRAVERSAL_MODELS:
+        raise ValueError(
+            "planner.traversal_model must be 'process' or 'compiled_duration'"
+        )
+
+    state_representation, action_generation = _resolve_planner_axes(planner_config)
+    _validate_planner_mode_axes(
+        traversal_model,
+        state_representation,
+        action_generation,
+    )
 
     return ProjectConfig(
         seed=int(general_config["seed"]),
@@ -271,10 +370,81 @@ def load_config(
         max_nodes=graph_config.get("max_nodes"),
 
         enhsp_jar=Path(planner_config["enhsp_jar"]),
+        java_heap_mb=int(planner_config.get("java_heap_mb", 4096)),
+        traversal_model=traversal_model,
+        state_representation=state_representation,
+        action_generation=action_generation,
         sumo_gui=sumo_config["sumo_gui"],
 
         project_root=project_root,
     )
+
+
+def _resolve_planner_axes(
+    planner_config: dict[str, Any],
+) -> tuple[str, str]:
+    state_raw = planner_config.get("state_representation")
+    action_raw = planner_config.get("action_generation")
+
+    if state_raw is None and action_raw is None:
+        return STATE_REPRESENTATION_NODE_BASED, ACTION_GENERATION_PARAMETERIZED
+
+    if state_raw is None or action_raw is None:
+        raise ValueError(
+            "planner.state_representation and planner.action_generation must "
+            "be configured together."
+        )
+
+    state_representation = str(state_raw).strip().lower()
+    action_generation = str(action_raw).strip().lower()
+    if state_representation not in VALID_STATE_REPRESENTATIONS:
+        raise ValueError(
+            "planner.state_representation must be 'node_based' or 'line_graph'"
+        )
+    if action_generation not in VALID_ACTION_GENERATION_MODES:
+        raise ValueError(
+            "planner.action_generation must be 'parameterized' or 'compiled'"
+        )
+
+    return state_representation, action_generation
+
+
+def _validate_planner_mode_axes(
+    traversal_model: str,
+    state_representation: str,
+    action_generation: str,
+) -> None:
+    if traversal_model != "compiled_duration":
+        if (
+            state_representation != STATE_REPRESENTATION_NODE_BASED
+            or action_generation != ACTION_GENERATION_PARAMETERIZED
+        ):
+            raise ValueError(
+                "planner.state_representation/action_generation are only "
+                "configurable when planner.traversal_model='compiled_duration'. "
+                "Use node_based/parameterized with traversal_model='process'."
+            )
+        return
+
+    if (
+        state_representation == STATE_REPRESENTATION_LINE_GRAPH
+        and action_generation == ACTION_GENERATION_PARAMETERIZED
+    ):
+        raise ValueError(
+            "planner.state_representation='line_graph' requires "
+            "planner.action_generation='compiled'. The parameterized "
+            "line-graph variant is intentionally unsupported."
+        )
+
+    if (
+        state_representation == STATE_REPRESENTATION_LINE_GRAPH
+        and action_generation == ACTION_GENERATION_COMPILED
+    ):
+        raise ValueError(
+            "planner.state_representation='line_graph' with "
+            "planner.action_generation='compiled' is recognized but not "
+            "implemented yet."
+        )
 
 
 def resolve_experiment_name(project_config: dict[str, Any]) -> str:

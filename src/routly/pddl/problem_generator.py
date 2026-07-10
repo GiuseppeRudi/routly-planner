@@ -2,13 +2,25 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.routly.config import (
+    ACTION_GENERATION_COMPILED,
+    ACTION_GENERATION_PARAMETERIZED,
+    STATE_REPRESENTATION_LINE_GRAPH,
+    STATE_REPRESENTATION_NODE_BASED,
+    VALID_ACTION_GENERATION_MODES,
+    VALID_STATE_REPRESENTATIONS,
+)
 from src.routly.domain.fuel import FuelParameters
 from src.routly.domain.congestion import (
     BackgroundRoute,
     DynamicCongestionProfile,
+    DynamicRoadSelection,
     compute_congestion_factors,
     compute_dynamic_congestion_profile,
+    congestion_factor_at_window,
     generate_background_routes,
+    global_window_starts,
+    select_dynamic_roads,
 )
 from src.routly.features import FeatureConfig
 from src.routly.domain.traffic_lights import (
@@ -21,6 +33,9 @@ DYNAMIC_WINDOWS_END = "    ;; END DYNAMIC CONGESTION WINDOWS"
 DYNAMIC_PROFILE_BEGIN = "  ;; BEGIN DYNAMIC CONGESTION PROFILE"
 DYNAMIC_PROFILE_END = "  ;; END DYNAMIC CONGESTION PROFILE"
 DYNAMIC_CONGESTION_SEARCH_WARNING_UPDATES = 100
+TRAVERSAL_PROCESS = "process"
+TRAVERSAL_COMPILED_DURATION = "compiled_duration"
+VALID_TRAVERSAL_MODELS = {TRAVERSAL_PROCESS, TRAVERSAL_COMPILED_DURATION}
 
 
 # ── PUBLIC API ────────────────────────────────────────────────────────────────
@@ -36,13 +51,35 @@ def build_road_network_problem(
     background_routes: list[BackgroundRoute] | None = None,
     traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
     fuel_params: FuelParameters | None = None,
+    congestion_factors_override: dict[str, float] | None = None,
     seed: int | None = None,
+    traversal_model: str = TRAVERSAL_PROCESS,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
+    objects_declared_in_domain: bool = False,
 ) -> str:
     if features is None:
         features = FeatureConfig.base()
+    traversal_model = _validate_traversal_model(features, traversal_model)
+    state_representation, action_generation = _validate_planner_axes(
+        traversal_model,
+        state_representation,
+        action_generation,
+    )
+    if _uses_node_compiled_actions(
+        traversal_model,
+        state_representation,
+        action_generation,
+    ):
+        objects_declared_in_domain = False
 
     congestion_factors: dict[str, float] = {}
     dynamic_congestion_profile: DynamicCongestionProfile = {}
+    dynamic_road_selection = DynamicRoadSelection(
+        dynamic_roads=set(),
+        static_roads={str(road["id"]) for road in roads},
+        reasons_by_road={},
+    )
     if features.traffic_lights and traffic_light_timings is None:
         if seed is None:
             raise ValueError(
@@ -55,7 +92,14 @@ def build_road_network_problem(
             seed,
         )
 
-    if features.static_congestion_in_pddl:
+    if congestion_factors_override is not None and features.congestion_in_pddl:
+        congestion_factors = dict(congestion_factors_override)
+        print(
+            f"Using overridden congestion factors for "
+            f"{len(congestion_factors)} roads."
+        )
+
+    elif features.snapshot_congestion_in_pddl or features.dynamic_congestion_in_pddl:
         congestion_factors = compute_congestion_factors(
             roads,
             background_routes or [],
@@ -81,7 +125,20 @@ def build_road_network_problem(
             ),
             window_seconds=features.congestion.dynamic.window_seconds,
         )
-        for line in dynamic_congestion_diagnostic_lines(dynamic_congestion_profile):
+        dynamic_road_selection = select_dynamic_roads(
+            roads=roads,
+            nodes_by_id=node_map,
+            start_loc=start_loc,
+            goal_loc=goal_loc,
+            background_routes=background_routes or [],
+            dynamic_profile=dynamic_congestion_profile,
+            congestion_type=features.congestion.type,
+            hybrid_config=features.congestion.dynamic.hybrid,
+        )
+        for line in dynamic_congestion_diagnostic_lines(
+            dynamic_congestion_profile,
+            dynamic_road_selection.dynamic_roads,
+        ):
             print(line)
 
     objects_block  = _build_objects(
@@ -90,12 +147,29 @@ def build_road_network_problem(
         vehicle_id,
         features,
         dynamic_congestion_profile,
+        dynamic_road_selection,
+        objects_declared_in_domain,
+        traversal_model,
+        state_representation,
+        action_generation,
     )
     init_block     = _build_init(node_map, roads, start_loc, vehicle_id,
                                  features, congestion_factors,
                                  traffic_light_timings or {}, fuel_params,
-                                 dynamic_congestion_profile)
-    metric_line    = _build_metric(vehicle_id, features)
+                                 dynamic_congestion_profile,
+                                 dynamic_road_selection,
+                                 goal_loc,
+                                 traversal_model,
+                                 state_representation,
+                                 action_generation)
+    metric_line    = _build_metric(vehicle_id, features, traversal_model)
+    goal_line      = _build_goal(
+        vehicle_id,
+        goal_loc,
+        features,
+        traversal_model,
+        state_representation,
+    )
 
     return f"""\
 ;; ============================================================
@@ -114,7 +188,7 @@ def build_road_network_problem(
 {init_block}
   )
 
-  (:goal (at {vehicle_id} {goal_loc}))
+{goal_line}
 
 {metric_line}
 )
@@ -211,84 +285,119 @@ def recleanse_and_compute_dynamic_congestion_profile(
 
 def build_dynamic_congestion_pddl_sections(
     dynamic_congestion_profile: DynamicCongestionProfile,
+    roads: list[dict[str, Any]] | None = None,
+    features: FeatureConfig | None = None,
+    traversal_model: str = TRAVERSAL_PROCESS,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
+    dynamic_road_selection: DynamicRoadSelection | None = None,
+    congestion_factors: dict[str, float] | None = None,
+    traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
     excluded_roads: set[str] | None = None,
 ) -> tuple[str, str]:
     excluded_roads = excluded_roads or set()
-    window_starts = _dynamic_profile_future_window_starts(
+    if dynamic_road_selection is None:
+        dynamic_roads = {
+            road_id
+            for road_id in dynamic_congestion_profile
+            if road_id not in excluded_roads
+        }
+        dynamic_road_selection = DynamicRoadSelection(
+            dynamic_roads=dynamic_roads,
+            static_roads=set(),
+            reasons_by_road={},
+        )
+    else:
+        dynamic_road_selection = DynamicRoadSelection(
+            dynamic_roads=dynamic_road_selection.dynamic_roads - excluded_roads,
+            static_roads=dynamic_road_selection.static_roads - excluded_roads,
+            reasons_by_road=dynamic_road_selection.reasons_by_road,
+        )
+
+    window_starts = global_window_starts(
         dynamic_congestion_profile,
-        excluded_roads,
+        dynamic_road_selection.dynamic_roads,
     )
-    windows_block = _build_dynamic_congestion_windows_block(window_starts)
+    windows_block = _build_dynamic_congestion_windows_block(
+        window_starts,
+        traversal_model,
+        state_representation,
+        action_generation,
+    )
     profile_block = _build_dynamic_congestion_profile_block(
         dynamic_congestion_profile,
         window_starts,
-        excluded_roads,
+        roads or [],
+        features,
+        traversal_model,
+        dynamic_road_selection,
+        congestion_factors or {},
+        traffic_light_timings or {},
     )
     return windows_block, profile_block
 
 
 def dynamic_congestion_pddl_stats(
     dynamic_congestion_profile: DynamicCongestionProfile,
-    excluded_roads: set[str] | None = None,
+    dynamic_roads: set[str] | None = None,
 ) -> dict[str, int]:
-    excluded_roads = excluded_roads or set()
-    included_roads = [
-        road_id
-        for road_id in dynamic_congestion_profile
-        if road_id not in excluded_roads
-    ]
-    window_starts = _dynamic_profile_future_window_starts(
-        dynamic_congestion_profile,
-        excluded_roads,
+    included_roads = (
+        set(dynamic_congestion_profile)
+        if dynamic_roads is None
+        else set(dynamic_roads)
     )
-    future_updates = sum(
-        1
-        for road_id, changes in dynamic_congestion_profile.items()
-        if road_id not in excluded_roads
-        for change in changes
-        if change.start > 0
+    window_starts = global_window_starts(
+        dynamic_congestion_profile,
+        included_roads,
     )
     roads_with_updates = sum(
         1
         for road_id in included_roads
-        if any(change.start > 0 for change in dynamic_congestion_profile[road_id])
+        if len({change.factor for change in dynamic_congestion_profile.get(road_id, [])}) > 1
     )
+    future_windows = [start for start in window_starts if start > 0]
     return {
         "roads": len(included_roads),
         "roads_with_updates": roads_with_updates,
-        "future_windows": len(window_starts),
-        "future_updates": future_updates,
-        "grounded_update_events": future_updates,
+        "windows": len(window_starts),
+        "future_windows": len(future_windows),
+        "window_values": len(included_roads) * len(window_starts),
+        "grounded_update_events": len(future_windows),
     }
 
 
 def dynamic_congestion_diagnostic_lines(
     dynamic_congestion_profile: DynamicCongestionProfile,
-    excluded_roads: set[str] | None = None,
+    dynamic_roads: set[str] | None = None,
 ) -> list[str]:
     stats = dynamic_congestion_pddl_stats(
         dynamic_congestion_profile,
-        excluded_roads,
+        dynamic_roads,
     )
     lines = [
         (
-            "Dynamic PDDL congestion profile: "
+            "Dynamic PDDL congestion profile (global-window model): "
             f"{stats['roads']} road(s), "
-            f"{stats['future_windows']} future window(s), "
-            f"{stats['future_updates']} future update(s)."
+            f"{stats['windows']} global window(s), "
+            f"{stats['window_values']} precomputed road/window value(s)."
         ),
         (
-            "Estimated additional grounded update events: "
+            "Estimated additional grounded temporal events: "
             f"{stats['grounded_update_events']} "
-            "(one activate-congestion-window event per road/window update)."
+            "(one advance-window transition per future global window)."
         ),
     ]
-    if stats["future_updates"] >= DYNAMIC_CONGESTION_SEARCH_WARNING_UPDATES:
+    if stats["roads"] == 0:
         lines.append(
-            "WARNING: dynamic PDDL congestion may cause search explosion. "
-            "These global temporal updates are unrelated to the selected route, "
-            "so ENHSP must reason about many extra event orderings; on larger "
-            "maps this can lead to millions of expanded states or Java heap OOM."
+            "No road exceeded min_temporal_variation; hybrid congestion behaves "
+            "like static congestion for this run."
+        )
+    if stats["window_values"] >= DYNAMIC_CONGESTION_SEARCH_WARNING_UPDATES:
+        lines.append(
+            "WARNING: dynamic PDDL congestion still increases the numeric model. "
+            "The global-window formulation removes road/window update events, "
+            "but each dynamic road still receives one precomputed value per "
+            "global window."
         )
     return lines
 
@@ -301,14 +410,53 @@ def _build_objects(
     vehicle_id: str,
     features: FeatureConfig,
     dynamic_congestion_profile: DynamicCongestionProfile,
+    dynamic_road_selection: DynamicRoadSelection,
+    objects_declared_in_domain: bool,
+    traversal_model: str,
+    state_representation: str,
+    action_generation: str,
 ) -> str:
     loc_ids  = " ".join(info["id"] for info in node_map.values())
     road_ids = " ".join(r["id"] for r in roads)
+    window_starts: list[int] = []
     dynamic_windows_block = ""
     if features.dynamic_congestion_in_pddl:
-        dynamic_windows_block, _ = build_dynamic_congestion_pddl_sections(
+        window_starts = global_window_starts(
             dynamic_congestion_profile,
+            dynamic_road_selection.dynamic_roads,
         )
+        dynamic_windows_block = _build_dynamic_congestion_windows_block(
+            window_starts,
+            traversal_model,
+            state_representation,
+            action_generation,
+        )
+
+    if _uses_node_compiled_actions(
+        traversal_model,
+        state_representation,
+        action_generation,
+    ):
+        lines = [
+            "  (:objects",
+            f"    {vehicle_id} - vehicle",
+        ]
+        for info in sorted(node_map.values(), key=lambda node: str(node["id"])):
+            loc_id = str(info["id"])
+            lines.append(f"    {loc_id} - {_location_type(loc_id)}")
+        for road in sorted(roads, key=lambda item: str(item["id"])):
+            road_id = str(road["id"])
+            lines.append(f"    {road_id} - {_road_type(road_id)}")
+        if dynamic_windows_block:
+            lines.append(dynamic_windows_block)
+        lines.append("  )")
+        return "\n".join(lines)
+
+    if objects_declared_in_domain:
+        return f"""\
+  (:objects
+    {vehicle_id} - vehicle
+  )"""
 
     return f"""\
   (:objects
@@ -335,49 +483,113 @@ def _build_init(
     traffic_light_timings: dict[str, TrafficLightTiming],
     fuel_params: FuelParameters | None = None,
     dynamic_congestion_profile: DynamicCongestionProfile | None = None,
+    dynamic_road_selection: DynamicRoadSelection | None = None,
+    goal_loc: str = "",
+    traversal_model: str = TRAVERSAL_PROCESS,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
 ) -> str:
     lines: list[str] = []
     dynamic_congestion_profile = dynamic_congestion_profile or {}
+    dynamic_road_selection = dynamic_road_selection or DynamicRoadSelection(
+        dynamic_roads=set(),
+        static_roads={str(road["id"]) for road in roads},
+        reasons_by_road={},
+    )
 
     # ── vehicle ───────────────────────────────────────────────────────────────
-    lines += [
-        f"  (at {vehicle_id} {start_loc})",
-        f"  (= (speed {vehicle_id}) 0)",
-        f"  (= (total-distance {vehicle_id}) 0)",
-        f"  (= (distance-remaining {vehicle_id}) 0)",
-    ]
-    if features.traffic_lights:
+    line_graph = _uses_line_graph_traversal(
+        features,
+        traversal_model,
+        state_representation,
+    )
+    if line_graph:
+        start_roads = [road for road in roads if road["from"] == start_loc]
+        if not start_roads:
+            raise ValueError(f"No outgoing road from start location {start_loc}")
+        for road in start_roads:
+            lines.append(f"  (ready-road {vehicle_id} {road['id']})")
+    else:
+        lines.append(f"  (at {vehicle_id} {start_loc})")
+    if traversal_model == TRAVERSAL_PROCESS:
+        lines += [
+            f"  (= (speed {vehicle_id}) 0)",
+            f"  (= (total-distance {vehicle_id}) 0)",
+            f"  (= (distance-remaining {vehicle_id}) 0)",
+        ]
+    if features.traffic_lights or traversal_model == TRAVERSAL_COMPILED_DURATION:
         lines.append(f"  (= (travel-time {vehicle_id}) 0)")
 
     # ── roads ─────────────────────────────────────────────────────────────────
+    roads_by_from: dict[str, list[dict[str, Any]]] = {}
+    for road in roads:
+        roads_by_from.setdefault(str(road["from"]), []).append(road)
+
     for r in roads:
         road_id = r["id"]
         lines += [
             f"  (connects {road_id} {r['from']} {r['to']})",
             f"  (road-open {road_id})",
-            f"  (= (road-length {road_id}) {r['length']})",
-            f"  (= (speed-limit {road_id}) {r['speed']})",
         ]
+        if traversal_model == TRAVERSAL_PROCESS:
+            lines += [
+                f"  (= (road-length {road_id}) {r['length']})",
+                f"  (= (speed-limit {road_id}) {r['speed']})",
+            ]
 
-        if features.static_congestion_in_pddl:
-            factor = congestion_factors.get(road_id, 1.0)
+        congestion_factor = 1.0
+        if features.snapshot_congestion_in_pddl:
+            congestion_factor = congestion_factors.get(road_id, 1.0)
             lines.append(
-                f"  (= (congestion-factor {road_id}) {factor})"
+                f"  (= (congestion-factor {road_id}) {congestion_factor})"
             )
         elif features.dynamic_congestion_in_pddl:
-            factor = _initial_dynamic_congestion_factor(
-                dynamic_congestion_profile,
-                road_id,
-            )
+            if road_id in dynamic_road_selection.static_roads:
+                congestion_factor = congestion_factors.get(road_id, 1.0)
+            else:
+                congestion_factor = _initial_dynamic_congestion_factor(
+                    dynamic_congestion_profile,
+                    road_id,
+                )
             lines.append(
-                f"  (= (congestion-factor {road_id}) {factor})"
+                f"  (= (congestion-factor {road_id}) {congestion_factor})"
             )
         elif features.llm_events.enabled:
             lines.append(f"  (= (congestion-factor {road_id}) 1.0)")
 
+        if traversal_model == TRAVERSAL_COMPILED_DURATION:
+            if not features.dynamic_congestion_in_pddl:
+                duration = compute_compiled_travel_duration(
+                    road=r,
+                    features=features,
+                    congestion_factor=congestion_factor,
+                    traffic_light_timings=traffic_light_timings,
+                )
+                lines.append(f"  (= (travel-duration {road_id}) {duration})")
+            if features.fuel_in_pddl and fuel_params is not None:
+                fuel_cost = round(
+                    float(r["length"]) * fuel_params.consumption_per_meter,
+                    6,
+                )
+                lines.append(f"  (= (fuel-cost {road_id}) {fuel_cost})")
+
+        if line_graph:
+            for next_road in roads_by_from.get(str(r["to"]), []):
+                lines.append(f"  (road-next {road_id} {next_road['id']})")
+            if r["to"] == goal_loc:
+                lines.append(f"  (goal-road {road_id})")
+
     if features.dynamic_congestion_in_pddl:
         _, dynamic_profile_block = build_dynamic_congestion_pddl_sections(
             dynamic_congestion_profile,
+            roads=roads,
+            features=features,
+            traversal_model=traversal_model,
+            state_representation=state_representation,
+            action_generation=action_generation,
+            dynamic_road_selection=dynamic_road_selection,
+            congestion_factors=congestion_factors,
+            traffic_light_timings=traffic_light_timings,
         )
         if dynamic_profile_block:
             lines.append(dynamic_profile_block)
@@ -395,13 +607,16 @@ def _build_init(
             else:
                 lines.append(f"  (= (light-wait {loc_id}) 0)")
 
-    if features.fuel.enabled and fuel_params is not None:
+    if features.fuel_in_pddl and fuel_params is not None:
         station_set = set(fuel_params.stations)
         lines += [
             f"  (= (fuel-level {vehicle_id}) {fuel_params.initial_fuel})",
             f"  (= (fuel-capacity {vehicle_id}) {fuel_params.tank_capacity})",
-            f"  (= (fuel-consumption-rate {vehicle_id}) {fuel_params.consumption_per_meter})",
         ]
+        if traversal_model == TRAVERSAL_PROCESS:
+            lines.append(
+                f"  (= (fuel-consumption-rate {vehicle_id}) {fuel_params.consumption_per_meter})"
+            )
         for node in node_map.values():
             if node["id"] in station_set:
                 lines.append(f"  (has-fuel-station {node['id']})")
@@ -411,10 +626,130 @@ def _build_init(
 
 # ── METRIC ────────────────────────────────────────────────────────────────────
 
-def _build_metric(vehicle_id: str, features: FeatureConfig) -> str:
+def _build_metric(
+    vehicle_id: str,
+    features: FeatureConfig,
+    traversal_model: str,
+) -> str:
+    if traversal_model == TRAVERSAL_COMPILED_DURATION:
+        return f"  (:metric minimize (travel-time {vehicle_id}))"
+    if features.dynamic_congestion_in_pddl:
+        return "  (:metric minimize (sim-time))"
     if features.traffic_lights:
         return f"  (:metric minimize (travel-time {vehicle_id}))"
     return f"  (:metric minimize (total-distance {vehicle_id}))"
+
+
+def _build_goal(
+    vehicle_id: str,
+    goal_loc: str,
+    features: FeatureConfig,
+    traversal_model: str,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+) -> str:
+    if _uses_line_graph_traversal(
+        features,
+        traversal_model,
+        state_representation,
+    ):
+        return f"  (:goal (reached-goal {vehicle_id}))"
+    return f"  (:goal (at {vehicle_id} {goal_loc}))"
+
+
+def compute_compiled_travel_duration(
+    road: dict[str, Any],
+    features: FeatureConfig,
+    congestion_factor: float = 1.0,
+    traffic_light_timings: dict[str, TrafficLightTiming] | None = None,
+) -> float:
+    speed = float(road.get("speed", 0) or 0)
+    if speed <= 0:
+        return 999999.0
+
+    duration = float(road["length"]) * float(congestion_factor) / speed
+    if features.traffic_lights:
+        timing = (traffic_light_timings or {}).get(road.get("to"))
+        if timing is not None:
+            duration += timing.average_wait
+    return round(duration, 4)
+
+
+def _validate_traversal_model(
+    features: FeatureConfig,
+    traversal_model: str,
+) -> str:
+    traversal_model = str(traversal_model).strip().lower()
+    if traversal_model not in VALID_TRAVERSAL_MODELS:
+        raise ValueError(
+            "traversal_model must be 'process' or 'compiled_duration'"
+        )
+    if traversal_model != TRAVERSAL_COMPILED_DURATION:
+        return traversal_model
+    if features.fuel_in_pddl and features.fuel.consumption_mode == "continuous":
+        raise ValueError(
+            "planner.traversal_model='compiled_duration' requires "
+            "fuel.consumption_mode='discrete'. Continuous fuel consumption "
+            "is only supported by traversal_model='process'."
+        )
+    return traversal_model
+
+
+def _validate_planner_axes(
+    traversal_model: str,
+    state_representation: str,
+    action_generation: str,
+) -> tuple[str, str]:
+    state_representation = str(state_representation).strip().lower()
+    action_generation = str(action_generation).strip().lower()
+    if state_representation not in VALID_STATE_REPRESENTATIONS:
+        raise ValueError(
+            "state_representation must be 'node_based' or 'line_graph'"
+        )
+    if action_generation not in VALID_ACTION_GENERATION_MODES:
+        raise ValueError(
+            "action_generation must be 'parameterized' or 'compiled'"
+        )
+
+    if traversal_model != TRAVERSAL_COMPILED_DURATION:
+        if (
+            state_representation != STATE_REPRESENTATION_NODE_BASED
+            or action_generation != ACTION_GENERATION_PARAMETERIZED
+        ):
+            raise ValueError(
+                "traversal_model='process' supports only "
+                "state_representation='node_based' and "
+                "action_generation='parameterized'."
+            )
+        return state_representation, action_generation
+
+    if (
+        state_representation == STATE_REPRESENTATION_LINE_GRAPH
+        and action_generation == ACTION_GENERATION_PARAMETERIZED
+    ):
+        raise ValueError(
+            "state_representation='line_graph' requires "
+            "action_generation='compiled'."
+        )
+
+    if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
+        raise ValueError(
+            "state_representation='line_graph' with action_generation='compiled' "
+            "is recognized but not implemented yet."
+        )
+
+    return state_representation, action_generation
+
+
+def _uses_node_compiled_actions(
+    traversal_model: str,
+    state_representation: str,
+    action_generation: str,
+) -> bool:
+    return (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
+        and state_representation == STATE_REPRESENTATION_NODE_BASED
+        and action_generation == ACTION_GENERATION_COMPILED
+    )
 
 
 def _initial_dynamic_congestion_factor(
@@ -427,25 +762,28 @@ def _initial_dynamic_congestion_factor(
     return 1.0
 
 
-def _dynamic_profile_future_window_starts(
-    profile: DynamicCongestionProfile,
-    excluded_roads: set[str],
-) -> list[int]:
-    starts = {
-        change.start
-        for road_id, changes in profile.items()
-        if road_id not in excluded_roads
-        for change in changes
-        if change.start > 0
-    }
-    return sorted(starts)
-
-
-def _build_dynamic_congestion_windows_block(window_starts: list[int]) -> str:
+def _build_dynamic_congestion_windows_block(
+    window_starts: list[int],
+    traversal_model: str = TRAVERSAL_PROCESS,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+    action_generation: str = ACTION_GENERATION_PARAMETERIZED,
+) -> str:
     lines = ["", "", DYNAMIC_WINDOWS_BEGIN]
     if window_starts:
-        lines.append("    " + " ".join(_window_id(start) for start in window_starts))
-        lines.append("    - time-window")
+        if _uses_node_compiled_actions(
+            traversal_model,
+            state_representation,
+            action_generation,
+        ):
+            lines += [
+                f"    {_window_id(start)} - {_window_type(_window_id(start))}"
+                for start in window_starts
+            ]
+        else:
+            lines += [
+                "    " + " ".join(_window_id(start) for start in window_starts),
+                "    - time-window",
+            ]
     lines.append(DYNAMIC_WINDOWS_END)
     return "\n".join(lines)
 
@@ -453,32 +791,107 @@ def _build_dynamic_congestion_windows_block(window_starts: list[int]) -> str:
 def _build_dynamic_congestion_profile_block(
     profile: DynamicCongestionProfile,
     window_starts: list[int],
-    excluded_roads: set[str],
+    roads: list[dict[str, Any]],
+    features: FeatureConfig | None,
+    traversal_model: str,
+    dynamic_road_selection: DynamicRoadSelection,
+    congestion_factors: dict[str, float],
+    traffic_light_timings: dict[str, TrafficLightTiming],
 ) -> str:
-    window_start_set = set(window_starts)
     lines = [
         DYNAMIC_PROFILE_BEGIN,
         "  (= (sim-time) 0)",
     ]
 
-    for start in window_starts:
-        lines.append(f"  (= (window-start {_window_id(start)}) {start})")
-
-    for road_id in sorted(profile):
-        if road_id in excluded_roads:
-            continue
-        for change in profile[road_id]:
-            if change.start not in window_start_set:
-                continue
-            window_id = _window_id(change.start)
-            lines.append(f"  (congestion-update-pending {road_id} {window_id})")
+    if window_starts:
+        lines.append(f"  (current-window {_window_id(window_starts[0])})")
+        for start in window_starts:
+            lines.append(f"  (= (window-start {_window_id(start)}) {start})")
+        for current_start, next_start in zip(window_starts, window_starts[1:]):
             lines.append(
-                f"  (= (congestion-value {road_id} {window_id}) {change.factor})"
+                f"  (next-window {_window_id(current_start)} {_window_id(next_start)})"
             )
+
+    road_by_id = {str(road["id"]): road for road in roads}
+
+    for road_id in sorted(dynamic_road_selection.static_roads):
+        if road_id not in road_by_id:
+            continue
+        lines.append(f"  (static-road {road_id})")
+        if features and traversal_model == TRAVERSAL_PROCESS:
+            effective_speed = _effective_speed(
+                road_by_id[road_id],
+                congestion_factors.get(road_id, 1.0),
+            )
+            lines.append(f"  (= (effective-speed {road_id}) {effective_speed})")
+        elif features and traversal_model == TRAVERSAL_COMPILED_DURATION:
+            duration = compute_compiled_travel_duration(
+                road=road_by_id[road_id],
+                features=features,
+                congestion_factor=congestion_factors.get(road_id, 1.0),
+                traffic_light_timings=traffic_light_timings,
+            )
+            lines.append(f"  (= (travel-duration {road_id}) {duration})")
+
+    for road_id in sorted(dynamic_road_selection.dynamic_roads):
+        road = road_by_id.get(road_id)
+        if road is None:
+            continue
+        lines.append(f"  (dynamic-road {road_id})")
+        for start in window_starts:
+            factor = congestion_factor_at_window(profile, road_id, start)
+            window_id = _window_id(start)
+            if traversal_model == TRAVERSAL_PROCESS:
+                effective_speed = _effective_speed(road, factor)
+                lines.append(
+                    f"  (= (effective-speed-window {road_id} {window_id}) {effective_speed})"
+                )
+            elif features is not None:
+                duration = compute_compiled_travel_duration(
+                    road=road,
+                    features=features,
+                    congestion_factor=factor,
+                    traffic_light_timings=traffic_light_timings,
+                )
+                lines.append(
+                    f"  (= (travel-duration-window {road_id} {window_id}) {duration})"
+                )
 
     lines.append(DYNAMIC_PROFILE_END)
     return "\n".join(lines)
 
 
+def _effective_speed(road: dict[str, Any], congestion_factor: float) -> float:
+    speed = float(road.get("speed", 0) or 0)
+    if speed <= 0:
+        return 0.0001
+    factor = max(float(congestion_factor), 0.0001)
+    return round(speed / factor, 6)
+
+
 def _window_id(window_start: int) -> str:
     return f"tw_{window_start:05d}"
+
+
+def _location_type(location_id: str) -> str:
+    return f"loc_type_{location_id}"
+
+
+def _road_type(road_id: str) -> str:
+    return f"road_type_{road_id}"
+
+
+def _window_type(window_id: str) -> str:
+    return f"window_type_{window_id}"
+
+
+def _uses_line_graph_traversal(
+    features: FeatureConfig,
+    traversal_model: str,
+    state_representation: str = STATE_REPRESENTATION_NODE_BASED,
+) -> bool:
+    _ = features
+    return (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
+        and state_representation == STATE_REPRESENTATION_LINE_GRAPH
+    )
