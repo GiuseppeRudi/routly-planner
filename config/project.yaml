@@ -18,7 +18,7 @@ graph_simplification:
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
   java_heap_mb: 8192
-  traversal_model: "compiled_duration" # "process" | "compiled_duration"
+  traversal_model:   "process" #| "compiled_duration" | "compiled_duration"
   # traversal_model controls the PDDL representation of road traversal.
   # process uses a start action, continuous process, and arrival event. It
   # requires node_based state and parameterized actions.
@@ -42,7 +42,7 @@ planner:
   #   compiled_duration + line_graph + parameterized
   #   compiled_duration + line_graph + compiled
   state_representation: "node_based" # "node_based" | "line_graph"
-  action_generation: "compiled" # "parameterized" | "compiled"
+  action_generation:  "parameterized" #| "compiled" | "compiled"
 
 sumo:
   sumo_gui: "sumo-gui"
@@ -77,7 +77,7 @@ features:
     enabled: true
     mode: "pddl" # "sumo" | "pddl"
     type: "hybrid" # "static" | "dynamic" | "hybrid"
-    replanning: false # requires traversal_model=process; mutually exclusive with fuel.replanning
+    replanning: true # requires traversal_model=process; mutually exclusive with fuel.replanning
     num_background_vehicles: 200
     congestion_factor: 2.0
     dynamic:

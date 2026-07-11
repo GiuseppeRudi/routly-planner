@@ -17,7 +17,10 @@ PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.congestion import BackgroundRoute, generate_background_routes
-from src.routly.planning.plan_parser import extract_start_traversal_timestamps
+from src.routly.planning.plan_parser import (
+    extract_plan_metric_time,
+    extract_start_traversal_timestamps,
+)
 from src.routly.domain.traffic_lights import TrafficLightTiming
 
 
@@ -361,7 +364,7 @@ def compute_simulation_end_time(
 ) -> float:
     timestamps = extract_start_traversal_timestamps(plan_text)
 
-    metric_time = _extract_plan_metric_time(plan_text)
+    metric_time = extract_plan_metric_time(plan_text)
 
     if not timestamps:
         if metric_time is not None:
@@ -386,15 +389,6 @@ def compute_simulation_end_time(
     end_time = round(last_time + buffer + extra_seconds, 1)
     print(f"Simulation end time: {end_time}s")
     return end_time
-
-
-def _extract_plan_metric_time(plan_text: str) -> float | None:
-    match = re.search(r"Metric\s*(?:\(Search\))?\s*:\s*([\d.]+)", plan_text)
-    if not match:
-        match = re.search(r"Elapsed Time\s*:\s*([\d.]+)", plan_text)
-    if not match:
-        return None
-    return float(match.group(1))
 
 
 def write_view_settings(path: str | Path) -> None:

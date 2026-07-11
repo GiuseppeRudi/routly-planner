@@ -82,3 +82,13 @@ def parse_start_traversal_roads(plan_text: str) -> list[str]:
 def extract_start_traversal_timestamps(plan_text: str) -> list[float]:
     """Extract timestamps from traversal plan actions."""
     return [step.timestamp for step in parse_start_traversal_steps(plan_text)]
+
+
+def extract_plan_metric_time(plan_text: str) -> float | None:
+    """Extract the final plan makespan from ENHSP's trailing metric/elapsed line."""
+    match = re.search(r"Metric\s*(?:\(Search\))?\s*:\s*([\d.]+)", plan_text)
+    if not match:
+        match = re.search(r"Elapsed Time\s*:\s*([\d.]+)", plan_text)
+    if not match:
+        return None
+    return float(match.group(1))
