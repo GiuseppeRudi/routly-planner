@@ -427,10 +427,9 @@ def _congestion_config(raw: dict[str, Any] | bool | None) -> CongestionConfig:
         )
 
     replanning = bool(raw.get("replanning", False))
-    if replanning and (mode != "pddl" or congestion_type != "dynamic"):
+    if replanning and mode != "pddl":
         raise ValueError(
-            "features.congestion.replanning=true requires mode: 'pddl' "
-            "and type: 'dynamic'."
+            "features.congestion.replanning=true requires mode: 'pddl'."
         )
 
     return CongestionConfig(
