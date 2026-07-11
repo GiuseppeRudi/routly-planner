@@ -318,7 +318,10 @@ def write_rou_xml(
         # Remove precomputed routes that touch blocked infrastructure.
         filtered_bg_routes = []
         for depart, route in bg_routes:
+            # Estrazione sicura: funziona sia se 'route' è un oggetto con proprietà .edges, 
+            # sia se è già direttamente una lista di archi (stringhe).
             route_edges = route.edges if hasattr(route, "edges") else route
+            
             valid = True
             for edge_id in route_edges:
                 if edge_id in closed_edges:
@@ -332,15 +335,16 @@ def write_rou_xml(
             if valid:
                 filtered_bg_routes.append((depart, route))
         bg_routes = filtered_bg_routes
-
     if bg_routes:
         for i, (depart, route) in enumerate(bg_routes):
+            # Estrazione sicura degli archi prima della conversione in stringa XML
             route_edges = route.edges if hasattr(route, "edges") else route
+            
             bg = ET.SubElement(root, "vehicle",
                                id=f"bg_{i:04d}", type="car",
                                depart=str(depart), color="0.5,0.5,0.5")
             ET.SubElement(bg, "route", edges=" ".join(route_edges))
-    _write_pretty_xml(root, out_path)
+            _write_pretty_xml(root, out_path)
 
 def parse_refuel_stops(plan_text: str) -> list[str]:
     stops: list[str] = []
