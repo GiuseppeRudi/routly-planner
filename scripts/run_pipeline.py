@@ -14,7 +14,6 @@ PIPELINE_CONFIG_PATH = PROJECT_ROOT / "config" / "pipeline.yaml"
 sys.path.insert(0, str(PROJECT_ROOT))
 from src.routly.config import EXPERIMENT_NAME_ENV, load_config, resolve_experiment_name
 from src.routly.utils import read_yaml
-from src.routly.features import FeatureConfig
 
 RESUME_LAST = "__RESUME_LAST__"
 
@@ -142,12 +141,17 @@ PLAN_STEP = "generate_plan"
 CONTROLLER_STEP = "controller_run"
 
 def resolve_plan_step(step_name: str, project_config_path: "Path") -> str:
-    """Automatically resolve the plan step to either 'generate_plan' or 'controller_run' based on the project config."""
+    """Automatically resolve the plan step to 'generate_plan'.
+
+    Both the fuel and congestion controllers are integrated inside
+    04_generate_plan.py (plan_and_plot / _controller_plan_and_plot), so the
+    plan step always runs there regardless of which controller is active.
+    `controller_run.py` / CONTROLLER_STEP are kept for manual/legacy use but
+    are no longer selected automatically.
+    """
     if step_name not in (PLAN_STEP, CONTROLLER_STEP):
         return step_name
-
-    features = FeatureConfig.from_yaml(str(project_config_path))
-    return CONTROLLER_STEP if features.controller_for_congestion else PLAN_STEP
+    return PLAN_STEP
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(

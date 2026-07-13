@@ -26,7 +26,7 @@ from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
 from src.routly.graph.graph_export import (
     plot_event_map, plot_plan_from_mapping, open_congestion_map,
-    save_congestion_maps, plot_controller_legs_from_mapping,
+    save_congestion_maps,
 )
 from src.routly.llm_client import call_llm
 from src.routly.llm.prompts import build_event_prompt
@@ -51,7 +51,9 @@ from src.routly.pddl.pddl_writer import write_pddl
 from src.routly.planning.plan_parser import parse_start_traversal_roads
 from src.routly.planning.planner_runner import run_enhsp
 from src.routly.controller import ControllerRunRequest
+from src.routly.controller.congestion_controller import run_congestion_controller
 from src.routly.controller.fuel_controller import run_fuel_controller
+from src.routly.controller.plotting import plot_controller_result
 from src.routly.domain.traffic_lights import load_traffic_light_timings
 from src.routly.utils import read_yaml
 
@@ -145,7 +147,7 @@ def _controller_plan_and_plot(
     blocked_road_ids: set[str] | None = None,
     run_label: str = "",
 ) -> list[str]:
-    """Generate a plan with the fuel controller, save it, and plot it."""
+    """Generate a plan with the active controller (fuel or congestion), save it, and plot it."""
     vehicle_id, start_loc, goal_loc = _extract_vehicle_start_goal(scenario)
 
     if run_label == "events":
@@ -157,17 +159,25 @@ def _controller_plan_and_plot(
     for directory in (pddl_dir, plans_dir):
         directory.mkdir(parents=True, exist_ok=True)
 
+    controller_request = ControllerRunRequest(
+        project_config=config,
+        features=features,
+        scenario=scenario,
+        mapping=mapping,
+        vehicle_id=vehicle_id,
+        start_loc=start_loc,
+        goal_loc=goal_loc,
+    )
+    run_controller_fn = (
+        run_congestion_controller
+        if features.controller_for_congestion
+        else run_fuel_controller
+    )
+    controller_label = "CONGESTION" if features.controller_for_congestion else "FUEL"
+
     try:
-        result = run_fuel_controller(
-            ControllerRunRequest(
-                project_config=config,
-                features=features,
-                scenario=scenario,
-                mapping=mapping,
-                vehicle_id=vehicle_id,
-                start_loc=start_loc,
-                goal_loc=goal_loc,
-            ),
+        result = run_controller_fn(
+            controller_request,
             blocked_road_ids=blocked_road_ids,
             run_label=run_label,
             pddl_dir=pddl_dir,
@@ -176,7 +186,7 @@ def _controller_plan_and_plot(
         )
     except Exception as e:
         print("\n" + "!" * 75)
-        print("CRITICAL ERROR: FUEL CONTROLLER COULD NOT REACH THE GOAL")
+        print(f"CRITICAL ERROR: {controller_label} CONTROLLER COULD NOT REACH THE GOAL")
         print("!" * 75)
         print(f"Reason: {e}")
         print("!" * 75 + "\n")
@@ -184,7 +194,7 @@ def _controller_plan_and_plot(
 
     if result.status != "success" or not result.plan_text:
         print("\n" + "!" * 75)
-        print("CRITICAL ERROR: FUEL CONTROLLER PLAN UNSOLVABLE")
+        print(f"CRITICAL ERROR: {controller_label} CONTROLLER PLAN UNSOLVABLE")
         print("!" * 75)
         print(f"Reason: {result.message}")
         print("!" * 75 + "\n")
@@ -196,7 +206,7 @@ def _controller_plan_and_plot(
     planned_roads = parse_start_traversal_roads(result.plan_text)
     if not planned_roads:
         print("\n" + "!" * 75)
-        print("CRITICAL ERROR: FUEL CONTROLLER PLAN RESOLVED TO EMPTY PATH")
+        print(f"CRITICAL ERROR: {controller_label} CONTROLLER PLAN RESOLVED TO EMPTY PATH")
         print("!" * 75 + "\n")
         sys.exit(1)
 
@@ -208,50 +218,21 @@ def _controller_plan_and_plot(
         if features.fuel.enabled and config.fuel_stations_path.exists()
         else []
     )
-    plot_plan_from_mapping(
+    legs_image_path = plot_controller_result(
         mapping=mapping,
         planned_roads=planned_roads,
-        output_path=plan_image_path,
+        segments=result.segments,
+        plan_text=result.plan_text,
+        plan_image_path=plan_image_path,
+        start_loc=start_loc,
+        goal_loc=goal_loc,
         fuel_stations=fuel_stations,
+        title=f"Controller ({controller_label.lower()}, {run_label or 'basic'}): start -> goal",
     )
+    if legs_image_path:
+        print(f"  Legs/windows image: {legs_image_path}")
 
-    if result.segments:
-        legs: list[list[str]] = []
-        leg_labels: list[str] = []
-        for seg in result.segments:
-            leg_roads: list[str] = []
-            if seg.plan_path and Path(seg.plan_path).exists():
-                leg_roads = parse_start_traversal_roads(
-                    Path(seg.plan_path).read_text(encoding="utf-8")
-                )
-            if not leg_roads:
-                continue
-            legs.append(leg_roads)
-            leg_labels.append(
-                f"Leg {seg.index}: {seg.start_loc} -> {seg.target_loc}"
-            )
-        if legs:
-            legs_image_path = plan_image_path.with_name(
-                plan_image_path.stem + "_legs" + plan_image_path.suffix
-            )
-            plot_controller_legs_from_mapping(
-                mapping=mapping,
-                legs=legs,
-                output_path=legs_image_path,
-                fuel_stations=fuel_stations,
-                chosen_ids=parse_refuel_stops(result.plan_text),
-                start_loc=start_loc,
-                goal_loc=goal_loc,
-                leg_labels=leg_labels,
-                title=(
-                    "Controller legs ("
-                    + (run_label or "basic")
-                    + "): start -> goal"
-                ),
-            )
-            print(f"  Legs image: {legs_image_path}")
-
-    print("\nOUTPUT FILES (fuel controller):")
+    print(f"\nOUTPUT FILES ({controller_label.lower()} controller):")
     print(f"  Plan:       {plan_path}")
     print(f"  Plan image: {plan_image_path}")
     return planned_roads
@@ -271,8 +252,8 @@ def plan_and_plot(
     blocked_road_ids: set[str] | None = None,
     run_label: str = "",
 ) -> list[str]:
-    """Dispatcher: fuel controller if enabled, otherwise ENHSP planner."""
-    if features.fuel_in_controller:
+    """Dispatcher: fuel/congestion controller if enabled, otherwise ENHSP planner."""
+    if features.controller_enabled:
         if mapping is None:
             mapping = load_mapping(mapping_path)
         if scenario is None:

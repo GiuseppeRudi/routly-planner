@@ -90,14 +90,9 @@ def resolve_plan_runs(
     if plan_override:
         return [("override", Path(plan_override))]
 
-    if features.controller_for_congestion:
-        if not config.controller_plan_path.exists():
-            raise FileNotFoundError(
-                "Controller plan not found. Run the controller_run pipeline step "
-                f"first to create: {config.controller_plan_path}"
-            )
-        return [("controller", config.controller_plan_path)]
-
+    # Both the fuel and congestion controllers write plan.txt/plan_dynamic.sol
+    # via 04_generate_plan.py's plan_and_plot(), same as the plain ENHSP path,
+    # so no controller-specific branch is needed here.
     runs: list[tuple[str, Path]] = []
     for plan_kind in features.sumo.plans:
         if plan_kind == "dynamic" and not features.llm_events.enabled:
@@ -127,16 +122,12 @@ def resolve_plan_runs(
 def sumo_route_path_for_plan(config, plan_kind: str) -> Path:
     if plan_kind == "dynamic":
         return config.dynamic_sumo_rou_path
-    if plan_kind == "controller":
-        return config.controller_sumo_rou_path
     return config.sumo_rou_path
 
 
 def sumo_cfg_path_for_plan(config, plan_kind: str) -> Path:
     if plan_kind == "dynamic":
         return config.dynamic_sumo_cfg_path
-    if plan_kind == "controller":
-        return config.controller_sumo_cfg_path
     return config.sumo_cfg_path
 
 
