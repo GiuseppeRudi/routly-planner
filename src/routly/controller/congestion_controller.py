@@ -239,7 +239,7 @@ def run_congestion_controller(
                 request.start_loc,
                 request.goal_loc,
                 detour_factor=1.3,
-                safety_margin=1.15,
+                safety_margin=1.30,
             )
             background_routes = generate_background_routes(
                 roads,

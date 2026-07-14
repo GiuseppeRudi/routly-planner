@@ -48,7 +48,7 @@ def parse_start_traversal_steps(plan_text: str) -> list[PlanStep]:
             )
             continue
 
-        match = ROAD_SPECIFIC_TRAVERSAL_ACTION_RE.search(line)
+        match = LINE_GRAPH_TRAVERSAL_ACTION_RE.search(line)
         if match:
             steps.append(
                 PlanStep(
@@ -60,7 +60,7 @@ def parse_start_traversal_steps(plan_text: str) -> list[PlanStep]:
             )
             continue
 
-        match = LINE_GRAPH_TRAVERSAL_ACTION_RE.search(line)
+        match = ROAD_SPECIFIC_TRAVERSAL_ACTION_RE.search(line)
         if match:
             steps.append(
                 PlanStep(

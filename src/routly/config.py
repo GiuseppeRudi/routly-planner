@@ -431,12 +431,7 @@ def _validate_planner_mode_axes(
         return
 
     if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
-        raise ValueError(
-            "planner.state_representation='line_graph' with "
-            f"planner.action_generation='{action_generation}' is recognized "
-            "but not implemented yet; line-graph support is reserved for "
-            "future development."
-        )
+        return
 
 
 def resolve_experiment_name(project_config: dict[str, Any]) -> str:

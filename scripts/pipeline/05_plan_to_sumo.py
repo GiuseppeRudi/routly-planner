@@ -438,7 +438,6 @@ def main() -> None:
     if sumo_template_view.exists():
         view_content = sumo_template_view.read_text(encoding="utf-8")
         config.sumo_viewsettings_path.write_text(view_content, encoding="utf-8")
-        print(f"Applicato tema grafico personalizzato da {sumo_template_view.name}")
     else:
         print(f"WARNING: File {sumo_template_view} non trovato. Caricamento view settings di fallback.")
         write_view_settings(config.sumo_viewsettings_path)

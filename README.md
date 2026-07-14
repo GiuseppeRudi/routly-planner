@@ -35,6 +35,8 @@ The experiment is controlled by two YAML files:
 - `config/pipeline.yaml` selects and orders the pipeline stages.
 - `config/project.yaml` configures the map, planner, congestion, fuel, controllers, LLM events, and SUMO.
 
+`config/project.yaml` is intentionally kept comment-free. Before changing it, read the documented example in `docs/project.yaml.example`, which explains the effect of each setting and the valid planner combinations.
+
 The main planner settings describe three independent decisions:
 
 | Setting | Values | Question answered |
@@ -95,17 +97,20 @@ Action generation can then follow two strategies:
 - `parameterized`: ENHSP receives one generic schema and grounds the Cartesian product of its parameters.
 - `compiled`: Python generates only valid road/window schemas. Singleton types bind each schema to its road and reduce planner grounding.
 
-The current scalable backend is `compiled_duration + node_based + compiled`.
+Two planner-side scalability backends are implemented:
+
+- `compiled_duration + node_based + compiled`, which keeps vehicle state on locations but emits only valid road/location schemas.
+- `compiled_duration + line_graph`, which makes the vehicle state a road and traverses from one road to the next.
 
 | Traversal model | State representation | Action generation | Status |
 | --- | --- | --- | --- |
 | `process` | `node_based` | `parameterized` | Implemented; PDDL+ controller branch |
 | `compiled_duration` | `node_based` | `parameterized` | Implemented; generic grounding baseline |
 | `compiled_duration` | `node_based` | `compiled` | Implemented; current planner-side optimization |
-| `compiled_duration` | `line_graph` | `parameterized` | Recognized future work; not implemented |
-| `compiled_duration` | `line_graph` | `compiled` | Recognized future work; not implemented |
+| `compiled_duration` | `line_graph` | `parameterized` | Implemented; road-state grounding baseline |
+| `compiled_duration` | `line_graph` | `compiled` | Implemented; transition-specific road-state actions |
 
-In a line graph, the vehicle state is a road and actions represent transitions between connected roads. This can improve the parameterized formulation, but it is not automatically smaller than the current node-based compiled model, which already emits only valid combinations.
+In a line graph, the vehicle state is a road and actions represent transitions between connected roads. Start and goal are still selected as nodes in the scenario; the PDDL generation step deterministically converts them to the first and last road of the shortest start-node to goal-node path, computed on road length. This keeps the user workflow unchanged while allowing the planner to compare node-state and road-state formulations.
 
 ## Macro-road abstraction
 

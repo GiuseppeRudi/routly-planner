@@ -24,6 +24,7 @@ def build_road_network_domain(
     roads: list[dict] | None = None,
     dynamic_road_ids: set[str] | None = None,
     location_ids: list[str] | None = None,
+    line_graph_goal_road_id: str | None = None,
 ) -> str:
     """
     Build a PDDL+ domain string conditioned on active features.
@@ -40,12 +41,11 @@ def build_road_network_domain(
     time_window_starts = _normalize_time_window_starts(features, time_window_starts)
     if (
         traversal_model == TRAVERSAL_COMPILED_DURATION
-        and state_representation == STATE_REPRESENTATION_NODE_BASED
         and action_generation == ACTION_GENERATION_COMPILED
         and not roads
     ):
         raise ValueError(
-            "node_based/compiled requires roads to build road-specific actions."
+            "compiled action generation requires roads to build road-specific actions."
         )
 
     types = _build_types(
@@ -58,7 +58,12 @@ def build_road_network_domain(
         location_ids or [],
         dynamic_road_ids,
     )
-    predicates = _build_predicates(features, traversal_model, time_window_starts)
+    predicates = _build_predicates(
+        features,
+        traversal_model,
+        state_representation,
+        time_window_starts,
+    )
     functions = _build_functions(features, traversal_model, time_window_starts)
     action = _build_action(
         features,
@@ -68,8 +73,9 @@ def build_road_network_domain(
         time_window_starts,
         roads or [],
         dynamic_road_ids,
+        line_graph_goal_road_id,
     )
-    refuel = _build_refuel(features, traversal_model)
+    refuel = _build_refuel(features, traversal_model, state_representation)
     process = _build_process(features, traversal_model)
     events = _build_events(features, traversal_model, time_window_starts)
 
@@ -131,7 +137,7 @@ def _build_types(
     location_ids: list[str],
     dynamic_road_ids: set[str] | None,
 ) -> str:
-    if not _uses_node_compiled_actions(
+    if not _uses_compiled_actions(
         f,
         traversal_model,
         state_representation,
@@ -142,14 +148,16 @@ def _build_types(
         return f"  (:types vehicle location road{_time_window_type(f)})"
 
     road_types = sorted(_road_type(str(road["id"])) for road in roads)
-    loc_types = sorted(
-        _location_type(loc_id)
-        for loc_id in (
-            set(location_ids)
-            | {str(road["from"]) for road in roads}
-            | {str(road["to"]) for road in roads}
+    loc_types = []
+    if state_representation == STATE_REPRESENTATION_NODE_BASED:
+        loc_types = sorted(
+            _location_type(loc_id)
+            for loc_id in (
+                set(location_ids)
+                | {str(road["from"]) for road in roads}
+                | {str(road["to"]) for road in roads}
+            )
         )
-    )
 
     base_types = "vehicle location road"
     if f.dynamic_congestion_in_pddl:
@@ -198,9 +206,25 @@ def _uses_node_compiled_actions(
     )
 
 
+def _uses_compiled_actions(
+    f: FeatureConfig,
+    traversal_model: str,
+    state_representation: str,
+    action_generation: str,
+    roads: list[dict],
+    dynamic_road_ids: set[str] | None,
+) -> bool:
+    _ = f, state_representation, roads, dynamic_road_ids
+    return (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
+        and action_generation == ACTION_GENERATION_COMPILED
+    )
+
+
 def _build_predicates(
     f: FeatureConfig,
     traversal_model: str,
+    state_representation: str,
     time_window_starts: list[int],
 ) -> str:
     lines = [
@@ -214,6 +238,17 @@ def _build_predicates(
 
     if f.fuel_in_pddl:
         lines.append("    (has-fuel-station ?l - location)   ;; refuelling point")
+
+    if (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
+        and state_representation == STATE_REPRESENTATION_LINE_GRAPH
+    ):
+        lines.append("    (ready-road ?v - vehicle ?r - road)")
+        lines.append("    (road-next ?r - road ?next - road)")
+        lines.append("    (goal-road ?r - road)")
+        lines.append("    (reached-goal ?v - vehicle)")
+        if f.fuel_in_pddl:
+            lines.append("    (fuel-station-before-road ?r - road)")
 
     if f.dynamic_congestion_in_pddl:
         lines.append("    (static-road  ?r - road)")
@@ -292,6 +327,7 @@ def _build_action(
     time_window_starts: list[int],
     roads: list[dict],
     dynamic_road_ids: set[str] | None,
+    line_graph_goal_road_id: str | None,
 ) -> str:
     if traversal_model == TRAVERSAL_COMPILED_DURATION:
         if (
@@ -305,10 +341,15 @@ def _build_action(
                 dynamic_road_ids or set(),
             )
         if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
-            return _build_compiled_duration_line_graph_action(
-                f,
-                time_window_starts,
-            )
+            if action_generation == ACTION_GENERATION_COMPILED:
+                return _build_compiled_duration_line_graph_road_actions(
+                    f,
+                    time_window_starts,
+                    roads,
+                    dynamic_road_ids or set(),
+                    line_graph_goal_road_id,
+                )
+            return _build_compiled_duration_line_graph_action(f)
         return _build_compiled_duration_action(
             f,
             time_window_starts,
@@ -387,19 +428,42 @@ def _build_process_start_action(
   )"""
 
 
-def _build_compiled_duration_line_graph_action(
-    f: FeatureConfig,
-    time_window_starts: list[int],
-) -> str:
-    extra_precond, fuel_precond, fuel_effect = _compiled_common_guards_and_effects(f)
-    extra_precond = extra_precond.replace(
-        "\n      (not (location-blocked ?from))"
-        "\n      (not (location-blocked ?to))",
-        "",
-    )
+def _build_compiled_duration_line_graph_action(f: FeatureConfig) -> str:
+    extra_precond, fuel_precond, fuel_effect = _line_graph_guards_and_effects(f)
 
-    actions = [f"""\
-  ;; Line-graph traversal: the state is the next traversable road, not a location.
+    if not f.dynamic_congestion_in_pddl:
+        return f"""\
+  ;; Line-graph traversal: the vehicle state is the next road to traverse.
+  (:action traverse-road
+    :parameters (?v - vehicle ?r - road ?next - road)
+    :precondition (and
+      (ready-road ?v ?r)
+      (road-next ?r ?next)
+      (road-open ?r){extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (ready-road ?v ?r))
+      (ready-road ?v ?next)
+      (increase (travel-time ?v) (travel-duration ?r)){fuel_effect}
+    )
+  )
+
+  (:action finish-road
+    :parameters (?v - vehicle ?r - road)
+    :precondition (and
+      (ready-road ?v ?r)
+      (goal-road ?r)
+      (road-open ?r){extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (ready-road ?v ?r))
+      (reached-goal ?v)
+      (increase (travel-time ?v) (travel-duration ?r)){fuel_effect}
+    )
+  )"""
+
+    return f"""\
+  ;; Line-graph traversal with static and dynamic road costs.
   (:action traverse-road-static
     :parameters (?v - vehicle ?r - road ?next - road)
     :precondition (and
@@ -413,6 +477,23 @@ def _build_compiled_duration_line_graph_action(
       (ready-road ?v ?next)
       (increase (travel-time ?v) (travel-duration ?r))
       (increase (sim-time) (travel-duration ?r)){fuel_effect}
+    )
+  )
+
+  (:action traverse-road-dynamic
+    :parameters (?v - vehicle ?r - road ?next - road ?w - time-window)
+    :precondition (and
+      (ready-road ?v ?r)
+      (road-next ?r ?next)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w){extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (ready-road ?v ?r))
+      (ready-road ?v ?next)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w)){fuel_effect}
     )
   )
 
@@ -430,42 +511,146 @@ def _build_compiled_duration_line_graph_action(
       (increase (travel-time ?v) (travel-duration ?r))
       (increase (sim-time) (travel-duration ?r)){fuel_effect}
     )
-  )"""]
-
-    for start in time_window_starts:
-        window_id = _window_id(start)
-        actions.append(f"""\
-  (:action traverse-road-dynamic-{window_id}
-    :parameters (?v - vehicle ?r - road ?next - road)
-    :precondition (and
-      (ready-road ?v ?r)
-      (road-next ?r ?next)
-      (road-open ?r)
-      (dynamic-road ?r)
-      (current-window-{window_id}){extra_precond}{fuel_precond}
-    )
-    :effect (and
-      (not (ready-road ?v ?r))
-      (ready-road ?v ?next)
-      (increase (travel-time ?v) (travel-duration-window-{window_id} ?r))
-      (increase (sim-time) (travel-duration-window-{window_id} ?r)){fuel_effect}
-    )
   )
 
-  (:action finish-road-dynamic-{window_id}
-    :parameters (?v - vehicle ?r - road)
+  (:action finish-road-dynamic
+    :parameters (?v - vehicle ?r - road ?w - time-window)
     :precondition (and
       (ready-road ?v ?r)
       (goal-road ?r)
       (road-open ?r)
       (dynamic-road ?r)
-      (current-window-{window_id}){extra_precond}{fuel_precond}
+      (current-window ?w){extra_precond}{fuel_precond}
     )
     :effect (and
       (not (ready-road ?v ?r))
       (reached-goal ?v)
-      (increase (travel-time ?v) (travel-duration-window-{window_id} ?r))
-      (increase (sim-time) (travel-duration-window-{window_id} ?r)){fuel_effect}
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w)){fuel_effect}
+    )
+  )"""
+
+
+def _build_compiled_duration_line_graph_road_actions(
+    f: FeatureConfig,
+    time_window_starts: list[int],
+    roads: list[dict],
+    dynamic_road_ids: set[str],
+    line_graph_goal_road_id: str | None,
+) -> str:
+    actions: list[str] = []
+    extra_precond, fuel_precond, fuel_effect = _line_graph_guards_and_effects(f)
+    roads_by_from: dict[str, list[dict]] = {}
+    for road in roads:
+        roads_by_from.setdefault(str(road["from"]), []).append(road)
+
+    for road in sorted(roads, key=lambda item: str(item["id"])):
+        road_id = str(road["id"])
+        road_type = _road_type(road_id)
+        next_roads = sorted(
+            roads_by_from.get(str(road["to"]), []),
+            key=lambda item: str(item["id"]),
+        )
+        is_dynamic = f.dynamic_congestion_in_pddl and road_id in dynamic_road_ids
+
+        for next_road in next_roads:
+            next_id = str(next_road["id"])
+            next_type = _road_type(next_id)
+            if is_dynamic:
+                for start in time_window_starts:
+                    window_id = _window_id(start)
+                    window_type = _window_type(window_id)
+                    actions.append(f"""\
+  (:action traverse-road-dynamic-{road_id}-{next_id}-{window_id}
+    :parameters (?v - vehicle ?r - {road_type} ?next - {next_type} ?w - {window_type})
+    :precondition (and
+      (ready-road ?v ?r)
+      (road-next ?r ?next)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w){extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (ready-road ?v ?r))
+      (ready-road ?v ?next)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w)){fuel_effect}
+    )
+  )""")
+                continue
+
+            static_road_precond = (
+                "\n      (static-road ?r)"
+                if f.dynamic_congestion_in_pddl
+                else ""
+            )
+            static_sim_time_effect = (
+                "\n      (increase (sim-time) (travel-duration ?r))"
+                if f.dynamic_congestion_in_pddl
+                else ""
+            )
+            actions.append(f"""\
+  (:action traverse-road-static-{road_id}-{next_id}
+    :parameters (?v - vehicle ?r - {road_type} ?next - {next_type})
+    :precondition (and
+      (ready-road ?v ?r)
+      (road-next ?r ?next)
+      (road-open ?r){static_road_precond}{extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (ready-road ?v ?r))
+      (ready-road ?v ?next)
+      (increase (travel-time ?v) (travel-duration ?r)){static_sim_time_effect}{fuel_effect}
+    )
+  )""")
+
+        if line_graph_goal_road_id is not None and road_id != line_graph_goal_road_id:
+            continue
+        if is_dynamic:
+            for start in time_window_starts:
+                window_id = _window_id(start)
+                window_type = _window_type(window_id)
+                actions.append(f"""\
+  (:action finish-road-dynamic-{road_id}-{window_id}
+    :parameters (?v - vehicle ?r - {road_type} ?w - {window_type})
+    :precondition (and
+      (ready-road ?v ?r)
+      (goal-road ?r)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w){extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (ready-road ?v ?r))
+      (reached-goal ?v)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w)){fuel_effect}
+    )
+  )""")
+            continue
+
+        static_road_precond = (
+            "\n      (static-road ?r)"
+            if f.dynamic_congestion_in_pddl
+            else ""
+        )
+        static_sim_time_effect = (
+            "\n      (increase (sim-time) (travel-duration ?r))"
+            if f.dynamic_congestion_in_pddl
+            else ""
+        )
+        actions.append(f"""\
+  (:action finish-road-static-{road_id}
+    :parameters (?v - vehicle ?r - {road_type})
+    :precondition (and
+      (ready-road ?v ?r)
+      (goal-road ?r)
+      (road-open ?r){static_road_precond}{extra_precond}{fuel_precond}
+    )
+    :effect (and
+      (not (ready-road ?v ?r))
+      (reached-goal ?v)
+      (increase (travel-time ?v) (travel-duration ?r)){static_sim_time_effect}{fuel_effect}
     )
   )""")
 
@@ -495,6 +680,22 @@ def _process_common_guards_and_effects(f: FeatureConfig) -> tuple[str, str]:
         )
 
     return extra_precond, fuel_effect
+
+
+def _line_graph_guards_and_effects(
+    f: FeatureConfig,
+) -> tuple[str, str, str]:
+    extra_precond = ""
+    if f.llm_events.enabled:
+        extra_precond += "\n      (not (road-blocked ?r))"
+
+    fuel_precond = ""
+    fuel_effect = ""
+    if f.fuel_in_pddl:
+        fuel_precond = "\n      (>= (fuel-level ?v) (fuel-cost ?r))"
+        fuel_effect = "\n      (decrease (fuel-level ?v) (fuel-cost ?r))"
+
+    return extra_precond, fuel_precond, fuel_effect
 
 
 def _build_compiled_duration_action(
@@ -645,9 +846,29 @@ def _compiled_common_guards_and_effects(
     return extra_precond, fuel_precond, fuel_effect
 
 
-def _build_refuel(f: FeatureConfig, traversal_model: str) -> str:
+def _build_refuel(
+    f: FeatureConfig,
+    traversal_model: str,
+    state_representation: str,
+) -> str:
     if not f.fuel_in_pddl:
         return ""
+    if (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
+        and state_representation == STATE_REPRESENTATION_LINE_GRAPH
+    ):
+        return """\
+  (:action refuel-before-road
+    :parameters (?v - vehicle ?r - road)
+    :precondition (and
+      (ready-road ?v ?r)
+      (fuel-station-before-road ?r)
+      (< (fuel-level ?v) (fuel-capacity ?v))
+    )
+    :effect (and
+      (assign (fuel-level ?v) (fuel-capacity ?v))
+    )
+  )"""
     not_moving = "\n      (not (moving ?v))" if traversal_model == TRAVERSAL_PROCESS else ""
     return """\
   (:action refuel
@@ -850,13 +1071,5 @@ def _validate_planner_axes(
                 "action_generation='parameterized'."
             )
         return state_representation, action_generation
-
-    if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
-        raise ValueError(
-            "state_representation='line_graph' with "
-            f"action_generation='{action_generation}' is recognized but not "
-            "implemented yet; line-graph support is reserved for future "
-            "development."
-        )
 
     return state_representation, action_generation

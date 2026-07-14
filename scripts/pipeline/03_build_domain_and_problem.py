@@ -26,6 +26,7 @@ from src.routly.config import load_config
 from src.routly.domain.macro_roads import require_macro_artifacts
 from src.routly.features import FeatureConfig
 from src.routly.pddl.mapping import load_mapping
+from src.routly.pddl.line_graph import select_line_graph_boundary_roads
 from src.routly.pddl.pddl_writer import write_pddl
 from src.routly.pddl.problem_generator import build_road_network_problem
 from src.routly.pddl.domain_generator import build_road_network_domain
@@ -106,7 +107,7 @@ def main() -> None:
             start_loc,
             goal_loc,
             detour_factor=1.3,
-            safety_margin=1.15,
+            safety_margin=1.30,
         )
 
         background_routes = generate_background_routes(
@@ -160,6 +161,23 @@ def main() -> None:
     time_window_starts: list[int] = []
     dynamic_road_ids: set[str] = set()
     objects_declared_in_domain = False
+    line_graph_goal_road_id = None
+    if (
+        config.traversal_model == "compiled_duration"
+        and config.state_representation == "line_graph"
+    ):
+        line_graph_boundary = select_line_graph_boundary_roads(
+            roads,
+            start_loc,
+            goal_loc,
+        )
+        line_graph_goal_road_id = line_graph_boundary.goal_road_id
+        print(
+            "Line graph boundary roads: "
+            f"start={line_graph_boundary.start_road_id}, "
+            f"goal={line_graph_boundary.goal_road_id}"
+        )
+
     if features.dynamic_congestion_in_pddl:
         dynamic_profile = compute_dynamic_congestion_profile(
             roads,
@@ -206,6 +224,7 @@ def main() -> None:
             roads=roads,
             dynamic_road_ids=dynamic_road_ids,
             location_ids=list(node_map),
+            line_graph_goal_road_id=line_graph_goal_road_id,
         )
         write_pddl(domain_text, config.domain_path)
         print(

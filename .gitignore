@@ -30,8 +30,17 @@ conda-meta/
 # Data files
 cache/
 data/
-docs/
 tests/
+
+
+docs/**/*.docx
+docs/latex_source/*.aux
+docs/latex_source/*.fdb_latexmk
+docs/latex_source/*.fls
+docs/latex_source/*.log
+docs/latex_source/*.out
+docs/latex_source/*.pdf
+docs/latex_source/*.synctex.gz
 
 # Generated PDDL outputs
 pddl/problems/generated_*.pddl

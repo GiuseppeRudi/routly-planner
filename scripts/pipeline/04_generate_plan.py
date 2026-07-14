@@ -35,6 +35,7 @@ from src.routly.pddl.mapping import (
     build_road_adjacency,
     extract_topology_for_llm,
 )
+from src.routly.pddl.line_graph import select_line_graph_boundary_roads
 from src.routly.pddl.problem_generator import (
     DYNAMIC_PROFILE_BEGIN,
     DYNAMIC_PROFILE_END,
@@ -809,6 +810,27 @@ def main() -> None:
     closure_events = [event for event in events if event["event_type"] != "slowdown"]
     
     blocked_locations = _derive_blocked_locations(events=closure_events, roads_by_id=roads_by_id, protected_locations=protected_locations)
+    location_incident_blocked_road_ids: set[str] = set()
+    for location in blocked_locations:
+        loc_id = location["id"]
+        for road_id, road_info in roads_by_id.items():
+            if road_info.get("from") != loc_id and road_info.get("to") != loc_id:
+                continue
+            location_incident_blocked_road_ids.add(road_id)
+            if f"(road-blocked {road_id})" in modified_content:
+                continue
+            line_to_find = f"(road-open {road_id})"
+            blocked_fact = (
+                f"{line_to_find}\n"
+                f"  ;; [DYNAMIC EVENT - location closure] {loc_id} incident road\n"
+                f"  (road-blocked {road_id})"
+            )
+            if line_to_find in modified_content:
+                modified_content = modified_content.replace(
+                    line_to_find,
+                    blocked_fact,
+                    1,
+                )
     if blocked_locations:
         location_lines = [
             f"  ;; [DYNAMIC EVENT - {location['event_type']}] {location['description']}\n  (location-blocked {location['id']})"
@@ -819,7 +841,10 @@ def main() -> None:
         print("PDDL file updated with blocked intersections.")
 
     slowed_road_ids = {r for e in events if e["event_type"] == "slowdown" for r in e["roads"]}
-    just_blocked_road_ids = [r for e in closure_events for r in e["roads"]]
+    just_blocked_road_ids = sorted(
+        {r for e in closure_events for r in e["roads"]}
+        | location_incident_blocked_road_ids
+    )
     just_blocked_loc_ids = [loc["id"] for loc in blocked_locations]
     dynamic_domain_path: Path | None = None
 
@@ -921,13 +946,19 @@ def main() -> None:
                 print(line)
             if (
                 config.traversal_model == "compiled_duration"
-                and config.state_representation == "node_based"
                 and config.action_generation == "compiled"
             ):
                 dynamic_window_starts = global_window_starts(
                     new_profile,
                     active_dynamic_roads,
                 )
+                line_graph_goal_road_id = None
+                if config.state_representation == "line_graph":
+                    line_graph_goal_road_id = select_line_graph_boundary_roads(
+                        mapping["roads"],
+                        start_loc,
+                        goal_loc,
+                    ).goal_road_id
                 dynamic_domain_text = build_road_network_domain(
                     features,
                     traversal_model=config.traversal_model,
@@ -937,6 +968,7 @@ def main() -> None:
                     roads=mapping["roads"],
                     dynamic_road_ids=active_dynamic_roads,
                     location_ids=[node["id"] for node in mapping["nodes"]],
+                    line_graph_goal_road_id=line_graph_goal_road_id,
                 )
                 dynamic_domain_path = config.dynamic_domain_path
                 write_pddl(dynamic_domain_text, dynamic_domain_path)

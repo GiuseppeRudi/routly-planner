@@ -27,6 +27,7 @@ from src.routly.domain.traffic_lights import (
     TrafficLightTiming,
     generate_traffic_light_timings,
 )
+from src.routly.pddl.line_graph import select_line_graph_boundary_roads
 
 DYNAMIC_WINDOWS_BEGIN = "    ;; BEGIN DYNAMIC CONGESTION WINDOWS"
 DYNAMIC_WINDOWS_END = "    ;; END DYNAMIC CONGESTION WINDOWS"
@@ -66,7 +67,7 @@ def build_road_network_problem(
         state_representation,
         action_generation,
     )
-    if _uses_node_compiled_actions(
+    if _uses_compiled_actions(
         traversal_model,
         state_representation,
         action_generation,
@@ -429,7 +430,7 @@ def _build_objects(
             action_generation,
         )
 
-    if _uses_node_compiled_actions(
+    if _uses_compiled_actions(
         traversal_model,
         state_representation,
         action_generation,
@@ -440,7 +441,10 @@ def _build_objects(
         ]
         for info in sorted(node_map.values(), key=lambda node: str(node["id"])):
             loc_id = str(info["id"])
-            lines.append(f"    {loc_id} - {_location_type(loc_id)}")
+            if state_representation == STATE_REPRESENTATION_NODE_BASED:
+                lines.append(f"    {loc_id} - {_location_type(loc_id)}")
+            else:
+                lines.append(f"    {loc_id} - location")
         for road in sorted(roads, key=lambda item: str(item["id"])):
             road_id = str(road["id"])
             lines.append(f"    {road_id} - {_road_type(road_id)}")
@@ -500,12 +504,16 @@ def _build_init(
         traversal_model,
         state_representation,
     )
+    line_graph_boundary = None
     if line_graph:
-        start_roads = [road for road in roads if road["from"] == start_loc]
-        if not start_roads:
-            raise ValueError(f"No outgoing road from start location {start_loc}")
-        for road in start_roads:
-            lines.append(f"  (ready-road {vehicle_id} {road['id']})")
+        line_graph_boundary = select_line_graph_boundary_roads(
+            roads,
+            start_loc,
+            goal_loc,
+        )
+        lines.append(
+            f"  (ready-road {vehicle_id} {line_graph_boundary.start_road_id})"
+        )
     else:
         lines.append(f"  (at {vehicle_id} {start_loc})")
     if traversal_model == TRAVERSAL_PROCESS:
@@ -573,7 +581,10 @@ def _build_init(
         if line_graph:
             for next_road in roads_by_from.get(str(r["to"]), []):
                 lines.append(f"  (road-next {road_id} {next_road['id']})")
-            if r["to"] == goal_loc:
+            if (
+                line_graph_boundary is not None
+                and road_id == line_graph_boundary.goal_road_id
+            ):
                 lines.append(f"  (goal-road {road_id})")
 
     if features.dynamic_congestion_in_pddl:
@@ -598,10 +609,11 @@ def _build_init(
             if node_info.get("traffic_light"):
                 timing = traffic_light_timings[loc_id]
                 lines.append(f"  (has-traffic-light {loc_id})")
-                lines.append(
-                    f"  (= (light-wait {loc_id}) {timing.average_wait})"
-                )
-            else:
+                if traversal_model == TRAVERSAL_PROCESS:
+                    lines.append(
+                        f"  (= (light-wait {loc_id}) {timing.average_wait})"
+                    )
+            elif traversal_model == TRAVERSAL_PROCESS:
                 lines.append(f"  (= (light-wait {loc_id}) 0)")
 
     if features.fuel_in_pddl and fuel_params is not None:
@@ -617,6 +629,10 @@ def _build_init(
         for node in node_map.values():
             if node["id"] in station_set:
                 lines.append(f"  (has-fuel-station {node['id']})")
+        if line_graph:
+            for road in roads:
+                if road["from"] in station_set:
+                    lines.append(f"  (fuel-station-before-road {road['id']})")
 
     return "\n".join(lines)
 
@@ -719,14 +735,6 @@ def _validate_planner_axes(
             )
         return state_representation, action_generation
 
-    if state_representation == STATE_REPRESENTATION_LINE_GRAPH:
-        raise ValueError(
-            "state_representation='line_graph' with "
-            f"action_generation='{action_generation}' is recognized but not "
-            "implemented yet; line-graph support is reserved for future "
-            "development."
-        )
-
     return state_representation, action_generation
 
 
@@ -738,6 +746,18 @@ def _uses_node_compiled_actions(
     return (
         traversal_model == TRAVERSAL_COMPILED_DURATION
         and state_representation == STATE_REPRESENTATION_NODE_BASED
+        and action_generation == ACTION_GENERATION_COMPILED
+    )
+
+
+def _uses_compiled_actions(
+    traversal_model: str,
+    state_representation: str,
+    action_generation: str,
+) -> bool:
+    _ = state_representation
+    return (
+        traversal_model == TRAVERSAL_COMPILED_DURATION
         and action_generation == ACTION_GENERATION_COMPILED
     )
 
@@ -760,7 +780,7 @@ def _build_dynamic_congestion_windows_block(
 ) -> str:
     lines = ["", "", DYNAMIC_WINDOWS_BEGIN]
     if window_starts:
-        if _uses_node_compiled_actions(
+        if _uses_compiled_actions(
             traversal_model,
             state_representation,
             action_generation,
