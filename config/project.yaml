@@ -12,13 +12,13 @@ osm:
 graph_simplification:
   keep_largest_component: true
   remove_isolated_nodes: true
-  distance_meters: 1000
+  distance_meters: 1800
   max_nodes: 300
 
 planner:
   enhsp_jar: "planners/enhsp/enhsp-20.jar"
   java_heap_mb: 8192
-  traversal_model:   "process" #| "compiled_duration" | "compiled_duration"
+  traversal_model:   "process" #| "compiled_duration" | "process"
   # traversal_model controls the PDDL representation of road traversal.
   # process uses a start action, continuous process, and arrival event. It
   # requires node_based state and parameterized actions.
@@ -42,7 +42,7 @@ planner:
   #   compiled_duration + line_graph + parameterized
   #   compiled_duration + line_graph + compiled
   state_representation: "node_based" # "node_based" | "line_graph"
-  action_generation:  "parameterized" #| "compiled" | "compiled"
+  action_generation:  "compiled" #| "parameterized" | "compiled"
 
 sumo:
   sumo_gui: "sumo-gui"
