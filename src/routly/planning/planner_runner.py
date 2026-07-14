@@ -11,8 +11,8 @@ def run_enhsp(
     problem_path: str | Path,
     plan_path: str | Path,
     java_heap_mb: int = 4096,
-) -> None:
-    """Run ENHSP and write planner stdout to a plan file."""
+) -> float:
+    """Run ENHSP, write planner stdout to a plan file, and return wall-clock seconds."""
     enhsp_jar = Path(enhsp_jar)
     domain_path = Path(domain_path)
     problem_path = Path(problem_path)
@@ -34,8 +34,10 @@ def run_enhsp(
         start = time.time()
         with plan_path.open("w", encoding="utf-8") as outfile:
             subprocess.run(cmd, stdout=outfile, stderr=subprocess.PIPE, text=True, check=True)
+        elapsed = time.time() - start
         print(f"Plan saved: {plan_path}")
-        print(f"Elapsed time: {time.time() - start:.3f}s")
+        print(f"Elapsed time: {elapsed:.3f}s")
+        return elapsed
 
     except FileNotFoundError as exc:
         raise RuntimeError(

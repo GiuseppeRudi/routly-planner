@@ -92,3 +92,21 @@ def extract_plan_metric_time(plan_text: str) -> float | None:
     if not match:
         return None
     return float(match.group(1))
+
+
+def extract_grounding_time_ms(plan_text: str) -> float | None:
+    """Extract ENHSP's grounding time (milliseconds) from its stdout preamble."""
+    match = re.search(r"Grounding Time:\s*(\d+)", plan_text)
+    if not match:
+        return None
+    return float(match.group(1))
+
+
+def extract_grounded_sizes(plan_text: str) -> dict[str, int]:
+    """Extract grounded problem sizes (|F|, |A|, |P|, |E|) from ENHSP's stdout preamble."""
+    sizes: dict[str, int] = {}
+    for key in ("F", "X", "A", "P", "E"):
+        match = re.search(rf"\|{key}\|:\s*(\d+)", plan_text)
+        if match:
+            sizes[key] = int(match.group(1))
+    return sizes
