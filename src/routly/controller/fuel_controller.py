@@ -340,7 +340,13 @@ def run_fuel_controller(
                 plans_dir
                 / f"plan_fuel_{prefix}leg_{index:02d}.txt"
             )
-            run_enhsp(config.enhsp_jar, domain_path, problem_path, plan_path)
+            run_enhsp(
+                config.enhsp_jar,
+                domain_path,
+                problem_path,
+                plan_path,
+                java_heap_mb=config.java_heap_mb,
+            )
             plan_text = plan_path.read_text(encoding="utf-8")
             steps = parse_start_traversal_steps(plan_text)
 

@@ -349,7 +349,13 @@ def run_congestion_controller(
             write_pddl(problem_text, problem_path)
 
             plan_path = plans_dir / f"plan_congestion_{file_prefix}window_{index:03d}.txt"
-            run_enhsp(config.enhsp_jar, domain_path, problem_path, plan_path)
+            run_enhsp(
+                config.enhsp_jar,
+                domain_path,
+                problem_path,
+                plan_path,
+                java_heap_mb=config.java_heap_mb,
+            )
             plan_text = plan_path.read_text(encoding="utf-8")
             steps = parse_start_traversal_steps(plan_text)
 
