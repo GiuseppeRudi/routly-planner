@@ -34,13 +34,13 @@ tests/
 
 
 docs/**/*.docx
-docs/latex_source/*.aux
-docs/latex_source/*.fdb_latexmk
-docs/latex_source/*.fls
-docs/latex_source/*.log
-docs/latex_source/*.out
-docs/latex_source/*.pdf
-docs/latex_source/*.synctex.gz
+docs/latex_source/final_report/*.aux
+docs/latex_source/final_report/*.fdb_latexmk
+docs/latex_source/final_report/*.fls
+docs/latex_source/final_report/*.log
+docs/latex_source/final_report/*.out
+docs/latex_source/final_report/*.pdf
+docs/latex_source/final_report/*.synctex.gz
 
 # Generated PDDL outputs
 pddl/problems/generated_*.pddl
