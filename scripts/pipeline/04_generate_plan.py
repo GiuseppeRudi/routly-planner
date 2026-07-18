@@ -633,6 +633,62 @@ def enforce_solvable_events(events, roads_by_id, all_roads, start_loc,
         })
     return new_events
 
+
+def _filter_solvable_blocked_locations(
+    blocked_locations: list[dict],
+    roads_by_id: dict[str, dict],
+    all_roads: list[str],
+    explicitly_blocked_roads: set[str],
+    start_loc: str | None,
+    goal_loc: str | None,
+) -> list[dict]:
+    """Keep inferred intersection closures only while start can reach goal.
+
+    Intersection closures are expanded to every incident road later in the
+    pipeline. They therefore need a second reachability check after the
+    explicit-road safeguard; otherwise an inferred closure can silently block
+    a road that the first safeguard deliberately downgraded to a slowdown.
+    """
+    if start_loc is None or goal_loc is None:
+        return blocked_locations
+
+    road_endpoints = {
+        road_id: (roads_by_id[road_id]["from"], roads_by_id[road_id]["to"])
+        for road_id in all_roads
+        if road_id in roads_by_id
+    }
+    effective_blocked = {
+        road_id
+        for road_id in explicitly_blocked_roads
+        if road_id in road_endpoints
+    }
+    accepted: list[dict] = []
+
+    for location in blocked_locations:
+        location_id = location["id"]
+        incident_roads = {
+            road_id
+            for road_id, (from_loc, to_loc) in road_endpoints.items()
+            if from_loc == location_id or to_loc == location_id
+        }
+        candidate_blocked = effective_blocked | incident_roads
+        if _reachable(
+            _build_adjacency(road_endpoints, candidate_blocked),
+            start_loc,
+            goal_loc,
+        ):
+            accepted.append(location)
+            effective_blocked = candidate_blocked
+            continue
+
+        print(
+            f"   DEBUG safeguard: blocking intersection {location_id} "
+            f"disconnects {start_loc} -> {goal_loc}; keeping only its "
+            "explicit road closures."
+        )
+
+    return accepted
+
 def main() -> None:
     args = parse_args()
     config = load_config(args.project_config)
@@ -809,7 +865,24 @@ def main() -> None:
     protected_locations = {loc for loc in (start_loc, goal_loc) if loc is not None}
     closure_events = [event for event in events if event["event_type"] != "slowdown"]
     
-    blocked_locations = _derive_blocked_locations(events=closure_events, roads_by_id=roads_by_id, protected_locations=protected_locations)
+    blocked_locations = _derive_blocked_locations(
+        events=closure_events,
+        roads_by_id=roads_by_id,
+        protected_locations=protected_locations,
+    )
+    if features.llm_events.prevent_unsolvable_blocks:
+        blocked_locations = _filter_solvable_blocked_locations(
+            blocked_locations=blocked_locations,
+            roads_by_id=roads_by_id,
+            all_roads=all_roads,
+            explicitly_blocked_roads={
+                road_id
+                for event in closure_events
+                for road_id in event["roads"]
+            },
+            start_loc=start_loc,
+            goal_loc=goal_loc,
+        )
     location_incident_blocked_road_ids: set[str] = set()
     for location in blocked_locations:
         loc_id = location["id"]

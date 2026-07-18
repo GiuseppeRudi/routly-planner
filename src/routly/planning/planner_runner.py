@@ -45,4 +45,18 @@ def run_enhsp(
         ) from exc
 
     except subprocess.CalledProcessError as exc:
-        raise RuntimeError(f"ENHSP failed with exit code {exc.returncode}:\n{exc.stderr}") from exc
+        planner_output = ""
+        try:
+            planner_output = plan_path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            pass
+
+        if "problem detected as unsolvable" in planner_output.lower():
+            raise RuntimeError(
+                "ENHSP reported the problem as unsolvable "
+                f"(exit code {exc.returncode})."
+            ) from exc
+
+        raise RuntimeError(
+            f"ENHSP failed with exit code {exc.returncode}:\n{exc.stderr}"
+        ) from exc
