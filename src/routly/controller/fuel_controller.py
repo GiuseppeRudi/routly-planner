@@ -30,7 +30,10 @@ from src.routly.domain.traffic_lights import (
     load_traffic_light_timings,
     write_traffic_light_timings,
 )
-from src.routly.domain.fuel import FuelParameters, derive_fuel_parameters
+from src.routly.domain.fuel import (
+    FuelParameters,
+    derive_planning_fuel_parameters,
+)
 from src.routly.features import FeatureConfig
 from src.routly.pddl.domain_generator import build_road_network_domain
 from src.routly.pddl.pddl_writer import write_pddl
@@ -204,10 +207,12 @@ def run_fuel_controller(
     node_map = {node["id"]: node for node in mapping["nodes"]}
     graph = build_weighted_road_graph({"nodes": mapping["nodes"], "roads": roads})
 
-    fuel_params = derive_fuel_parameters(
+    fuel_params = derive_planning_fuel_parameters(
         nodes=mapping["nodes"],
         config=features.fuel,
         seed=config.seed,
+        road_abstraction_enabled=features.road_abstraction.enabled,
+        stations_path=config.fuel_stations_path,
     )
     rate = fuel_params.consumption_per_meter
     full_range = fuel_params.tank_capacity / rate if rate > 0 else float("inf")

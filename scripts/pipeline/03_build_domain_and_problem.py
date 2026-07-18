@@ -9,8 +9,7 @@ PROJECT_ROOT = Path.cwd()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.routly.domain.fuel import (
-    derive_fuel_parameters,
-    load_fuel_stations,
+    derive_planning_fuel_parameters,
     write_fuel_stations,
 )
 from src.routly.utils import read_yaml
@@ -140,16 +139,12 @@ def main() -> None:
     
     fuel_params = None
     if features.fuel.enabled:
-        station_override = (
-            load_fuel_stations(config.fuel_stations_path)
-            if features.road_abstraction.enabled and config.fuel_stations_path.exists()
-            else None
-        )
-        fuel_params = derive_fuel_parameters(
+        fuel_params = derive_planning_fuel_parameters(
             nodes=mapping["nodes"],
             config=features.fuel,
             seed=config.seed,
-            stations_override=station_override,
+            road_abstraction_enabled=features.road_abstraction.enabled,
+            stations_path=config.fuel_stations_path,
         )
         write_fuel_stations(fuel_params.stations, config.fuel_stations_path)
         print(

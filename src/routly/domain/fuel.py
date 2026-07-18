@@ -129,6 +129,84 @@ def load_fuel_stations(path: str | Path) -> list[str]:
     return list(payload.get("stations", []))
 
 
+def load_macro_fuel_stations(
+    path: str | Path,
+    nodes: list[dict[str, Any]],
+) -> list[str]:
+    """Load the station set fixed before macro-road abstraction.
+
+    Macro-road construction protects these nodes from being hidden inside a
+    fused road.  Regenerating the stations from the smaller planning graph
+    would therefore break the contract shared by planning, plotting, and SUMO.
+    """
+    station_path = Path(path)
+    rerun_hint = "Rerun build_macro_roads before planning."
+    if not station_path.exists():
+        raise FileNotFoundError(
+            "Macro-road fuel station artifact is missing: "
+            f"{station_path}. {rerun_hint}"
+        )
+
+    stations = load_fuel_stations(station_path)
+    duplicates = sorted(
+        station_id
+        for station_id in set(stations)
+        if stations.count(station_id) > 1
+    )
+    if duplicates:
+        raise ValueError(
+            "Macro-road fuel station artifact contains duplicate station IDs: "
+            f"{duplicates}. {rerun_hint}"
+        )
+
+    nodes_by_id = {
+        str(node["id"]): node
+        for node in nodes
+        if node.get("id") is not None
+    }
+    missing = sorted(station_id for station_id in stations if station_id not in nodes_by_id)
+    if missing:
+        raise ValueError(
+            "Macro-road fuel station artifact contains stations that are absent "
+            f"from the planning graph: {missing}. {rerun_hint}"
+        )
+
+    unmarked = sorted(
+        station_id
+        for station_id in stations
+        if not nodes_by_id[station_id].get("fuel_station")
+    )
+    if unmarked:
+        raise ValueError(
+            "Macro-road fuel station artifact contains stations that were not "
+            f"protected during abstraction: {unmarked}. {rerun_hint}"
+        )
+
+    return sorted(stations)
+
+
+def derive_planning_fuel_parameters(
+    nodes: list[dict[str, Any]],
+    config: FuelConfig,
+    seed: int,
+    *,
+    road_abstraction_enabled: bool,
+    stations_path: str | Path,
+) -> FuelParameters:
+    """Derive fuel values while preserving the macro-road station contract."""
+    stations_override = (
+        load_macro_fuel_stations(stations_path, nodes)
+        if road_abstraction_enabled
+        else None
+    )
+    return derive_fuel_parameters(
+        nodes=nodes,
+        config=config,
+        seed=seed,
+        stations_override=stations_override,
+    )
+
+
 @dataclass(frozen=True)
 class FuelReachability:
     """Result of the fuel reachability check, considering the available fuel."""

@@ -31,6 +31,8 @@ conda-meta/
 cache/
 data/
 tests/
+!src/routly/tests/
+!src/routly/tests/test_fuel_macro_stations.py
 
 
 docs/**/*.docx
