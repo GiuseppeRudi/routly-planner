@@ -1,0 +1,17 @@
+{
+  "rerun_folder": "data/Bologna_Emilia-Romagna_Italy/nodes_200_distance_1000/exp_200_nodes_12_fuel_pddl_cont_norep_20260717_205450",
+  "java_heap_mb": 8192,
+  "outcome": "Error",
+  "classification": "ENHSP memory exhaustion during search",
+  "basic": {
+    "completed": false,
+    "manually_stopped_due_to_increasing_memory_use": true,
+    "last_recorded_search_time_sec": 1400,
+    "expanded_nodes": 8112991,
+    "evaluated_states": 8429284
+  },
+  "llm": {
+    "started": false,
+    "completed": false
+  }
+}

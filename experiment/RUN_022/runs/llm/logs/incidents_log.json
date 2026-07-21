@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-07-15T18:57:53.314672",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 6,
+  "blocked_locations": [
+    {
+      "id": "loc_0017",
+      "event_type": "accident",
+      "description": "Accident on road_0023, a short but critical link between node_0017 and node_0116, temporarily blocking the corridor.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0090",
+      "event_type": "roadworks",
+      "description": "Closed three parallel roads at junction node_0090, which lies close to the main travel corridor between start and goal, forcing vehicles to detour.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0115",
+      "event_type": "robbery",
+      "description": "Robbery at node_0115 blocks two roads that connect the key bypass from node_0017 to node_0116, creating a bottleneck.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0140",
+        "road_0225",
+        "road_0141"
+      ],
+      "description": "Closed three parallel roads at junction node_0090, which lies close to the main travel corridor between start and goal, forcing vehicles to detour."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0024",
+        "road_0185"
+      ],
+      "description": "Robbery at node_0115 blocks two roads that connect the key bypass from node_0017 to node_0116, creating a bottleneck."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0115",
+        "road_0221",
+        "road_0220"
+      ],
+      "description": "Light roadworks on three roads at node_0136 slow traffic without closing the links, slightly reducing speed on the main route.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0023"
+      ],
+      "description": "Accident on road_0023, a short but critical link between node_0017 and node_0116, temporarily blocking the corridor."
+    }
+  ]
+}

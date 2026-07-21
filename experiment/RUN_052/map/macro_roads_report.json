@@ -1,0 +1,2567 @@
+{
+  "start_loc": "loc_0189",
+  "goal_loc": "loc_0170",
+  "stats": {
+    "original_nodes": 300,
+    "original_roads": 504,
+    "planning_nodes": 290,
+    "planning_roads": 485,
+    "road_compression_ratio": 0.9623,
+    "node_compression_ratio": 0.9667,
+    "macro_roads_created": 36,
+    "micro_roads_merged": 78
+  },
+  "macro_roads": [
+    {
+      "id": "macro_0000",
+      "from": "loc_0012",
+      "to": "loc_0161",
+      "length": 162.04,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0018",
+        "road_0428"
+      ],
+      "source_nodes": [
+        "loc_0012",
+        "loc_0252",
+        "loc_0161"
+      ]
+    },
+    {
+      "id": "macro_0001",
+      "from": "loc_0016",
+      "to": "loc_0285",
+      "length": 222.2,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0024",
+        "road_0320"
+      ],
+      "source_nodes": [
+        "loc_0016",
+        "loc_0186",
+        "loc_0285"
+      ]
+    },
+    {
+      "id": "macro_0002",
+      "from": "loc_0016",
+      "to": "loc_0188",
+      "length": 111.99,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0025",
+        "road_0005"
+      ],
+      "source_nodes": [
+        "loc_0016",
+        "loc_0002",
+        "loc_0188"
+      ]
+    },
+    {
+      "id": "macro_0003",
+      "from": "loc_0021",
+      "to": "loc_0022",
+      "length": 86.78,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0029",
+        "road_0389"
+      ],
+      "source_nodes": [
+        "loc_0021",
+        "loc_0225",
+        "loc_0022"
+      ]
+    },
+    {
+      "id": "macro_0004",
+      "from": "loc_0034",
+      "to": "loc_0035",
+      "length": 123.34,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0054",
+        "road_0362"
+      ],
+      "source_nodes": [
+        "loc_0034",
+        "loc_0207",
+        "loc_0035"
+      ]
+    },
+    {
+      "id": "macro_0005",
+      "from": "loc_0035",
+      "to": "loc_0296",
+      "length": 318.1,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0055",
+        "road_0057"
+      ],
+      "source_nodes": [
+        "loc_0035",
+        "loc_0036",
+        "loc_0296"
+      ]
+    },
+    {
+      "id": "macro_0006",
+      "from": "loc_0035",
+      "to": "loc_0156",
+      "length": 139.17,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0056",
+        "road_0363",
+        "road_0365"
+      ],
+      "source_nodes": [
+        "loc_0035",
+        "loc_0208",
+        "loc_0209",
+        "loc_0156"
+      ]
+    },
+    {
+      "id": "macro_0007",
+      "from": "loc_0038",
+      "to": "loc_0280",
+      "length": 99.94,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0060",
+        "road_0469"
+      ],
+      "source_nodes": [
+        "loc_0038",
+        "loc_0279",
+        "loc_0280"
+      ]
+    },
+    {
+      "id": "macro_0008",
+      "from": "loc_0052",
+      "to": "loc_0267",
+      "length": 133.6,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0089",
+        "road_0477"
+      ],
+      "source_nodes": [
+        "loc_0052",
+        "loc_0284",
+        "loc_0267"
+      ]
+    },
+    {
+      "id": "macro_0009",
+      "from": "loc_0053",
+      "to": "loc_0071",
+      "length": 606.35,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0091",
+        "road_0119"
+      ],
+      "source_nodes": [
+        "loc_0053",
+        "loc_0072",
+        "loc_0071"
+      ]
+    },
+    {
+      "id": "macro_0010",
+      "from": "loc_0054",
+      "to": "loc_0127",
+      "length": 162.77,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0092",
+        "road_0427",
+        "road_0267"
+      ],
+      "source_nodes": [
+        "loc_0054",
+        "loc_0250",
+        "loc_0150",
+        "loc_0127"
+      ]
+    },
+    {
+      "id": "macro_0011",
+      "from": "loc_0054",
+      "to": "loc_0004",
+      "length": 186.72,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0093",
+        "road_0081"
+      ],
+      "source_nodes": [
+        "loc_0054",
+        "loc_0048",
+        "loc_0004"
+      ]
+    },
+    {
+      "id": "macro_0012",
+      "from": "loc_0057",
+      "to": "loc_0064",
+      "length": 153.93,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0098",
+        "road_0436"
+      ],
+      "source_nodes": [
+        "loc_0057",
+        "loc_0256",
+        "loc_0064"
+      ]
+    },
+    {
+      "id": "macro_0013",
+      "from": "loc_0063",
+      "to": "loc_0166",
+      "length": 160.19,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0106",
+        "road_0296"
+      ],
+      "source_nodes": [
+        "loc_0063",
+        "loc_0167",
+        "loc_0166"
+      ]
+    },
+    {
+      "id": "macro_0014",
+      "from": "loc_0084",
+      "to": "loc_0249",
+      "length": 192.3,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0136",
+        "road_0120"
+      ],
+      "source_nodes": [
+        "loc_0084",
+        "loc_0073",
+        "loc_0249"
+      ]
+    },
+    {
+      "id": "macro_0015",
+      "from": "loc_0095",
+      "to": "loc_0166",
+      "length": 239.28,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0154",
+        "road_0106",
+        "road_0296"
+      ],
+      "source_nodes": [
+        "loc_0095",
+        "loc_0063",
+        "loc_0167",
+        "loc_0166"
+      ]
+    },
+    {
+      "id": "macro_0016",
+      "from": "loc_0096",
+      "to": "loc_0166",
+      "length": 331.81,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0156",
+        "road_0154",
+        "road_0106",
+        "road_0296"
+      ],
+      "source_nodes": [
+        "loc_0096",
+        "loc_0095",
+        "loc_0063",
+        "loc_0167",
+        "loc_0166"
+      ]
+    },
+    {
+      "id": "macro_0017",
+      "from": "loc_0098",
+      "to": "loc_0099",
+      "length": 23.38,
+      "speed": 13.889,
+      "capacity_class": "major",
+      "source_roads": [
+        "road_0160",
+        "road_0326"
+      ],
+      "source_nodes": [
+        "loc_0098",
+        "loc_0190",
+        "loc_0099"
+      ]
+    },
+    {
+      "id": "macro_0018",
+      "from": "loc_0102",
+      "to": "loc_0293",
+      "length": 115.78,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0170",
+        "road_0343"
+      ],
+      "source_nodes": [
+        "loc_0102",
+        "loc_0199",
+        "loc_0293"
+      ]
+    },
+    {
+      "id": "macro_0019",
+      "from": "loc_0125",
+      "to": "loc_0283",
+      "length": 199.14,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0214",
+        "road_0191"
+      ],
+      "source_nodes": [
+        "loc_0125",
+        "loc_0112",
+        "loc_0283"
+      ]
+    },
+    {
+      "id": "macro_0020",
+      "from": "loc_0131",
+      "to": "loc_0130",
+      "length": 310.44,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0224",
+        "road_0231"
+      ],
+      "source_nodes": [
+        "loc_0131",
+        "loc_0133",
+        "loc_0130"
+      ]
+    },
+    {
+      "id": "macro_0021",
+      "from": "loc_0131",
+      "to": "loc_0130",
+      "length": 310.22,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0225",
+        "road_0231"
+      ],
+      "source_nodes": [
+        "loc_0131",
+        "loc_0133",
+        "loc_0130"
+      ]
+    },
+    {
+      "id": "macro_0022",
+      "from": "loc_0133",
+      "to": "loc_0132",
+      "length": 363.14,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0229",
+        "road_0226"
+      ],
+      "source_nodes": [
+        "loc_0133",
+        "loc_0131",
+        "loc_0132"
+      ]
+    },
+    {
+      "id": "macro_0023",
+      "from": "loc_0133",
+      "to": "loc_0132",
+      "length": 362.92,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0230",
+        "road_0226"
+      ],
+      "source_nodes": [
+        "loc_0133",
+        "loc_0131",
+        "loc_0132"
+      ]
+    },
+    {
+      "id": "macro_0024",
+      "from": "loc_0154",
+      "to": "loc_0157",
+      "length": 172.78,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0271",
+        "road_0012"
+      ],
+      "source_nodes": [
+        "loc_0154",
+        "loc_0009",
+        "loc_0157"
+      ]
+    },
+    {
+      "id": "macro_0025",
+      "from": "loc_0161",
+      "to": "loc_0012",
+      "length": 162.04,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0284",
+        "road_0429"
+      ],
+      "source_nodes": [
+        "loc_0161",
+        "loc_0252",
+        "loc_0012"
+      ]
+    },
+    {
+      "id": "macro_0026",
+      "from": "loc_0176",
+      "to": "loc_0103",
+      "length": 130.01,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0308",
+        "road_0173"
+      ],
+      "source_nodes": [
+        "loc_0176",
+        "loc_0104",
+        "loc_0103"
+      ]
+    },
+    {
+      "id": "macro_0027",
+      "from": "loc_0184",
+      "to": "loc_0068",
+      "length": 79.09,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0319",
+        "road_0112"
+      ],
+      "source_nodes": [
+        "loc_0184",
+        "loc_0067",
+        "loc_0068"
+      ]
+    },
+    {
+      "id": "macro_0028",
+      "from": "loc_0187",
+      "to": "loc_0127",
+      "length": 149.97,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0322",
+        "road_0009"
+      ],
+      "source_nodes": [
+        "loc_0187",
+        "loc_0006",
+        "loc_0127"
+      ]
+    },
+    {
+      "id": "macro_0029",
+      "from": "loc_0218",
+      "to": "loc_0153",
+      "length": 125.84,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0378",
+        "road_0256"
+      ],
+      "source_nodes": [
+        "loc_0218",
+        "loc_0145",
+        "loc_0153"
+      ]
+    },
+    {
+      "id": "macro_0030",
+      "from": "loc_0229",
+      "to": "loc_0099",
+      "length": 76.21,
+      "speed": 13.889,
+      "capacity_class": "major",
+      "source_roads": [
+        "road_0394",
+        "road_0160",
+        "road_0326"
+      ],
+      "source_nodes": [
+        "loc_0229",
+        "loc_0098",
+        "loc_0190",
+        "loc_0099"
+      ]
+    },
+    {
+      "id": "macro_0031",
+      "from": "loc_0241",
+      "to": "loc_0114",
+      "length": 252.94,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0413",
+        "road_0010"
+      ],
+      "source_nodes": [
+        "loc_0241",
+        "loc_0007",
+        "loc_0114"
+      ]
+    },
+    {
+      "id": "macro_0032",
+      "from": "loc_0244",
+      "to": "loc_0245",
+      "length": 14.93,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0418",
+        "road_0421"
+      ],
+      "source_nodes": [
+        "loc_0244",
+        "loc_0246",
+        "loc_0245"
+      ]
+    },
+    {
+      "id": "macro_0033",
+      "from": "loc_0280",
+      "to": "loc_0038",
+      "length": 100.37,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0471",
+        "road_0470"
+      ],
+      "source_nodes": [
+        "loc_0280",
+        "loc_0279",
+        "loc_0038"
+      ]
+    },
+    {
+      "id": "macro_0034",
+      "from": "loc_0293",
+      "to": "loc_0102",
+      "length": 115.78,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0491",
+        "road_0344"
+      ],
+      "source_nodes": [
+        "loc_0293",
+        "loc_0199",
+        "loc_0102"
+      ]
+    },
+    {
+      "id": "macro_0035",
+      "from": "loc_0293",
+      "to": "loc_0201",
+      "length": 268.87,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0492",
+        "road_0397"
+      ],
+      "source_nodes": [
+        "loc_0293",
+        "loc_0231",
+        "loc_0201"
+      ]
+    }
+  ],
+  "metric_descriptions": {
+    "stop_reasons": "Counts how many macro-road growth attempts terminated for each reason. This is an operational counter over chain-building decisions, so the same physical node can be counted multiple times when it stops different candidate chains.",
+    "protected_node_counts": "Counts unique physical nodes protected by each abstraction rule. This is a topological counter over nodes, so each node is counted once per protection reason.",
+    "why_counts_differ": "The two counters use different units: stop_reasons counts termination events during macro-road construction, while protected_node_counts counts distinct protected nodes. Therefore, values such as branch=589 in stop_reasons and branch=312 in protected_node_counts are both valid."
+  },
+  "stop_reason_descriptions": {
+    "branch": "The next node has more than one useful continuation, so it remains explicit to preserve topology choices.",
+    "class_mismatch": "The road capacity class changes and require_same_capacity_class=true prevents merging.",
+    "cycle": "The merge would create a cycle or return to an already visited node.",
+    "dead_end": "No useful continuation exists from the current road.",
+    "fuel_station": "The node contains a fuel station and must remain visible to the planner.",
+    "max_length": "The macro-road would exceed max_length_meters.",
+    "max_segments": "The macro-road reached max_segments_per_macro.",
+    "protected_node": "The node is protected by at least one abstraction rule.",
+    "speed_mismatch": "The speed changes beyond speed_tolerance_ratio.",
+    "start_goal": "Start and goal nodes cannot be removed.",
+    "traffic_light": "The node contains a traffic light and must remain visible to the planner."
+  },
+  "stop_reasons": {
+    "branch": 338,
+    "class_mismatch": 17,
+    "dead_end": 32,
+    "fuel_station": 75,
+    "speed_mismatch": 2,
+    "start_goal": 2,
+    "traffic_light": 19
+  },
+  "protected_node_counts": {
+    "branch": 208,
+    "fuel_station": 46,
+    "goal": 1,
+    "start": 1,
+    "traffic_light": 8
+  },
+  "protected_nodes": [
+    {
+      "id": "loc_0000",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686557.3704458872,
+      "y": 4929443.952108557
+    },
+    {
+      "id": "loc_0001",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686566.9846936231,
+      "y": 4929139.364529888
+    },
+    {
+      "id": "loc_0004",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686952.6442125334,
+      "y": 4929247.747792384
+    },
+    {
+      "id": "loc_0008",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686637.2626487956,
+      "y": 4929800.882220114
+    },
+    {
+      "id": "loc_0010",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686606.8407622969,
+      "y": 4929739.775756367
+    },
+    {
+      "id": "loc_0011",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686801.1487051002,
+      "y": 4929633.233569855
+    },
+    {
+      "id": "loc_0012",
+      "reasons": [
+        "branch",
+        "fuel_station",
+        "traffic_light"
+      ],
+      "x": 685802.5012340962,
+      "y": 4929602.002053631
+    },
+    {
+      "id": "loc_0013",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685540.2229115082,
+      "y": 4928800.1418604255
+    },
+    {
+      "id": "loc_0014",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686280.8828292738,
+      "y": 4928519.339695986
+    },
+    {
+      "id": "loc_0015",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686423.4664048302,
+      "y": 4928500.138475958
+    },
+    {
+      "id": "loc_0016",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686691.6504725125,
+      "y": 4928760.718060896
+    },
+    {
+      "id": "loc_0017",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685547.9718494772,
+      "y": 4928814.148181549
+    },
+    {
+      "id": "loc_0018",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 685244.929363348,
+      "y": 4930153.731987746
+    },
+    {
+      "id": "loc_0019",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685984.9098165378,
+      "y": 4930297.690029648
+    },
+    {
+      "id": "loc_0020",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686031.3304804469,
+      "y": 4930283.3667596
+    },
+    {
+      "id": "loc_0021",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686042.8501383674,
+      "y": 4930332.834098623
+    },
+    {
+      "id": "loc_0022",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686003.4616856962,
+      "y": 4930344.9796245545
+    },
+    {
+      "id": "loc_0024",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685586.433884339,
+      "y": 4928948.383533734
+    },
+    {
+      "id": "loc_0025",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685750.4711545693,
+      "y": 4928980.530132477
+    },
+    {
+      "id": "loc_0026",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685818.4133671061,
+      "y": 4928990.299288648
+    },
+    {
+      "id": "loc_0027",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685874.7203495939,
+      "y": 4928990.364650331
+    },
+    {
+      "id": "loc_0028",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686273.9275465393,
+      "y": 4928949.881124826
+    },
+    {
+      "id": "loc_0029",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686472.3549375853,
+      "y": 4929463.923229424
+    },
+    {
+      "id": "loc_0030",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686518.617158038,
+      "y": 4929771.83823053
+    },
+    {
+      "id": "loc_0031",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686418.3185492415,
+      "y": 4929796.607119839
+    },
+    {
+      "id": "loc_0032",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686452.35862843,
+      "y": 4929789.646550343
+    },
+    {
+      "id": "loc_0034",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686208.9663821375,
+      "y": 4929947.352673306
+    },
+    {
+      "id": "loc_0035",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686188.6771379203,
+      "y": 4929825.773016919
+    },
+    {
+      "id": "loc_0038",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685990.3137555942,
+      "y": 4930230.119763346
+    },
+    {
+      "id": "loc_0039",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686199.3795285654,
+      "y": 4930266.482091741
+    },
+    {
+      "id": "loc_0040",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686057.9888876424,
+      "y": 4930204.865869901
+    },
+    {
+      "id": "loc_0041",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685681.4176728975,
+      "y": 4929909.938150935
+    },
+    {
+      "id": "loc_0042",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685908.8078762512,
+      "y": 4929958.075853805
+    },
+    {
+      "id": "loc_0043",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685977.9840238856,
+      "y": 4929954.397654383
+    },
+    {
+      "id": "loc_0044",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686096.4006559806,
+      "y": 4930185.466552721
+    },
+    {
+      "id": "loc_0045",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686016.7526201801,
+      "y": 4929950.360651455
+    },
+    {
+      "id": "loc_0046",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686975.8343720745,
+      "y": 4929236.897836875
+    },
+    {
+      "id": "loc_0047",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686877.7818039304,
+      "y": 4928978.772228667
+    },
+    {
+      "id": "loc_0049",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686851.3542159403,
+      "y": 4929011.6858517835
+    },
+    {
+      "id": "loc_0050",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686557.8294359859,
+      "y": 4929388.068603173
+    },
+    {
+      "id": "loc_0051",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685716.8204690603,
+      "y": 4929307.530560567
+    },
+    {
+      "id": "loc_0052",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685727.7123391815,
+      "y": 4929335.145283478
+    },
+    {
+      "id": "loc_0053",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686919.9532300611,
+      "y": 4929058.060798333
+    },
+    {
+      "id": "loc_0054",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686784.4306714755,
+      "y": 4929329.656064637
+    },
+    {
+      "id": "loc_0055",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686776.2984050014,
+      "y": 4929476.334771609
+    },
+    {
+      "id": "loc_0056",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686381.9099095124,
+      "y": 4929125.381159928
+    },
+    {
+      "id": "loc_0057",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686191.8500099957,
+      "y": 4929108.7366610505
+    },
+    {
+      "id": "loc_0059",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685700.1856235396,
+      "y": 4929256.728407005
+    },
+    {
+      "id": "loc_0060",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685615.689286177,
+      "y": 4928951.909558755
+    },
+    {
+      "id": "loc_0061",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685752.7188148807,
+      "y": 4929156.587533194
+    },
+    {
+      "id": "loc_0064",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686345.6254704336,
+      "y": 4929121.972403577
+    },
+    {
+      "id": "loc_0065",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686350.9519211305,
+      "y": 4929049.186187305
+    },
+    {
+      "id": "loc_0066",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686382.4352697893,
+      "y": 4929045.764748957
+    },
+    {
+      "id": "loc_0068",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686354.3075843382,
+      "y": 4928782.639964306
+    },
+    {
+      "id": "loc_0070",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686675.1041915343,
+      "y": 4928807.579197974
+    },
+    {
+      "id": "loc_0074",
+      "reasons": [
+        "traffic_light"
+      ],
+      "x": 685310.259101385,
+      "y": 4929819.885420699
+    },
+    {
+      "id": "loc_0075",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685507.5311269654,
+      "y": 4930267.739203399
+    },
+    {
+      "id": "loc_0076",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 685697.32739549,
+      "y": 4930213.109149403
+    },
+    {
+      "id": "loc_0077",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685861.7805782892,
+      "y": 4929958.497586468
+    },
+    {
+      "id": "loc_0078",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685951.0546977278,
+      "y": 4929863.945544347
+    },
+    {
+      "id": "loc_0079",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685968.9051550314,
+      "y": 4929606.463690136
+    },
+    {
+      "id": "loc_0081",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685937.4256487482,
+      "y": 4929416.928920863
+    },
+    {
+      "id": "loc_0083",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685987.1730486897,
+      "y": 4928976.117916401
+    },
+    {
+      "id": "loc_0085",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 687064.2875451643,
+      "y": 4929323.222835263
+    },
+    {
+      "id": "loc_0086",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686581.3102948248,
+      "y": 4929035.942425228
+    },
+    {
+      "id": "loc_0087",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686803.4338053246,
+      "y": 4928964.305331342
+    },
+    {
+      "id": "loc_0088",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686287.53637528,
+      "y": 4928535.4277984705
+    },
+    {
+      "id": "loc_0089",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685834.3679938454,
+      "y": 4928858.441080372
+    },
+    {
+      "id": "loc_0090",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685796.2715449902,
+      "y": 4928871.03660484
+    },
+    {
+      "id": "loc_0091",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685895.0911517554,
+      "y": 4928849.1055891765
+    },
+    {
+      "id": "loc_0093",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685693.2873882407,
+      "y": 4929529.786974297
+    },
+    {
+      "id": "loc_0094",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685779.1338868992,
+      "y": 4929520.123980102
+    },
+    {
+      "id": "loc_0096",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685523.1033547341,
+      "y": 4929207.3679173635
+    },
+    {
+      "id": "loc_0097",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685443.4284225805,
+      "y": 4928949.669798644
+    },
+    {
+      "id": "loc_0099",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685460.126009379,
+      "y": 4930328.006792602
+    },
+    {
+      "id": "loc_0100",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685450.5293946578,
+      "y": 4929982.82823458
+    },
+    {
+      "id": "loc_0101",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685443.7298185288,
+      "y": 4929919.456285943
+    },
+    {
+      "id": "loc_0102",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685525.7721287123,
+      "y": 4930088.731910732
+    },
+    {
+      "id": "loc_0103",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685370.5735980659,
+      "y": 4930101.909836464
+    },
+    {
+      "id": "loc_0105",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686035.7204704093,
+      "y": 4928552.348632991
+    },
+    {
+      "id": "loc_0106",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686036.3802361486,
+      "y": 4928570.443783872
+    },
+    {
+      "id": "loc_0107",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686121.0771309104,
+      "y": 4929536.949221411
+    },
+    {
+      "id": "loc_0108",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686014.8304978105,
+      "y": 4929411.752053415
+    },
+    {
+      "id": "loc_0109",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 686068.3822613594,
+      "y": 4929547.334876495
+    },
+    {
+      "id": "loc_0110",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686113.3383711502,
+      "y": 4929472.115266835
+    },
+    {
+      "id": "loc_0111",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686054.8012113657,
+      "y": 4929481.433202904
+    },
+    {
+      "id": "loc_0113",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686724.7955969021,
+      "y": 4929743.587892285
+    },
+    {
+      "id": "loc_0114",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686673.6878696475,
+      "y": 4929807.565309195
+    },
+    {
+      "id": "loc_0115",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686712.8092623436,
+      "y": 4929688.613895966
+    },
+    {
+      "id": "loc_0116",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686694.1758185595,
+      "y": 4929479.2436262695
+    },
+    {
+      "id": "loc_0117",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685866.3111321485,
+      "y": 4929813.238811108
+    },
+    {
+      "id": "loc_0118",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685730.3944083482,
+      "y": 4929829.93970562
+    },
+    {
+      "id": "loc_0119",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686557.2307368258,
+      "y": 4929210.511655124
+    },
+    {
+      "id": "loc_0120",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686576.0859289672,
+      "y": 4929078.481967462
+    },
+    {
+      "id": "loc_0121",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686655.5536788467,
+      "y": 4929064.8337769
+    },
+    {
+      "id": "loc_0122",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686642.2385121076,
+      "y": 4929025.841625387
+    },
+    {
+      "id": "loc_0123",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686728.797127169,
+      "y": 4929126.003546432
+    },
+    {
+      "id": "loc_0124",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685979.3800541051,
+      "y": 4929265.304172333
+    },
+    {
+      "id": "loc_0125",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686144.9460233958,
+      "y": 4929244.888128364
+    },
+    {
+      "id": "loc_0126",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685910.7326740697,
+      "y": 4929280.559604545
+    },
+    {
+      "id": "loc_0127",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686834.1652184923,
+      "y": 4929470.461401408
+    },
+    {
+      "id": "loc_0128",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686002.5853446014,
+      "y": 4928423.510020831
+    },
+    {
+      "id": "loc_0130",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685724.007120311,
+      "y": 4928492.071464824
+    },
+    {
+      "id": "loc_0132",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685705.0492990442,
+      "y": 4928715.714683901
+    },
+    {
+      "id": "loc_0134",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685342.3468112575,
+      "y": 4928553.601320265
+    },
+    {
+      "id": "loc_0135",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685429.3415455621,
+      "y": 4928662.794877349
+    },
+    {
+      "id": "loc_0136",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686036.6166704713,
+      "y": 4928594.4299495425
+    },
+    {
+      "id": "loc_0137",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685920.2797916048,
+      "y": 4928625.707489802
+    },
+    {
+      "id": "loc_0138",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685932.3922097287,
+      "y": 4928648.232488842
+    },
+    {
+      "id": "loc_0139",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685864.698512808,
+      "y": 4928653.02160468
+    },
+    {
+      "id": "loc_0140",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686031.0005831111,
+      "y": 4928448.124936743
+    },
+    {
+      "id": "loc_0141",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685669.297402322,
+      "y": 4930117.935479413
+    },
+    {
+      "id": "loc_0142",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686307.545029185,
+      "y": 4928840.686206131
+    },
+    {
+      "id": "loc_0143",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686584.0996355871,
+      "y": 4929016.678816756
+    },
+    {
+      "id": "loc_0144",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686650.2748747907,
+      "y": 4928865.486252847
+    },
+    {
+      "id": "loc_0146",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686511.1487127454,
+      "y": 4929702.731213169
+    },
+    {
+      "id": "loc_0147",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685701.3178095365,
+      "y": 4928970.17587475
+    },
+    {
+      "id": "loc_0148",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685725.8928957399,
+      "y": 4929152.174223828
+    },
+    {
+      "id": "loc_0149",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685988.595779095,
+      "y": 4929269.992574568
+    },
+    {
+      "id": "loc_0151",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686638.4451754726,
+      "y": 4929826.74121635
+    },
+    {
+      "id": "loc_0152",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686501.2599217107,
+      "y": 4929637.545763651
+    },
+    {
+      "id": "loc_0153",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686400.9775119076,
+      "y": 4929800.044906897
+    },
+    {
+      "id": "loc_0154",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686440.0577323196,
+      "y": 4929891.092556744
+    },
+    {
+      "id": "loc_0155",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686344.21853264,
+      "y": 4929909.153474476
+    },
+    {
+      "id": "loc_0156",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686327.0940142251,
+      "y": 4929808.252852901
+    },
+    {
+      "id": "loc_0157",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686355.4530994258,
+      "y": 4929978.768506404
+    },
+    {
+      "id": "loc_0158",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685826.8540291839,
+      "y": 4929681.951854117
+    },
+    {
+      "id": "loc_0159",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685850.1494119321,
+      "y": 4929744.60680833
+    },
+    {
+      "id": "loc_0160",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685898.1095612773,
+      "y": 4929730.270852934
+    },
+    {
+      "id": "loc_0161",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685960.6410158231,
+      "y": 4929567.717726476
+    },
+    {
+      "id": "loc_0163",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685824.7295360231,
+      "y": 4929674.998529185
+    },
+    {
+      "id": "loc_0164",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686329.0605020077,
+      "y": 4928943.735656797
+    },
+    {
+      "id": "loc_0165",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686083.9616548091,
+      "y": 4929260.116764223
+    },
+    {
+      "id": "loc_0170",
+      "reasons": [
+        "goal"
+      ],
+      "x": 685985.6908373844,
+      "y": 4929182.173881614
+    },
+    {
+      "id": "loc_0172",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685996.177794964,
+      "y": 4929317.012310514
+    },
+    {
+      "id": "loc_0173",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686105.9910054238,
+      "y": 4929400.833552609
+    },
+    {
+      "id": "loc_0174",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686056.2411551609,
+      "y": 4929488.3892388465
+    },
+    {
+      "id": "loc_0176",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685264.8888308315,
+      "y": 4930127.609466224
+    },
+    {
+      "id": "loc_0177",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685997.3901494179,
+      "y": 4930022.745038987
+    },
+    {
+      "id": "loc_0178",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685918.1931891356,
+      "y": 4929992.384837156
+    },
+    {
+      "id": "loc_0179",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685859.2932354832,
+      "y": 4929939.483003286
+    },
+    {
+      "id": "loc_0180",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685326.6900795184,
+      "y": 4929812.33887186
+    },
+    {
+      "id": "loc_0181",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686098.1162176968,
+      "y": 4928581.705499253
+    },
+    {
+      "id": "loc_0183",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686312.0296774653,
+      "y": 4928824.161466315
+    },
+    {
+      "id": "loc_0184",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686302.7580260433,
+      "y": 4928822.795025948
+    },
+    {
+      "id": "loc_0187",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686983.6175015144,
+      "y": 4929455.284257796
+    },
+    {
+      "id": "loc_0188",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686718.6739037033,
+      "y": 4928652.23586851
+    },
+    {
+      "id": "loc_0189",
+      "reasons": [
+        "start"
+      ],
+      "x": 685634.6699882258,
+      "y": 4929675.333972721
+    },
+    {
+      "id": "loc_0192",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685576.5887118885,
+      "y": 4930115.485965896
+    },
+    {
+      "id": "loc_0193",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685519.6792238115,
+      "y": 4930101.48693285
+    },
+    {
+      "id": "loc_0194",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685890.856915239,
+      "y": 4930068.198733243
+    },
+    {
+      "id": "loc_0195",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685371.1817183258,
+      "y": 4930114.3337403415
+    },
+    {
+      "id": "loc_0196",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685358.8070396424,
+      "y": 4929992.594305765
+    },
+    {
+      "id": "loc_0197",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685353.3854410623,
+      "y": 4929936.109881172
+    },
+    {
+      "id": "loc_0198",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 685281.6951380114,
+      "y": 4929949.572621223
+    },
+    {
+      "id": "loc_0200",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685709.2342457746,
+      "y": 4929915.491487691
+    },
+    {
+      "id": "loc_0201",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685449.6548132473,
+      "y": 4929915.089722863
+    },
+    {
+      "id": "loc_0202",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685437.0826618827,
+      "y": 4929891.707513951
+    },
+    {
+      "id": "loc_0203",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685445.4497847271,
+      "y": 4929893.491656368
+    },
+    {
+      "id": "loc_0204",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685430.8471573576,
+      "y": 4929918.3770028725
+    },
+    {
+      "id": "loc_0205",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685423.921299116,
+      "y": 4929905.405873086
+    },
+    {
+      "id": "loc_0210",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685694.2238040731,
+      "y": 4929889.482103258
+    },
+    {
+      "id": "loc_0211",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685627.7302893904,
+      "y": 4930009.757293333
+    },
+    {
+      "id": "loc_0212",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685581.4987955729,
+      "y": 4930102.9195334725
+    },
+    {
+      "id": "loc_0215",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686658.9401405356,
+      "y": 4929391.217598539
+    },
+    {
+      "id": "loc_0216",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686843.7957819658,
+      "y": 4929021.596162247
+    },
+    {
+      "id": "loc_0217",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686109.8335722332,
+      "y": 4929446.13439185
+    },
+    {
+      "id": "loc_0218",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686440.4126212439,
+      "y": 4929719.054845472
+    },
+    {
+      "id": "loc_0219",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685883.6345753919,
+      "y": 4928988.640853698
+    },
+    {
+      "id": "loc_0220",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685992.5911009617,
+      "y": 4930238.111432532
+    },
+    {
+      "id": "loc_0221",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685988.0436132546,
+      "y": 4930292.72151959
+    },
+    {
+      "id": "loc_0222",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686046.7974154378,
+      "y": 4930325.576572134
+    },
+    {
+      "id": "loc_0223",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685947.788724218,
+      "y": 4930330.678576448
+    },
+    {
+      "id": "loc_0224",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685996.3077564447,
+      "y": 4930341.417387711
+    },
+    {
+      "id": "loc_0227",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685479.9776903411,
+      "y": 4930300.381031167
+    },
+    {
+      "id": "loc_0228",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685492.7349319776,
+      "y": 4930301.367938393
+    },
+    {
+      "id": "loc_0229",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685509.0233239902,
+      "y": 4930321.8993599955
+    },
+    {
+      "id": "loc_0230",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685715.130031673,
+      "y": 4929898.239708443
+    },
+    {
+      "id": "loc_0232",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685928.3371595993,
+      "y": 4930043.546745453
+    },
+    {
+      "id": "loc_0233",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685859.4263588703,
+      "y": 4930054.670299349
+    },
+    {
+      "id": "loc_0234",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686738.312991555,
+      "y": 4929731.180691444
+    },
+    {
+      "id": "loc_0236",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685820.396992045,
+      "y": 4928657.146291454
+    },
+    {
+      "id": "loc_0237",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685613.1852204367,
+      "y": 4928762.671551151
+    },
+    {
+      "id": "loc_0238",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686037.1099648774,
+      "y": 4929413.446160335
+    },
+    {
+      "id": "loc_0239",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686049.5483120816,
+      "y": 4929455.91369034
+    },
+    {
+      "id": "loc_0241",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686864.7778732552,
+      "y": 4929669.860242116
+    },
+    {
+      "id": "loc_0242",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685467.9194027329,
+      "y": 4930091.593110888
+    },
+    {
+      "id": "loc_0243",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685453.6228304915,
+      "y": 4930092.952474816
+    },
+    {
+      "id": "loc_0244",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685469.084800664,
+      "y": 4930104.277521809
+    },
+    {
+      "id": "loc_0245",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685455.715890058,
+      "y": 4930106.308155407
+    },
+    {
+      "id": "loc_0247",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685827.33133331,
+      "y": 4929948.673868488
+    },
+    {
+      "id": "loc_0249",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 687000.9159472494,
+      "y": 4929453.925629893
+    },
+    {
+      "id": "loc_0253",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685910.9405663682,
+      "y": 4928984.363897822
+    },
+    {
+      "id": "loc_0254",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686054.7166421819,
+      "y": 4928968.680111147
+    },
+    {
+      "id": "loc_0255",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686141.5451545152,
+      "y": 4928958.9161607735
+    },
+    {
+      "id": "loc_0257",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686041.4679997746,
+      "y": 4928809.116131422
+    },
+    {
+      "id": "loc_0258",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686051.1458763636,
+      "y": 4928790.46095965
+    },
+    {
+      "id": "loc_0260",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 686043.656864977,
+      "y": 4928791.869607983
+    },
+    {
+      "id": "loc_0261",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686042.6536828282,
+      "y": 4928766.038286646
+    },
+    {
+      "id": "loc_0262",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686736.9295869335,
+      "y": 4928650.314721209
+    },
+    {
+      "id": "loc_0263",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685838.7692308179,
+      "y": 4929721.313455813
+    },
+    {
+      "id": "loc_0264",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685893.6172531145,
+      "y": 4929881.678438051
+    },
+    {
+      "id": "loc_0265",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685938.4682255986,
+      "y": 4930079.311222403
+    },
+    {
+      "id": "loc_0266",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685892.9305437797,
+      "y": 4929901.780600496
+    },
+    {
+      "id": "loc_0267",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685765.5109942332,
+      "y": 4929461.42570856
+    },
+    {
+      "id": "loc_0269",
+      "reasons": [
+        "fuel_station"
+      ],
+      "x": 686525.3033959157,
+      "y": 4929206.13750895
+    },
+    {
+      "id": "loc_0270",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686432.7437205558,
+      "y": 4929034.957155066
+    },
+    {
+      "id": "loc_0272",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685884.2324497057,
+      "y": 4929000.286347306
+    },
+    {
+      "id": "loc_0273",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685856.4310541021,
+      "y": 4928993.510054443
+    },
+    {
+      "id": "loc_0276",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685624.831193801,
+      "y": 4928756.700920156
+    },
+    {
+      "id": "loc_0277",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685632.5396590077,
+      "y": 4928771.2842748985
+    },
+    {
+      "id": "loc_0280",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685962.1602168661,
+      "y": 4930138.576309327
+    },
+    {
+      "id": "loc_0283",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686124.047672718,
+      "y": 4929388.555153453
+    },
+    {
+      "id": "loc_0285",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686472.7242290583,
+      "y": 4928739.067726212
+    },
+    {
+      "id": "loc_0286",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685871.8367413664,
+      "y": 4928996.029646225
+    },
+    {
+      "id": "loc_0289",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685939.1366647503,
+      "y": 4930039.5647306135
+    },
+    {
+      "id": "loc_0290",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685867.0374971658,
+      "y": 4929815.660872488
+    },
+    {
+      "id": "loc_0291",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685865.2174913778,
+      "y": 4929812.529378632
+    },
+    {
+      "id": "loc_0292",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685461.444549281,
+      "y": 4930089.029183237
+    },
+    {
+      "id": "loc_0293",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685577.6919367687,
+      "y": 4929985.2596314605
+    },
+    {
+      "id": "loc_0294",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686007.8762391142,
+      "y": 4929501.778726363
+    },
+    {
+      "id": "loc_0295",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686352.6663340323,
+      "y": 4930075.896243148
+    },
+    {
+      "id": "loc_0296",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685985.490822795,
+      "y": 4929733.628210833
+    },
+    {
+      "id": "loc_0297",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685857.1949072371,
+      "y": 4928638.521634774
+    },
+    {
+      "id": "loc_0298",
+      "reasons": [
+        "branch",
+        "fuel_station"
+      ],
+      "x": 685620.9089709725,
+      "y": 4928777.277561782
+    }
+  ],
+  "merged_internal_nodes": [
+    {
+      "id": "loc_0036",
+      "x": 686166.4897980343,
+      "y": 4929699.870148723
+    },
+    {
+      "id": "loc_0072",
+      "x": 687233.8763920155,
+      "y": 4928870.660123374
+    },
+    {
+      "id": "loc_0150",
+      "x": 686833.9779456919,
+      "y": 4929413.6142333755
+    },
+    {
+      "id": "loc_0186",
+      "x": 686482.9315701306,
+      "y": 4928733.068412602
+    },
+    {
+      "id": "loc_0190",
+      "x": 685464.8933424527,
+      "y": 4930339.371096373
+    },
+    {
+      "id": "loc_0225",
+      "x": 686032.6767296745,
+      "y": 4930375.79910899
+    },
+    {
+      "id": "loc_0246",
+      "x": 685458.2882294247,
+      "y": 4930107.615592597
+    },
+    {
+      "id": "loc_0252",
+      "x": 685856.6458010102,
+      "y": 4929585.130085356
+    },
+    {
+      "id": "loc_0256",
+      "x": 686286.1426610253,
+      "y": 4929116.964808392
+    },
+    {
+      "id": "loc_0284",
+      "x": 685765.3029511466,
+      "y": 4929441.431386823
+    }
+  ]
+}

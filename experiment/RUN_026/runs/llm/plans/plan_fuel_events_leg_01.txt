@@ -1,0 +1,49 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 2874
+Aibr Preprocessing
+|F|:349
+|X|:2
+Aibr Preprocessing
+|A|:214
+|P|:1
+|E|:214
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 21
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=0.0
+Extracting plan with execution delta: 1.0
+Problem Solved
+
+Found Plan:
+0: (start-traversal car1 road_0003 loc_0002 loc_0123)
+0: -----waiting---- [18.0]
+18.0: (start-traversal car1 road_0200 loc_0123 loc_0099)
+18.0: -----waiting---- [40.0]
+40.0: (start-traversal car1 road_0158 loc_0099 loc_0097)
+40.0: -----waiting---- [81.0]
+81.0: (start-traversal car1 road_0155 loc_0097 loc_0098)
+81.0: -----waiting---- [116.0]
+116.0: (start-traversal car1 road_0157 loc_0098 loc_0070)
+116.0: -----waiting---- [123.0]
+123.0: (start-traversal car1 road_0108 loc_0070 loc_0051)
+123.0: -----waiting---- [136.0]
+136.0: (start-traversal car1 road_0078 loc_0051 loc_0049)
+136.0: -----waiting---- [177.0]
+
+Plan-Length:191
+Elapsed Time: 177.0
+Metric (Search):177.0
+Planning Time (msec): 7326
+Heuristic Time (msec): 64
+Search Time (msec): 103
+Expanded Nodes:339
+States Evaluated:347
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:0
+Number of Duplicates detected:3

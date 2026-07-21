@@ -1,0 +1,74 @@
+{
+  "timestamp": "2026-07-15T15:06:04.367757",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 7,
+  "blocked_locations": [
+    {
+      "id": "loc_0021",
+      "event_type": "roadworks",
+      "description": "Roadworks at node loc_0022 close the three connecting roads, including road_0044 which lies almost on the axis, forcing a detour around this low‑degree bridge.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "Roadworks at node loc_0022 close the three connecting roads, including road_0044 which lies almost on the axis, forcing a detour around this low‑degree bridge.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0028",
+      "event_type": "roadworks",
+      "description": "Construction at node loc_0051 shuts down three roads, notably road_0106 which is very close to the axis, disrupting a key junction that links multiple routes.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0051",
+      "event_type": "roadworks",
+      "description": "Construction at node loc_0051 shuts down three roads, notably road_0106 which is very close to the axis, disrupting a key junction that links multiple routes.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0065",
+      "event_type": "roadworks",
+      "description": "Construction at node loc_0051 shuts down three roads, notably road_0106 which is very close to the axis, disrupting a key junction that links multiple routes.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0031"
+      ],
+      "description": "A single-vehicle collision on road_0031 blocks traffic between loc_0021 and loc_0057, a short but heavily used link close to the direct axis."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0044",
+        "road_0032",
+        "road_0033"
+      ],
+      "description": "Roadworks at node loc_0022 close the three connecting roads, including road_0044 which lies almost on the axis, forcing a detour around this low‑degree bridge."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0076",
+        "road_0125",
+        "road_0106"
+      ],
+      "description": "Construction at node loc_0051 shuts down three roads, notably road_0106 which is very close to the axis, disrupting a key junction that links multiple routes."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0072",
+        "road_0127"
+      ],
+      "description": "Light roadworks on roads 0072 and 0127 at node loc_0048 slow traffic by a factor of 2.5; these roads are moderately close to the axis and are frequently used for local detours.",
+      "severity": 2.5
+    }
+  ]
+}

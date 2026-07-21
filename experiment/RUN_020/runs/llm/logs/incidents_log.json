@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-07-15T17:53:43.990239",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 6,
+  "blocked_locations": [
+    {
+      "id": "loc_0017",
+      "event_type": "robbery",
+      "description": "roads 0023 and 0024 share node loc_0017, a small but critical link between the west and east sides of the map. The robbery blocks both connections to 0116 and 0115, forcing traffic to reroute through longer paths.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "roads 0122, 0123, 0124 all emanate from node loc_0081, a key junction linking the northern and southern parts of the network. Closing these roads blocks the primary routes from 0081 to 0086, 0101, and 0090, causing a major detour.",
+      "shared_closed_roads": 4
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0164"
+      ],
+      "description": "road_0164 connects node loc_0102 to loc_0081; it lies very close to the direct start-goal axis (distance 0.5) and is a low-degree bridge between two subregions, so its closure will force traffic to detour significantly."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0122",
+        "road_0124",
+        "road_0123"
+      ],
+      "description": "roads 0122, 0123, 0124 all emanate from node loc_0081, a key junction linking the northern and southern parts of the network. Closing these roads blocks the primary routes from 0081 to 0086, 0101, and 0090, causing a major detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0090",
+        "road_0166",
+        "road_0167"
+      ],
+      "description": "roads 0090, 0166, 0167 form a cluster at node loc_0104, close to the axis (distances 35.3-36.4). Slowing these roads by a factor of 2.5 will reduce throughput on the most direct corridor without fully blocking it, simulating moderate congestion.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0023",
+        "road_0024"
+      ],
+      "description": "roads 0023 and 0024 share node loc_0017, a small but critical link between the west and east sides of the map. The robbery blocks both connections to 0116 and 0115, forcing traffic to reroute through longer paths."
+    }
+  ]
+}

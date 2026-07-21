@@ -1,0 +1,61 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 821203
+Aibr Preprocessing
+|F|:363
+|X|:3
+Aibr Preprocessing
+|A|:1989
+|P|:1
+|E|:229
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 260
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=0.0
+Extracting plan with execution delta: 1.0
+Problem Solved
+
+Found Plan:
+0: (start-traversal-dynamic car1 road_0201 loc_0124 loc_0074 tw_00000)
+0: -----waiting---- [13.0]
+13.0: (start-traversal-dynamic car1 road_0115 loc_0074 loc_0136 tw_00000)
+13.0: -----waiting---- [15.0]
+15.0: (start-traversal-dynamic car1 road_0220 loc_0136 loc_0111 tw_00000)
+15.0: -----waiting---- [22.0]
+22.0: (start-traversal-dynamic car1 road_0178 loc_0111 loc_0115 tw_00000)
+22.0: -----waiting---- [35.0]
+35.0: (start-traversal-dynamic car1 road_0185 loc_0115 loc_0017 tw_00030)
+35.0: -----waiting---- [46.0]
+46.0: (start-traversal-dynamic car1 road_0023 loc_0017 loc_0116 tw_00030)
+46.0: -----waiting---- [67.0]
+67.0: (start-traversal-dynamic car1 road_0186 loc_0116 loc_0123 tw_00060)
+67.0: -----waiting---- [72.0]
+72.0: (start-traversal-dynamic car1 road_0200 loc_0123 loc_0099 tw_00060)
+72.0: -----waiting---- [88.0]
+88.0: (start-traversal-dynamic car1 road_0158 loc_0099 loc_0097 tw_00060)
+88.0: -----waiting---- [117.0]
+117.0: (start-traversal-dynamic car1 road_0155 loc_0097 loc_0098 tw_00090)
+117.0: -----waiting---- [149.0]
+149.0: (start-traversal-dynamic car1 road_0157 loc_0098 loc_0070 tw_00120)
+149.0: -----waiting---- [155.0]
+155.0: (start-traversal-dynamic car1 road_0108 loc_0070 loc_0051 tw_00150)
+155.0: -----waiting---- [165.0]
+165.0: (start-traversal-dynamic car1 road_0078 loc_0051 loc_0049 tw_00150)
+165.0: -----waiting---- [200.0]
+
+Plan-Length:232
+Elapsed Time: 200.0
+Metric (Search):200.0
+Planning Time (msec): 3238281
+Heuristic Time (msec): 399
+Search Time (msec): 636
+Expanded Nodes:214
+States Evaluated:225
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:0
+Number of Duplicates detected:0

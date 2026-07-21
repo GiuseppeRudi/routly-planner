@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-07-15T18:13:58.257564",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 8,
+  "blocked_locations": [
+    {
+      "id": "loc_0029",
+      "event_type": "roadworks",
+      "description": "Construction blocking four roads (road_0020, road_0043, road_0217, road_0219) at junction loc_0135, a bottleneck near the eastern edge, causing significant rerouting.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0116",
+      "event_type": "roadworks",
+      "description": "Roadworks on three roads (road_0023, road_0113, road_0186) at junction loc_0116, a key node on the main corridor, forcing a detour.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0135",
+      "event_type": "roadworks",
+      "description": "Construction blocking four roads (road_0020, road_0043, road_0217, road_0219) at junction loc_0135, a bottleneck near the eastern edge, causing significant rerouting.",
+      "shared_closed_roads": 4
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0023",
+        "road_0113",
+        "road_0186"
+      ],
+      "description": "Roadworks on three roads (road_0023, road_0113, road_0186) at junction loc_0116, a key node on the main corridor, forcing a detour."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0020",
+        "road_0217",
+        "road_0219",
+        "road_0043"
+      ],
+      "description": "Construction blocking four roads (road_0020, road_0043, road_0217, road_0219) at junction loc_0135, a bottleneck near the eastern edge, causing significant rerouting."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0140",
+        "road_0225",
+        "road_0141"
+      ],
+      "description": "Light roadworks causing a 3.0× slowdown on three roads (road_0140, road_0141, road_0225) around junction loc_0090, reducing capacity but keeping the route open.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0122"
+      ],
+      "description": "Accident on road_0122, a main link between loc_0081 and loc_0101, causing a full closure and disrupting traffic flow."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-07-15T15:30:06.872664",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "Roadworks at junction loc_0081 block three high‑traffic roads (road_0125, road_0164, road_0141), creating a bottleneck on a critical hub near the direct route.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0023"
+      ],
+      "description": "A crash on road_0023 (loc_0017–loc_0116) cuts a close-to-axis arterial, forcing traffic to detour around this key link."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0125",
+        "road_0141",
+        "road_0164"
+      ],
+      "description": "Roadworks at junction loc_0081 block three high‑traffic roads (road_0125, road_0164, road_0141), creating a bottleneck on a critical hub near the direct route."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0091"
+      ],
+      "description": "Light congestion on roads 0091 and 0104 slows traffic slightly on alternate paths close to the axis, increasing travel times without closing the roads.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0104"
+      ],
+      "description": "Light congestion on roads 0091 and 0104 slows traffic slightly on alternate paths close to the axis, increasing travel times without closing the roads.",
+      "severity": 2.5
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+version: 1
+
+campaign:
+  name: routly-long-run
+  working_directory: .
+  output_root: data/long_running_campaigns
+  default_timeout_seconds: 14400
+  resume: true
+  continue_on_failure: true
+  environment:
+    MPLBACKEND: Agg
+    PYTHONUNBUFFERED: "1"
+    ROUTLY_EXPERIMENT_NAME: "{campaign_id}_{run_id}"
+
+classification:
+  oom_markers:
+    - outofmemoryerror
+    - java heap space
+    - gc overhead limit exceeded
+    - insufficient memory for the java runtime environment
+    - native memory allocation
+    - cannot allocate memory
+  diagnostic_globs:
+    - "**/*.txt"
+    - "**/*.sol"
+    - "**/hs_err_pid*.log"
+
+stages:
+  - name: build_macro_roads
+    command:
+      - "{python}"
+      - scripts/pipeline/build_macro_roads.py
+      - --project-config
+      - "{project_config}"
+  - name: build_domain_and_problem
+    command:
+      - "{python}"
+      - scripts/pipeline/03_build_domain_and_problem.py
+      - --project-config
+      - "{project_config}"
+  - name: generate_plan
+    command:
+      - "{python}"
+      - scripts/pipeline/04_generate_plan.py
+      - --project-config
+      - "{project_config}"
+
+runs:
+  - id: example-run
+    project_config: config/project.yaml
+    timeout_seconds: 14400
+    stages:
+      - build_macro_roads
+      - build_domain_and_problem
+      - generate_plan
+    # Optional: lets OOM detection inspect planner artifacts as well as the log.
+    # output_dir: data/City/nodes_500_distance_2000/{campaign_id}_{run_id}
+    environment: {}
+    metadata:
+      description: Replace this entry with a frozen experiment configuration.

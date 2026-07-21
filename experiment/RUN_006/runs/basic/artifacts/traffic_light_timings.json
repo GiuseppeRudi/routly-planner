@@ -1,0 +1,37 @@
+{
+  "loc_0002": {
+    "green": 25,
+    "yellow": 4,
+    "red": 25,
+    "complexity": "medium",
+    "average_wait": 5.79
+  },
+  "loc_0037": {
+    "green": 24,
+    "yellow": 4,
+    "red": 25,
+    "complexity": "medium",
+    "average_wait": 5.9
+  },
+  "loc_0048": {
+    "green": 23,
+    "yellow": 4,
+    "red": 27,
+    "complexity": "medium",
+    "average_wait": 6.75
+  },
+  "loc_0052": {
+    "green": 23,
+    "yellow": 4,
+    "red": 27,
+    "complexity": "medium",
+    "average_wait": 6.75
+  },
+  "loc_0055": {
+    "green": 27,
+    "yellow": 6,
+    "red": 30,
+    "complexity": "complex",
+    "average_wait": 7.14
+  }
+}

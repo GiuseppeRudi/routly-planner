@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-07-15T17:44:11.638514",
+  "seed": 71,
+  "total_events": 2,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "Closed roads incident to node loc_0022, a low‑degree, near‑axis junction linking loc_0021 and loc_0028, forcing vehicles to detour around the blockage.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0032",
+        "road_0033",
+        "road_0044"
+      ],
+      "description": "Closed roads incident to node loc_0022, a low‑degree, near‑axis junction linking loc_0021 and loc_0028, forcing vehicles to detour around the blockage."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0072",
+        "road_0127"
+      ],
+      "description": "Reduced speed on the corridor between loc_0048 and loc_0078, causing congestion on these near‑axis roads.",
+      "severity": 2.2
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+scenario:
+  name: rerun_run_062_500_nodes_distance_2000
+map:
+  place_name: Bologna, Emilia-Romagna, Italy
+  place_slug: Bologna_Emilia-Romagna_Italy
+  map_scenario: nodes_500_distance_2000
+  graphml_path: data/Bologna_Emilia-Romagna_Italy/nodes_500_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_062/map/road_network.graphml
+  mapping_path: data/Bologna_Emilia-Romagna_Italy/nodes_500_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_062/map/roads_mapping.json
+  planning_mapping_path: data/Bologna_Emilia-Romagna_Italy/nodes_500_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_062/map/roads_mapping_macro.json
+vehicles:
+- id: car1
+  start:
+    type: location_id
+    value: loc_0327
+    x: 686430.06
+    y: 4927924.065
+    osm_node_id: '1133044356'
+    lat: 44.4805703
+    lon: 11.3443073
+  goal:
+    type: location_id
+    value: loc_0416
+    x: 685813.438
+    y: 4931075.932
+    osm_node_id: '6156902516'
+    lat: 44.5090809
+    lon: 11.3376929

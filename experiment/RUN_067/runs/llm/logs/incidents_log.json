@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-07-20T21:12:17.184107",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 7,
+  "blocked_locations": [
+    {
+      "id": "loc_0536",
+      "event_type": "robbery",
+      "description": "A robbery shuts down three tightly clustered roads at node loc_0536 (1120, 1666, 1676). These low‑distance roads tie the central axis to the 0823/0828 area, so their loss creates a significant bottleneck.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0823",
+      "event_type": "robbery",
+      "description": "A robbery shuts down three tightly clustered roads at node loc_0536 (1120, 1666, 1676). These low‑distance roads tie the central axis to the 0823/0828 area, so their loss creates a significant bottleneck.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0825",
+      "event_type": "roadworks",
+      "description": "Roadworks close three low‑distance links at node loc_0825 (roads 1668, 1672, 1675), which together form a small hub connecting the 0825‑0828 corridor. Their closure forces vehicles to detour via longer peripheral routes.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0828",
+      "event_type": "robbery",
+      "description": "A robbery shuts down three tightly clustered roads at node loc_0536 (1120, 1666, 1676). These low‑distance roads tie the central axis to the 0823/0828 area, so their loss creates a significant bottleneck.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_2018"
+      ],
+      "description": "A severe accident blocks road_2018, the short low‑distance connector between loc_1030 and loc_1031 that lies close to the straight line from start to goal, forcing traffic to reroute around this central corridor."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_1668",
+        "road_1675",
+        "road_1672"
+      ],
+      "description": "Roadworks close three low‑distance links at node loc_0825 (roads 1668, 1672, 1675), which together form a small hub connecting the 0825‑0828 corridor. Their closure forces vehicles to detour via longer peripheral routes."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_1120",
+        "road_1666",
+        "road_1676"
+      ],
+      "description": "A robbery shuts down three tightly clustered roads at node loc_0536 (1120, 1666, 1676). These low‑distance roads tie the central axis to the 0823/0828 area, so their loss creates a significant bottleneck."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_1122"
+      ],
+      "description": "Congestion slows traffic on road_1122, the short 18 m distance‑to‑axis link between loc_0536 and loc_0828, reducing speed but keeping the route usable.",
+      "severity": 3.0
+    }
+  ]
+}

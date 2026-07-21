@@ -63,6 +63,7 @@ pddl/plans/*.plan
 # Logs
 logs/
 *.log
+!experiment/RUN_*/campaign.log
 
 # OS files
 .DS_Store
@@ -78,9 +79,16 @@ htmlcov/
 
 # Claude
 *.md
+!experiment/README.md
+!long_running_campaign/README.md
+!long_running_campaign/configs/README.md
 
 
 
 # Scripts
 make_dump.py
 project_dump.txt
+
+# The curated experiment archive is intentionally versioned in full, including
+# logs and SUMO artifacts that are ignored for ordinary generated outputs.
+!experiment/**

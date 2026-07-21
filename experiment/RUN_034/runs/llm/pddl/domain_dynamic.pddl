@@ -1,0 +1,19758 @@
+;; ============================================================
+;;  DOMAIN: road-network
+;;  Features: tl_cong-pddl-hybrid_llm_macro
+;;    traversal             : compiled_duration
+;;    state representation  : node_based
+;;    action generation     : compiled
+;;    traffic_lights  : True
+;;    congestion      : enabled=True, mode=pddl, type=hybrid
+;;    llm_events      : True
+;;    fuel            : enabled=False, replanning=False, consumption=continuous
+;; ============================================================
+
+(define (domain road-network)
+  (:requirements :typing :numeric-fluents :time)
+  (:types
+    vehicle location road time-window - object
+    loc_type_loc_0000 loc_type_loc_0001 loc_type_loc_0002 loc_type_loc_0003 loc_type_loc_0004 loc_type_loc_0005 loc_type_loc_0006 loc_type_loc_0007 loc_type_loc_0008 loc_type_loc_0009 loc_type_loc_0010 loc_type_loc_0011 loc_type_loc_0012 loc_type_loc_0013 loc_type_loc_0014 loc_type_loc_0015 loc_type_loc_0016 loc_type_loc_0017 loc_type_loc_0018 loc_type_loc_0019 loc_type_loc_0020 loc_type_loc_0021 loc_type_loc_0023 loc_type_loc_0024 loc_type_loc_0025 loc_type_loc_0026 loc_type_loc_0027 loc_type_loc_0028 loc_type_loc_0029 loc_type_loc_0030 loc_type_loc_0031 loc_type_loc_0032 loc_type_loc_0033 loc_type_loc_0034 loc_type_loc_0035 loc_type_loc_0036 loc_type_loc_0037 loc_type_loc_0038 loc_type_loc_0039 loc_type_loc_0040 loc_type_loc_0041 loc_type_loc_0042 loc_type_loc_0043 loc_type_loc_0044 loc_type_loc_0045 loc_type_loc_0046 loc_type_loc_0047 loc_type_loc_0049 loc_type_loc_0051 loc_type_loc_0052 loc_type_loc_0053 loc_type_loc_0054 loc_type_loc_0055 loc_type_loc_0056 loc_type_loc_0057 loc_type_loc_0058 loc_type_loc_0059 loc_type_loc_0060 loc_type_loc_0061 loc_type_loc_0062 loc_type_loc_0064 loc_type_loc_0065 loc_type_loc_0066 loc_type_loc_0067 loc_type_loc_0068 loc_type_loc_0069 loc_type_loc_0070 loc_type_loc_0071 loc_type_loc_0072 loc_type_loc_0073 loc_type_loc_0074 loc_type_loc_0075 loc_type_loc_0076 loc_type_loc_0077 loc_type_loc_0078 loc_type_loc_0079 loc_type_loc_0080 loc_type_loc_0081 loc_type_loc_0082 loc_type_loc_0083 loc_type_loc_0084 loc_type_loc_0085 loc_type_loc_0086 loc_type_loc_0087 loc_type_loc_0088 loc_type_loc_0089 loc_type_loc_0090 loc_type_loc_0091 loc_type_loc_0092 loc_type_loc_0093 loc_type_loc_0094 loc_type_loc_0095 loc_type_loc_0096 loc_type_loc_0097 loc_type_loc_0098 loc_type_loc_0099 loc_type_loc_0101 loc_type_loc_0102 loc_type_loc_0103 loc_type_loc_0104 loc_type_loc_0107 loc_type_loc_0109 loc_type_loc_0110 loc_type_loc_0111 loc_type_loc_0112 loc_type_loc_0113 loc_type_loc_0114 loc_type_loc_0115 loc_type_loc_0116 loc_type_loc_0117 loc_type_loc_0118 loc_type_loc_0119 loc_type_loc_0120 loc_type_loc_0121 loc_type_loc_0122 loc_type_loc_0123 loc_type_loc_0124 loc_type_loc_0125 loc_type_loc_0126 loc_type_loc_0127 loc_type_loc_0128 loc_type_loc_0129 loc_type_loc_0130 loc_type_loc_0131 loc_type_loc_0132 loc_type_loc_0133 loc_type_loc_0134 loc_type_loc_0135 loc_type_loc_0136 loc_type_loc_0137 loc_type_loc_0138 loc_type_loc_0139 loc_type_loc_0140 loc_type_loc_0141 loc_type_loc_0142 loc_type_loc_0143 loc_type_loc_0144 loc_type_loc_0145 loc_type_loc_0146 loc_type_loc_0147 loc_type_loc_0148 loc_type_loc_0150 loc_type_loc_0151 loc_type_loc_0152 loc_type_loc_0153 loc_type_loc_0154 loc_type_loc_0156 loc_type_loc_0157 loc_type_loc_0158 loc_type_loc_0159 loc_type_loc_0160 loc_type_loc_0161 loc_type_loc_0162 loc_type_loc_0163 loc_type_loc_0164 loc_type_loc_0165 loc_type_loc_0166 loc_type_loc_0168 loc_type_loc_0169 loc_type_loc_0170 loc_type_loc_0171 loc_type_loc_0173 loc_type_loc_0174 loc_type_loc_0175 loc_type_loc_0176 loc_type_loc_0177 loc_type_loc_0178 loc_type_loc_0179 loc_type_loc_0180 loc_type_loc_0181 loc_type_loc_0182 loc_type_loc_0183 loc_type_loc_0185 loc_type_loc_0186 loc_type_loc_0187 loc_type_loc_0188 loc_type_loc_0190 loc_type_loc_0191 loc_type_loc_0192 loc_type_loc_0193 loc_type_loc_0194 loc_type_loc_0195 loc_type_loc_0196 loc_type_loc_0197 loc_type_loc_0198 loc_type_loc_0199
+    - location
+    road_type_macro_0000 road_type_macro_0001 road_type_macro_0002 road_type_macro_0003 road_type_macro_0004 road_type_macro_0005 road_type_macro_0006 road_type_macro_0007 road_type_macro_0008 road_type_macro_0009 road_type_macro_0010 road_type_macro_0011 road_type_macro_0012 road_type_macro_0013 road_type_macro_0014 road_type_macro_0015 road_type_macro_0016 road_type_macro_0017 road_type_macro_0018 road_type_macro_0019 road_type_macro_0020 road_type_macro_0021 road_type_macro_0022 road_type_macro_0023 road_type_macro_0024 road_type_macro_0025 road_type_macro_0026 road_type_macro_0027 road_type_macro_0028 road_type_macro_0029 road_type_macro_0030 road_type_road_0000 road_type_road_0001 road_type_road_0002 road_type_road_0003 road_type_road_0004 road_type_road_0005 road_type_road_0006 road_type_road_0007 road_type_road_0008 road_type_road_0009 road_type_road_0010 road_type_road_0012 road_type_road_0013 road_type_road_0014 road_type_road_0015 road_type_road_0016 road_type_road_0017 road_type_road_0019 road_type_road_0020 road_type_road_0021 road_type_road_0022 road_type_road_0023 road_type_road_0024 road_type_road_0025 road_type_road_0027 road_type_road_0028 road_type_road_0030 road_type_road_0031 road_type_road_0032 road_type_road_0033 road_type_road_0034 road_type_road_0035 road_type_road_0036 road_type_road_0041 road_type_road_0042 road_type_road_0044 road_type_road_0045 road_type_road_0046 road_type_road_0047 road_type_road_0048 road_type_road_0049 road_type_road_0050 road_type_road_0051 road_type_road_0052 road_type_road_0053 road_type_road_0054 road_type_road_0055 road_type_road_0056 road_type_road_0057 road_type_road_0058 road_type_road_0059 road_type_road_0060 road_type_road_0061 road_type_road_0062 road_type_road_0063 road_type_road_0064 road_type_road_0065 road_type_road_0066 road_type_road_0067 road_type_road_0068 road_type_road_0070 road_type_road_0071 road_type_road_0074 road_type_road_0077 road_type_road_0078 road_type_road_0079 road_type_road_0080 road_type_road_0081 road_type_road_0082 road_type_road_0083 road_type_road_0086 road_type_road_0089 road_type_road_0090 road_type_road_0091 road_type_road_0092 road_type_road_0093 road_type_road_0094 road_type_road_0095 road_type_road_0096 road_type_road_0097 road_type_road_0098 road_type_road_0099 road_type_road_0101 road_type_road_0103 road_type_road_0104 road_type_road_0105 road_type_road_0106 road_type_road_0107 road_type_road_0108 road_type_road_0110 road_type_road_0112 road_type_road_0113 road_type_road_0114 road_type_road_0115 road_type_road_0116 road_type_road_0117 road_type_road_0118 road_type_road_0119 road_type_road_0120 road_type_road_0122 road_type_road_0123 road_type_road_0124 road_type_road_0125 road_type_road_0126 road_type_road_0127 road_type_road_0128 road_type_road_0129 road_type_road_0130 road_type_road_0131 road_type_road_0132 road_type_road_0133 road_type_road_0134 road_type_road_0135 road_type_road_0136 road_type_road_0137 road_type_road_0138 road_type_road_0139 road_type_road_0140 road_type_road_0141 road_type_road_0142 road_type_road_0143 road_type_road_0144 road_type_road_0145 road_type_road_0146 road_type_road_0147 road_type_road_0148 road_type_road_0150 road_type_road_0151 road_type_road_0152 road_type_road_0153 road_type_road_0154 road_type_road_0155 road_type_road_0156 road_type_road_0157 road_type_road_0160 road_type_road_0161 road_type_road_0162 road_type_road_0166 road_type_road_0167 road_type_road_0168 road_type_road_0169 road_type_road_0170 road_type_road_0171 road_type_road_0172 road_type_road_0173 road_type_road_0175 road_type_road_0176 road_type_road_0177 road_type_road_0178 road_type_road_0179 road_type_road_0180 road_type_road_0181 road_type_road_0185 road_type_road_0186 road_type_road_0187 road_type_road_0188 road_type_road_0189 road_type_road_0190 road_type_road_0192 road_type_road_0193 road_type_road_0194 road_type_road_0195 road_type_road_0196 road_type_road_0197 road_type_road_0198 road_type_road_0199 road_type_road_0200 road_type_road_0202 road_type_road_0203 road_type_road_0204 road_type_road_0205 road_type_road_0206 road_type_road_0207 road_type_road_0208 road_type_road_0209 road_type_road_0210 road_type_road_0211 road_type_road_0212 road_type_road_0213 road_type_road_0214 road_type_road_0215 road_type_road_0216 road_type_road_0217 road_type_road_0218 road_type_road_0219 road_type_road_0220 road_type_road_0221 road_type_road_0223 road_type_road_0224 road_type_road_0226 road_type_road_0227 road_type_road_0228 road_type_road_0229 road_type_road_0230 road_type_road_0231 road_type_road_0232 road_type_road_0233 road_type_road_0234 road_type_road_0235 road_type_road_0236 road_type_road_0239 road_type_road_0241 road_type_road_0242 road_type_road_0243 road_type_road_0244 road_type_road_0245 road_type_road_0246 road_type_road_0247 road_type_road_0248 road_type_road_0249 road_type_road_0250 road_type_road_0251 road_type_road_0252 road_type_road_0254 road_type_road_0255 road_type_road_0256 road_type_road_0257 road_type_road_0258 road_type_road_0259 road_type_road_0260 road_type_road_0261 road_type_road_0262 road_type_road_0264 road_type_road_0265 road_type_road_0266 road_type_road_0267 road_type_road_0268 road_type_road_0269 road_type_road_0271 road_type_road_0272 road_type_road_0273 road_type_road_0274 road_type_road_0275 road_type_road_0276 road_type_road_0277 road_type_road_0279 road_type_road_0280 road_type_road_0281 road_type_road_0282 road_type_road_0286 road_type_road_0287 road_type_road_0288 road_type_road_0289 road_type_road_0290 road_type_road_0291 road_type_road_0292 road_type_road_0293 road_type_road_0294 road_type_road_0295 road_type_road_0296 road_type_road_0297 road_type_road_0298 road_type_road_0299 road_type_road_0300 road_type_road_0301 road_type_road_0302 road_type_road_0303 road_type_road_0307 road_type_road_0309 road_type_road_0310 road_type_road_0311 road_type_road_0312 road_type_road_0313 road_type_road_0315 road_type_road_0316 road_type_road_0317 road_type_road_0318 road_type_road_0319 road_type_road_0320 road_type_road_0321 road_type_road_0324 road_type_road_0325 road_type_road_0326 road_type_road_0327 road_type_road_0328 road_type_road_0329 road_type_road_0330
+    - road
+    window_type_tw_00000 window_type_tw_00030 window_type_tw_00060 window_type_tw_00090 window_type_tw_00120 window_type_tw_00150 window_type_tw_00180 window_type_tw_00210 window_type_tw_00240 window_type_tw_00270 window_type_tw_00300 window_type_tw_00330 window_type_tw_00360 window_type_tw_00390 window_type_tw_00420 window_type_tw_00450
+    - time-window
+  )
+
+  (:predicates
+    (connects  ?r - road  ?from - location  ?to - location)
+    (road-open ?r - road)
+    (has-traffic-light ?l - location)
+    (static-road  ?r - road)
+    (dynamic-road ?r - road)
+    (current-window ?w - time-window)
+    (next-window ?from - time-window ?to - time-window)
+    (road-blocked ?r - road)   ;; set by LLM event generator
+    (location-blocked ?l - location)   ;; derived from blocked roads
+    (at       ?v - vehicle  ?l - location)
+  )
+
+  (:functions
+    (travel-duration      ?r - road)  ;; precomputed seconds to traverse
+    (travel-time          ?v - vehicle)
+    (congestion-factor    ?r - road)  ;; 1.0=free, 2.0=half speed
+    (sim-time)
+    (window-start         ?w - time-window)
+    (travel-duration-window ?r - road ?w - time-window)
+  )
+
+  (:action traverse-road-static-macro_0000
+    :parameters (?v - vehicle ?r - road_type_macro_0000 ?from - loc_type_loc_0005 ?to - loc_type_loc_0112)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0001
+    :parameters (?v - vehicle ?r - road_type_macro_0001 ?from - loc_type_loc_0010 ?to - loc_type_loc_0011)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0002
+    :parameters (?v - vehicle ?r - road_type_macro_0002 ?from - loc_type_loc_0014 ?to - loc_type_loc_0013)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0003
+    :parameters (?v - vehicle ?r - road_type_macro_0003 ?from - loc_type_loc_0015 ?to - loc_type_loc_0173)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0004
+    :parameters (?v - vehicle ?r - road_type_macro_0004 ?from - loc_type_loc_0020 ?to - loc_type_loc_0021)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0005
+    :parameters (?v - vehicle ?r - road_type_macro_0005 ?from - loc_type_loc_0021 ?to - loc_type_loc_0197)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0006
+    :parameters (?v - vehicle ?r - road_type_macro_0006 ?from - loc_type_loc_0021 ?to - loc_type_loc_0017)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0007
+    :parameters (?v - vehicle ?r - road_type_macro_0007 ?from - loc_type_loc_0024 ?to - loc_type_loc_0186)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0008
+    :parameters (?v - vehicle ?r - road_type_macro_0008 ?from - loc_type_loc_0037 ?to - loc_type_loc_0178)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00000
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00030
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00060
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00090
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00120
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00150
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00180
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00210
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00240
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00270
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00300
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00330
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00360
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00390
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00420
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0009-tw_00450
+    :parameters (?v - vehicle ?r - road_type_macro_0009 ?from - loc_type_loc_0039 ?to - loc_type_loc_0091 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-macro_0010
+    :parameters (?v - vehicle ?r - road_type_macro_0010 ?from - loc_type_loc_0039 ?to - loc_type_loc_0002)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0011
+    :parameters (?v - vehicle ?r - road_type_macro_0011 ?from - loc_type_loc_0040 ?to - loc_type_loc_0166)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0012
+    :parameters (?v - vehicle ?r - road_type_macro_0012 ?from - loc_type_loc_0041 ?to - loc_type_loc_0049)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0013
+    :parameters (?v - vehicle ?r - road_type_macro_0013 ?from - loc_type_loc_0047 ?to - loc_type_loc_0116)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0014
+    :parameters (?v - vehicle ?r - road_type_macro_0014 ?from - loc_type_loc_0049 ?to - loc_type_loc_0041)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0015
+    :parameters (?v - vehicle ?r - road_type_macro_0015 ?from - loc_type_loc_0061 ?to - loc_type_loc_0101)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0016
+    :parameters (?v - vehicle ?r - road_type_macro_0016 ?from - loc_type_loc_0068 ?to - loc_type_loc_0116)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0017
+    :parameters (?v - vehicle ?r - road_type_macro_0017 ?from - loc_type_loc_0069 ?to - loc_type_loc_0116)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0018
+    :parameters (?v - vehicle ?r - road_type_macro_0018 ?from - loc_type_loc_0073 ?to - loc_type_loc_0195)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00000
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00030
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00060
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00090
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00120
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00150
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00180
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00210
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00240
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00270
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00300
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00330
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00360
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00390
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00420
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0019-tw_00450
+    :parameters (?v - vehicle ?r - road_type_macro_0019 ?from - loc_type_loc_0089 ?to - loc_type_loc_0188 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-macro_0020
+    :parameters (?v - vehicle ?r - road_type_macro_0020 ?from - loc_type_loc_0094 ?to - loc_type_loc_0093)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0021
+    :parameters (?v - vehicle ?r - road_type_macro_0021 ?from - loc_type_loc_0094 ?to - loc_type_loc_0093)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0022
+    :parameters (?v - vehicle ?r - road_type_macro_0022 ?from - loc_type_loc_0096 ?to - loc_type_loc_0095)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0023
+    :parameters (?v - vehicle ?r - road_type_macro_0023 ?from - loc_type_loc_0096 ?to - loc_type_loc_0095)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0024
+    :parameters (?v - vehicle ?r - road_type_macro_0024 ?from - loc_type_loc_0112 ?to - loc_type_loc_0005)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0025
+    :parameters (?v - vehicle ?r - road_type_macro_0025 ?from - loc_type_loc_0130 ?to - loc_type_loc_0168)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0026
+    :parameters (?v - vehicle ?r - road_type_macro_0026 ?from - loc_type_loc_0161 ?to - loc_type_loc_0099)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0027
+    :parameters (?v - vehicle ?r - road_type_macro_0027 ?from - loc_type_loc_0183 ?to - loc_type_loc_0198)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-macro_0028
+    :parameters (?v - vehicle ?r - road_type_macro_0028 ?from - loc_type_loc_0186 ?to - loc_type_loc_0024)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00000
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00030
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00060
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00090
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00120
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00150
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00180
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00210
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00240
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00270
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00300
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00330
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00360
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00390
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00420
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-macro_0029-tw_00450
+    :parameters (?v - vehicle ?r - road_type_macro_0029 ?from - loc_type_loc_0195 ?to - loc_type_loc_0073 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-macro_0030
+    :parameters (?v - vehicle ?r - road_type_macro_0030 ?from - loc_type_loc_0195 ?to - loc_type_loc_0134)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0000
+    :parameters (?v - vehicle ?r - road_type_road_0000 ?from - loc_type_loc_0000 ?to - loc_type_loc_0146)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0001
+    :parameters (?v - vehicle ?r - road_type_road_0001 ?from - loc_type_loc_0000 ?to - loc_type_loc_0035)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0002
+    :parameters (?v - vehicle ?r - road_type_road_0002 ?from - loc_type_loc_0000 ?to - loc_type_loc_0016)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0003
+    :parameters (?v - vehicle ?r - road_type_road_0003 ?from - loc_type_loc_0001 ?to - loc_type_loc_0084)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0004
+    :parameters (?v - vehicle ?r - road_type_road_0004 ?from - loc_type_loc_0001 ?to - loc_type_loc_0041)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0005
+    :parameters (?v - vehicle ?r - road_type_road_0005 ?from - loc_type_loc_0002 ?to - loc_type_loc_0147)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0006
+    :parameters (?v - vehicle ?r - road_type_road_0006 ?from - loc_type_loc_0002 ?to - loc_type_loc_0032)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0007
+    :parameters (?v - vehicle ?r - road_type_road_0007 ?from - loc_type_loc_0003 ?to - loc_type_loc_0060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0008
+    :parameters (?v - vehicle ?r - road_type_road_0008 ?from - loc_type_loc_0004 ?to - loc_type_loc_0166)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0009
+    :parameters (?v - vehicle ?r - road_type_road_0009 ?from - loc_type_loc_0005 ?to - loc_type_loc_0113)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0010
+    :parameters (?v - vehicle ?r - road_type_road_0010 ?from - loc_type_loc_0005 ?to - loc_type_loc_0067)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0012-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0012 ?from - loc_type_loc_0006 ?to - loc_type_loc_0098 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0013
+    :parameters (?v - vehicle ?r - road_type_road_0013 ?from - loc_type_loc_0006 ?to - loc_type_loc_0007)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0014
+    :parameters (?v - vehicle ?r - road_type_road_0014 ?from - loc_type_loc_0006 ?to - loc_type_loc_0163)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0015-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0015 ?from - loc_type_loc_0007 ?to - loc_type_loc_0006 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0016
+    :parameters (?v - vehicle ?r - road_type_road_0016 ?from - loc_type_loc_0008 ?to - loc_type_loc_0151)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0017
+    :parameters (?v - vehicle ?r - road_type_road_0017 ?from - loc_type_loc_0009 ?to - loc_type_loc_0152)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0019
+    :parameters (?v - vehicle ?r - road_type_road_0019 ?from - loc_type_loc_0010 ?to - loc_type_loc_0011)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0020
+    :parameters (?v - vehicle ?r - road_type_road_0020 ?from - loc_type_loc_0011 ?to - loc_type_loc_0154)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0021-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0021 ?from - loc_type_loc_0012 ?to - loc_type_loc_0007 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0022
+    :parameters (?v - vehicle ?r - road_type_road_0022 ?from - loc_type_loc_0012 ?to - loc_type_loc_0070)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0023
+    :parameters (?v - vehicle ?r - road_type_road_0023 ?from - loc_type_loc_0012 ?to - loc_type_loc_0044)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0024
+    :parameters (?v - vehicle ?r - road_type_road_0024 ?from - loc_type_loc_0013 ?to - loc_type_loc_0102)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0025
+    :parameters (?v - vehicle ?r - road_type_road_0025 ?from - loc_type_loc_0013 ?to - loc_type_loc_0014)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0027
+    :parameters (?v - vehicle ?r - road_type_road_0027 ?from - loc_type_loc_0014 ?to - loc_type_loc_0013)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0028
+    :parameters (?v - vehicle ?r - road_type_road_0028 ?from - loc_type_loc_0014 ?to - loc_type_loc_0181)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0030-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0030 ?from - loc_type_loc_0015 ?to - loc_type_loc_0190 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0031
+    :parameters (?v - vehicle ?r - road_type_road_0031 ?from - loc_type_loc_0016 ?to - loc_type_loc_0074)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0032
+    :parameters (?v - vehicle ?r - road_type_road_0032 ?from - loc_type_loc_0016 ?to - loc_type_loc_0000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0033
+    :parameters (?v - vehicle ?r - road_type_road_0033 ?from - loc_type_loc_0017 ?to - loc_type_loc_0107)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0034
+    :parameters (?v - vehicle ?r - road_type_road_0034 ?from - loc_type_loc_0017 ?to - loc_type_loc_0018)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0035
+    :parameters (?v - vehicle ?r - road_type_road_0035 ?from - loc_type_loc_0019 ?to - loc_type_loc_0025)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0036
+    :parameters (?v - vehicle ?r - road_type_road_0036 ?from - loc_type_loc_0020 ?to - loc_type_loc_0019)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0041
+    :parameters (?v - vehicle ?r - road_type_road_0041 ?from - loc_type_loc_0023 ?to - loc_type_loc_0153)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0042
+    :parameters (?v - vehicle ?r - road_type_road_0042 ?from - loc_type_loc_0024 ?to - loc_type_loc_0150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0044-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0044 ?from - loc_type_loc_0024 ?to - loc_type_loc_0023 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0045-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0045 ?from - loc_type_loc_0025 ?to - loc_type_loc_0030 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0046
+    :parameters (?v - vehicle ?r - road_type_road_0046 ?from - loc_type_loc_0025 ?to - loc_type_loc_0152)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0047-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0047 ?from - loc_type_loc_0026 ?to - loc_type_loc_0024 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0048
+    :parameters (?v - vehicle ?r - road_type_road_0048 ?from - loc_type_loc_0027 ?to - loc_type_loc_0142)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0049-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0049 ?from - loc_type_loc_0028 ?to - loc_type_loc_0029 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0050
+    :parameters (?v - vehicle ?r - road_type_road_0050 ?from - loc_type_loc_0028 ?to - loc_type_loc_0127)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0051
+    :parameters (?v - vehicle ?r - road_type_road_0051 ?from - loc_type_loc_0028 ?to - loc_type_loc_0177)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0052
+    :parameters (?v - vehicle ?r - road_type_road_0052 ?from - loc_type_loc_0028 ?to - loc_type_loc_0054)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0053
+    :parameters (?v - vehicle ?r - road_type_road_0053 ?from - loc_type_loc_0029 ?to - loc_type_loc_0126)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0054
+    :parameters (?v - vehicle ?r - road_type_road_0054 ?from - loc_type_loc_0029 ?to - loc_type_loc_0055)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0055
+    :parameters (?v - vehicle ?r - road_type_road_0055 ?from - loc_type_loc_0029 ?to - loc_type_loc_0031)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0056-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0056 ?from - loc_type_loc_0029 ?to - loc_type_loc_0028 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0057-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0057 ?from - loc_type_loc_0030 ?to - loc_type_loc_0026 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0058
+    :parameters (?v - vehicle ?r - road_type_road_0058 ?from - loc_type_loc_0031 ?to - loc_type_loc_0020)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0059
+    :parameters (?v - vehicle ?r - road_type_road_0059 ?from - loc_type_loc_0031 ?to - loc_type_loc_0030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0060
+    :parameters (?v - vehicle ?r - road_type_road_0060 ?from - loc_type_loc_0031 ?to - loc_type_loc_0029)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0061
+    :parameters (?v - vehicle ?r - road_type_road_0061 ?from - loc_type_loc_0032 ?to - loc_type_loc_0038)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0062
+    :parameters (?v - vehicle ?r - road_type_road_0062 ?from - loc_type_loc_0032 ?to - loc_type_loc_0003)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0063
+    :parameters (?v - vehicle ?r - road_type_road_0063 ?from - loc_type_loc_0034 ?to - loc_type_loc_0002)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0064
+    :parameters (?v - vehicle ?r - road_type_road_0064 ?from - loc_type_loc_0035 ?to - loc_type_loc_0016)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0065
+    :parameters (?v - vehicle ?r - road_type_road_0065 ?from - loc_type_loc_0035 ?to - loc_type_loc_0083)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0066
+    :parameters (?v - vehicle ?r - road_type_road_0066 ?from - loc_type_loc_0036 ?to - loc_type_loc_0043)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0067
+    :parameters (?v - vehicle ?r - road_type_road_0067 ?from - loc_type_loc_0036 ?to - loc_type_loc_0037)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0068
+    :parameters (?v - vehicle ?r - road_type_road_0068 ?from - loc_type_loc_0037 ?to - loc_type_loc_0036)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0070
+    :parameters (?v - vehicle ?r - road_type_road_0070 ?from - loc_type_loc_0038 ?to - loc_type_loc_0033)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0071
+    :parameters (?v - vehicle ?r - road_type_road_0071 ?from - loc_type_loc_0038 ?to - loc_type_loc_0051)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0074
+    :parameters (?v - vehicle ?r - road_type_road_0074 ?from - loc_type_loc_0040 ?to - loc_type_loc_0080)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0077
+    :parameters (?v - vehicle ?r - road_type_road_0077 ?from - loc_type_loc_0042 ?to - loc_type_loc_0036)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0078-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0078 ?from - loc_type_loc_0043 ?to - loc_type_loc_0044 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0079
+    :parameters (?v - vehicle ?r - road_type_road_0079 ?from - loc_type_loc_0043 ?to - loc_type_loc_0045)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0080
+    :parameters (?v - vehicle ?r - road_type_road_0080 ?from - loc_type_loc_0044 ?to - loc_type_loc_0012)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0081
+    :parameters (?v - vehicle ?r - road_type_road_0081 ?from - loc_type_loc_0044 ?to - loc_type_loc_0102)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0082-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0082 ?from - loc_type_loc_0045 ?to - loc_type_loc_0013 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0083
+    :parameters (?v - vehicle ?r - road_type_road_0083 ?from - loc_type_loc_0046 ?to - loc_type_loc_0036)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0086
+    :parameters (?v - vehicle ?r - road_type_road_0086 ?from - loc_type_loc_0049 ?to - loc_type_loc_0114)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0089
+    :parameters (?v - vehicle ?r - road_type_road_0089 ?from - loc_type_loc_0052 ?to - loc_type_loc_0156)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0090
+    :parameters (?v - vehicle ?r - road_type_road_0090 ?from - loc_type_loc_0053 ?to - loc_type_loc_0099)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0091-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0091 ?from - loc_type_loc_0054 ?to - loc_type_loc_0169 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0092-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0092 ?from - loc_type_loc_0055 ?to - loc_type_loc_0111 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0093
+    :parameters (?v - vehicle ?r - road_type_road_0093 ?from - loc_type_loc_0056 ?to - loc_type_loc_0112)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0094
+    :parameters (?v - vehicle ?r - road_type_road_0094 ?from - loc_type_loc_0056 ?to - loc_type_loc_0057)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0095
+    :parameters (?v - vehicle ?r - road_type_road_0095 ?from - loc_type_loc_0056 ?to - loc_type_loc_0197)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0096
+    :parameters (?v - vehicle ?r - road_type_road_0096 ?from - loc_type_loc_0057 ?to - loc_type_loc_0056)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0097
+    :parameters (?v - vehicle ?r - road_type_road_0097 ?from - loc_type_loc_0058 ?to - loc_type_loc_0112)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0098
+    :parameters (?v - vehicle ?r - road_type_road_0098 ?from - loc_type_loc_0058 ?to - loc_type_loc_0075)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0099
+    :parameters (?v - vehicle ?r - road_type_road_0099 ?from - loc_type_loc_0058 ?to - loc_type_loc_0090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0101
+    :parameters (?v - vehicle ?r - road_type_road_0101 ?from - loc_type_loc_0061 ?to - loc_type_loc_0086)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0103
+    :parameters (?v - vehicle ?r - road_type_road_0103 ?from - loc_type_loc_0065 ?to - loc_type_loc_0046)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0104
+    :parameters (?v - vehicle ?r - road_type_road_0104 ?from - loc_type_loc_0066 ?to - loc_type_loc_0187)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0105
+    :parameters (?v - vehicle ?r - road_type_road_0105 ?from - loc_type_loc_0066 ?to - loc_type_loc_0065)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0106
+    :parameters (?v - vehicle ?r - road_type_road_0106 ?from - loc_type_loc_0067 ?to - loc_type_loc_0005)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0107
+    :parameters (?v - vehicle ?r - road_type_road_0107 ?from - loc_type_loc_0067 ?to - loc_type_loc_0178)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0108
+    :parameters (?v - vehicle ?r - road_type_road_0108 ?from - loc_type_loc_0067 ?to - loc_type_loc_0066)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0110
+    :parameters (?v - vehicle ?r - road_type_road_0110 ?from - loc_type_loc_0069 ?to - loc_type_loc_0118)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0112
+    :parameters (?v - vehicle ?r - road_type_road_0112 ?from - loc_type_loc_0070 ?to - loc_type_loc_0069)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0113
+    :parameters (?v - vehicle ?r - road_type_road_0113 ?from - loc_type_loc_0070 ?to - loc_type_loc_0116)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0114
+    :parameters (?v - vehicle ?r - road_type_road_0114 ?from - loc_type_loc_0070 ?to - loc_type_loc_0012)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0115
+    :parameters (?v - vehicle ?r - road_type_road_0115 ?from - loc_type_loc_0071 ?to - loc_type_loc_0072)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0116-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0116 ?from - loc_type_loc_0072 ?to - loc_type_loc_0071 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0117-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0117 ?from - loc_type_loc_0072 ?to - loc_type_loc_0137 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0118
+    :parameters (?v - vehicle ?r - road_type_road_0118 ?from - loc_type_loc_0072 ?to - loc_type_loc_0134)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0119
+    :parameters (?v - vehicle ?r - road_type_road_0119 ?from - loc_type_loc_0073 ?to - loc_type_loc_0130)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0120-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0120 ?from - loc_type_loc_0073 ?to - loc_type_loc_0143 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0122
+    :parameters (?v - vehicle ?r - road_type_road_0122 ?from - loc_type_loc_0074 ?to - loc_type_loc_0077)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0123
+    :parameters (?v - vehicle ?r - road_type_road_0123 ?from - loc_type_loc_0074 ?to - loc_type_loc_0016)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0124
+    :parameters (?v - vehicle ?r - road_type_road_0124 ?from - loc_type_loc_0074 ?to - loc_type_loc_0076)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0125
+    :parameters (?v - vehicle ?r - road_type_road_0125 ?from - loc_type_loc_0075 ?to - loc_type_loc_0164)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0126-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0126 ?from - loc_type_loc_0075 ?to - loc_type_loc_0058 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0127
+    :parameters (?v - vehicle ?r - road_type_road_0127 ?from - loc_type_loc_0076 ?to - loc_type_loc_0112)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0128
+    :parameters (?v - vehicle ?r - road_type_road_0128 ?from - loc_type_loc_0076 ?to - loc_type_loc_0074)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0129
+    :parameters (?v - vehicle ?r - road_type_road_0129 ?from - loc_type_loc_0077 ?to - loc_type_loc_0148)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0130-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0130 ?from - loc_type_loc_0078 ?to - loc_type_loc_0124 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0131
+    :parameters (?v - vehicle ?r - road_type_road_0131 ?from - loc_type_loc_0078 ?to - loc_type_loc_0077)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0132
+    :parameters (?v - vehicle ?r - road_type_road_0132 ?from - loc_type_loc_0079 ?to - loc_type_loc_0188)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0133-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0133 ?from - loc_type_loc_0080 ?to - loc_type_loc_0146 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0134
+    :parameters (?v - vehicle ?r - road_type_road_0134 ?from - loc_type_loc_0080 ?to - loc_type_loc_0179)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0135
+    :parameters (?v - vehicle ?r - road_type_road_0135 ?from - loc_type_loc_0080 ?to - loc_type_loc_0040)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0136
+    :parameters (?v - vehicle ?r - road_type_road_0136 ?from - loc_type_loc_0081 ?to - loc_type_loc_0194)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0137
+    :parameters (?v - vehicle ?r - road_type_road_0137 ?from - loc_type_loc_0081 ?to - loc_type_loc_0193)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0138
+    :parameters (?v - vehicle ?r - road_type_road_0138 ?from - loc_type_loc_0082 ?to - loc_type_loc_0141)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0139
+    :parameters (?v - vehicle ?r - road_type_road_0139 ?from - loc_type_loc_0083 ?to - loc_type_loc_0001)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0140
+    :parameters (?v - vehicle ?r - road_type_road_0140 ?from - loc_type_loc_0083 ?to - loc_type_loc_0180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0141
+    :parameters (?v - vehicle ?r - road_type_road_0141 ?from - loc_type_loc_0084 ?to - loc_type_loc_0061)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0142-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0142 ?from - loc_type_loc_0085 ?to - loc_type_loc_0084 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0143
+    :parameters (?v - vehicle ?r - road_type_road_0143 ?from - loc_type_loc_0085 ?to - loc_type_loc_0087)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0144
+    :parameters (?v - vehicle ?r - road_type_road_0144 ?from - loc_type_loc_0086 ?to - loc_type_loc_0085)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0145
+    :parameters (?v - vehicle ?r - road_type_road_0145 ?from - loc_type_loc_0086 ?to - loc_type_loc_0062)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0146
+    :parameters (?v - vehicle ?r - road_type_road_0146 ?from - loc_type_loc_0087 ?to - loc_type_loc_0001)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0147
+    :parameters (?v - vehicle ?r - road_type_road_0147 ?from - loc_type_loc_0087 ?to - loc_type_loc_0085)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0148
+    :parameters (?v - vehicle ?r - road_type_road_0148 ?from - loc_type_loc_0088 ?to - loc_type_loc_0104)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0150
+    :parameters (?v - vehicle ?r - road_type_road_0150 ?from - loc_type_loc_0089 ?to - loc_type_loc_0121)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0151
+    :parameters (?v - vehicle ?r - road_type_road_0151 ?from - loc_type_loc_0090 ?to - loc_type_loc_0088)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0152
+    :parameters (?v - vehicle ?r - road_type_road_0152 ?from - loc_type_loc_0090 ?to - loc_type_loc_0042)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0153
+    :parameters (?v - vehicle ?r - road_type_road_0153 ?from - loc_type_loc_0091 ?to - loc_type_loc_0040)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0154
+    :parameters (?v - vehicle ?r - road_type_road_0154 ?from - loc_type_loc_0092 ?to - loc_type_loc_0093)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0155
+    :parameters (?v - vehicle ?r - road_type_road_0155 ?from - loc_type_loc_0093 ?to - loc_type_loc_0097)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0156
+    :parameters (?v - vehicle ?r - road_type_road_0156 ?from - loc_type_loc_0093 ?to - loc_type_loc_0092)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0157
+    :parameters (?v - vehicle ?r - road_type_road_0157 ?from - loc_type_loc_0093 ?to - loc_type_loc_0096)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0160
+    :parameters (?v - vehicle ?r - road_type_road_0160 ?from - loc_type_loc_0094 ?to - loc_type_loc_0095)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0161
+    :parameters (?v - vehicle ?r - road_type_road_0161 ?from - loc_type_loc_0095 ?to - loc_type_loc_0094)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0162
+    :parameters (?v - vehicle ?r - road_type_road_0162 ?from - loc_type_loc_0095 ?to - loc_type_loc_0162)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0166
+    :parameters (?v - vehicle ?r - road_type_road_0166 ?from - loc_type_loc_0097 ?to - loc_type_loc_0098)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0167-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0167 ?from - loc_type_loc_0097 ?to - loc_type_loc_0145 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0168
+    :parameters (?v - vehicle ?r - road_type_road_0168 ?from - loc_type_loc_0097 ?to - loc_type_loc_0093)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0169
+    :parameters (?v - vehicle ?r - road_type_road_0169 ?from - loc_type_loc_0098 ?to - loc_type_loc_0006)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0170-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0170 ?from - loc_type_loc_0098 ?to - loc_type_loc_0097 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0171
+    :parameters (?v - vehicle ?r - road_type_road_0171 ?from - loc_type_loc_0098 ?to - loc_type_loc_0144)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0172
+    :parameters (?v - vehicle ?r - road_type_road_0172 ?from - loc_type_loc_0099 ?to - loc_type_loc_0053)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0173
+    :parameters (?v - vehicle ?r - road_type_road_0173 ?from - loc_type_loc_0099 ?to - loc_type_loc_0129)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0175-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0175 ?from - loc_type_loc_0102 ?to - loc_type_loc_0103 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0176
+    :parameters (?v - vehicle ?r - road_type_road_0176 ?from - loc_type_loc_0102 ?to - loc_type_loc_0044)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0177
+    :parameters (?v - vehicle ?r - road_type_road_0177 ?from - loc_type_loc_0102 ?to - loc_type_loc_0013)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0178
+    :parameters (?v - vehicle ?r - road_type_road_0178 ?from - loc_type_loc_0103 ?to - loc_type_loc_0119)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0179
+    :parameters (?v - vehicle ?r - road_type_road_0179 ?from - loc_type_loc_0103 ?to - loc_type_loc_0045)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0180
+    :parameters (?v - vehicle ?r - road_type_road_0180 ?from - loc_type_loc_0104 ?to - loc_type_loc_0122)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0181-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0181 ?from - loc_type_loc_0104 ?to - loc_type_loc_0115 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0185
+    :parameters (?v - vehicle ?r - road_type_road_0185 ?from - loc_type_loc_0109 ?to - loc_type_loc_0174)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0186
+    :parameters (?v - vehicle ?r - road_type_road_0186 ?from - loc_type_loc_0109 ?to - loc_type_loc_0113)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0187
+    :parameters (?v - vehicle ?r - road_type_road_0187 ?from - loc_type_loc_0110 ?to - loc_type_loc_0081)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0188-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0188 ?from - loc_type_loc_0111 ?to - loc_type_loc_0109 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0189
+    :parameters (?v - vehicle ?r - road_type_road_0189 ?from - loc_type_loc_0111 ?to - loc_type_loc_0110)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0190
+    :parameters (?v - vehicle ?r - road_type_road_0190 ?from - loc_type_loc_0112 ?to - loc_type_loc_0056)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0192
+    :parameters (?v - vehicle ?r - road_type_road_0192 ?from - loc_type_loc_0112 ?to - loc_type_loc_0076)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0193
+    :parameters (?v - vehicle ?r - road_type_road_0193 ?from - loc_type_loc_0113 ?to - loc_type_loc_0005)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0194
+    :parameters (?v - vehicle ?r - road_type_road_0194 ?from - loc_type_loc_0113 ?to - loc_type_loc_0109)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0195
+    :parameters (?v - vehicle ?r - road_type_road_0195 ?from - loc_type_loc_0113 ?to - loc_type_loc_0082)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0196
+    :parameters (?v - vehicle ?r - road_type_road_0196 ?from - loc_type_loc_0114 ?to - loc_type_loc_0049)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0197
+    :parameters (?v - vehicle ?r - road_type_road_0197 ?from - loc_type_loc_0115 ?to - loc_type_loc_0089)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0198
+    :parameters (?v - vehicle ?r - road_type_road_0198 ?from - loc_type_loc_0115 ?to - loc_type_loc_0120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0199
+    :parameters (?v - vehicle ?r - road_type_road_0199 ?from - loc_type_loc_0116 ?to - loc_type_loc_0070)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0200
+    :parameters (?v - vehicle ?r - road_type_road_0200 ?from - loc_type_loc_0117 ?to - loc_type_loc_0047)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0202
+    :parameters (?v - vehicle ?r - road_type_road_0202 ?from - loc_type_loc_0118 ?to - loc_type_loc_0069)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0203
+    :parameters (?v - vehicle ?r - road_type_road_0203 ?from - loc_type_loc_0119 ?to - loc_type_loc_0103)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0204
+    :parameters (?v - vehicle ?r - road_type_road_0204 ?from - loc_type_loc_0120 ?to - loc_type_loc_0088)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0205
+    :parameters (?v - vehicle ?r - road_type_road_0205 ?from - loc_type_loc_0121 ?to - loc_type_loc_0089)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0206-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0206 ?from - loc_type_loc_0122 ?to - loc_type_loc_0075 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0207
+    :parameters (?v - vehicle ?r - road_type_road_0207 ?from - loc_type_loc_0123 ?to - loc_type_loc_0188)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0208
+    :parameters (?v - vehicle ?r - road_type_road_0208 ?from - loc_type_loc_0123 ?to - loc_type_loc_0148)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0209
+    :parameters (?v - vehicle ?r - road_type_road_0209 ?from - loc_type_loc_0124 ?to - loc_type_loc_0076)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0210-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0210 ?from - loc_type_loc_0124 ?to - loc_type_loc_0196 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0211
+    :parameters (?v - vehicle ?r - road_type_road_0211 ?from - loc_type_loc_0125 ?to - loc_type_loc_0196)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0212
+    :parameters (?v - vehicle ?r - road_type_road_0212 ?from - loc_type_loc_0126 ?to - loc_type_loc_0192)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0213
+    :parameters (?v - vehicle ?r - road_type_road_0213 ?from - loc_type_loc_0126 ?to - loc_type_loc_0026)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0214
+    :parameters (?v - vehicle ?r - road_type_road_0214 ?from - loc_type_loc_0127 ?to - loc_type_loc_0192)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0215
+    :parameters (?v - vehicle ?r - road_type_road_0215 ?from - loc_type_loc_0127 ?to - loc_type_loc_0028)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0216-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0216 ?from - loc_type_loc_0128 ?to - loc_type_loc_0054 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0217
+    :parameters (?v - vehicle ?r - road_type_road_0217 ?from - loc_type_loc_0128 ?to - loc_type_loc_0028)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0218
+    :parameters (?v - vehicle ?r - road_type_road_0218 ?from - loc_type_loc_0129 ?to - loc_type_loc_0143)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0219
+    :parameters (?v - vehicle ?r - road_type_road_0219 ?from - loc_type_loc_0129 ?to - loc_type_loc_0130)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0220
+    :parameters (?v - vehicle ?r - road_type_road_0220 ?from - loc_type_loc_0129 ?to - loc_type_loc_0052)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0221
+    :parameters (?v - vehicle ?r - road_type_road_0221 ?from - loc_type_loc_0130 ?to - loc_type_loc_0073)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0223-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0223 ?from - loc_type_loc_0131 ?to - loc_type_loc_0160 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0224
+    :parameters (?v - vehicle ?r - road_type_road_0224 ?from - loc_type_loc_0131 ?to - loc_type_loc_0161)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0226
+    :parameters (?v - vehicle ?r - road_type_road_0226 ?from - loc_type_loc_0132 ?to - loc_type_loc_0073)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0227
+    :parameters (?v - vehicle ?r - road_type_road_0227 ?from - loc_type_loc_0133 ?to - loc_type_loc_0158)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0228
+    :parameters (?v - vehicle ?r - road_type_road_0228 ?from - loc_type_loc_0133 ?to - loc_type_loc_0027)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0229-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0229 ?from - loc_type_loc_0134 ?to - loc_type_loc_0136 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0230-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0230 ?from - loc_type_loc_0134 ?to - loc_type_loc_0072 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0231
+    :parameters (?v - vehicle ?r - road_type_road_0231 ?from - loc_type_loc_0135 ?to - loc_type_loc_0136)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0232
+    :parameters (?v - vehicle ?r - road_type_road_0232 ?from - loc_type_loc_0136 ?to - loc_type_loc_0141)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0233
+    :parameters (?v - vehicle ?r - road_type_road_0233 ?from - loc_type_loc_0136 ?to - loc_type_loc_0134)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0234-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0234 ?from - loc_type_loc_0136 ?to - loc_type_loc_0135 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0235
+    :parameters (?v - vehicle ?r - road_type_road_0235 ?from - loc_type_loc_0137 ?to - loc_type_loc_0072)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0236
+    :parameters (?v - vehicle ?r - road_type_road_0236 ?from - loc_type_loc_0138 ?to - loc_type_loc_0020)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0239
+    :parameters (?v - vehicle ?r - road_type_road_0239 ?from - loc_type_loc_0140 ?to - loc_type_loc_0139)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0241
+    :parameters (?v - vehicle ?r - road_type_road_0241 ?from - loc_type_loc_0141 ?to - loc_type_loc_0027)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0242
+    :parameters (?v - vehicle ?r - road_type_road_0242 ?from - loc_type_loc_0141 ?to - loc_type_loc_0158)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0243-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0243 ?from - loc_type_loc_0142 ?to - loc_type_loc_0195 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0244-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0244 ?from - loc_type_loc_0142 ?to - loc_type_loc_0170 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0245
+    :parameters (?v - vehicle ?r - road_type_road_0245 ?from - loc_type_loc_0142 ?to - loc_type_loc_0143)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0246
+    :parameters (?v - vehicle ?r - road_type_road_0246 ?from - loc_type_loc_0143 ?to - loc_type_loc_0129)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0247-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0247 ?from - loc_type_loc_0143 ?to - loc_type_loc_0099 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0248
+    :parameters (?v - vehicle ?r - road_type_road_0248 ?from - loc_type_loc_0144 ?to - loc_type_loc_0098)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0249
+    :parameters (?v - vehicle ?r - road_type_road_0249 ?from - loc_type_loc_0145 ?to - loc_type_loc_0097)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0250
+    :parameters (?v - vehicle ?r - road_type_road_0250 ?from - loc_type_loc_0146 ?to - loc_type_loc_0039)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0251
+    :parameters (?v - vehicle ?r - road_type_road_0251 ?from - loc_type_loc_0147 ?to - loc_type_loc_0087)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0252
+    :parameters (?v - vehicle ?r - road_type_road_0252 ?from - loc_type_loc_0148 ?to - loc_type_loc_0165)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0254
+    :parameters (?v - vehicle ?r - road_type_road_0254 ?from - loc_type_loc_0150 ?to - loc_type_loc_0024)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0255
+    :parameters (?v - vehicle ?r - road_type_road_0255 ?from - loc_type_loc_0150 ?to - loc_type_loc_0009)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0256
+    :parameters (?v - vehicle ?r - road_type_road_0256 ?from - loc_type_loc_0151 ?to - loc_type_loc_0150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0257
+    :parameters (?v - vehicle ?r - road_type_road_0257 ?from - loc_type_loc_0151 ?to - loc_type_loc_0009)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0258
+    :parameters (?v - vehicle ?r - road_type_road_0258 ?from - loc_type_loc_0152 ?to - loc_type_loc_0010)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0259
+    :parameters (?v - vehicle ?r - road_type_road_0259 ?from - loc_type_loc_0153 ?to - loc_type_loc_0023)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0260
+    :parameters (?v - vehicle ?r - road_type_road_0260 ?from - loc_type_loc_0153 ?to - loc_type_loc_0008)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0261
+    :parameters (?v - vehicle ?r - road_type_road_0261 ?from - loc_type_loc_0154 ?to - loc_type_loc_0153)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0262
+    :parameters (?v - vehicle ?r - road_type_road_0262 ?from - loc_type_loc_0154 ?to - loc_type_loc_0008)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0264
+    :parameters (?v - vehicle ?r - road_type_road_0264 ?from - loc_type_loc_0156 ?to - loc_type_loc_0157)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0265
+    :parameters (?v - vehicle ?r - road_type_road_0265 ?from - loc_type_loc_0157 ?to - loc_type_loc_0052)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0266
+    :parameters (?v - vehicle ?r - road_type_road_0266 ?from - loc_type_loc_0158 ?to - loc_type_loc_0128)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0267
+    :parameters (?v - vehicle ?r - road_type_road_0267 ?from - loc_type_loc_0159 ?to - loc_type_loc_0195)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0268
+    :parameters (?v - vehicle ?r - road_type_road_0268 ?from - loc_type_loc_0159 ?to - loc_type_loc_0134)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0269
+    :parameters (?v - vehicle ?r - road_type_road_0269 ?from - loc_type_loc_0160 ?to - loc_type_loc_0127)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0271
+    :parameters (?v - vehicle ?r - road_type_road_0271 ?from - loc_type_loc_0161 ?to - loc_type_loc_0054)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0272
+    :parameters (?v - vehicle ?r - road_type_road_0272 ?from - loc_type_loc_0163 ?to - loc_type_loc_0182)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0273
+    :parameters (?v - vehicle ?r - road_type_road_0273 ?from - loc_type_loc_0163 ?to - loc_type_loc_0183)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0274
+    :parameters (?v - vehicle ?r - road_type_road_0274 ?from - loc_type_loc_0164 ?to - loc_type_loc_0075)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0275-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0275 ?from - loc_type_loc_0164 ?to - loc_type_loc_0123 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0276-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0276 ?from - loc_type_loc_0165 ?to - loc_type_loc_0078 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0277
+    :parameters (?v - vehicle ?r - road_type_road_0277 ?from - loc_type_loc_0165 ?to - loc_type_loc_0164)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0279
+    :parameters (?v - vehicle ?r - road_type_road_0279 ?from - loc_type_loc_0169 ?to - loc_type_loc_0133)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0280
+    :parameters (?v - vehicle ?r - road_type_road_0280 ?from - loc_type_loc_0169 ?to - loc_type_loc_0191)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0281
+    :parameters (?v - vehicle ?r - road_type_road_0281 ?from - loc_type_loc_0170 ?to - loc_type_loc_0142)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0282
+    :parameters (?v - vehicle ?r - road_type_road_0282 ?from - loc_type_loc_0171 ?to - loc_type_loc_0039)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0286
+    :parameters (?v - vehicle ?r - road_type_road_0286 ?from - loc_type_loc_0173 ?to - loc_type_loc_0059)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0287
+    :parameters (?v - vehicle ?r - road_type_road_0287 ?from - loc_type_loc_0173 ?to - loc_type_loc_0064)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0288
+    :parameters (?v - vehicle ?r - road_type_road_0288 ?from - loc_type_loc_0174 ?to - loc_type_loc_0109)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0289
+    :parameters (?v - vehicle ?r - road_type_road_0289 ?from - loc_type_loc_0174 ?to - loc_type_loc_0110)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0290-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0290 ?from - loc_type_loc_0175 ?to - loc_type_loc_0055 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0291
+    :parameters (?v - vehicle ?r - road_type_road_0291 ?from - loc_type_loc_0175 ?to - loc_type_loc_0177)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0292-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0292 ?from - loc_type_loc_0176 ?to - loc_type_loc_0131 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0293
+    :parameters (?v - vehicle ?r - road_type_road_0293 ?from - loc_type_loc_0176 ?to - loc_type_loc_0160)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0294
+    :parameters (?v - vehicle ?r - road_type_road_0294 ?from - loc_type_loc_0177 ?to - loc_type_loc_0193)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0295
+    :parameters (?v - vehicle ?r - road_type_road_0295 ?from - loc_type_loc_0177 ?to - loc_type_loc_0028)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0296
+    :parameters (?v - vehicle ?r - road_type_road_0296 ?from - loc_type_loc_0178 ?to - loc_type_loc_0037)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0297
+    :parameters (?v - vehicle ?r - road_type_road_0297 ?from - loc_type_loc_0178 ?to - loc_type_loc_0067)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0298
+    :parameters (?v - vehicle ?r - road_type_road_0298 ?from - loc_type_loc_0179 ?to - loc_type_loc_0080)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0299
+    :parameters (?v - vehicle ?r - road_type_road_0299 ?from - loc_type_loc_0180 ?to - loc_type_loc_0083)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0300
+    :parameters (?v - vehicle ?r - road_type_road_0300 ?from - loc_type_loc_0181 ?to - loc_type_loc_0014)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0301-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0301 ?from - loc_type_loc_0181 ?to - loc_type_loc_0015 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0302
+    :parameters (?v - vehicle ?r - road_type_road_0302 ?from - loc_type_loc_0182 ?to - loc_type_loc_0163)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0303
+    :parameters (?v - vehicle ?r - road_type_road_0303 ?from - loc_type_loc_0183 ?to - loc_type_loc_0095)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0307
+    :parameters (?v - vehicle ?r - road_type_road_0307 ?from - loc_type_loc_0185 ?to - loc_type_loc_0024)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0309-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0309 ?from - loc_type_loc_0186 ?to - loc_type_loc_0176 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0310
+    :parameters (?v - vehicle ?r - road_type_road_0310 ?from - loc_type_loc_0187 ?to - loc_type_loc_0066)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0311
+    :parameters (?v - vehicle ?r - road_type_road_0311 ?from - loc_type_loc_0188 ?to - loc_type_loc_0079)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0312
+    :parameters (?v - vehicle ?r - road_type_road_0312 ?from - loc_type_loc_0188 ?to - loc_type_loc_0122)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0313
+    :parameters (?v - vehicle ?r - road_type_road_0313 ?from - loc_type_loc_0188 ?to - loc_type_loc_0123)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0315
+    :parameters (?v - vehicle ?r - road_type_road_0315 ?from - loc_type_loc_0190 ?to - loc_type_loc_0181)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0316
+    :parameters (?v - vehicle ?r - road_type_road_0316 ?from - loc_type_loc_0191 ?to - loc_type_loc_0169)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0317
+    :parameters (?v - vehicle ?r - road_type_road_0317 ?from - loc_type_loc_0192 ?to - loc_type_loc_0186)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0318
+    :parameters (?v - vehicle ?r - road_type_road_0318 ?from - loc_type_loc_0193 ?to - loc_type_loc_0081)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0319
+    :parameters (?v - vehicle ?r - road_type_road_0319 ?from - loc_type_loc_0193 ?to - loc_type_loc_0175)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00000
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00000)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00030
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00030)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00060
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00060)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00090
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00090)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00120
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00120)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00150
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00150)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00180
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00180)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00210
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00210)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00240
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00240)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00270
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00270)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00300
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00300)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00330
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00330)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00360
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00360)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00390
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00390)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00420
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00420)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-dynamic-road_0320-tw_00450
+    :parameters (?v - vehicle ?r - road_type_road_0320 ?from - loc_type_loc_0194 ?to - loc_type_loc_0082 ?w - window_type_tw_00450)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (dynamic-road ?r)
+      (current-window ?w)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration-window ?r ?w))
+      (increase (sim-time) (travel-duration-window ?r ?w))
+    )
+  )
+
+  (:action traverse-road-static-road_0321
+    :parameters (?v - vehicle ?r - road_type_road_0321 ?from - loc_type_loc_0194 ?to - loc_type_loc_0174)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0324
+    :parameters (?v - vehicle ?r - road_type_road_0324 ?from - loc_type_loc_0196 ?to - loc_type_loc_0125)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0325
+    :parameters (?v - vehicle ?r - road_type_road_0325 ?from - loc_type_loc_0196 ?to - loc_type_loc_0199)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0326
+    :parameters (?v - vehicle ?r - road_type_road_0326 ?from - loc_type_loc_0196 ?to - loc_type_loc_0124)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0327
+    :parameters (?v - vehicle ?r - road_type_road_0327 ?from - loc_type_loc_0197 ?to - loc_type_loc_0031)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0328
+    :parameters (?v - vehicle ?r - road_type_road_0328 ?from - loc_type_loc_0198 ?to - loc_type_loc_0007)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0329
+    :parameters (?v - vehicle ?r - road_type_road_0329 ?from - loc_type_loc_0198 ?to - loc_type_loc_0163)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  (:action traverse-road-static-road_0330
+    :parameters (?v - vehicle ?r - road_type_road_0330 ?from - loc_type_loc_0199 ?to - loc_type_loc_0196)
+    :precondition (and
+      (at ?v ?from)
+      (connects ?r ?from ?to)
+      (road-open ?r)
+      (static-road ?r)
+      (not (road-blocked ?r))
+      (not (location-blocked ?from))
+      (not (location-blocked ?to))
+    )
+    :effect (and
+      (not (at ?v ?from))
+      (at ?v ?to)
+      (increase (travel-time ?v) (travel-duration ?r))
+      (increase (sim-time) (travel-duration ?r))
+    )
+  )
+
+  ;; Advances the single global congestion window.
+  (:event advance-window
+    :parameters (?from - time-window ?to - time-window)
+    :precondition (and
+      (current-window ?from)
+      (next-window ?from ?to)
+      (>= (sim-time) (window-start ?to))
+    )
+    :effect (and
+      (not (current-window ?from))
+      (current-window ?to)
+    )
+  )
+)

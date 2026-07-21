@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-07-15T19:08:22.321104",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 1,
+  "blocked_locations": [],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0153"
+      ],
+      "description": "Accident on road_0153 (loc_0094–loc_0093) blocks a short, high‑traffic link close to the main axis, forcing vehicles to detour around the busy junction at loc_0094."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0149",
+        "road_0473"
+      ],
+      "description": "Slowdown on roads 0149 and 0473 (both connecting loc_0093 and loc_0282) reduces speed on a corridor that runs parallel to the main axis, increasing travel time but keeping the road open.",
+      "severity": 2.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0152",
+        "road_0454"
+      ],
+      "description": "Slowdown on roads 0152 and 0454 (linking loc_0094 and loc_0267) slows traffic on an alternative route, discouraging use of the already congested axis.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0213",
+        "road_0216"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-07-15T18:20:56.537404",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0067",
+      "event_type": "roadworks",
+      "description": "Roadworks at node 0067 block the two parallel roads to 0178 (0107 and 0297). These roads have the lowest distance_to_axis (5.9) and form a critical bridge between the two sub‑areas, so their closure forces traffic to divert through 0066 or 0067‑0088, creating a noticeable detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0178",
+      "event_type": "roadworks",
+      "description": "Roadworks at node 0067 block the two parallel roads to 0178 (0107 and 0297). These roads have the lowest distance_to_axis (5.9) and form a critical bridge between the two sub‑areas, so their closure forces traffic to divert through 0066 or 0067‑0088, creating a noticeable detour.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0104"
+      ],
+      "description": "Accident on road_0104 (0066–0187) removes a short, low‑degree link that lies close to the direct start‑goal axis, forcing vehicles to detour via 0066‑0067 or 0187‑0104‑0066, increasing travel time."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0107",
+        "road_0297"
+      ],
+      "description": "Roadworks at node 0067 block the two parallel roads to 0178 (0107 and 0297). These roads have the lowest distance_to_axis (5.9) and form a critical bridge between the two sub‑areas, so their closure forces traffic to divert through 0066 or 0067‑0088, creating a noticeable detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0148",
+        "road_0151"
+      ],
+      "description": "Light congestion on roads 0148 (0088–0104) and 0151 (0088–0090) slows traffic by a factor of 2.5. Both roads lie close to the axis and are the main connectors from the 0088 junction to the rest of the network, so the slowdown increases travel times without blocking the route entirely.",
+      "severity": 2.5
+    }
+  ]
+}

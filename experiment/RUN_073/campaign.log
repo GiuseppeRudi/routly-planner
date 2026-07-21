@@ -1,0 +1,70 @@
+
+========================================================================
+STAGE: build_macro_roads
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\build_macro_roads.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_700_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_078/config/project.yaml
+========================================================================
+Fuel stations fixed before macro-road abstraction: 105 -> data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\artifacts\fuel_stations.json
+Macro-road abstraction completed.
+  Roads: 1249 -> 1221 (ratio=0.9776)
+  Nodes: 700 -> 691 (ratio=0.9871)
+  Mapping:   data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\map\roads_mapping_macro.json
+  Report:    data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\map\macro_roads_report.json
+  Base graph:  data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\map\road_network_graph_base.png
+  Macro graph: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\map\road_network_graph_macro.png
+  Image:     data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\map\macro_roads_comparison.png
+
+========================================================================
+STAGE: build_domain_and_problem
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\03_build_domain_and_problem.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_700_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_078/config/project.yaml
+========================================================================
+Building PDDL domain and problem from scenario and mapping
+Generated 200 shared background routes: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\artifacts\background_routes.json
+Generated 8 traffic-light programs: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\artifacts\traffic_light_timings.json
+Fuel: 105 stations, tank=18.074 L, start=14.459 L, rate=0.0071138056410998745 L/m
+
+PDDL DOMAIN DEFERRED TO CONTROLLER: the active replanning controller will write the canonical domain.pddl used for its planning run.
+Computed congestion factors for 1221 roads from 200 generated background routes.
+
+PDDL PROBLEM CREATED:
+  Vehicle: car1
+  Start:   loc_0611
+  Goal:    loc_0695
+  Problem: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\pddl\problem.pddl
+
+========================================================================
+STAGE: generate_plan
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\04_generate_plan.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_700_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_078/config/project.yaml
+========================================================================
+Cached congestion factors for 1221 roads from 200 background routes (computed once, reused for all legs).
+Using overridden congestion factors for 1221 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\plans\plan_fuel_base_leg_00.txt
+Elapsed time: 627.668s
+Using overridden congestion factors for 1221 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\plans\plan_fuel_base_leg_01.txt
+Elapsed time: 645.601s
+Using overridden congestion factors for 1221 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\plans\plan_fuel_base_leg_02.txt
+Elapsed time: 622.878s
+   Controller: leg 2 to loc_0204 needs 23.599 L over 3317 m but only 18.074 L available; picking a closer target.
+Using overridden congestion factors for 1221 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\plans\plan_fuel_base_leg_02.txt
+Elapsed time: 643.978s
+Using overridden congestion factors for 1221 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\plans\plan_fuel_base_leg_03.txt
+Elapsed time: 626.633s
+Using overridden congestion factors for 1221 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\plans\plan_fuel_base_leg_04.txt
+Elapsed time: 638.593s
+Roads in controller plan (base): 49
+  Reached loc_0695 in 5 leg(s); final fuel 4.493 L.
+  Legs/windows image: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\images\road_network_plan_legs.png
+
+OUTPUT FILES (fuel controller):
+  Plan:       data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\plans\plan.txt
+  Plan image: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_078\runs\basic\images\road_network_plan.png

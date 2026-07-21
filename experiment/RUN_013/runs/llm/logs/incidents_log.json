@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-07-15T17:52:14.316443",
+  "seed": 71,
+  "total_events": 2,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0028",
+      "event_type": "roadworks",
+      "description": "Roadworks on the three roads incident to the low‑degree node loc_0028, with distances to axis 0.1, 27.5, and 35.8. The closure blocks a narrow corridor close to the direct path, forcing detours through adjacent streets.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0044",
+        "road_0076",
+        "road_0089"
+      ],
+      "description": "Roadworks on the three roads incident to the low‑degree node loc_0028, with distances to axis 0.1, 27.5, and 35.8. The closure blocks a narrow corridor close to the direct path, forcing detours through adjacent streets."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0031",
+        "road_0033"
+      ],
+      "description": "Light congestion on the two roads meeting at node loc_0021, both near the main corridor (distances 6.9 and 28.8). The roads remain open but travel speed is reduced by a factor of 2.5.",
+      "severity": 2.5
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 98148
+Aibr Preprocessing
+|F|:1274
+|X|:2
+Aibr Preprocessing
+|A|:808
+|P|:1
+|E|:808
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 39
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=6.18
+ g(n)= 178.0 h(n)=0.0
+Extracting plan with execution delta: 1.0
+Problem Solved
+
+Found Plan:
+0: (start-traversal car1 road_0851 loc_0494 loc_0219)
+0: -----waiting---- [2.0]
+2.0: (start-traversal car1 road_0420 loc_0219 loc_0444)
+2.0: -----waiting---- [22.0]
+22.0: (start-traversal car1 road_0778 loc_0444 loc_0495)
+22.0: -----waiting---- [23.0]
+23.0: (start-traversal car1 road_0853 loc_0495 loc_0029)
+23.0: -----waiting---- [30.0]
+30.0: (start-traversal car1 road_0053 loc_0029 loc_0030)
+30.0: -----waiting---- [60.0]
+60.0: (start-traversal car1 road_0054 loc_0030 loc_0252)
+60.0: -----waiting---- [65.0]
+65.0: (start-traversal car1 road_0477 loc_0252 loc_0256)
+65.0: -----waiting---- [74.0]
+74.0: (start-traversal car1 road_0484 loc_0256 loc_0491)
+74.0: -----waiting---- [78.0]
+78.0: (start-traversal car1 road_0844 loc_0491 loc_0324)
+78.0: -----waiting---- [91.0]
+91.0: (start-traversal car1 road_0595 loc_0324 loc_0009)
+91.0: -----waiting---- [99.0]
+99.0: (start-traversal car1 road_0017 loc_0009 loc_0404)
+99.0: -----waiting---- [103.0]
+103.0: (start-traversal car1 macro_0043 loc_0404 loc_0087)
+103.0: -----waiting---- [148.0]
+148.0: (start-traversal car1 road_0163 loc_0087 loc_0086)
+148.0: -----waiting---- [161.0]
+161.0: (start-traversal car1 road_0161 loc_0086 loc_0075)
+161.0: -----waiting---- [178.0]
+178.0: (start-traversal car1 road_0143 loc_0075 loc_0076)
+178.0: -----waiting---- [182.0]
+
+Plan-Length:212
+Elapsed Time: 182.0
+Metric (Search):182.0
+Planning Time (msec): 201529
+Heuristic Time (msec): 1143
+Search Time (msec): 1843
+Expanded Nodes:7459
+States Evaluated:7488
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:27
+Number of Duplicates detected:220

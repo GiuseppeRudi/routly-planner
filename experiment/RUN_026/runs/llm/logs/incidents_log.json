@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-15T18:17:03.383396",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "A cluster of three roads at junction loc_0081—road_0124, road_0125, and road_0141—are closed. This low‑degree node lies close to the straight line between start and goal, so blocking all three forces a detour around the eastern flank of the network.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0090",
+      "event_type": "roadworks",
+      "description": "A cluster of three roads at junction loc_0081—road_0124, road_0125, and road_0141—are closed. This low‑degree node lies close to the straight line between start and goal, so blocking all three forces a detour around the eastern flank of the network.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0124",
+        "road_0125",
+        "road_0141"
+      ],
+      "description": "A cluster of three roads at junction loc_0081—road_0124, road_0125, and road_0141—are closed. This low‑degree node lies close to the straight line between start and goal, so blocking all three forces a detour around the eastern flank of the network."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0091"
+      ],
+      "description": "An accident on road_0091 (loc_0059 to loc_0139) blocks a narrow corridor that lies near the axis of travel, potentially causing significant delays for vehicles heading toward the goal."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0178",
+        "road_0185"
+      ],
+      "description": "Road_0178 (loc_0111 to loc_0115) and road_0185 (loc_0115 to loc_0017) experience moderate congestion. Both roads share the junction loc_0115, a key link close to the main path; the slowdown reduces speeds by a factor of 2.5.",
+      "severity": 2.5
+    }
+  ]
+}

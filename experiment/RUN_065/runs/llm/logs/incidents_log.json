@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-07-20T21:01:46.210006",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0060",
+      "event_type": "roadworks",
+      "description": "Roadworks on four low‑axis roads at intersection loc_0060, which lies close to the straight line between start and goal, forcing vehicles to detour around this hub.",
+      "shared_closed_roads": 4
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0102",
+        "road_0104",
+        "road_0116",
+        "road_0230"
+      ],
+      "description": "Roadworks on four low‑axis roads at intersection loc_0060, which lies close to the straight line between start and goal, forcing vehicles to detour around this hub."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0014"
+      ],
+      "description": "Accident blocking road_0014, a short connector near the direct corridor (distance_to_axis 28.7)."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0133",
+        "road_0147",
+        "road_0131"
+      ],
+      "description": "Mild slowdown on three adjacent roads at loc_0074 (roads 0133, 0131, 0147) with severity 2.8, representing light congestion near the main route.",
+      "severity": 2.8
+    }
+  ]
+}

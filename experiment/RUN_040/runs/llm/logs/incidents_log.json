@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-07-15T18:58:49.566149",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Node loc_0094 is a low‑degree junction linking two regions. Closing all three incident roads forces traffic to detour around the area.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Node loc_0094 is a low‑degree junction linking two regions. Closing all three incident roads forces traffic to detour around the area.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0153",
+        "road_0454"
+      ],
+      "description": "Node loc_0094 is a low‑degree junction linking two regions. Closing all three incident roads forces traffic to detour around the area."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0149",
+        "road_0473"
+      ],
+      "description": "Both road_0149 and road_0473 are parallel routes between loc_0093 and loc_0282. Slowing them reduces capacity and creates congestion on the corridor.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0213"
+      ],
+      "description": "Road_0213 connects loc_0124 to loc_0149. A slowdown here adds delay to the traffic flow along this link.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0216"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

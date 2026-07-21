@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-07-15T18:19:53.960353",
+  "seed": 71,
+  "total_events": 5,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0067",
+      "event_type": "roadworks",
+      "description": "Roadworks on both connections between loc_0067 and loc_0178 (road_0107) and between loc_0178 and loc_0067 (road_0297), effectively blocking the 0178‑0067 corridor and forcing traffic to detour via loc_0066 or the 0067‑0010/0106 routes.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0178",
+      "event_type": "roadworks",
+      "description": "Roadworks on both connections between loc_0067 and loc_0178 (road_0107) and between loc_0178 and loc_0067 (road_0297), effectively blocking the 0178‑0067 corridor and forcing traffic to detour via loc_0066 or the 0067‑0010/0106 routes.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0107",
+        "road_0297"
+      ],
+      "description": "Roadworks on both connections between loc_0067 and loc_0178 (road_0107) and between loc_0178 and loc_0067 (road_0297), effectively blocking the 0178‑0067 corridor and forcing traffic to detour via loc_0066 or the 0067‑0010/0106 routes."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0233"
+      ],
+      "description": "Roadworks at loc_0134 on both links to loc_0136 (road_0229) and the reverse link (road_0233), severing access to the southern part of the network and forcing detour via loc_0159 or loc_0195."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0104",
+        "road_0108"
+      ],
+      "description": "Light construction on roads 0104 (loc_0066–loc_0187) and 0108 (loc_0067–loc_0066) near loc_0066 slows traffic by a factor of 2.2, creating a bottleneck that may push vehicles onto alternative routes.",
+      "severity": 2.2
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0117",
+        "road_0235"
+      ],
+      "description": "Heavy congestion on the two links between loc_0072 and loc_0137 (road_0117 and road_0235) reduces speed by a factor of 3.0, potentially redirecting vehicles through loc_0118 or loc_0230.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0099",
+        "road_0151",
+        "road_0229"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

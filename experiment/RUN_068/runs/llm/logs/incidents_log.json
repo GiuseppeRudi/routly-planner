@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-07-20T21:25:33.151996",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0777",
+      "event_type": "roadworks",
+      "description": "Both roads connect loc_0777 and loc_1224, the shortest link (distance_to_axis 69.9) near the direct axis. Closing them forces vehicles to reroute via longer alternatives.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_1224",
+      "event_type": "roadworks",
+      "description": "Both roads connect loc_0777 and loc_1224, the shortest link (distance_to_axis 69.9) near the direct axis. Closing them forces vehicles to reroute via longer alternatives.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_1412",
+      "event_type": "robbery",
+      "description": "These two opposite‑direction roads link loc_0820 with loc_1412 (distance_to_axis ~230). The node loc_0820 is a key junction toward the goal, so blocking both directions creates a significant detour.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_1617",
+        "road_2442"
+      ],
+      "description": "Both roads connect loc_0777 and loc_1224, the shortest link (distance_to_axis 69.9) near the direct axis. Closing them forces vehicles to reroute via longer alternatives."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_1697",
+        "road_2768"
+      ],
+      "description": "These two opposite‑direction roads link loc_0820 with loc_1412 (distance_to_axis ~230). The node loc_0820 is a key junction toward the goal, so blocking both directions creates a significant detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_1551"
+      ],
+      "description": "Road 1551 runs between loc_0749 and loc_1990 with a moderate axis distance (232.1). Applying a slowdown simulates congestion on this corridor without fully blocking traffic.",
+      "severity": 2.8
+    }
+  ]
+}

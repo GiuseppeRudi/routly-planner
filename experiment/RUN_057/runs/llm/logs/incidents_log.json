@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-07-20T19:10:23.170911",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 6,
+  "blocked_locations": [
+    {
+      "id": "loc_0060",
+      "event_type": "roadworks",
+      "description": "Close the three lowest‑axis roads at intersection loc_0060 (macro_0010, macro_0018, road_0230). This node lies almost on the straight line between start and goal (distance_to_axis 11.4 and 9.0), so blocking it forces a significant detour.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0074",
+      "event_type": "robbery",
+      "description": "Block three connected roads at hub loc_0080 (road_0146, road_0133, road_0147). These roads have low distance_to_axis values (35.2–45.1) and share the same intersection, creating a concentrated disruption near the direct corridor.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0080",
+      "event_type": "robbery",
+      "description": "Block three connected roads at hub loc_0080 (road_0146, road_0133, road_0147). These roads have low distance_to_axis values (35.2–45.1) and share the same intersection, creating a concentrated disruption near the direct corridor.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0138",
+      "event_type": "roadworks",
+      "description": "Close the three lowest‑axis roads at intersection loc_0060 (macro_0010, macro_0018, road_0230). This node lies almost on the straight line between start and goal (distance_to_axis 11.4 and 9.0), so blocking it forces a significant detour.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "macro_0010",
+        "road_0230",
+        "macro_0018"
+      ],
+      "description": "Close the three lowest‑axis roads at intersection loc_0060 (macro_0010, macro_0018, road_0230). This node lies almost on the straight line between start and goal (distance_to_axis 11.4 and 9.0), so blocking it forces a significant detour."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0146",
+        "road_0147",
+        "road_0133"
+      ],
+      "description": "Block three connected roads at hub loc_0080 (road_0146, road_0133, road_0147). These roads have low distance_to_axis values (35.2–45.1) and share the same intersection, creating a concentrated disruption near the direct corridor."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0094"
+      ],
+      "description": "Apply a moderate slowdown on road_0094 (loc_0053‑loc_0086). Its distance_to_axis is only 37.1, so congestion here subtly reduces speed on a path close to the optimal line without fully closing the road.",
+      "severity": 2.8
+    }
+  ]
+}

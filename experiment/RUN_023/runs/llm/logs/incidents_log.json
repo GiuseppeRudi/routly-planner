@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-15T18:09:26.048614",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "Roadworks at intersection 0081 affecting roads 0125, 0164, and 0141. These roads form a low‑degree bridge between the northern and southern sub‑areas and sit on the main corridor, so closures will create significant detours.",
+      "shared_closed_roads": 4
+    },
+    {
+      "id": "loc_0090",
+      "event_type": "roadworks",
+      "description": "Roadworks at intersection 0081 affecting roads 0125, 0164, and 0141. These roads form a low‑degree bridge between the northern and southern sub‑areas and sit on the main corridor, so closures will create significant detours.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0124"
+      ],
+      "description": "Accident on road_0124 near junction 0081-0090, blocking a high‑traffic corridor that lies close to the direct path between the start and goal. This forces vehicles to detour around a key link."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0125",
+        "road_0141",
+        "road_0164"
+      ],
+      "description": "Roadworks at intersection 0081 affecting roads 0125, 0164, and 0141. These roads form a low‑degree bridge between the northern and southern sub‑areas and sit on the main corridor, so closures will create significant detours."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0178",
+        "road_0185"
+      ],
+      "description": "Light roadworks on roads 0178 and 0185 near intersection 0115. The roads are on the direct line and the slowdown will increase travel time, simulating congestion without fully blocking the route.",
+      "severity": 2.5
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-07-15T18:23:57.006275",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0067",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0108 and 0297 create a closed cluster at node 0067, removing two low‑distance (16.9 m and 5.9 m) links that lie close to the start–goal line.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0178",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0108 and 0297 create a closed cluster at node 0067, removing two low‑distance (16.9 m and 5.9 m) links that lie close to the start–goal line.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0107"
+      ],
+      "description": "A single-vehicle collision blocks road_0107, the shortest link between nodes 0067 and 0178, directly on the near‑axis corridor."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0108",
+        "road_0297"
+      ],
+      "description": "Roadworks on roads 0108 and 0297 create a closed cluster at node 0067, removing two low‑distance (16.9 m and 5.9 m) links that lie close to the start–goal line."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0148",
+        "road_0151"
+      ],
+      "description": "Light congestion on roads 0148 and 0151 at node 0088 slows traffic by a factor of 2.5; these roads are moderately close to the axis (46.1 m and 16.7 m).",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0118",
+        "road_0229"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

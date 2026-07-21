@@ -1,0 +1,86 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 21133
+Aibr Preprocessing
+|F|:297
+|X|:0
+|A|:555
+|P|:0
+|E|:0
+H1 Setup Time (msec): 51
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=306.6198
+ g(n)= 7.6563 h(n)=298.9635
+ g(n)= 8.5479 h(n)=298.0719
+ g(n)= 12.0008 h(n)=294.61902
+ g(n)= 54.7573 h(n)=251.86247
+ g(n)= 57.724003 h(n)=248.89578
+ g(n)= 79.2701 h(n)=227.34969
+ g(n)= 86.7397 h(n)=219.88008
+ g(n)= 94.1837 h(n)=212.4361
+ g(n)= 106.1014 h(n)=200.51839
+ g(n)= 106.4232 h(n)=200.1966
+ g(n)= 106.605705 h(n)=200.0141
+ g(n)= 120.064606 h(n)=186.5552
+ g(n)= 125.840904 h(n)=180.7789
+ g(n)= 126.8878 h(n)=179.73201
+ g(n)= 143.12021 h(n)=163.49959
+ g(n)= 163.73251 h(n)=142.88728
+ g(n)= 184.5812 h(n)=122.038605
+ g(n)= 191.90991 h(n)=114.7099
+ g(n)= 200.92581 h(n)=105.694
+ g(n)= 205.0225 h(n)=101.59729
+ g(n)= 217.44861 h(n)=89.17119
+ g(n)= 223.5581 h(n)=83.06169
+ g(n)= 226.2846 h(n)=80.33519
+ g(n)= 238.4328 h(n)=68.187
+ g(n)= 257.6225 h(n)=48.9973
+ g(n)= 266.4744 h(n)=40.1454
+ g(n)= 268.0081 h(n)=38.611702
+ g(n)= 281.2359 h(n)=25.3839
+ g(n)= 306.6198 h(n)=0.0
+Problem Solved
+
+Found Plan:
+0.0: (traverse-road car1 road_0115 road_0118)
+1.0: (traverse-road car1 road_0118 road_0229)
+2.0: (traverse-road car1 road_0229 road_0232)
+3.0: (traverse-road car1 road_0232 road_0242)
+4.0: (traverse-road car1 road_0242 road_0266)
+5.0: (traverse-road car1 road_0266 road_0217)
+6.0: (traverse-road car1 road_0217 road_0051)
+7.0: (traverse-road car1 road_0051 road_0294)
+8.0: (traverse-road car1 road_0294 road_0318)
+9.0: (traverse-road car1 road_0318 road_0136)
+10.0: (traverse-road car1 road_0136 road_0321)
+11.0: (traverse-road car1 road_0321 road_0288)
+12.0: (traverse-road car1 road_0288 road_0186)
+13.0: (traverse-road car1 road_0186 road_0193)
+14.0: (traverse-road car1 road_0193 macro_0000)
+15.0: (traverse-road car1 macro_0000 road_0192)
+16.0: (traverse-road car1 road_0192 road_0128)
+17.0: (traverse-road car1 road_0128 road_0122)
+18.0: (traverse-road car1 road_0122 road_0129)
+19.0: (traverse-road car1 road_0129 road_0252)
+20.0: (traverse-road car1 road_0252 road_0277)
+21.0: (traverse-road car1 road_0277 road_0274)
+22.0: (traverse-road car1 road_0274 road_0126)
+23.0: (traverse-road car1 road_0126 road_0099)
+24.0: (traverse-road car1 road_0099 road_0151)
+25.0: (traverse-road car1 road_0151 road_0148)
+26.0: (traverse-road car1 road_0148 road_0181)
+27.0: (traverse-road car1 road_0181 road_0198)
+28.0: (finish-road car1 road_0198)
+
+Plan-Length:29
+Metric (Search):306.6198
+Planning Time (msec): 22049
+Heuristic Time (msec): 75
+Search Time (msec): 140
+Expanded Nodes:30
+States Evaluated:63
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:0
+Number of Duplicates detected:0

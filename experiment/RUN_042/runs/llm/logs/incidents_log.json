@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-07-15T19:09:45.101583",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "robbery",
+      "description": "Robbery on roads 0149 and 0473 at junction loc_0282, a bridge node connecting to loc_0093, causing a detour.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0152 and 0454 at junction loc_0094, a low-degree node linking to the main corridor, forcing a detour.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0152 and 0454 at junction loc_0094, a low-degree node linking to the main corridor, forcing a detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0282",
+      "event_type": "robbery",
+      "description": "Robbery on roads 0149 and 0473 at junction loc_0282, a bridge node connecting to loc_0093, causing a detour.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0153"
+      ],
+      "description": "Accident on road_0153 blocks traffic between loc_0094 and loc_0093, a key link close to the direct path."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0454"
+      ],
+      "description": "Roadworks on roads 0152 and 0454 at junction loc_0094, a low-degree node linking to the main corridor, forcing a detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0216"
+      ],
+      "description": "Light congestion on road_0216 reduces speed by a factor of 2.5, affecting the link between loc_0126 and loc_0124.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0149",
+        "road_0473"
+      ],
+      "description": "Robbery on roads 0149 and 0473 at junction loc_0282, a bridge node connecting to loc_0093, causing a detour."
+    }
+  ]
+}

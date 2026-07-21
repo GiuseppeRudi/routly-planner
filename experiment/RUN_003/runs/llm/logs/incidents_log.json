@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-07-15T15:02:27.022285",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0028",
+      "event_type": "roadworks",
+      "description": "Roadworks on the low‑distance connector road_0044 and adjacent road_0076 near junction loc_0028. These roads lie close to the direct path and closing them would force a detour between the northern and southern sectors.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0051",
+      "event_type": "robbery",
+      "description": "Robbery at junction loc_0051 affecting road_0106 (closest to axis) and road_0125. Blocking these roads disrupts the main east‑west corridor.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0044",
+        "road_0076"
+      ],
+      "description": "Roadworks on the low‑distance connector road_0044 and adjacent road_0076 near junction loc_0028. These roads lie close to the direct path and closing them would force a detour between the northern and southern sectors."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0106",
+        "road_0125"
+      ],
+      "description": "Robbery at junction loc_0051 affecting road_0106 (closest to axis) and road_0125. Blocking these roads disrupts the main east‑west corridor."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0031",
+        "road_0129",
+        "road_0033"
+      ],
+      "description": "Slowdown on three roads near junction loc_0021: road_0031 (very close to axis), road_0033, and road_0129. Severity 2.5 reduces speeds by a factor of 2.5 along this corridor.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0057"
+      ],
+      "description": "Accident on road_0057 connecting loc_0038 and loc_0077, a key link between the western and eastern sections."
+    }
+  ]
+}

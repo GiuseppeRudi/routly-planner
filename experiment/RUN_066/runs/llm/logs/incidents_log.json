@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-07-20T21:04:47.419730",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 6,
+  "blocked_locations": [
+    {
+      "id": "loc_0000",
+      "event_type": "robbery",
+      "description": "Robbery incident blocks two adjacent roads sharing hub loc_0000, cutting off a small local loop that connects to the main network.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0019",
+      "event_type": "roadworks",
+      "description": "Roadworks at node loc_0020 block three of the shortest links (distances 8.9, 8.9 and 28.2) that lie closest to the straight axis between start and goal, forcing a noticeable detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0020",
+      "event_type": "roadworks",
+      "description": "Roadworks at node loc_0020 block three of the shortest links (distances 8.9, 8.9 and 28.2) that lie closest to the straight axis between start and goal, forcing a noticeable detour.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0043",
+        "road_0046",
+        "road_0000"
+      ],
+      "description": "Roadworks at node loc_0020 block three of the shortest links (distances 8.9, 8.9 and 28.2) that lie closest to the straight axis between start and goal, forcing a noticeable detour."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0006"
+      ],
+      "description": "Accident on road_0006, the very low‑distance (10.1) segment from loc_0002 to loc_0364, a critical short connector near the direct path."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0022"
+      ],
+      "description": "Light slowdown on road_0022 (distance 13.1), the near‑axis corridor from loc_0010 to loc_0636; traffic moves slower but the road remains usable.",
+      "severity": 2.7
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0001",
+        "road_0049"
+      ],
+      "description": "Robbery incident blocks two adjacent roads sharing hub loc_0000, cutting off a small local loop that connects to the main network."
+    }
+  ]
+}

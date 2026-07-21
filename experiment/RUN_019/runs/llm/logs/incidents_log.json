@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-15T15:32:04.270975",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "Roadworks at node 0081 close the three nearby segments (road_0124, road_0125, road_0141) that lie close to the axis, shutting down a key junction and creating a major detour.",
+      "shared_closed_roads": 4
+    },
+    {
+      "id": "loc_0090",
+      "event_type": "roadworks",
+      "description": "Roadworks at node 0081 close the three nearby segments (road_0124, road_0125, road_0141) that lie close to the axis, shutting down a key junction and creating a major detour.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0164"
+      ],
+      "description": "A collision on road_0164, the shortest segment (0.5 units from the start-goal axis) between nodes 0102 and 0081, blocks traffic entirely and forces vehicles to detour significantly."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0124",
+        "road_0141",
+        "road_0125"
+      ],
+      "description": "Roadworks at node 0081 close the three nearby segments (road_0124, road_0125, road_0141) that lie close to the axis, shutting down a key junction and creating a major detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0024",
+        "road_0185"
+      ],
+      "description": "Construction-related congestion on roads 0024 and 0185 at node 0115 reduces speeds by a factor of 2.0; the roads remain open but travel time increases.",
+      "severity": 2.0
+    }
+  ]
+}

@@ -1,0 +1,1890 @@
+[
+  {
+    "depart": 1.0,
+    "roads": [
+      "road_0137",
+      "road_0139",
+      "road_0112",
+      "road_0109",
+      "road_0111",
+      "road_0067",
+      "road_0047"
+    ]
+  },
+  {
+    "depart": 1.0,
+    "roads": [
+      "road_0023",
+      "road_0148"
+    ]
+  },
+  {
+    "depart": 1.4,
+    "roads": [
+      "road_0014",
+      "road_0078",
+      "road_0073",
+      "road_0152",
+      "road_0042",
+      "macro_0007",
+      "road_0058",
+      "road_0089",
+      "road_0044",
+      "road_0032",
+      "road_0106"
+    ]
+  },
+  {
+    "depart": 1.7,
+    "roads": [
+      "road_0106",
+      "road_0076",
+      "road_0044",
+      "road_0033",
+      "road_0030"
+    ]
+  },
+  {
+    "depart": 1.7,
+    "roads": [
+      "road_0135",
+      "road_0134",
+      "road_0065"
+    ]
+  },
+  {
+    "depart": 2.3,
+    "roads": [
+      "road_0142",
+      "road_0112",
+      "road_0108",
+      "road_0135"
+    ]
+  },
+  {
+    "depart": 2.4,
+    "roads": [
+      "road_0133",
+      "road_0072",
+      "road_0126",
+      "road_0046",
+      "macro_0012",
+      "road_0026"
+    ]
+  },
+  {
+    "depart": 3.1,
+    "roads": [
+      "road_0051",
+      "road_0036",
+      "road_0021",
+      "road_0052",
+      "road_0085",
+      "macro_0010",
+      "road_0096",
+      "road_0037"
+    ]
+  },
+  {
+    "depart": 3.3,
+    "roads": [
+      "road_0151",
+      "road_0124",
+      "road_0130",
+      "road_0012",
+      "road_0133",
+      "road_0072",
+      "road_0126"
+    ]
+  },
+  {
+    "depart": 3.5,
+    "roads": [
+      "road_0021",
+      "road_0052",
+      "road_0084",
+      "road_0018",
+      "road_0025"
+    ]
+  },
+  {
+    "depart": 3.6,
+    "roads": [
+      "road_0045",
+      "road_0127",
+      "road_0071",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 3.8,
+    "roads": [
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 3.9,
+    "roads": [
+      "road_0129",
+      "road_0031",
+      "road_0089",
+      "road_0044",
+      "road_0032"
+    ]
+  },
+  {
+    "depart": 4.1,
+    "roads": [
+      "road_0073",
+      "road_0151",
+      "road_0124",
+      "road_0130",
+      "road_0012",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 4.2,
+    "roads": [
+      "road_0146",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 4.3,
+    "roads": [
+      "road_0152",
+      "road_0043",
+      "road_0143"
+    ]
+  },
+  {
+    "depart": 4.7,
+    "roads": [
+      "road_0089",
+      "road_0044",
+      "road_0033",
+      "road_0030",
+      "road_0130",
+      "road_0014",
+      "road_0079",
+      "road_0011",
+      "road_0084",
+      "road_0018"
+    ]
+  },
+  {
+    "depart": 4.8,
+    "roads": [
+      "road_0031",
+      "road_0088",
+      "road_0057",
+      "road_0124",
+      "road_0130",
+      "road_0012",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 5.0,
+    "roads": [
+      "road_0043",
+      "road_0143",
+      "road_0073",
+      "road_0151",
+      "road_0124",
+      "road_0129",
+      "road_0031",
+      "road_0089",
+      "road_0044"
+    ]
+  },
+  {
+    "depart": 5.3,
+    "roads": [
+      "road_0008",
+      "road_0004",
+      "road_0039",
+      "road_0036",
+      "road_0021",
+      "road_0052",
+      "road_0085"
+    ]
+  },
+  {
+    "depart": 5.5,
+    "roads": [
+      "macro_0015",
+      "road_0137",
+      "road_0139",
+      "road_0112"
+    ]
+  },
+  {
+    "depart": 5.6,
+    "roads": [
+      "road_0083",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 5.6,
+    "roads": [
+      "road_0116",
+      "road_0080",
+      "road_0092",
+      "road_0109",
+      "road_0111",
+      "road_0067",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 5.6,
+    "roads": [
+      "road_0160",
+      "road_0158",
+      "road_0069",
+      "road_0019",
+      "macro_0017",
+      "road_0015"
+    ]
+  },
+  {
+    "depart": 5.6,
+    "roads": [
+      "road_0137",
+      "road_0139",
+      "road_0112",
+      "road_0110",
+      "road_0093",
+      "macro_0009"
+    ]
+  },
+  {
+    "depart": 6.1,
+    "roads": [
+      "road_0014",
+      "road_0079",
+      "road_0011",
+      "road_0084",
+      "road_0018",
+      "road_0025"
+    ]
+  },
+  {
+    "depart": 6.2,
+    "roads": [
+      "road_0161",
+      "road_0135",
+      "road_0134",
+      "road_0064",
+      "road_0111",
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 6.2,
+    "roads": [
+      "road_0109",
+      "road_0111",
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 6.3,
+    "roads": [
+      "macro_0005",
+      "road_0117",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 6.5,
+    "roads": [
+      "road_0142",
+      "road_0112",
+      "road_0110",
+      "road_0090",
+      "road_0113",
+      "macro_0004",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 6.7,
+    "roads": [
+      "road_0045",
+      "road_0127",
+      "road_0071",
+      "road_0131",
+      "road_0142"
+    ]
+  },
+  {
+    "depart": 7.0,
+    "roads": [
+      "road_0011",
+      "road_0084",
+      "road_0017",
+      "road_0019",
+      "macro_0017"
+    ]
+  },
+  {
+    "depart": 7.0,
+    "roads": [
+      "road_0127",
+      "road_0071",
+      "macro_0014",
+      "road_0003",
+      "road_0103",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 7.1,
+    "roads": [
+      "road_0040",
+      "road_0154",
+      "macro_0013",
+      "road_0054",
+      "road_0077"
+    ]
+  },
+  {
+    "depart": 7.5,
+    "roads": [
+      "road_0105",
+      "road_0022",
+      "road_0072",
+      "road_0125",
+      "road_0076",
+      "road_0044",
+      "road_0033",
+      "road_0030",
+      "road_0130",
+      "road_0012",
+      "macro_0014",
+      "road_0003"
+    ]
+  },
+  {
+    "depart": 7.6,
+    "roads": [
+      "road_0033",
+      "road_0031",
+      "road_0088",
+      "road_0057",
+      "road_0124",
+      "road_0130",
+      "road_0012",
+      "macro_0014"
+    ]
+  },
+  {
+    "depart": 7.6,
+    "roads": [
+      "road_0127",
+      "road_0071",
+      "road_0131",
+      "road_0142",
+      "road_0112",
+      "road_0108",
+      "macro_0015"
+    ]
+  },
+  {
+    "depart": 7.9,
+    "roads": [
+      "road_0084",
+      "road_0017",
+      "road_0019",
+      "road_0156",
+      "road_0122"
+    ]
+  },
+  {
+    "depart": 8.1,
+    "roads": [
+      "road_0110",
+      "road_0090",
+      "road_0114",
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 8.2,
+    "roads": [
+      "road_0009",
+      "macro_0007",
+      "road_0057",
+      "road_0124",
+      "road_0130",
+      "road_0014",
+      "road_0079"
+    ]
+  },
+  {
+    "depart": 8.5,
+    "roads": [
+      "road_0044",
+      "road_0032",
+      "road_0106"
+    ]
+  },
+  {
+    "depart": 8.6,
+    "roads": [
+      "road_0011",
+      "road_0085",
+      "macro_0010",
+      "road_0096",
+      "road_0037",
+      "macro_0000",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 9.1,
+    "roads": [
+      "road_0011",
+      "road_0085",
+      "macro_0010",
+      "road_0096",
+      "road_0037",
+      "road_0003",
+      "road_0103",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 9.1,
+    "roads": [
+      "road_0033",
+      "road_0030",
+      "road_0130",
+      "road_0014",
+      "road_0079",
+      "road_0011"
+    ]
+  },
+  {
+    "depart": 9.4,
+    "roads": [
+      "road_0080",
+      "road_0090",
+      "road_0113",
+      "macro_0004",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 9.5,
+    "roads": [
+      "road_0114",
+      "road_0067",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 9.6,
+    "roads": [
+      "road_0092",
+      "road_0108",
+      "road_0135",
+      "road_0134",
+      "road_0065"
+    ]
+  },
+  {
+    "depart": 9.8,
+    "roads": [
+      "road_0112",
+      "road_0110",
+      "macro_0011",
+      "road_0041",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 9.9,
+    "roads": [
+      "road_0028",
+      "road_0046",
+      "macro_0012",
+      "road_0026"
+    ]
+  },
+  {
+    "depart": 10.3,
+    "roads": [
+      "road_0118",
+      "road_0083",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 10.8,
+    "roads": [
+      "road_0139",
+      "road_0112",
+      "road_0109",
+      "road_0111",
+      "road_0067"
+    ]
+  },
+  {
+    "depart": 10.8,
+    "roads": [
+      "road_0154",
+      "macro_0013",
+      "macro_0005",
+      "road_0118",
+      "macro_0009"
+    ]
+  },
+  {
+    "depart": 11.0,
+    "roads": [
+      "road_0057",
+      "road_0124",
+      "road_0129",
+      "road_0031"
+    ]
+  },
+  {
+    "depart": 11.2,
+    "roads": [
+      "road_0063",
+      "road_0041",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 11.2,
+    "roads": [
+      "road_0129",
+      "road_0031",
+      "road_0088",
+      "road_0057"
+    ]
+  },
+  {
+    "depart": 11.2,
+    "roads": [
+      "road_0125",
+      "road_0076",
+      "road_0044",
+      "road_0032",
+      "road_0105",
+      "road_0022",
+      "road_0071",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 11.3,
+    "roads": [
+      "road_0135",
+      "road_0134",
+      "road_0064",
+      "road_0111",
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 11.6,
+    "roads": [
+      "road_0021",
+      "road_0052",
+      "road_0084",
+      "road_0018",
+      "road_0025",
+      "road_0158",
+      "road_0069",
+      "road_0019"
+    ]
+  },
+  {
+    "depart": 12.0,
+    "roads": [
+      "road_0108",
+      "road_0135",
+      "road_0134",
+      "road_0065"
+    ]
+  },
+  {
+    "depart": 12.2,
+    "roads": [
+      "road_0156",
+      "road_0122"
+    ]
+  },
+  {
+    "depart": 12.4,
+    "roads": [
+      "macro_0017",
+      "road_0015"
+    ]
+  },
+  {
+    "depart": 12.5,
+    "roads": [
+      "road_0117",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 12.8,
+    "roads": [
+      "road_0070",
+      "road_0159"
+    ]
+  },
+  {
+    "depart": 13.1,
+    "roads": [
+      "road_0133",
+      "road_0072",
+      "road_0125",
+      "road_0076",
+      "road_0044",
+      "road_0033",
+      "road_0030"
+    ]
+  },
+  {
+    "depart": 13.2,
+    "roads": [
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 14.0,
+    "roads": [
+      "road_0080",
+      "macro_0011",
+      "road_0041",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 14.2,
+    "roads": [
+      "macro_0007",
+      "road_0057",
+      "road_0124",
+      "road_0129",
+      "road_0031",
+      "road_0089"
+    ]
+  },
+  {
+    "depart": 14.3,
+    "roads": [
+      "road_0064",
+      "road_0111",
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 14.6,
+    "roads": [
+      "road_0032",
+      "road_0106",
+      "road_0076"
+    ]
+  },
+  {
+    "depart": 14.6,
+    "roads": [
+      "macro_0017",
+      "road_0015"
+    ]
+  },
+  {
+    "depart": 14.7,
+    "roads": [
+      "road_0126",
+      "road_0046",
+      "road_0100",
+      "road_0029",
+      "road_0061"
+    ]
+  },
+  {
+    "depart": 15.4,
+    "roads": [
+      "road_0022",
+      "road_0071",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 16.5,
+    "roads": [
+      "road_0018",
+      "road_0025",
+      "road_0159"
+    ]
+  },
+  {
+    "depart": 16.8,
+    "roads": [
+      "road_0018",
+      "road_0025",
+      "road_0159"
+    ]
+  },
+  {
+    "depart": 17.7,
+    "roads": [
+      "road_0084",
+      "road_0017",
+      "road_0020",
+      "road_0070",
+      "road_0159"
+    ]
+  },
+  {
+    "depart": 17.8,
+    "roads": [
+      "road_0028",
+      "road_0045",
+      "road_0127",
+      "road_0071"
+    ]
+  },
+  {
+    "depart": 18.1,
+    "roads": [
+      "road_0046",
+      "macro_0012",
+      "road_0026"
+    ]
+  },
+  {
+    "depart": 18.1,
+    "roads": [
+      "road_0127",
+      "road_0071",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 18.3,
+    "roads": [
+      "road_0147",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 18.7,
+    "roads": [
+      "road_0080",
+      "macro_0011",
+      "road_0041",
+      "macro_0002"
+    ]
+  },
+  {
+    "depart": 18.8,
+    "roads": [
+      "road_0034",
+      "road_0027"
+    ]
+  },
+  {
+    "depart": 18.9,
+    "roads": [
+      "road_0080",
+      "road_0092",
+      "road_0108",
+      "macro_0015",
+      "road_0137",
+      "road_0139"
+    ]
+  },
+  {
+    "depart": 19.5,
+    "roads": [
+      "macro_0013",
+      "road_0054",
+      "road_0077"
+    ]
+  },
+  {
+    "depart": 20.0,
+    "roads": [
+      "road_0096",
+      "road_0039",
+      "road_0036",
+      "road_0021"
+    ]
+  },
+  {
+    "depart": 20.8,
+    "roads": [
+      "road_0108",
+      "macro_0015",
+      "road_0137",
+      "road_0139"
+    ]
+  },
+  {
+    "depart": 21.2,
+    "roads": [
+      "road_0032",
+      "road_0105",
+      "road_0022",
+      "road_0071",
+      "macro_0014",
+      "road_0003",
+      "road_0103",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 21.3,
+    "roads": [
+      "road_0134",
+      "road_0064",
+      "road_0111",
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 21.6,
+    "roads": [
+      "macro_0005",
+      "road_0117",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 21.6,
+    "roads": [
+      "road_0125",
+      "road_0076",
+      "road_0044",
+      "road_0032",
+      "road_0105",
+      "road_0022",
+      "road_0071",
+      "macro_0014",
+      "road_0003",
+      "road_0103",
+      "macro_0016",
+      "macro_0002"
+    ]
+  },
+  {
+    "depart": 22.2,
+    "roads": [
+      "road_0079",
+      "road_0011",
+      "road_0084",
+      "road_0018",
+      "road_0025"
+    ]
+  },
+  {
+    "depart": 22.3,
+    "roads": [
+      "road_0002",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 22.5,
+    "roads": [
+      "macro_0013",
+      "road_0054",
+      "road_0077"
+    ]
+  },
+  {
+    "depart": 22.5,
+    "roads": [
+      "road_0110",
+      "road_0090",
+      "road_0113",
+      "macro_0004",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 22.8,
+    "roads": [
+      "road_0137",
+      "road_0139",
+      "road_0112",
+      "road_0110",
+      "road_0090"
+    ]
+  },
+  {
+    "depart": 23.3,
+    "roads": [
+      "road_0022",
+      "road_0071",
+      "macro_0014",
+      "road_0003",
+      "road_0103",
+      "macro_0016"
+    ]
+  },
+  {
+    "depart": 23.8,
+    "roads": [
+      "road_0069",
+      "road_0019",
+      "road_0156",
+      "road_0122"
+    ]
+  },
+  {
+    "depart": 24.3,
+    "roads": [
+      "road_0044",
+      "road_0033",
+      "road_0031",
+      "road_0088"
+    ]
+  },
+  {
+    "depart": 24.4,
+    "roads": [
+      "road_0098",
+      "road_0080",
+      "road_0090",
+      "road_0113",
+      "macro_0004",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 24.7,
+    "roads": [
+      "road_0098",
+      "macro_0008",
+      "macro_0004",
+      "road_0047"
+    ]
+  },
+  {
+    "depart": 24.8,
+    "roads": [
+      "macro_0013",
+      "macro_0005",
+      "road_0117",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 26.0,
+    "roads": [
+      "road_0024",
+      "road_0096",
+      "road_0039",
+      "road_0035"
+    ]
+  },
+  {
+    "depart": 26.1,
+    "roads": [
+      "road_0123",
+      "road_0157",
+      "road_0020",
+      "macro_0006",
+      "road_0025"
+    ]
+  },
+  {
+    "depart": 26.9,
+    "roads": [
+      "road_0093",
+      "macro_0008",
+      "macro_0004",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 27.6,
+    "roads": [
+      "road_0140",
+      "macro_0014",
+      "road_0003",
+      "macro_0013",
+      "road_0054"
+    ]
+  },
+  {
+    "depart": 27.7,
+    "roads": [
+      "road_0093",
+      "macro_0008",
+      "macro_0004",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 28.0,
+    "roads": [
+      "road_0040",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 28.8,
+    "roads": [
+      "road_0096",
+      "road_0037",
+      "road_0003",
+      "road_0103",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 29.5,
+    "roads": [
+      "road_0034",
+      "road_0027"
+    ]
+  },
+  {
+    "depart": 29.6,
+    "roads": [
+      "road_0089",
+      "road_0044",
+      "road_0032",
+      "road_0105",
+      "road_0022",
+      "road_0072",
+      "road_0125"
+    ]
+  },
+  {
+    "depart": 29.6,
+    "roads": [
+      "road_0152",
+      "road_0043",
+      "road_0143"
+    ]
+  },
+  {
+    "depart": 29.9,
+    "roads": [
+      "road_0052",
+      "road_0085",
+      "macro_0010",
+      "road_0096"
+    ]
+  },
+  {
+    "depart": 30.1,
+    "roads": [
+      "road_0118",
+      "road_0080",
+      "road_0092",
+      "road_0108",
+      "macro_0015",
+      "road_0138"
+    ]
+  },
+  {
+    "depart": 30.5,
+    "roads": [
+      "road_0130",
+      "road_0014",
+      "road_0079",
+      "road_0011"
+    ]
+  },
+  {
+    "depart": 30.9,
+    "roads": [
+      "road_0111",
+      "road_0067",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 31.6,
+    "roads": [
+      "road_0043",
+      "road_0143",
+      "road_0073",
+      "road_0151",
+      "road_0124",
+      "road_0129",
+      "road_0031",
+      "road_0088",
+      "road_0056"
+    ]
+  },
+  {
+    "depart": 32.2,
+    "roads": [
+      "road_0086",
+      "road_0084",
+      "road_0018",
+      "road_0025",
+      "road_0158",
+      "road_0069"
+    ]
+  },
+  {
+    "depart": 32.6,
+    "roads": [
+      "road_0044",
+      "road_0033",
+      "road_0031",
+      "road_0088"
+    ]
+  },
+  {
+    "depart": 34.3,
+    "roads": [
+      "road_0069",
+      "road_0019",
+      "road_0156",
+      "road_0122"
+    ]
+  },
+  {
+    "depart": 34.5,
+    "roads": [
+      "road_0147",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 34.9,
+    "roads": [
+      "road_0103",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 35.1,
+    "roads": [
+      "road_0146",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 35.5,
+    "roads": [
+      "road_0023",
+      "road_0149"
+    ]
+  },
+  {
+    "depart": 36.0,
+    "roads": [
+      "road_0028",
+      "road_0046",
+      "macro_0012",
+      "road_0027"
+    ]
+  },
+  {
+    "depart": 36.1,
+    "roads": [
+      "road_0073",
+      "road_0152",
+      "road_0043"
+    ]
+  },
+  {
+    "depart": 36.4,
+    "roads": [
+      "road_0103",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 36.7,
+    "roads": [
+      "road_0152",
+      "road_0043",
+      "road_0143"
+    ]
+  },
+  {
+    "depart": 37.3,
+    "roads": [
+      "road_0073",
+      "road_0151",
+      "road_0124",
+      "road_0129",
+      "road_0031",
+      "road_0089",
+      "road_0044",
+      "road_0032",
+      "road_0105",
+      "road_0022",
+      "road_0071",
+      "road_0131"
+    ]
+  },
+  {
+    "depart": 37.3,
+    "roads": [
+      "road_0098",
+      "road_0080",
+      "road_0092",
+      "road_0108",
+      "macro_0015",
+      "road_0138"
+    ]
+  },
+  {
+    "depart": 38.1,
+    "roads": [
+      "road_0156",
+      "road_0122"
+    ]
+  },
+  {
+    "depart": 38.6,
+    "roads": [
+      "road_0112",
+      "road_0108",
+      "macro_0015",
+      "road_0138"
+    ]
+  },
+  {
+    "depart": 38.9,
+    "roads": [
+      "road_0069",
+      "road_0019",
+      "road_0156",
+      "road_0122"
+    ]
+  },
+  {
+    "depart": 39.5,
+    "roads": [
+      "road_0040",
+      "road_0154",
+      "macro_0013",
+      "road_0054",
+      "road_0077"
+    ]
+  },
+  {
+    "depart": 39.6,
+    "roads": [
+      "road_0095",
+      "road_0086",
+      "road_0084",
+      "road_0018",
+      "road_0025",
+      "road_0159"
+    ]
+  },
+  {
+    "depart": 40.0,
+    "roads": [
+      "macro_0005",
+      "road_0118",
+      "road_0083",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 40.1,
+    "roads": [
+      "road_0093",
+      "macro_0009"
+    ]
+  },
+  {
+    "depart": 40.4,
+    "roads": [
+      "road_0134",
+      "road_0065"
+    ]
+  },
+  {
+    "depart": 41.2,
+    "roads": [
+      "road_0158",
+      "road_0069",
+      "road_0019",
+      "road_0156",
+      "road_0122"
+    ]
+  },
+  {
+    "depart": 41.9,
+    "roads": [
+      "road_0044",
+      "road_0032",
+      "road_0106"
+    ]
+  },
+  {
+    "depart": 42.0,
+    "roads": [
+      "road_0072",
+      "road_0125",
+      "road_0076",
+      "road_0044",
+      "road_0033",
+      "road_0031",
+      "road_0088",
+      "road_0057"
+    ]
+  },
+  {
+    "depart": 42.3,
+    "roads": [
+      "macro_0012",
+      "road_0027"
+    ]
+  },
+  {
+    "depart": 42.4,
+    "roads": [
+      "road_0130",
+      "road_0012",
+      "macro_0014",
+      "road_0004"
+    ]
+  },
+  {
+    "depart": 42.8,
+    "roads": [
+      "road_0147",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 42.8,
+    "roads": [
+      "road_0008",
+      "macro_0000",
+      "road_0133",
+      "road_0072",
+      "road_0125"
+    ]
+  },
+  {
+    "depart": 44.8,
+    "roads": [
+      "road_0001",
+      "macro_0001",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 46.9,
+    "roads": [
+      "road_0102",
+      "macro_0000",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 47.1,
+    "roads": [
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 47.4,
+    "roads": [
+      "road_0001",
+      "macro_0001",
+      "road_0047"
+    ]
+  },
+  {
+    "depart": 47.6,
+    "roads": [
+      "road_0034",
+      "road_0027"
+    ]
+  },
+  {
+    "depart": 48.1,
+    "roads": [
+      "macro_0017",
+      "road_0015"
+    ]
+  },
+  {
+    "depart": 49.0,
+    "roads": [
+      "macro_0015",
+      "road_0138"
+    ]
+  },
+  {
+    "depart": 49.0,
+    "roads": [
+      "road_0042",
+      "road_0075"
+    ]
+  },
+  {
+    "depart": 49.7,
+    "roads": [
+      "road_0023",
+      "road_0148"
+    ]
+  },
+  {
+    "depart": 51.4,
+    "roads": [
+      "road_0151",
+      "road_0124",
+      "road_0129",
+      "road_0031",
+      "road_0088"
+    ]
+  },
+  {
+    "depart": 51.8,
+    "roads": [
+      "road_0150",
+      "road_0022",
+      "road_0071",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 51.8,
+    "roads": [
+      "road_0111",
+      "road_0067",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 52.2,
+    "roads": [
+      "road_0134",
+      "road_0065"
+    ]
+  },
+  {
+    "depart": 52.4,
+    "roads": [
+      "road_0071",
+      "macro_0014",
+      "road_0004",
+      "road_0039"
+    ]
+  },
+  {
+    "depart": 53.2,
+    "roads": [
+      "road_0111",
+      "road_0067",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 54.2,
+    "roads": [
+      "road_0106",
+      "road_0076",
+      "road_0044",
+      "road_0033",
+      "road_0030"
+    ]
+  },
+  {
+    "depart": 54.7,
+    "roads": [
+      "road_0100",
+      "road_0029",
+      "road_0061"
+    ]
+  },
+  {
+    "depart": 55.4,
+    "roads": [
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 55.6,
+    "roads": [
+      "road_0083",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 56.3,
+    "roads": [
+      "road_0034",
+      "road_0027"
+    ]
+  },
+  {
+    "depart": 56.5,
+    "roads": [
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 56.7,
+    "roads": [
+      "road_0033",
+      "road_0030",
+      "road_0130",
+      "road_0014",
+      "road_0078",
+      "road_0073",
+      "road_0151"
+    ]
+  },
+  {
+    "depart": 57.1,
+    "roads": [
+      "road_0032",
+      "road_0106",
+      "road_0076"
+    ]
+  },
+  {
+    "depart": 57.5,
+    "roads": [
+      "road_0106",
+      "road_0076",
+      "road_0044",
+      "road_0033",
+      "road_0030",
+      "road_0130",
+      "road_0012"
+    ]
+  },
+  {
+    "depart": 57.8,
+    "roads": [
+      "road_0125",
+      "road_0076",
+      "road_0044",
+      "road_0032",
+      "road_0105",
+      "road_0023",
+      "road_0149"
+    ]
+  },
+  {
+    "depart": 59.0,
+    "roads": [
+      "road_0090",
+      "road_0114",
+      "road_0067",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 59.7,
+    "roads": [
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 60.2,
+    "roads": [
+      "road_0001",
+      "macro_0001",
+      "road_0049"
+    ]
+  },
+  {
+    "depart": 60.6,
+    "roads": [
+      "macro_0011",
+      "road_0041",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 61.3,
+    "roads": [
+      "road_0157",
+      "road_0020",
+      "road_0070",
+      "road_0159"
+    ]
+  },
+  {
+    "depart": 61.3,
+    "roads": [
+      "road_0151",
+      "road_0124",
+      "road_0129",
+      "road_0031",
+      "road_0088",
+      "road_0056"
+    ]
+  },
+  {
+    "depart": 62.0,
+    "roads": [
+      "road_0102",
+      "macro_0000",
+      "road_0131",
+      "road_0141"
+    ]
+  },
+  {
+    "depart": 62.4,
+    "roads": [
+      "road_0064",
+      "road_0111",
+      "road_0067",
+      "road_0047"
+    ]
+  },
+  {
+    "depart": 62.7,
+    "roads": [
+      "road_0073",
+      "road_0152",
+      "road_0043"
+    ]
+  },
+  {
+    "depart": 63.8,
+    "roads": [
+      "road_0128",
+      "macro_0003"
+    ]
+  },
+  {
+    "depart": 64.0,
+    "roads": [
+      "road_0070",
+      "road_0159"
+    ]
+  },
+  {
+    "depart": 65.1,
+    "roads": [
+      "road_0029",
+      "road_0061"
+    ]
+  },
+  {
+    "depart": 65.7,
+    "roads": [
+      "macro_0017",
+      "road_0015"
+    ]
+  },
+  {
+    "depart": 66.6,
+    "roads": [
+      "road_0113",
+      "macro_0004",
+      "road_0047"
+    ]
+  },
+  {
+    "depart": 66.6,
+    "roads": [
+      "macro_0005",
+      "road_0117",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 66.9,
+    "roads": [
+      "road_0003",
+      "road_0103",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 67.7,
+    "roads": [
+      "road_0042",
+      "road_0075"
+    ]
+  },
+  {
+    "depart": 68.1,
+    "roads": [
+      "road_0118",
+      "macro_0009"
+    ]
+  },
+  {
+    "depart": 68.2,
+    "roads": [
+      "road_0042",
+      "macro_0007",
+      "road_0056"
+    ]
+  },
+  {
+    "depart": 69.3,
+    "roads": [
+      "road_0125",
+      "road_0076",
+      "road_0044",
+      "road_0032"
+    ]
+  },
+  {
+    "depart": 70.3,
+    "roads": [
+      "road_0129",
+      "road_0031",
+      "road_0088",
+      "road_0057"
+    ]
+  },
+  {
+    "depart": 71.6,
+    "roads": [
+      "road_0058",
+      "road_0089",
+      "road_0044",
+      "road_0033",
+      "road_0030",
+      "road_0130"
+    ]
+  },
+  {
+    "depart": 73.1,
+    "roads": [
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 74.2,
+    "roads": [
+      "macro_0004",
+      "road_0047"
+    ]
+  },
+  {
+    "depart": 78.3,
+    "roads": [
+      "road_0044",
+      "road_0032",
+      "road_0106"
+    ]
+  },
+  {
+    "depart": 78.6,
+    "roads": [
+      "road_0146",
+      "macro_0016",
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 78.8,
+    "roads": [
+      "road_0019",
+      "macro_0017",
+      "road_0015"
+    ]
+  },
+  {
+    "depart": 85.1,
+    "roads": [
+      "road_0089",
+      "road_0044",
+      "road_0032",
+      "road_0106"
+    ]
+  },
+  {
+    "depart": 85.7,
+    "roads": [
+      "road_0117",
+      "road_0144"
+    ]
+  },
+  {
+    "depart": 91.4,
+    "roads": [
+      "macro_0002",
+      "road_0059"
+    ]
+  },
+  {
+    "depart": 92.0,
+    "roads": [
+      "road_0066",
+      "road_0060"
+    ]
+  },
+  {
+    "depart": 93.1,
+    "roads": [
+      "macro_0001",
+      "road_0047"
+    ]
+  }
+]

@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-07-15T15:04:26.904395",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "These three roads meet at node loc_0065, a low‑degree junction linking the eastern sub‑area to the core network. Blocking all three removes the primary connection between loc_0065 and its neighbors, creating a significant detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0065",
+      "event_type": "roadworks",
+      "description": "These three roads meet at node loc_0065, a low‑degree junction linking the eastern sub‑area to the core network. Blocking all three removes the primary connection between loc_0065 and its neighbors, creating a significant detour.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0044"
+      ],
+      "description": "road_0044 connects loc_0028 to loc_0022 and lies almost directly on the axis (distance 0.1). Its closure would sever the narrow corridor between the two sub‑areas, forcing traffic to detour via longer routes."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0032",
+        "road_0106",
+        "road_0105"
+      ],
+      "description": "These three roads meet at node loc_0065, a low‑degree junction linking the eastern sub‑area to the core network. Blocking all three removes the primary connection between loc_0065 and its neighbors, creating a significant detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0022",
+        "road_0127",
+        "road_0072"
+      ],
+      "description": "Roads 0022, 0072, and 0127 form a cluster around node loc_0048, which sits near the central axis. Slowing these three roads (severity 2.8) simulates construction affecting the main corridor, increasing travel time without closing the link.",
+      "severity": 2.8
+    }
+  ]
+}

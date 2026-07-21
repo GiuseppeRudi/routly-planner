@@ -1,0 +1,52 @@
+;; ==========================================================
+;;  CONTROLLER FUEL PLAN (offline replanning)  [base]
+;;  vehicle=car1  start=loc_0071  goal=loc_0120
+;;  tank=5.198 L  initial=4.158 L  rate=0.003815 L/m  full_range=1362 m
+;;  blocked_roads=0  safety_factor=0.9
+;; ==========================================================
+;; --- leg 0: loc_0071 -> loc_0136 (station), 96 m, 0.367 L consumed, fuel left 3.791 L
+0.000: (start-traversal car1 road_0115 loc_0071 loc_0072)
+8.000: (start-traversal car1 road_0118 loc_0072 loc_0134)
+9.000: (start-traversal car1 road_0229 loc_0134 loc_0136)
+;; refuel at loc_0136 -> tank full (5.198 L)
+;; --- leg 1: loc_0136 -> loc_0141 (station), 258 m, 0.985 L consumed, fuel left 4.213 L
+10.000: (start-traversal car1 road_0232 loc_0136 loc_0141)
+;; refuel at loc_0141 -> tank full (5.198 L)
+;; --- leg 2: loc_0141 -> loc_0124 (station), 1113 m, 4.245 L consumed, fuel left 0.953 L
+11.000: (start-traversal car1 road_0242 loc_0141 loc_0158)
+15.000: (start-traversal car1 road_0266 loc_0158 loc_0128)
+37.000: (start-traversal car1 road_0217 loc_0128 loc_0028)
+44.000: (start-traversal car1 road_0051 loc_0028 loc_0177)
+52.000: (start-traversal car1 road_0294 loc_0177 loc_0193)
+65.000: (start-traversal car1 road_0318 loc_0193 loc_0081)
+66.000: (start-traversal car1 road_0136 loc_0081 loc_0194)
+67.000: (start-traversal car1 road_0321 loc_0194 loc_0174)
+80.000: (start-traversal car1 road_0288 loc_0174 loc_0109)
+86.000: (start-traversal car1 road_0186 loc_0109 loc_0113)
+87.000: (start-traversal car1 road_0193 loc_0113 loc_0005)
+97.000: (start-traversal car1 macro_0000 loc_0005 loc_0112)
+118.000: (start-traversal car1 road_0192 loc_0112 loc_0076)
+132.000: (start-traversal car1 road_0128 loc_0076 loc_0074)
+140.000: (start-traversal car1 road_0122 loc_0074 loc_0077)
+148.000: (start-traversal car1 road_0129 loc_0077 loc_0148)
+152.000: (start-traversal car1 road_0252 loc_0148 loc_0165)
+161.000: (start-traversal car1 road_0276 loc_0165 loc_0078)
+165.000: (start-traversal car1 road_0130 loc_0078 loc_0124)
+;; refuel at loc_0124 -> tank full (5.198 L)
+;; --- leg 3: loc_0124 -> loc_0120 (goal), 1273 m, 4.858 L consumed, fuel left 0.340 L
+166.000: (start-traversal car1 road_0209 loc_0124 loc_0076)
+175.000: (start-traversal car1 road_0128 loc_0076 loc_0074)
+183.000: (start-traversal car1 road_0122 loc_0074 loc_0077)
+191.000: (start-traversal car1 road_0129 loc_0077 loc_0148)
+195.000: (start-traversal car1 road_0252 loc_0148 loc_0165)
+204.000: (start-traversal car1 road_0277 loc_0165 loc_0164)
+210.000: (start-traversal car1 road_0275 loc_0164 loc_0123)
+220.000: (start-traversal car1 road_0207 loc_0123 loc_0188)
+224.000: (start-traversal car1 road_0312 loc_0188 loc_0122)
+251.000: (start-traversal car1 road_0206 loc_0122 loc_0075)
+265.000: (start-traversal car1 road_0126 loc_0075 loc_0058)
+276.000: (start-traversal car1 road_0099 loc_0058 loc_0090)
+297.000: (start-traversal car1 road_0151 loc_0090 loc_0088)
+308.000: (start-traversal car1 road_0148 loc_0088 loc_0104)
+310.000: (start-traversal car1 road_0181 loc_0104 loc_0115)
+325.000: (start-traversal car1 road_0198 loc_0115 loc_0120)

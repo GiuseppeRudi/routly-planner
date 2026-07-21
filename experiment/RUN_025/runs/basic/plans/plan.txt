@@ -1,0 +1,71 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 9494
+Aibr Preprocessing
+|F|:369
+|X|:3
+Aibr Preprocessing
+|A|:259
+|P|:1
+|E|:229
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 40
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=0.0
+Extracting plan with execution delta: 1.0
+Problem Solved
+
+Found Plan:
+0: (start-traversal car1 road_0201 loc_0124 loc_0074)
+0: -----waiting---- [17.0]
+17.0: (start-traversal car1 road_0115 loc_0074 loc_0136)
+17.0: -----waiting---- [19.0]
+19.0: (start-traversal car1 road_0220 loc_0136 loc_0111)
+19.0: -----waiting---- [27.0]
+27.0: (start-traversal car1 road_0178 loc_0111 loc_0115)
+27.0: -----waiting---- [47.0]
+47.0: (start-traversal car1 road_0185 loc_0115 loc_0017)
+47.0: -----waiting---- [63.0]
+63.0: (start-traversal car1 road_0023 loc_0017 loc_0116)
+63.0: -----waiting---- [91.0]
+91.0: (start-traversal car1 road_0186 loc_0116 loc_0123)
+91.0: -----waiting---- [98.0]
+98.0: (start-traversal car1 road_0199 loc_0123 loc_0002)
+98.0: -----waiting---- [117.0]
+117.0: (refuel car1 loc_0002)
+117.0: (start-traversal car1 road_0003 loc_0002 loc_0123)
+117.0: -----waiting---- [133.0]
+133.0: (start-traversal car1 road_0199 loc_0123 loc_0002)
+133.0: -----waiting---- [152.0]
+152.0: (start-traversal car1 road_0003 loc_0002 loc_0123)
+152.0: -----waiting---- [168.0]
+168.0: (start-traversal car1 road_0200 loc_0123 loc_0099)
+168.0: -----waiting---- [189.0]
+189.0: (start-traversal car1 road_0158 loc_0099 loc_0097)
+189.0: -----waiting---- [234.0]
+234.0: (start-traversal car1 road_0155 loc_0097 loc_0098)
+234.0: -----waiting---- [270.0]
+270.0: (start-traversal car1 road_0157 loc_0098 loc_0070)
+270.0: -----waiting---- [277.0]
+277.0: (start-traversal car1 road_0108 loc_0070 loc_0051)
+277.0: -----waiting---- [289.0]
+289.0: (refuel car1 loc_0051)
+289.0: (start-traversal car1 road_0078 loc_0051 loc_0049)
+289.0: -----waiting---- [328.0]
+
+Plan-Length:364
+Elapsed Time: 328.0
+Metric (Search):328.0
+Planning Time (msec): 20596
+Heuristic Time (msec): 289
+Search Time (msec): 417
+Expanded Nodes:1458
+States Evaluated:1576
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:24
+Number of Duplicates detected:7

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-07-17T15:58:18.026527",
+  "seed": 71,
+  "total_events": 1,
+  "total_roads_closed": 0,
+  "blocked_locations": [],
+  "events": [
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0073"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

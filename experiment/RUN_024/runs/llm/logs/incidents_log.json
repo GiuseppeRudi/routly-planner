@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-07-15T18:11:30.152795",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0125 and 0164 near node 0081, a major junction on the main corridor, forcing vehicles to detour around the closed links.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0139",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0091 and 0225 at node 0139, a low‑degree connector between the northern and eastern sectors, likely disrupting local traffic patterns.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0125",
+        "road_0164"
+      ],
+      "description": "Roadworks on roads 0125 and 0164 near node 0081, a major junction on the main corridor, forcing vehicles to detour around the closed links."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0091",
+        "road_0225"
+      ],
+      "description": "Roadworks on roads 0091 and 0225 at node 0139, a low‑degree connector between the northern and eastern sectors, likely disrupting local traffic patterns."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0115"
+      ],
+      "description": "Slowdown on roads 0115 and 0185 with severity 3.0; these roads lie close to the driving axis and form part of a key interchange, reducing speeds and increasing travel time.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0185"
+      ],
+      "description": "Slowdown on roads 0115 and 0185 with severity 3.0; these roads lie close to the driving axis and form part of a key interchange, reducing speeds and increasing travel time.",
+      "severity": 3.0
+    }
+  ]
+}

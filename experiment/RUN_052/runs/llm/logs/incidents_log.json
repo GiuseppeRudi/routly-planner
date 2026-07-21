@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-07-15T19:57:10.224270",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "robbery",
+      "description": "A robbery at intersection loc_0093 forces closure of roads 0149 and 0473, cutting the main cross‑link between the two sides of the network.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Roadworks at intersection loc_0094 close both connecting roads 0152 and 0454, creating a bottleneck on the near‑axis corridor.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Roadworks at intersection loc_0094 close both connecting roads 0152 and 0454, creating a bottleneck on the near‑axis corridor.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0282",
+      "event_type": "robbery",
+      "description": "A robbery at intersection loc_0093 forces closure of roads 0149 and 0473, cutting the main cross‑link between the two sides of the network.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0153"
+      ],
+      "description": "An accident blocks road_0153, the shortest near‑axis link between the start and goal, forcing vehicles to detour around this critical segment."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0454"
+      ],
+      "description": "Roadworks at intersection loc_0094 close both connecting roads 0152 and 0454, creating a bottleneck on the near‑axis corridor."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0149",
+        "road_0473"
+      ],
+      "description": "A robbery at intersection loc_0093 forces closure of roads 0149 and 0473, cutting the main cross‑link between the two sides of the network."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0216"
+      ],
+      "description": "Light congestion on road_0216 slows traffic by a factor of 2.8, impacting the detour route that bypasses the blocked near‑axis roads.",
+      "severity": 2.8
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-07-20T20:13:23.052023",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 9,
+  "blocked_locations": [
+    {
+      "id": "loc_0060",
+      "event_type": "roadworks",
+      "description": "Roadworks at hub loc_0060 closing four main links (roads 0102, 0116, 0230, 0104) that lie close to the straight line between start and goal, forcing vehicles to detour around this central node.",
+      "shared_closed_roads": 4
+    },
+    {
+      "id": "loc_0074",
+      "event_type": "robbery",
+      "description": "Robbery blocking four connected roads at intersection loc_0080 (roads 0147, 0146, 0133, 0145), which are among the closest routes to the direct path, creating a significant bottleneck.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0080",
+      "event_type": "robbery",
+      "description": "Robbery blocking four connected roads at intersection loc_0080 (roads 0147, 0146, 0133, 0145), which are among the closest routes to the direct path, creating a significant bottleneck.",
+      "shared_closed_roads": 4
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0102",
+        "road_0104",
+        "road_0230",
+        "road_0116"
+      ],
+      "description": "Roadworks at hub loc_0060 closing four main links (roads 0102, 0116, 0230, 0104) that lie close to the straight line between start and goal, forcing vehicles to detour around this central node."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0094"
+      ],
+      "description": "Minor slowdown on road_0094 connecting loc_0053–loc_0086, a short segment near the axis, reducing speed by factor 2.5.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0147",
+        "road_0146",
+        "road_0133",
+        "road_0145"
+      ],
+      "description": "Robbery blocking four connected roads at intersection loc_0080 (roads 0147, 0146, 0133, 0145), which are among the closest routes to the direct path, creating a significant bottleneck."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0161"
+      ],
+      "description": "Accident completely blocks road_0161 between loc_0088 and loc_0476, a low‑distance segment near the axis."
+    }
+  ]
+}

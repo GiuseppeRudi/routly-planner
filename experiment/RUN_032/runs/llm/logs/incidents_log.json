@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-15T18:23:10.134499",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 2,
+  "blocked_locations": [
+    {
+      "id": "loc_0067",
+      "event_type": "roadworks",
+      "description": "Roadworks close the bidirectional link between 0067 and 0178 via roads 0107 and 0297. These roads have the lowest distance to axis (5.9) and are part of the main corridor from the start area to the goal. Closing them requires detours through 0067-0108-0066-0187-0104-0204-0120, adding significant delay.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0178",
+      "event_type": "roadworks",
+      "description": "Roadworks close the bidirectional link between 0067 and 0178 via roads 0107 and 0297. These roads have the lowest distance to axis (5.9) and are part of the main corridor from the start area to the goal. Closing them requires detours through 0067-0108-0066-0187-0104-0204-0120, adding significant delay.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0107",
+        "road_0297"
+      ],
+      "description": "Roadworks close the bidirectional link between 0067 and 0178 via roads 0107 and 0297. These roads have the lowest distance to axis (5.9) and are part of the main corridor from the start area to the goal. Closing them requires detours through 0067-0108-0066-0187-0104-0204-0120, adding significant delay."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0118",
+        "road_0230"
+      ],
+      "description": "Roads 0118 and 0230, both connecting 0072 to 0134, experience a slowdown (severity 2.5). Although not closed, the reduced speed simulates maintenance congestion on this secondary route, affecting traffic heading toward 0134 and downstream nodes.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0151"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

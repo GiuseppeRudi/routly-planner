@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-15T15:22:30.809839",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0021",
+      "event_type": "roadworks",
+      "description": "Temporary roadworks shut down all roads incident to loc_0022. This low‑degree node links the 0065 area to the rest of the network; closing roads_0032, _0033, and _0044 isolates that region and creates a significant detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "Temporary roadworks shut down all roads incident to loc_0022. This low‑degree node links the 0065 area to the rest of the network; closing roads_0032, _0033, and _0044 isolates that region and creates a significant detour.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0031"
+      ],
+      "description": "A collision blocks road_0031, which lies only 6.9 units from the direct start‑goal axis and connects the key junctions loc_0021 and loc_0057. Its closure forces traffic to detour through longer routes."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0032",
+        "road_0044",
+        "road_0033"
+      ],
+      "description": "Temporary roadworks shut down all roads incident to loc_0022. This low‑degree node links the 0065 area to the rest of the network; closing roads_0032, _0033, and _0044 isolates that region and creates a significant detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0076",
+        "road_0125"
+      ],
+      "description": "Light traffic congestion slows down roads_0076 and _0125, which together form the secondary path from loc_0051 to loc_0080 via loc_0078. The 2.5x slowdown reduces speed on this detour, increasing travel time.",
+      "severity": 2.5
+    }
+  ]
+}

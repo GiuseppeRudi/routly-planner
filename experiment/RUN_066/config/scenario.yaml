@@ -1,0 +1,27 @@
+scenario:
+  name: rq1_hyb_1000_d_l_c
+map:
+  place_name: Bologna, Emilia-Romagna, Italy
+  place_slug: Bologna_Emilia-Romagna_Italy
+  map_scenario: nodes_1000_distance_4000
+  graphml_path: data/Bologna_Emilia-Romagna_Italy/nodes_1000_distance_4000/scalability_v2_campaign_20260720_185954_968444_rq1_hyb_1000_d_l_c/map/road_network.graphml
+  mapping_path: data/Bologna_Emilia-Romagna_Italy/nodes_1000_distance_4000/scalability_v2_campaign_20260720_185954_968444_rq1_hyb_1000_d_l_c/map/roads_mapping.json
+  planning_mapping_path: data/Bologna_Emilia-Romagna_Italy/nodes_1000_distance_4000/scalability_v2_campaign_20260720_185954_968444_rq1_hyb_1000_d_l_c/map/roads_mapping_macro.json
+vehicles:
+- id: car1
+  start:
+    type: location_id
+    value: loc_0425
+    x: 685878.329
+    y: 4927216.552
+    osm_node_id: '347468484'
+    lat: 44.4743482
+    lon: 11.337121
+  goal:
+    type: location_id
+    value: loc_0342
+    x: 687230.855
+    y: 4930966.747
+    osm_node_id: '267311971'
+    lat: 44.5077325
+    lon: 11.3554707

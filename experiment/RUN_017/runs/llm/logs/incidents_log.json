@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-07-15T15:30:40.527263",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "Roadworks on three roads converging at intersection loc_0081, a low‑degree bridge linking the northern and southern parts of the network. These roads have distances to the axis of 1.9, 13.7, and 0.5 respectively, making the cluster highly influential on the direct path.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0125",
+        "road_0164",
+        "road_0124"
+      ],
+      "description": "Roadworks on three roads converging at intersection loc_0081, a low‑degree bridge linking the northern and southern parts of the network. These roads have distances to the axis of 1.9, 13.7, and 0.5 respectively, making the cluster highly influential on the direct path."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0090"
+      ],
+      "description": "An accident on road_0090 (distance to axis 13.7) blocks the short 0090‑0059 link, forcing traffic to detour around the central junction at loc_0090."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0140"
+      ],
+      "description": "Light congestion on road_0140 (distance to axis 16.3) slows traffic on the 0090‑0059 segment by a factor of 3.0, creating a mild bottleneck near the central axis.",
+      "severity": 3.0
+    }
+  ]
+}

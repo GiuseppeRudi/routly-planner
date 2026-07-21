@@ -10,7 +10,7 @@ graph_simplification:
   keep_largest_component: true
   remove_isolated_nodes: true
   distance_meters: 1000
-  max_nodes: 200
+  max_nodes: 500
 planner:
   enhsp_jar: planners/enhsp/enhsp-20.jar
   java_heap_mb: 8192
@@ -68,7 +68,7 @@ features:
     open_event_map: false
     open_congestion_map: false
   fuel:
-    enabled: true
+    enabled: false
     replanning: false
     stations_ratio: 0.35
     initial_fuel_ratio: 0.8

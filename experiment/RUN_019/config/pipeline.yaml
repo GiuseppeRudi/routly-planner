@@ -1,0 +1,13 @@
+configs:
+  project_config: "config/project.yaml"
+
+run:
+  - build_map
+  - select_scenario_points
+  - build_macro_roads
+  - build_domain_and_problem
+  - generate_plan
+  # The fuel controller runs inside generate_plan so it can share the LLM event flow.
+  # A congestion controller run replaces generate_plan automatically when
+  # congestion.replanning=true.
+  - plan_to_sumo

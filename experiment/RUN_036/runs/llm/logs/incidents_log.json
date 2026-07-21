@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-07-15T18:35:04.135584",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 1,
+  "blocked_locations": [],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0107"
+      ],
+      "description": "Road_0107 lies directly on the shortest path between start and goal, with a distance_to_axis of only 5.9. Blocking it forces vehicles to detour via the longer 0297 route, creating a significant delay."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0108",
+        "road_0297"
+      ],
+      "description": "Roads 0108 (to 0066) and 0297 (to 0178) share the junction 0067 and form part of the main east‑west corridor. Applying a severity of 3.0 simulates heavy construction that slows traffic, encouraging vehicles to use alternative paths via 0066 or 0178.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0118",
+        "road_0229"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-07-15T15:05:11.114510",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0051",
+      "event_type": "roadworks",
+      "description": "Roadworks close both roads incident on the low‑degree node loc_0051. road_0076 (27.5) connects to loc_0028, and road_0125 (17.9) connects to loc_0078. Blocking both disconnects the two branches and isolates the central corridor, creating a significant detour.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0106"
+      ],
+      "description": "A single-vehicle collision blocks road_0106 (distance_to_axis 4.3), a key link between loc_0065 and loc_0051 that lies near the direct path between start and goal, forcing drivers to detour around a critical connector."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0076",
+        "road_0125"
+      ],
+      "description": "Roadworks close both roads incident on the low‑degree node loc_0051. road_0076 (27.5) connects to loc_0028, and road_0125 (17.9) connects to loc_0078. Blocking both disconnects the two branches and isolates the central corridor, creating a significant detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0031",
+        "road_0033"
+      ],
+      "description": "Light congestion on roads near the axis at node loc_0021 (road_0031: 6.9, road_0033: 28.8) reduces speeds by a factor of 3.0. The slowdown affects the primary corridor but keeps the roads open, simulating traffic build‑up on the most direct route.",
+      "severity": 3.0
+    }
+  ]
+}

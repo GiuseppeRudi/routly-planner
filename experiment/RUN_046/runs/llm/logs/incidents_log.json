@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-07-15T19:16:23.029114",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "robbery",
+      "description": "Both roads leave node loc_0093, the only direct link between 0093 and 0282. Closing them isolates 0282 from the rest of the network, creating a significant detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Blocking both roads incident at node loc_0094, a low‑degree bridge between the 0094–0267 and 0094–0093 corridors, forces traffic to detour via 0093 or 0267. These roads are close to the start‑goal axis.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Blocking both roads incident at node loc_0094, a low‑degree bridge between the 0094–0267 and 0094–0093 corridors, forces traffic to detour via 0093 or 0267. These roads are close to the start‑goal axis.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0282",
+      "event_type": "robbery",
+      "description": "Both roads leave node loc_0093, the only direct link between 0093 and 0282. Closing them isolates 0282 from the rest of the network, creating a significant detour.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0454"
+      ],
+      "description": "Blocking both roads incident at node loc_0094, a low‑degree bridge between the 0094–0267 and 0094–0093 corridors, forces traffic to detour via 0093 or 0267. These roads are close to the start‑goal axis."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0149",
+        "road_0473"
+      ],
+      "description": "Both roads leave node loc_0093, the only direct link between 0093 and 0282. Closing them isolates 0282 from the rest of the network, creating a significant detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0153"
+      ],
+      "description": "Road 0153 is the direct 0094–0093 connection, closest to the ideal path. A slowdown here would reduce throughput on the main corridor.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0216",
+        "road_0213"
+      ],
+      "description": "Roads 0216 and 0213 share node 0124, linking 0126 and 0149. Slowing these roads impacts traffic between the two sub‑areas connected through this junction.",
+      "severity": 3.0
+    }
+  ]
+}

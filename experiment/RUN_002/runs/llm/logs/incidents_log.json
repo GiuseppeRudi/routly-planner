@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-07-15T15:01:38.645287",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0021",
+      "event_type": "roadworks",
+      "description": "Roadworks on road_0031 (loc_0021–loc_0057) and road_0033 (loc_0021–loc_0022) shut down the low‑degree junction at loc_0021, cutting off two parallel approaches that are key to reaching the goal area.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "Roadworks on road_0031 (loc_0021–loc_0057) and road_0033 (loc_0021–loc_0022) shut down the low‑degree junction at loc_0021, cutting off two parallel approaches that are key to reaching the goal area.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0044"
+      ],
+      "description": "A collision on road_0044, the narrow connector between loc_0028 and loc_0022, blocks a route that lies very close to the direct start‑goal axis, forcing traffic to detour significantly."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0031",
+        "road_0033"
+      ],
+      "description": "Roadworks on road_0031 (loc_0021–loc_0057) and road_0033 (loc_0021–loc_0022) shut down the low‑degree junction at loc_0021, cutting off two parallel approaches that are key to reaching the goal area."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0057",
+        "road_0124"
+      ],
+      "description": "Light roadworks slow traffic on road_0057 (loc_0038–loc_0077) and road_0124 (loc_0077–loc_0080) by a factor of 2.5; these corridors are the main links from the side region to the goal, so congestion will spread to nearby routes.",
+      "severity": 2.5
+    }
+  ]
+}

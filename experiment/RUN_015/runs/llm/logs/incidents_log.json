@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-07-15T15:29:36.471942",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "Roadworks at node loc_0081 block two low-distance roads (road_0125 and road_0124) that form a key shortcut between the two regions, significantly affecting traffic flow along the axis.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0164"
+      ],
+      "description": "Accident on road_0164 blocks a very short, low-distance link at node loc_0102, forcing traffic to detour around a critical junction near the axis."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0125",
+        "road_0124"
+      ],
+      "description": "Roadworks at node loc_0081 block two low-distance roads (road_0125 and road_0124) that form a key shortcut between the two regions, significantly affecting traffic flow along the axis."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0140",
+        "road_0141"
+      ],
+      "description": "Slowdown on roads road_0140 and road_0141 at node loc_0090 reduces speed on two close-to-axis connections, creating congestion while still allowing passage.",
+      "severity": 2.5
+    }
+  ]
+}

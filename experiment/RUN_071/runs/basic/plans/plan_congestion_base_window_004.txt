@@ -1,0 +1,219 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 958380
+Aibr Preprocessing
+|F|:2728
+|X|:2
+Aibr Preprocessing
+|A|:1773
+|P|:1
+|E|:1773
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 60
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=6.78
+-------------Time: 10s ; Expanded Nodes: 10509 (Avg-Speed 1050.0 n/s); Evaluated States: 10704
+ g(n)= 986.0 h(n)=0.0
+Extracting plan with execution delta: 1.0
+Problem Solved
+
+Found Plan:
+0: (start-traversal car1 road_0772 loc_0386 loc_0389)
+0: -----waiting---- [13.0]
+13.0: (start-traversal car1 macro_0035 loc_0389 loc_0388)
+13.0: -----waiting---- [57.0]
+57.0: (start-traversal car1 road_0777 loc_0388 loc_0699)
+57.0: -----waiting---- [67.0]
+67.0: (start-traversal car1 road_1330 loc_0699 loc_0987)
+67.0: -----waiting---- [70.0]
+70.0: (start-traversal car1 road_1829 loc_0987 loc_0276)
+70.0: -----waiting---- [85.0]
+85.0: (start-traversal car1 road_0526 loc_0276 loc_0403)
+85.0: -----waiting---- [98.0]
+98.0: (start-traversal car1 road_0812 loc_0403 loc_0948)
+98.0: -----waiting---- [101.0]
+101.0: (start-traversal car1 road_1759 loc_0948 loc_0010)
+101.0: -----waiting---- [109.0]
+109.0: (start-traversal car1 road_0022 loc_0010 loc_0636)
+109.0: -----waiting---- [187.0]
+187.0: (start-traversal car1 road_1225 loc_0636 loc_0635)
+187.0: -----waiting---- [188.0]
+188.0: (start-traversal car1 road_1221 loc_0635 loc_0009)
+188.0: -----waiting---- [211.0]
+211.0: (start-traversal car1 road_0018 loc_0009 loc_0008)
+211.0: -----waiting---- [219.0]
+219.0: (start-traversal car1 road_0017 loc_0008 loc_0890)
+219.0: -----waiting---- [220.0]
+220.0: (start-traversal car1 road_1670 loc_0890 loc_0889)
+220.0: -----waiting---- [222.0]
+222.0: (start-traversal car1 road_1667 loc_0889 loc_0007)
+222.0: -----waiting---- [250.0]
+250.0: (start-traversal car1 road_0014 loc_0007 loc_0639)
+250.0: -----waiting---- [259.0]
+259.0: (start-traversal car1 road_1232 loc_0639 loc_0354)
+259.0: -----waiting---- [287.0]
+287.0: (start-traversal car1 road_0702 loc_0354 loc_0050)
+287.0: -----waiting---- [296.0]
+296.0: (start-traversal car1 road_0099 loc_0050 loc_0056)
+296.0: -----waiting---- [299.0]
+299.0: (start-traversal car1 road_0114 loc_0056 loc_0617)
+299.0: -----waiting---- [301.0]
+301.0: (start-traversal car1 road_1192 loc_0617 loc_0349)
+301.0: -----waiting---- [305.0]
+305.0: (start-traversal car1 road_0694 loc_0349 loc_0620)
+305.0: -----waiting---- [310.0]
+310.0: (start-traversal car1 road_1195 loc_0620 loc_0168)
+310.0: -----waiting---- [319.0]
+319.0: (start-traversal car1 road_0324 loc_0168 loc_0414)
+319.0: -----waiting---- [325.0]
+325.0: (start-traversal car1 road_0830 loc_0414 loc_0410)
+325.0: -----waiting---- [338.0]
+338.0: (start-traversal car1 road_0825 loc_0410 loc_0929)
+338.0: -----waiting---- [354.0]
+354.0: (start-traversal car1 road_1732 loc_0929 loc_0507)
+354.0: -----waiting---- [356.0]
+356.0: (start-traversal car1 road_0992 loc_0507 loc_0928)
+356.0: -----waiting---- [358.0]
+358.0: (start-traversal car1 road_1730 loc_0928 loc_0413)
+358.0: -----waiting---- [388.0]
+388.0: (start-traversal car1 road_0829 loc_0413 loc_0169)
+388.0: -----waiting---- [396.0]
+396.0: (start-traversal car1 road_0326 loc_0169 loc_0051)
+396.0: -----waiting---- [402.0]
+402.0: (start-traversal car1 road_0104 loc_0051 loc_0003)
+402.0: -----waiting---- [414.0]
+414.0: (start-traversal car1 road_0008 loc_0003 loc_0509)
+414.0: -----waiting---- [416.0]
+416.0: (start-traversal car1 road_0995 loc_0509 loc_0802)
+416.0: -----waiting---- [419.0]
+419.0: (start-traversal car1 road_1517 loc_0802 loc_0134)
+419.0: -----waiting---- [433.0]
+433.0: (start-traversal car1 road_0263 loc_0134 loc_0170)
+433.0: -----waiting---- [442.0]
+442.0: (start-traversal car1 road_0327 loc_0170 loc_0763)
+442.0: -----waiting---- [476.0]
+476.0: (start-traversal car1 road_1438 loc_0763 loc_0765)
+476.0: -----waiting---- [487.0]
+487.0: (start-traversal car1 road_1441 loc_0765 loc_0733)
+487.0: -----waiting---- [490.0]
+490.0: (start-traversal car1 road_1388 loc_0733 loc_0732)
+490.0: -----waiting---- [492.0]
+492.0: (start-traversal car1 road_1385 loc_0732 loc_0805)
+492.0: -----waiting---- [507.0]
+507.0: (start-traversal car1 road_1524 loc_0805 loc_0780)
+507.0: -----waiting---- [510.0]
+510.0: (start-traversal car1 road_1472 loc_0780 loc_0782)
+510.0: -----waiting---- [513.0]
+513.0: (start-traversal car1 road_1476 loc_0782 loc_0131)
+513.0: -----waiting---- [527.0]
+527.0: (start-traversal car1 road_0258 loc_0131 loc_0671)
+527.0: -----waiting---- [529.0]
+529.0: (start-traversal car1 road_1284 loc_0671 loc_0905)
+529.0: -----waiting---- [536.0]
+536.0: (start-traversal car1 road_1695 loc_0905 loc_0444)
+536.0: -----waiting---- [540.0]
+540.0: (start-traversal car1 road_0881 loc_0444 loc_0514)
+540.0: -----waiting---- [549.0]
+549.0: (start-traversal car1 road_1003 loc_0514 loc_0846)
+549.0: -----waiting---- [552.0]
+552.0: (start-traversal car1 road_1598 loc_0846 loc_0989)
+552.0: -----waiting---- [559.0]
+559.0: (start-traversal car1 road_1832 loc_0989 loc_0178)
+559.0: -----waiting---- [562.0]
+562.0: (start-traversal car1 road_0340 loc_0178 loc_0465)
+562.0: -----waiting---- [564.0]
+564.0: (start-traversal car1 road_0918 loc_0465 loc_0181)
+564.0: -----waiting---- [595.0]
+595.0: (start-traversal car1 road_0349 loc_0181 loc_0132)
+595.0: -----waiting---- [597.0]
+597.0: (start-traversal car1 road_0259 loc_0132 loc_0577)
+597.0: -----waiting---- [602.0]
+602.0: (start-traversal car1 road_1121 loc_0577 loc_0962)
+602.0: -----waiting---- [606.0]
+606.0: (start-traversal car1 road_1784 loc_0962 loc_0457)
+606.0: -----waiting---- [623.0]
+623.0: (start-traversal car1 road_0901 loc_0457 loc_0794)
+623.0: -----waiting---- [625.0]
+625.0: (start-traversal car1 road_1501 loc_0794 loc_0793)
+625.0: -----waiting---- [651.0]
+651.0: (start-traversal car1 road_1500 loc_0793 loc_0773)
+651.0: -----waiting---- [668.0]
+668.0: (start-traversal car1 road_1457 loc_0773 loc_0626)
+668.0: -----waiting---- [671.0]
+671.0: (start-traversal car1 road_1207 loc_0626 loc_0778)
+671.0: -----waiting---- [688.0]
+688.0: (start-traversal car1 macro_0057 loc_0778 loc_0031)
+688.0: -----waiting---- [706.0]
+706.0: (start-traversal car1 road_0064 loc_0031 loc_0020)
+706.0: -----waiting---- [719.0]
+719.0: (start-traversal car1 road_0045 loc_0020 loc_0019)
+719.0: -----waiting---- [727.0]
+727.0: (start-traversal car1 macro_0001 loc_0019 loc_0776)
+727.0: -----waiting---- [742.0]
+742.0: (start-traversal car1 road_1462 loc_0776 loc_0517)
+742.0: -----waiting---- [754.0]
+754.0: (start-traversal car1 road_1011 loc_0517 loc_0520)
+754.0: -----waiting---- [767.0]
+767.0: (start-traversal car1 macro_0043 loc_0520 loc_0524)
+767.0: -----waiting---- [776.0]
+776.0: (start-traversal car1 road_1023 loc_0524 loc_0730)
+776.0: -----waiting---- [785.0]
+785.0: (start-traversal car1 road_1382 loc_0730 loc_0112)
+785.0: -----waiting---- [790.0]
+790.0: (start-traversal car1 road_0215 loc_0112 loc_0522)
+790.0: -----waiting---- [792.0]
+792.0: (start-traversal car1 road_1020 loc_0522 loc_0034)
+792.0: -----waiting---- [798.0]
+798.0: (start-traversal car1 road_0069 loc_0034 loc_0335)
+798.0: -----waiting---- [800.0]
+800.0: (start-traversal car1 road_0667 loc_0335 loc_0036)
+800.0: -----waiting---- [803.0]
+803.0: (start-traversal car1 road_0072 loc_0036 loc_0804)
+803.0: -----waiting---- [807.0]
+807.0: (start-traversal car1 road_1521 loc_0804 loc_0567)
+807.0: -----waiting---- [808.0]
+808.0: (start-traversal car1 road_1101 loc_0567 loc_0035)
+808.0: -----waiting---- [819.0]
+819.0: (start-traversal car1 road_0071 loc_0035 loc_0729)
+819.0: -----waiting---- [822.0]
+822.0: (start-traversal car1 road_1381 loc_0729 loc_0602)
+822.0: -----waiting---- [827.0]
+827.0: (start-traversal car1 road_1167 loc_0602 loc_0959)
+827.0: -----waiting---- [832.0]
+832.0: (start-traversal car1 road_1780 loc_0959 loc_0091)
+832.0: -----waiting---- [861.0]
+861.0: (start-traversal car1 road_0179 loc_0091 loc_0772)
+861.0: -----waiting---- [879.0]
+879.0: (start-traversal car1 road_1454 loc_0772 loc_0076)
+879.0: -----waiting---- [898.0]
+898.0: (start-traversal car1 road_0151 loc_0076 loc_0077)
+898.0: -----waiting---- [909.0]
+909.0: (start-traversal car1 road_0152 loc_0077 loc_0085)
+909.0: -----waiting---- [920.0]
+920.0: (start-traversal car1 road_0167 loc_0085 loc_0088)
+920.0: -----waiting---- [934.0]
+934.0: (start-traversal car1 road_0175 loc_0088 loc_0087)
+934.0: -----waiting---- [945.0]
+945.0: (start-traversal car1 road_0172 loc_0087 loc_0437)
+945.0: -----waiting---- [961.0]
+961.0: (start-traversal car1 road_0868 loc_0437 loc_0972)
+961.0: -----waiting---- [964.0]
+964.0: (start-traversal car1 macro_0068 loc_0972 loc_0079)
+964.0: -----waiting---- [986.0]
+
+Plan-Length:1168
+Elapsed Time: 986.0
+Metric (Search):986.0
+Planning Time (msec): 1938947
+Heuristic Time (msec): 9371
+Search Time (msec): 11345
+Expanded Nodes:12017
+States Evaluated:12225
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:21
+Number of Duplicates detected:330

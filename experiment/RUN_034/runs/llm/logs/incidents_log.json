@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-07-15T18:25:04.175587",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0067",
+      "event_type": "roadworks",
+      "description": "Roadworks at junction loc_0067 block all three incident roads (0067–0178, 0067–0066, 0178–0067). Located just 5.9–16.9 units from the axis, this low‑degree node is a critical choke point between the two regions, and closing the entire cluster will significantly disrupt traffic flow.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0178",
+      "event_type": "roadworks",
+      "description": "Roadworks at junction loc_0067 block all three incident roads (0067–0178, 0067–0066, 0178–0067). Located just 5.9–16.9 units from the axis, this low‑degree node is a critical choke point between the two regions, and closing the entire cluster will significantly disrupt traffic flow.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0107",
+        "road_0108",
+        "road_0297"
+      ],
+      "description": "Roadworks at junction loc_0067 block all three incident roads (0067–0178, 0067–0066, 0178–0067). Located just 5.9–16.9 units from the axis, this low‑degree node is a critical choke point between the two regions, and closing the entire cluster will significantly disrupt traffic flow."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0151",
+        "road_0152"
+      ],
+      "description": "Congestion on roads 0151 (0090–0088) and 0152 (0090–0042) slows traffic by a factor of 2.5. These roads form a central interchange near the axis, so the slowdown will increase travel times and encourage drivers to seek alternative routes.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0099"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

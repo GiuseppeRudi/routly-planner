@@ -1,0 +1,247 @@
+{
+  "loc_0043": {
+    "green": 29,
+    "yellow": 5,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.67
+  },
+  "loc_0082": {
+    "green": 28,
+    "yellow": 5,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.78
+  },
+  "loc_0084": {
+    "green": 27,
+    "yellow": 5,
+    "red": 27,
+    "complexity": "complex",
+    "average_wait": 6.18
+  },
+  "loc_0090": {
+    "green": 28,
+    "yellow": 5,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.78
+  },
+  "loc_0109": {
+    "green": 26,
+    "yellow": 4,
+    "red": 25,
+    "complexity": "medium",
+    "average_wait": 5.68
+  },
+  "loc_0110": {
+    "green": 28,
+    "yellow": 5,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.78
+  },
+  "loc_0115": {
+    "green": 27,
+    "yellow": 6,
+    "red": 28,
+    "complexity": "complex",
+    "average_wait": 6.43
+  },
+  "loc_0138": {
+    "green": 24,
+    "yellow": 5,
+    "red": 26,
+    "complexity": "medium",
+    "average_wait": 6.15
+  },
+  "loc_0156": {
+    "green": 30,
+    "yellow": 5,
+    "red": 27,
+    "complexity": "complex",
+    "average_wait": 5.88
+  },
+  "loc_0204": {
+    "green": 28,
+    "yellow": 5,
+    "red": 28,
+    "complexity": "complex",
+    "average_wait": 6.43
+  },
+  "loc_0242": {
+    "green": 28,
+    "yellow": 6,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.67
+  },
+  "loc_0252": {
+    "green": 27,
+    "yellow": 6,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.78
+  },
+  "loc_0468": {
+    "green": 24,
+    "yellow": 5,
+    "red": 23,
+    "complexity": "medium",
+    "average_wait": 5.09
+  },
+  "loc_0510": {
+    "green": 23,
+    "yellow": 4,
+    "red": 24,
+    "complexity": "medium",
+    "average_wait": 5.65
+  },
+  "loc_0520": {
+    "green": 27,
+    "yellow": 6,
+    "red": 28,
+    "complexity": "complex",
+    "average_wait": 6.43
+  },
+  "loc_0547": {
+    "green": 30,
+    "yellow": 6,
+    "red": 30,
+    "complexity": "complex",
+    "average_wait": 6.82
+  },
+  "loc_0548": {
+    "green": 29,
+    "yellow": 6,
+    "red": 27,
+    "complexity": "complex",
+    "average_wait": 5.88
+  },
+  "loc_0566": {
+    "green": 28,
+    "yellow": 6,
+    "red": 28,
+    "complexity": "complex",
+    "average_wait": 6.32
+  },
+  "loc_0595": {
+    "green": 28,
+    "yellow": 6,
+    "red": 30,
+    "complexity": "complex",
+    "average_wait": 7.03
+  },
+  "loc_0597": {
+    "green": 22,
+    "yellow": 4,
+    "red": 20,
+    "complexity": "simple",
+    "average_wait": 4.35
+  },
+  "loc_0600": {
+    "green": 27,
+    "yellow": 5,
+    "red": 23,
+    "complexity": "medium",
+    "average_wait": 4.81
+  },
+  "loc_0627": {
+    "green": 27,
+    "yellow": 5,
+    "red": 28,
+    "complexity": "complex",
+    "average_wait": 6.53
+  },
+  "loc_0679": {
+    "green": 30,
+    "yellow": 6,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.47
+  },
+  "loc_0685": {
+    "green": 28,
+    "yellow": 6,
+    "red": 28,
+    "complexity": "complex",
+    "average_wait": 6.32
+  },
+  "loc_0904": {
+    "green": 27,
+    "yellow": 6,
+    "red": 30,
+    "complexity": "complex",
+    "average_wait": 7.14
+  },
+  "loc_1029": {
+    "green": 28,
+    "yellow": 5,
+    "red": 27,
+    "complexity": "complex",
+    "average_wait": 6.08
+  },
+  "loc_1032": {
+    "green": 28,
+    "yellow": 6,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.67
+  },
+  "loc_1048": {
+    "green": 30,
+    "yellow": 6,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.47
+  },
+  "loc_1051": {
+    "green": 29,
+    "yellow": 6,
+    "red": 29,
+    "complexity": "complex",
+    "average_wait": 6.57
+  },
+  "loc_1434": {
+    "green": 30,
+    "yellow": 6,
+    "red": 27,
+    "complexity": "complex",
+    "average_wait": 5.79
+  },
+  "loc_1443": {
+    "green": 30,
+    "yellow": 5,
+    "red": 30,
+    "complexity": "complex",
+    "average_wait": 6.92
+  },
+  "loc_1447": {
+    "green": 29,
+    "yellow": 6,
+    "red": 27,
+    "complexity": "complex",
+    "average_wait": 5.88
+  },
+  "loc_1558": {
+    "green": 27,
+    "yellow": 6,
+    "red": 30,
+    "complexity": "complex",
+    "average_wait": 7.14
+  },
+  "loc_1620": {
+    "green": 27,
+    "yellow": 6,
+    "red": 28,
+    "complexity": "complex",
+    "average_wait": 6.43
+  },
+  "loc_1883": {
+    "green": 29,
+    "yellow": 5,
+    "red": 30,
+    "complexity": "complex",
+    "average_wait": 7.03
+  }
+}

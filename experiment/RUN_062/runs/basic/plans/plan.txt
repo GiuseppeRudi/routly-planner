@@ -1,0 +1,170 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 30153
+Aibr Preprocessing
+|F|:1451
+|X|:1
+Aibr Preprocessing
+|A|:5310
+|P|:0
+|E|:24
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 83
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=1495.9902
+ g(n)= 31.8238 h(n)=1464.1665
+ g(n)= 63.4233 h(n)=1432.5669
+ g(n)= 67.1326 h(n)=1428.8577
+ g(n)= 444.3258 h(n)=1051.6646
+ g(n)= 499.9504 h(n)=996.0401
+ g(n)= 642.8778 h(n)=853.1126
+ g(n)= 734.6828 h(n)=761.30756
+ g(n)= 735.3464 h(n)=760.644
+ g(n)= 762.2695 h(n)=733.7209
+ g(n)= 800.20074 h(n)=695.7896
+ g(n)= 808.89026 h(n)=687.10016
+ g(n)= 819.20667 h(n)=676.78375
+ g(n)= 829.7707 h(n)=666.2198
+ g(n)= 831.4124 h(n)=664.57806
+ g(n)= 838.6397 h(n)=657.35077
+ g(n)= 855.1344 h(n)=641.95856
+ g(n)= 865.3782 h(n)=631.7148
+ g(n)= 871.4942 h(n)=625.5987
+ g(n)= 878.3529 h(n)=618.74005
+ g(n)= 934.0961 h(n)=587.6158
+ g(n)= 937.80975 h(n)=583.90216
+ g(n)= 942.39545 h(n)=579.31647
+ g(n)= 946.06036 h(n)=575.65155
+ g(n)= 949.58606 h(n)=572.1259
+ g(n)= 952.0126 h(n)=569.6994
+ g(n)= 965.6719 h(n)=556.0401
+ g(n)= 969.8511 h(n)=551.86084
+ g(n)= 978.6067 h(n)=543.1053
+ g(n)= 986.5854 h(n)=535.1266
+ g(n)= 992.6343 h(n)=529.07764
+ g(n)= 994.20605 h(n)=527.50586
+ g(n)= 999.35846 h(n)=522.35345
+ g(n)= 1001.02466 h(n)=520.68726
+ g(n)= 1014.96606 h(n)=506.74588
+ g(n)= 1021.28534 h(n)=500.4266
+ g(n)= 1030.0543 h(n)=491.65762
+ g(n)= 1043.048 h(n)=478.66403
+ g(n)= 1046.2506 h(n)=475.46146
+ g(n)= 1054.7404 h(n)=466.97165
+ g(n)= 1059.0054 h(n)=462.70663
+ g(n)= 1062.1631 h(n)=459.54892
+ g(n)= 1081.5695 h(n)=440.14252
+ g(n)= 1090.7854 h(n)=430.92654
+ g(n)= 1097.033 h(n)=424.67902
+ g(n)= 1098.0297 h(n)=423.6823
+ g(n)= 1104.7614 h(n)=416.95062
+ g(n)= 1114.615 h(n)=407.09702
+ g(n)= 1117.8156 h(n)=403.89642
+ g(n)= 1133.4867 h(n)=388.22522
+ g(n)= 1151.9602 h(n)=369.7517
+ g(n)= 1162.4973 h(n)=359.2146
+ g(n)= 1173.1835 h(n)=348.5284
+ g(n)= 1180.9563 h(n)=340.7556
+ g(n)= 1186.0963 h(n)=335.6156
+ g(n)= 1195.7924 h(n)=325.91962
+ g(n)= 1225.2327 h(n)=296.4793
+ g(n)= 1234.2592 h(n)=287.4528
+ g(n)= 1263.6321 h(n)=258.0799
+ g(n)= 1264.6525 h(n)=257.0595
+ g(n)= 1265.0807 h(n)=256.63132
+ g(n)= 1276.1125 h(n)=245.5995
+ g(n)= 1322.5374 h(n)=217.23909
+ g(n)= 1332.5715 h(n)=207.2049
+ g(n)= 1372.0547 h(n)=167.7217
+ g(n)= 1437.1544 h(n)=102.621994
+ g(n)= 1447.2682 h(n)=92.508194
+ g(n)= 1499.869 h(n)=39.9074
+ g(n)= 1539.7764 h(n)=0.0
+Problem Solved
+
+Found Plan:
+0: (traverse-road-static-road_2030 car1 road_2030 loc_1037 loc_1034)
+0: (traverse-road-static-road_2025 car1 road_2025 loc_1034 loc_1035)
+0: (traverse-road-static-macro_0085 car1 macro_0085 loc_1035 loc_0237)
+0: (traverse-road-static-road_0463 car1 road_0463 loc_0237 loc_1028)
+0: (traverse-road-static-road_2016 car1 road_2016 loc_1028 loc_0498)
+0: (traverse-road-static-road_1037 car1 road_1037 loc_0498 loc_0499)
+0: (traverse-road-static-road_1041 car1 road_1041 loc_0499 loc_1247)
+0: (traverse-road-static-road_2407 car1 road_2407 loc_1247 loc_0500)
+0: (traverse-road-static-road_1045 car1 road_1045 loc_0500 loc_0537)
+0: (traverse-road-static-road_1124 car1 road_1124 loc_0537 loc_0501)
+0: (traverse-road-static-road_1047 car1 road_1047 loc_0501 loc_1362)
+0: (traverse-road-static-road_2596 car1 road_2596 loc_1362 loc_0804)
+0: (traverse-road-static-road_1627 car1 road_1627 loc_0804 loc_0805)
+0: (traverse-road-static-road_1630 car1 road_1630 loc_0805 loc_0313)
+0: (traverse-road-static-road_0629 car1 road_0629 loc_0313 loc_0312)
+0: (traverse-road-static-road_0626 car1 road_0626 loc_0312 loc_0311)
+0: (traverse-road-static-road_0624 car1 road_0624 loc_0311 loc_0295)
+0: (traverse-road-static-road_0585 car1 road_0585 loc_0295 loc_0809)
+0: (traverse-road-static-road_1640 car1 road_1640 loc_0809 loc_0296)
+0: (traverse-road-static-macro_0024 car1 macro_0024 loc_0296 loc_0302)
+0: (traverse-road-static-road_0604 car1 road_0604 loc_0302 loc_0274)
+0: (traverse-road-static-road_0542 car1 road_0542 loc_0274 loc_0300)
+0: (traverse-road-static-road_0601 car1 road_0601 loc_0300 loc_0273)
+0: (traverse-road-static-road_0540 car1 road_0540 loc_0273 loc_0016)
+0: (traverse-road-static-road_0036 car1 road_0036 loc_0016 loc_0272)
+0: (traverse-road-static-road_0538 car1 road_0538 loc_0272 loc_0799)
+0: (traverse-road-static-road_1619 car1 road_1619 loc_0799 loc_0275)
+0: (traverse-road-static-road_0543 car1 road_0543 loc_0275 loc_1147)
+0: (traverse-road-static-road_2222 car1 road_2222 loc_1147 loc_1429)
+0: (traverse-road-static-road_2700 car1 road_2700 loc_1429 loc_0269)
+0: (traverse-road-static-road_0532 car1 road_0532 loc_0269 loc_0798)
+0: (traverse-road-static-road_1618 car1 road_1618 loc_0798 loc_0268)
+0: (traverse-road-static-road_0530 car1 road_0530 loc_0268 loc_0277)
+0: (traverse-road-static-road_0546 car1 road_0546 loc_0277 loc_0286)
+0: (traverse-road-static-road_0568 car1 road_0568 loc_0286 loc_0046)
+0: (traverse-road-static-road_0094 car1 road_0094 loc_0046 loc_0283)
+0: (traverse-road-static-road_0559 car1 road_0559 loc_0283 loc_1483)
+0: (traverse-road-static-road_2792 car1 road_2792 loc_1483 loc_0686)
+0: (traverse-road-static-road_1418 car1 road_1418 loc_0686 loc_1395)
+0: (traverse-road-static-road_2647 car1 road_2647 loc_1395 loc_0047)
+0: (traverse-road-static-road_0096 car1 road_0096 loc_0047 loc_0048)
+0: (traverse-road-static-road_0099 car1 road_0099 loc_0048 loc_1278)
+0: (traverse-road-static-road_2456 car1 road_2456 loc_1278 loc_0049)
+0: (traverse-road-static-road_0102 car1 road_0102 loc_0049 loc_1061)
+0: (traverse-road-static-road_2069 car1 road_2069 loc_1061 loc_1332)
+0: (traverse-road-static-road_2549 car1 road_2549 loc_1332 loc_0573)
+0: (traverse-road-static-road_1201 car1 road_1201 loc_0573 loc_1045)
+0: (traverse-road-static-road_2040 car1 road_2040 loc_1045 loc_1485)
+0: (traverse-road-static-road_2796 car1 road_2796 loc_1485 loc_0341)
+0: (traverse-road-static-road_0690 car1 road_0690 loc_0341 loc_0050)
+0: (traverse-road-static-road_0104 car1 road_0104 loc_0050 loc_0051)
+0: (traverse-road-static-road_0105 car1 road_0105 loc_0051 loc_1473)
+0: (traverse-road-static-road_2769 car1 road_2769 loc_1473 loc_1380)
+0: (traverse-road-static-road_2624 car1 road_2624 loc_1380 loc_0052)
+0: (traverse-road-static-road_0109 car1 road_0109 loc_0052 loc_0524)
+0: (traverse-road-static-road_1088 car1 road_1088 loc_0524 loc_0929)
+0: (traverse-road-static-road_1858 car1 road_1858 loc_0929 loc_0007)
+0: (traverse-road-static-road_0015 car1 road_0015 loc_0007 loc_1322)
+0: (traverse-road-static-road_2527 car1 road_2527 loc_1322 loc_0008)
+0: (traverse-road-static-road_0017 car1 road_0017 loc_0008 loc_1323)
+0: (traverse-road-static-road_2528 car1 road_2528 loc_1323 loc_1187)
+0: (traverse-road-static-road_2293 car1 road_2293 loc_1187 loc_1186)
+0: (traverse-road-static-road_2292 car1 road_2292 loc_1186 loc_0528)
+0: (traverse-road-static-road_1095 car1 road_1095 loc_0528 loc_1108)
+0: (traverse-road-static-road_2156 car1 road_2156 loc_1108 loc_0529)
+0: (traverse-road-static-road_1101 car1 road_1101 loc_0529 loc_0530)
+0: (traverse-road-static-road_1103 car1 road_1103 loc_0530 loc_0934)
+0: (traverse-road-static-road_1868 car1 road_1868 loc_0934 loc_0935)
+
+Plan-Length:68
+Elapsed Time: 0
+Metric (Search):1539.7764
+Planning Time (msec): 89963
+Heuristic Time (msec): 774
+Search Time (msec): 965
+Expanded Nodes:69
+States Evaluated:154
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:1
+Number of Duplicates detected:0

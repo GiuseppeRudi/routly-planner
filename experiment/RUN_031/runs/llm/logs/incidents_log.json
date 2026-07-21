@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-07-15T19:06:43.896411",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0067",
+      "event_type": "roadworks",
+      "description": "Roadworks on the two shortest roads at intersection loc_0067 block the main corridor, forcing detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0178",
+      "event_type": "roadworks",
+      "description": "Roadworks on the two shortest roads at intersection loc_0067 block the main corridor, forcing detour.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0107",
+        "road_0297"
+      ],
+      "description": "Roadworks on the two shortest roads at intersection loc_0067 block the main corridor, forcing detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0151",
+        "road_0148"
+      ],
+      "description": "Light construction slows traffic on roads 0151 and 0148 near loc_0088.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0268"
+      ],
+      "description": "Roadworks at loc_0134 block roads 0268 and 0229, key links near the axis."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0118",
+        "road_0229"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-07-20T20:17:45.111210",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 7,
+  "blocked_locations": [
+    {
+      "id": "loc_0536",
+      "event_type": "roadworks",
+      "description": "Three low‑distance roads (25.3, 18.0, 25.3) converge at loc_0536, forming a narrow corridor near the direct axis; closing them forces a detour around this bottleneck.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0823",
+      "event_type": "roadworks",
+      "description": "Three low‑distance roads (25.3, 18.0, 25.3) converge at loc_0536, forming a narrow corridor near the direct axis; closing them forces a detour around this bottleneck.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0825",
+      "event_type": "robbery",
+      "description": "These three roads connect loc_0825 to neighboring nodes with very low axis distances (7.4, 7.4, 33.4); blocking them cuts off a key hub linking the western sub‑network.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0828",
+      "event_type": "robbery",
+      "description": "These three roads connect loc_0825 to neighboring nodes with very low axis distances (7.4, 7.4, 33.4); blocking them cuts off a key hub linking the western sub‑network.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_1120",
+        "road_1122",
+        "road_1666"
+      ],
+      "description": "Three low‑distance roads (25.3, 18.0, 25.3) converge at loc_0536, forming a narrow corridor near the direct axis; closing them forces a detour around this bottleneck."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_1100"
+      ],
+      "description": "Road_1100 runs close to the straight line (38.4) between start and goal, so a moderate slowdown here noticeably reduces overall travel speed.",
+      "severity": 3.2
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_1672",
+        "road_1675",
+        "road_1669"
+      ],
+      "description": "These three roads connect loc_0825 to neighboring nodes with very low axis distances (7.4, 7.4, 33.4); blocking them cuts off a key hub linking the western sub‑network."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_2156"
+      ],
+      "description": "Road_2156 is another short link (38.4) between loc_0529 and loc_1108, directly on the preferred straight path; a full blockage creates a significant diversion."
+    }
+  ]
+}

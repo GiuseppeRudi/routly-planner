@@ -1,0 +1,66 @@
+{
+  "timestamp": "2026-07-15T19:29:51.557646",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "robbery",
+      "description": "Robbery on the two roads connecting loc_0093 and loc_0282, a critical bridge between regions; both roads are temporarily closed.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Roadworks at node loc_0094, a low-degree intersection; both incident roads are closed, isolating this junction.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Roadworks at node loc_0094, a low-degree intersection; both incident roads are closed, isolating this junction.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0282",
+      "event_type": "robbery",
+      "description": "Robbery on the two roads connecting loc_0093 and loc_0282, a critical bridge between regions; both roads are temporarily closed.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0153"
+      ],
+      "description": "Accident on the shortest-distance road between loc_0094 and loc_0093, forcing detours onto longer routes."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0454"
+      ],
+      "description": "Roadworks at node loc_0094, a low-degree intersection; both incident roads are closed, isolating this junction."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0216",
+        "road_0213"
+      ],
+      "description": "Slowdown on roads near loc_0124, a key junction; traffic speed is reduced by a factor of 2, causing congestion.",
+      "severity": 2.0
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0149",
+        "road_0473"
+      ],
+      "description": "Robbery on the two roads connecting loc_0093 and loc_0282, a critical bridge between regions; both roads are temporarily closed."
+    }
+  ]
+}

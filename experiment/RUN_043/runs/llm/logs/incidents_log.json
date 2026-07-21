@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-07-15T19:11:44.604673",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "accident",
+      "description": "Accident on road_0149 connecting loc_0093 and loc_0282. This road lies relatively close to the direct start–goal axis and serves as a primary link between the two subareas; its closure forces vehicles to use longer alternatives, creating congestion.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Roadworks blocking all three roads incident to intersection loc_0094 (road_0152, road_0153, road_0454). This node is a low‑degree bridge between the southern cluster (loc_0093, loc_0282) and the northern cluster (loc_0267). Closing these roads forces traffic to detour through longer routes, significantly impacting movement near the start–goal axis.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Roadworks blocking all three roads incident to intersection loc_0094 (road_0152, road_0153, road_0454). This node is a low‑degree bridge between the southern cluster (loc_0093, loc_0282) and the northern cluster (loc_0267). Closing these roads forces traffic to detour through longer routes, significantly impacting movement near the start–goal axis.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0153",
+        "road_0454"
+      ],
+      "description": "Roadworks blocking all three roads incident to intersection loc_0094 (road_0152, road_0153, road_0454). This node is a low‑degree bridge between the southern cluster (loc_0093, loc_0282) and the northern cluster (loc_0267). Closing these roads forces traffic to detour through longer routes, significantly impacting movement near the start–goal axis."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0149"
+      ],
+      "description": "Accident on road_0149 connecting loc_0093 and loc_0282. This road lies relatively close to the direct start–goal axis and serves as a primary link between the two subareas; its closure forces vehicles to use longer alternatives, creating congestion."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0216"
+      ],
+      "description": "Road slowdown on road_0216 between loc_0126 and loc_0124 with severity 2.8. This road is moderately close to the axis and provides a critical shortcut toward the goal area; the slowdown reduces throughput, creating a bottleneck.",
+      "severity": 2.8
+    }
+  ]
+}

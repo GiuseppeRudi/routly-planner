@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-20T19:03:41.913418",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0060",
+      "event_type": "roadworks",
+      "description": "Multi‑roadworks at intersection loc_0060, which lies very close to the straight line between start and goal (distances 11.4, 11.4, 13.1 and 9.0). Closing these four links creates a noticeable detour around a low‑axis bottleneck.",
+      "shared_closed_roads": 4
+    },
+    {
+      "id": "loc_0138",
+      "event_type": "roadworks",
+      "description": "Multi‑roadworks at intersection loc_0060, which lies very close to the straight line between start and goal (distances 11.4, 11.4, 13.1 and 9.0). Closing these four links creates a noticeable detour around a low‑axis bottleneck.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "macro_0010",
+        "macro_0018",
+        "road_0230",
+        "road_0102"
+      ],
+      "description": "Multi‑roadworks at intersection loc_0060, which lies very close to the straight line between start and goal (distances 11.4, 11.4, 13.1 and 9.0). Closing these four links creates a noticeable detour around a low‑axis bottleneck."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0014"
+      ],
+      "description": "A single‑road accident on road_0014 (loc_0010‑loc_0374). This short connector is near the direct axis (distance 28.7) and its blockage forces traffic onto alternative low‑axis routes."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0094"
+      ],
+      "description": "Light congestion on road_0094 (loc_0053‑loc_0086) with a modest axis distance (37.1). The slowdown reduces speed but keeps the route usable, slightly affecting flow near the main corridor.",
+      "severity": 2.3
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-07-20T20:25:23.788663",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0777",
+      "event_type": "roadworks",
+      "description": "Both roads connect loc_1224 to loc_0777 and back, forming a low‑distance (69.9) corridor near the direct axis; closing them forces detours around this low‑degree node.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_1224",
+      "event_type": "roadworks",
+      "description": "Both roads connect loc_1224 to loc_0777 and back, forming a low‑distance (69.9) corridor near the direct axis; closing them forces detours around this low‑degree node.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_1614",
+      "event_type": "robbery",
+      "description": "These two roads link loc_1990 with loc_1614 (distance ~233). Blocking this pair cuts a key junction on the eastern side of the route, likely causing a significant reroute.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_1990",
+      "event_type": "robbery",
+      "description": "These two roads link loc_1990 with loc_1614 (distance ~233). Blocking this pair cuts a key junction on the eastern side of the route, likely causing a significant reroute.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_1617",
+        "road_2442"
+      ],
+      "description": "Both roads connect loc_1224 to loc_0777 and back, forming a low‑distance (69.9) corridor near the direct axis; closing them forces detours around this low‑degree node."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_3130",
+        "road_3775"
+      ],
+      "description": "These two roads link loc_1990 with loc_1614 (distance ~233). Blocking this pair cuts a key junction on the eastern side of the route, likely causing a significant reroute."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_1697",
+        "road_2768"
+      ],
+      "description": "Both roads run between loc_0820 and loc_1412 (distance ~230). A slowdown here simulates congestion on a moderate‑axis segment without fully blocking traffic.",
+      "severity": 2.8
+    }
+  ]
+}

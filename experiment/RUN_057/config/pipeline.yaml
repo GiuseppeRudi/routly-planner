@@ -1,0 +1,6 @@
+configs:
+  project_config: data/Bologna_Emilia-Romagna_Italy/nodes_500_distance_4000/scalability_v2_campaign_20260720_185954_968444_rq1_dyn_0500_d_l_c/config/project.yaml
+run:
+- build_macro_roads
+- build_domain_and_problem
+- generate_plan

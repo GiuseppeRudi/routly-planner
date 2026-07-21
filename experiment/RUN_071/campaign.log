@@ -1,0 +1,76 @@
+
+========================================================================
+STAGE: build_macro_roads
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\build_macro_roads.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_1000_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_088/config/project.yaml
+========================================================================
+Macro-road abstraction completed.
+  Roads: 1850 -> 1802 (ratio=0.9741)
+  Nodes: 1000 -> 982 (ratio=0.982)
+  Mapping:   data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\map\roads_mapping_macro.json
+  Report:    data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\map\macro_roads_report.json
+  Base graph:  data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\map\road_network_graph_base.png
+  Macro graph: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\map\road_network_graph_macro.png
+  Image:     data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\map\macro_roads_comparison.png
+
+========================================================================
+STAGE: build_domain_and_problem
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\03_build_domain_and_problem.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_1000_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_088/config/project.yaml
+========================================================================
+Building PDDL domain and problem from scenario and mapping
+Generated 200 shared background routes: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\artifacts\background_routes.json
+Generated 15 traffic-light programs: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\artifacts\traffic_light_timings.json
+
+PDDL DOMAIN DEFERRED TO CONTROLLER: the active replanning controller will write the canonical domain.pddl used for its planning run.
+Computed congestion factors for 1802 roads from 200 generated background routes.
+
+PDDL PROBLEM CREATED:
+  Vehicle: car1
+  Start:   loc_0994
+  Goal:    loc_0079
+  Problem: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\pddl\problem.pddl
+
+========================================================================
+STAGE: generate_plan
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\04_generate_plan.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_1000_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_088/config/project.yaml
+========================================================================
+Computed dynamic congestion profile for 1802 roads from 200 background routes (computed once, reused for every window).
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\plans\plan_congestion_base_window_000.txt
+Elapsed time: 1991.166s
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\plans\plan_congestion_base_window_001.txt
+Elapsed time: 2127.476s
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\plans\plan_congestion_base_window_002.txt
+Elapsed time: 1968.935s
+  Window 3: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\plans\plan_congestion_base_window_004.txt
+Elapsed time: 1939.300s
+  Window 5: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\plans\plan_congestion_base_window_006.txt
+Elapsed time: 1984.978s
+  Window 7: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\plans\plan_congestion_base_window_008.txt
+Elapsed time: 2011.791s
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_1000_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_088\runs\basic\plans\plan_congestion_base_window_009.txt
+Elapsed time: 2094.868s
+  Window 10: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 11: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 12: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 13: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 14: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+Using overridden congestion factors for 1802 roads.
+Running ENHSP
+
+TIMEOUT: run exceeded its configured wall-clock budget.

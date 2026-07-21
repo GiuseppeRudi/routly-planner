@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-07-15T15:21:19.137175",
+  "seed": 71,
+  "total_events": 2,
+  "total_roads_closed": 2,
+  "blocked_locations": [
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0044 and 0033, both incident to node loc_0022. 0044 lies almost on the direct path (distance 0.1) and 0033 is also close (28.8). Blocking these low‑degree roads forces traffic to detour around the small cluster near loc_0022.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0044",
+        "road_0033"
+      ],
+      "description": "Roadworks on roads 0044 and 0033, both incident to node loc_0022. 0044 lies almost on the direct path (distance 0.1) and 0033 is also close (28.8). Blocking these low‑degree roads forces traffic to detour around the small cluster near loc_0022."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0106",
+        "road_0032"
+      ],
+      "description": "Light congestion on roads 0106 and 0032 at node loc_0065. 0106 is very close to the axis (4.3) and 0032 is moderately close (31.7). Vehicles will experience a 2.5‑fold reduction in speed on this small connected cluster.",
+      "severity": 2.5
+    }
+  ]
+}

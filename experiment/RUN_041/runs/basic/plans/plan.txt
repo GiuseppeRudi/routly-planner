@@ -1,0 +1,58 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 40379
+Aibr Preprocessing
+|F|:268
+|X|:0
+|A|:462
+|P|:0
+|E|:0
+H1 Setup Time (msec): 28
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=181.2186
+ g(n)= 29.2637 h(n)=151.9549
+ g(n)= 49.876 h(n)=131.3426
+ g(n)= 70.0484 h(n)=111.170204
+ g(n)= 76.8628 h(n)=104.3558
+ g(n)= 85.8787 h(n)=95.3399
+ g(n)= 89.5027 h(n)=91.7159
+ g(n)= 98.2741 h(n)=82.944496
+ g(n)= 103.8523 h(n)=77.366295
+ g(n)= 106.7151 h(n)=74.503494
+ g(n)= 116.9944 h(n)=64.2242
+ g(n)= 136.1841 h(n)=45.0345
+ g(n)= 145.879 h(n)=35.3396
+ g(n)= 147.4127 h(n)=33.8059
+ g(n)= 160.0654 h(n)=21.1532
+ g(n)= 181.2186 h(n)=0.0
+Problem Solved
+
+Found Plan:
+0.0: (traverse-road car1 road_0325 loc_0189 loc_0012)
+1.0: (traverse-road car1 macro_0001 loc_0012 loc_0161)
+2.0: (traverse-road car1 road_0285 loc_0161 loc_0109)
+3.0: (traverse-road car1 road_0187 loc_0109 loc_0107)
+4.0: (traverse-road car1 road_0181 loc_0107 loc_0110)
+5.0: (traverse-road car1 road_0188 loc_0110 loc_0217)
+6.0: (traverse-road car1 road_0377 loc_0217 loc_0239)
+7.0: (traverse-road car1 road_0410 loc_0239 loc_0238)
+8.0: (traverse-road car1 road_0407 loc_0238 loc_0108)
+9.0: (traverse-road car1 road_0185 loc_0108 loc_0081)
+10.0: (traverse-road car1 road_0132 loc_0081 loc_0126)
+11.0: (traverse-road car1 road_0216 loc_0126 loc_0124)
+12.0: (traverse-road car1 road_0213 loc_0124 loc_0149)
+13.0: (traverse-road car1 road_0266 loc_0149 loc_0165)
+14.0: (traverse-road car1 road_0293 loc_0165 loc_0170)
+
+Plan-Length:15
+Metric (Search):181.2186
+Planning Time (msec): 41025
+Heuristic Time (msec): 13
+Search Time (msec): 42
+Expanded Nodes:16
+States Evaluated:24
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:0
+Number of Duplicates detected:6

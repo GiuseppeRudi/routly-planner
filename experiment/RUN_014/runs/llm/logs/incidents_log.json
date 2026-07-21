@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-15T15:27:56.189214",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0116",
+      "event_type": "roadworks",
+      "description": "Roadworks blocking the junction at intersection loc_0116, affecting the three main routes (road_0023, road_0186, road_0198). These roads lie very close to the straight path between start and goal, creating a bottleneck that forces detours.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0123",
+      "event_type": "roadworks",
+      "description": "Roadworks blocking the junction at intersection loc_0116, affecting the three main routes (road_0023, road_0186, road_0198). These roads lie very close to the straight path between start and goal, creating a bottleneck that forces detours.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0023",
+        "road_0186",
+        "road_0198"
+      ],
+      "description": "Roadworks blocking the junction at intersection loc_0116, affecting the three main routes (road_0023, road_0186, road_0198). These roads lie very close to the straight path between start and goal, creating a bottleneck that forces detours."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0124",
+        "road_0125"
+      ],
+      "description": "Light congestion on the two roads connecting loc_0081 to loc_0090 and loc_0127. The slowdown reduces speed by factor 2.5, affecting traffic near the axis.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0091"
+      ],
+      "description": "Accident on road_0091 between loc_0059 and loc_0139, a key link near the axis, causing a complete block."
+    }
+  ]
+}

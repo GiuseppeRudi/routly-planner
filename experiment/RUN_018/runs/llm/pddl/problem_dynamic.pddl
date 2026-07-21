@@ -1,0 +1,1798 @@
+;; ============================================================
+;;  PROBLEM: exp_150_nodes_05_planner_comp_line_comp_20260715_153050
+;;  Features: tl_cong-pddl-static_llm_macro
+;;  Start: loc_0124
+;;  Goal:  loc_0049
+;; ============================================================
+
+(define (problem exp_150_nodes_05_planner_comp_line_comp_20260715_153050_dynamic)
+  (:domain road-network)
+
+  (:objects
+    car1 - vehicle
+    loc_0000 - location
+    loc_0001 - location
+    loc_0002 - location
+    loc_0003 - location
+    loc_0004 - location
+    loc_0005 - location
+    loc_0006 - location
+    loc_0007 - location
+    loc_0008 - location
+    loc_0009 - location
+    loc_0010 - location
+    loc_0011 - location
+    loc_0012 - location
+    loc_0013 - location
+    loc_0014 - location
+    loc_0015 - location
+    loc_0016 - location
+    loc_0017 - location
+    loc_0018 - location
+    loc_0019 - location
+    loc_0020 - location
+    loc_0021 - location
+    loc_0022 - location
+    loc_0023 - location
+    loc_0024 - location
+    loc_0025 - location
+    loc_0026 - location
+    loc_0027 - location
+    loc_0028 - location
+    loc_0029 - location
+    loc_0030 - location
+    loc_0031 - location
+    loc_0032 - location
+    loc_0033 - location
+    loc_0034 - location
+    loc_0035 - location
+    loc_0036 - location
+    loc_0037 - location
+    loc_0038 - location
+    loc_0039 - location
+    loc_0040 - location
+    loc_0041 - location
+    loc_0042 - location
+    loc_0043 - location
+    loc_0044 - location
+    loc_0045 - location
+    loc_0046 - location
+    loc_0047 - location
+    loc_0048 - location
+    loc_0049 - location
+    loc_0050 - location
+    loc_0051 - location
+    loc_0052 - location
+    loc_0053 - location
+    loc_0054 - location
+    loc_0055 - location
+    loc_0056 - location
+    loc_0057 - location
+    loc_0058 - location
+    loc_0059 - location
+    loc_0060 - location
+    loc_0061 - location
+    loc_0062 - location
+    loc_0063 - location
+    loc_0064 - location
+    loc_0065 - location
+    loc_0066 - location
+    loc_0067 - location
+    loc_0068 - location
+    loc_0070 - location
+    loc_0071 - location
+    loc_0072 - location
+    loc_0073 - location
+    loc_0074 - location
+    loc_0075 - location
+    loc_0076 - location
+    loc_0077 - location
+    loc_0078 - location
+    loc_0079 - location
+    loc_0080 - location
+    loc_0081 - location
+    loc_0082 - location
+    loc_0083 - location
+    loc_0084 - location
+    loc_0085 - location
+    loc_0086 - location
+    loc_0087 - location
+    loc_0088 - location
+    loc_0089 - location
+    loc_0090 - location
+    loc_0091 - location
+    loc_0092 - location
+    loc_0093 - location
+    loc_0094 - location
+    loc_0095 - location
+    loc_0096 - location
+    loc_0097 - location
+    loc_0098 - location
+    loc_0099 - location
+    loc_0100 - location
+    loc_0101 - location
+    loc_0102 - location
+    loc_0103 - location
+    loc_0104 - location
+    loc_0105 - location
+    loc_0106 - location
+    loc_0107 - location
+    loc_0108 - location
+    loc_0109 - location
+    loc_0110 - location
+    loc_0111 - location
+    loc_0112 - location
+    loc_0113 - location
+    loc_0114 - location
+    loc_0115 - location
+    loc_0116 - location
+    loc_0117 - location
+    loc_0118 - location
+    loc_0119 - location
+    loc_0120 - location
+    loc_0122 - location
+    loc_0123 - location
+    loc_0124 - location
+    loc_0125 - location
+    loc_0126 - location
+    loc_0127 - location
+    loc_0128 - location
+    loc_0130 - location
+    loc_0131 - location
+    loc_0132 - location
+    loc_0134 - location
+    loc_0135 - location
+    loc_0136 - location
+    loc_0137 - location
+    loc_0138 - location
+    loc_0139 - location
+    loc_0141 - location
+    loc_0142 - location
+    loc_0143 - location
+    loc_0145 - location
+    loc_0146 - location
+    loc_0147 - location
+    loc_0148 - location
+    loc_0149 - location
+    macro_0000 - road_type_macro_0000
+    macro_0001 - road_type_macro_0001
+    macro_0002 - road_type_macro_0002
+    macro_0003 - road_type_macro_0003
+    macro_0004 - road_type_macro_0004
+    macro_0005 - road_type_macro_0005
+    macro_0006 - road_type_macro_0006
+    macro_0007 - road_type_macro_0007
+    macro_0008 - road_type_macro_0008
+    macro_0009 - road_type_macro_0009
+    macro_0010 - road_type_macro_0010
+    macro_0011 - road_type_macro_0011
+    macro_0012 - road_type_macro_0012
+    macro_0013 - road_type_macro_0013
+    macro_0014 - road_type_macro_0014
+    macro_0015 - road_type_macro_0015
+    macro_0016 - road_type_macro_0016
+    macro_0017 - road_type_macro_0017
+    macro_0018 - road_type_macro_0018
+    macro_0019 - road_type_macro_0019
+    macro_0020 - road_type_macro_0020
+    road_0000 - road_type_road_0000
+    road_0001 - road_type_road_0001
+    road_0003 - road_type_road_0003
+    road_0004 - road_type_road_0004
+    road_0005 - road_type_road_0005
+    road_0006 - road_type_road_0006
+    road_0007 - road_type_road_0007
+    road_0010 - road_type_road_0010
+    road_0011 - road_type_road_0011
+    road_0012 - road_type_road_0012
+    road_0013 - road_type_road_0013
+    road_0014 - road_type_road_0014
+    road_0015 - road_type_road_0015
+    road_0017 - road_type_road_0017
+    road_0018 - road_type_road_0018
+    road_0020 - road_type_road_0020
+    road_0021 - road_type_road_0021
+    road_0022 - road_type_road_0022
+    road_0023 - road_type_road_0023
+    road_0024 - road_type_road_0024
+    road_0025 - road_type_road_0025
+    road_0026 - road_type_road_0026
+    road_0027 - road_type_road_0027
+    road_0028 - road_type_road_0028
+    road_0029 - road_type_road_0029
+    road_0030 - road_type_road_0030
+    road_0031 - road_type_road_0031
+    road_0032 - road_type_road_0032
+    road_0033 - road_type_road_0033
+    road_0034 - road_type_road_0034
+    road_0035 - road_type_road_0035
+    road_0036 - road_type_road_0036
+    road_0037 - road_type_road_0037
+    road_0038 - road_type_road_0038
+    road_0039 - road_type_road_0039
+    road_0040 - road_type_road_0040
+    road_0041 - road_type_road_0041
+    road_0042 - road_type_road_0042
+    road_0043 - road_type_road_0043
+    road_0044 - road_type_road_0044
+    road_0045 - road_type_road_0045
+    road_0046 - road_type_road_0046
+    road_0049 - road_type_road_0049
+    road_0050 - road_type_road_0050
+    road_0051 - road_type_road_0051
+    road_0052 - road_type_road_0052
+    road_0053 - road_type_road_0053
+    road_0054 - road_type_road_0054
+    road_0055 - road_type_road_0055
+    road_0057 - road_type_road_0057
+    road_0058 - road_type_road_0058
+    road_0059 - road_type_road_0059
+    road_0060 - road_type_road_0060
+    road_0061 - road_type_road_0061
+    road_0062 - road_type_road_0062
+    road_0063 - road_type_road_0063
+    road_0064 - road_type_road_0064
+    road_0065 - road_type_road_0065
+    road_0066 - road_type_road_0066
+    road_0067 - road_type_road_0067
+    road_0068 - road_type_road_0068
+    road_0069 - road_type_road_0069
+    road_0070 - road_type_road_0070
+    road_0071 - road_type_road_0071
+    road_0072 - road_type_road_0072
+    road_0073 - road_type_road_0073
+    road_0074 - road_type_road_0074
+    road_0075 - road_type_road_0075
+    road_0076 - road_type_road_0076
+    road_0078 - road_type_road_0078
+    road_0079 - road_type_road_0079
+    road_0080 - road_type_road_0080
+    road_0081 - road_type_road_0081
+    road_0082 - road_type_road_0082
+    road_0084 - road_type_road_0084
+    road_0085 - road_type_road_0085
+    road_0086 - road_type_road_0086
+    road_0087 - road_type_road_0087
+    road_0088 - road_type_road_0088
+    road_0089 - road_type_road_0089
+    road_0090 - road_type_road_0090
+    road_0091 - road_type_road_0091
+    road_0092 - road_type_road_0092
+    road_0093 - road_type_road_0093
+    road_0094 - road_type_road_0094
+    road_0095 - road_type_road_0095
+    road_0096 - road_type_road_0096
+    road_0097 - road_type_road_0097
+    road_0099 - road_type_road_0099
+    road_0100 - road_type_road_0100
+    road_0101 - road_type_road_0101
+    road_0102 - road_type_road_0102
+    road_0103 - road_type_road_0103
+    road_0104 - road_type_road_0104
+    road_0105 - road_type_road_0105
+    road_0106 - road_type_road_0106
+    road_0108 - road_type_road_0108
+    road_0109 - road_type_road_0109
+    road_0110 - road_type_road_0110
+    road_0111 - road_type_road_0111
+    road_0112 - road_type_road_0112
+    road_0113 - road_type_road_0113
+    road_0114 - road_type_road_0114
+    road_0115 - road_type_road_0115
+    road_0117 - road_type_road_0117
+    road_0118 - road_type_road_0118
+    road_0119 - road_type_road_0119
+    road_0120 - road_type_road_0120
+    road_0121 - road_type_road_0121
+    road_0122 - road_type_road_0122
+    road_0123 - road_type_road_0123
+    road_0124 - road_type_road_0124
+    road_0125 - road_type_road_0125
+    road_0126 - road_type_road_0126
+    road_0127 - road_type_road_0127
+    road_0128 - road_type_road_0128
+    road_0129 - road_type_road_0129
+    road_0131 - road_type_road_0131
+    road_0132 - road_type_road_0132
+    road_0133 - road_type_road_0133
+    road_0134 - road_type_road_0134
+    road_0135 - road_type_road_0135
+    road_0136 - road_type_road_0136
+    road_0137 - road_type_road_0137
+    road_0138 - road_type_road_0138
+    road_0139 - road_type_road_0139
+    road_0140 - road_type_road_0140
+    road_0141 - road_type_road_0141
+    road_0142 - road_type_road_0142
+    road_0144 - road_type_road_0144
+    road_0145 - road_type_road_0145
+    road_0148 - road_type_road_0148
+    road_0149 - road_type_road_0149
+    road_0150 - road_type_road_0150
+    road_0151 - road_type_road_0151
+    road_0152 - road_type_road_0152
+    road_0154 - road_type_road_0154
+    road_0155 - road_type_road_0155
+    road_0156 - road_type_road_0156
+    road_0157 - road_type_road_0157
+    road_0158 - road_type_road_0158
+    road_0159 - road_type_road_0159
+    road_0160 - road_type_road_0160
+    road_0161 - road_type_road_0161
+    road_0162 - road_type_road_0162
+    road_0163 - road_type_road_0163
+    road_0164 - road_type_road_0164
+    road_0165 - road_type_road_0165
+    road_0166 - road_type_road_0166
+    road_0167 - road_type_road_0167
+    road_0168 - road_type_road_0168
+    road_0169 - road_type_road_0169
+    road_0171 - road_type_road_0171
+    road_0172 - road_type_road_0172
+    road_0173 - road_type_road_0173
+    road_0174 - road_type_road_0174
+    road_0175 - road_type_road_0175
+    road_0176 - road_type_road_0176
+    road_0177 - road_type_road_0177
+    road_0178 - road_type_road_0178
+    road_0179 - road_type_road_0179
+    road_0180 - road_type_road_0180
+    road_0181 - road_type_road_0181
+    road_0182 - road_type_road_0182
+    road_0183 - road_type_road_0183
+    road_0184 - road_type_road_0184
+    road_0185 - road_type_road_0185
+    road_0186 - road_type_road_0186
+    road_0188 - road_type_road_0188
+    road_0189 - road_type_road_0189
+    road_0190 - road_type_road_0190
+    road_0191 - road_type_road_0191
+    road_0192 - road_type_road_0192
+    road_0197 - road_type_road_0197
+    road_0198 - road_type_road_0198
+    road_0199 - road_type_road_0199
+    road_0200 - road_type_road_0200
+    road_0201 - road_type_road_0201
+    road_0202 - road_type_road_0202
+    road_0203 - road_type_road_0203
+    road_0204 - road_type_road_0204
+    road_0205 - road_type_road_0205
+    road_0206 - road_type_road_0206
+    road_0207 - road_type_road_0207
+    road_0208 - road_type_road_0208
+    road_0210 - road_type_road_0210
+    road_0211 - road_type_road_0211
+    road_0212 - road_type_road_0212
+    road_0213 - road_type_road_0213
+    road_0215 - road_type_road_0215
+    road_0216 - road_type_road_0216
+    road_0217 - road_type_road_0217
+    road_0218 - road_type_road_0218
+    road_0219 - road_type_road_0219
+    road_0220 - road_type_road_0220
+    road_0221 - road_type_road_0221
+    road_0222 - road_type_road_0222
+    road_0223 - road_type_road_0223
+    road_0224 - road_type_road_0224
+    road_0225 - road_type_road_0225
+    road_0228 - road_type_road_0228
+    road_0229 - road_type_road_0229
+    road_0231 - road_type_road_0231
+    road_0232 - road_type_road_0232
+    road_0234 - road_type_road_0234
+    road_0235 - road_type_road_0235
+    road_0236 - road_type_road_0236
+    road_0237 - road_type_road_0237
+    road_0238 - road_type_road_0238
+    road_0239 - road_type_road_0239
+    road_0240 - road_type_road_0240
+    road_0241 - road_type_road_0241
+    road_0242 - road_type_road_0242
+    road_0243 - road_type_road_0243
+  )
+
+  (:init
+  (ready-road car1 road_0201)
+  (= (travel-time car1) 0)
+  (connects macro_0000 loc_0001 loc_0027)
+  (road-open macro_0000)
+  (= (congestion-factor macro_0000) 1.0)
+  (= (travel-duration macro_0000) 18.4843)
+  (connects macro_0001 loc_0004 loc_0116)
+  (road-open macro_0001)
+  (= (congestion-factor macro_0001) 1.14)
+  (= (travel-duration macro_0001) 22.168)
+  (road-next macro_0001 macro_0015)
+  (road-next macro_0001 road_0186)
+  (road-next macro_0001 road_0188)
+  (connects macro_0002 loc_0005 loc_0051)
+  (road-open macro_0002)
+  (= (congestion-factor macro_0002) 1.14)
+  (= (travel-duration macro_0002) 13.7312)
+  (road-next macro_0002 macro_0006)
+  (road-next macro_0002 road_0076)
+  (road-next macro_0002 road_0078)
+  (connects macro_0003 loc_0013 loc_0027)
+  (road-open macro_0003)
+  (= (congestion-factor macro_0003) 1.05)
+  (= (travel-duration macro_0003) 21.1802)
+  (connects macro_0004 loc_0033 loc_0078)
+  (road-open macro_0004)
+  (= (congestion-factor macro_0004) 1.15)
+  (= (travel-duration macro_0004) 22.4632)
+  (connects macro_0005 loc_0033 loc_0041)
+  (road-open macro_0005)
+  (= (congestion-factor macro_0005) 1.17)
+  (= (travel-duration macro_0005) 26.2165)
+  (road-next macro_0005 road_0063)
+  (road-next macro_0005 road_0064)
+  (connects macro_0006 loc_0051 loc_0005)
+  (road-open macro_0006)
+  (= (congestion-factor macro_0006) 1.29)
+  (= (travel-duration macro_0006) 15.4713)
+  (road-next macro_0006 macro_0002)
+  (road-next macro_0006 road_0010)
+  (connects macro_0007 loc_0055 loc_0112)
+  (road-open macro_0007)
+  (= (congestion-factor macro_0007) 1.1)
+  (= (travel-duration macro_0007) 22.6547)
+  (connects macro_0008 loc_0062 loc_0032)
+  (road-open macro_0008)
+  (= (congestion-factor macro_0008) 1.15)
+  (= (travel-duration macro_0008) 26.2169)
+  (road-next macro_0008 road_0046)
+  (connects macro_0009 loc_0075 loc_0058)
+  (road-open macro_0009)
+  (= (congestion-factor macro_0009) 1.25)
+  (= (travel-duration macro_0009) 29.8722)
+  (road-next macro_0009 road_0087)
+  (road-next macro_0009 road_0088)
+  (road-next macro_0009 road_0089)
+  (connects macro_0010 loc_0084 loc_0089)
+  (road-open macro_0010)
+  (= (congestion-factor macro_0010) 1.31)
+  (= (travel-duration macro_0010) 21.0028)
+  (road-next macro_0010 road_0138)
+  (road-next macro_0010 road_0139)
+  (connects macro_0011 loc_0092 loc_0033)
+  (road-open macro_0011)
+  (= (congestion-factor macro_0011) 1.17)
+  (= (travel-duration macro_0011) 35.6785)
+  (road-next macro_0011 macro_0004)
+  (road-next macro_0011 macro_0005)
+  (connects macro_0012 loc_0093 loc_0076)
+  (road-open macro_0012)
+  (= (congestion-factor macro_0012) 1.1)
+  (= (travel-duration macro_0012) 13.8157)
+  (connects macro_0013 loc_0093 loc_0011)
+  (road-open macro_0013)
+  (= (congestion-factor macro_0013) 1.09)
+  (= (travel-duration macro_0013) 28.976)
+  (connects macro_0014 loc_0107 loc_0108)
+  (road-open macro_0014)
+  (= (congestion-factor macro_0014) 1.31)
+  (= (travel-duration macro_0014) 13.6424)
+  (road-next macro_0014 road_0172)
+  (connects macro_0015 loc_0116 loc_0004)
+  (road-open macro_0015)
+  (= (congestion-factor macro_0015) 1.2)
+  (= (travel-duration macro_0015) 30.0047)
+  (road-next macro_0015 macro_0001)
+  (road-next macro_0015 road_0006)
+  (road-next macro_0015 road_0007)
+  (connects macro_0016 loc_0119 loc_0120)
+  (road-open macro_0016)
+  (= (congestion-factor macro_0016) 1.3)
+  (= (travel-duration macro_0016) 19.2418)
+  (road-next macro_0016 macro_0017)
+  (road-next macro_0016 macro_0018)
+  (connects macro_0017 loc_0120 loc_0099)
+  (road-open macro_0017)
+  (= (congestion-factor macro_0017) 1.2)
+  (= (travel-duration macro_0017) 45.8082)
+  (road-next macro_0017 road_0158)
+  (connects macro_0018 loc_0120 loc_0027)
+  (road-open macro_0018)
+  (= (congestion-factor macro_0018) 1.15)
+  (= (travel-duration macro_0018) 29.4407)
+  (connects macro_0019 loc_0141 loc_0082)
+  (road-open macro_0019)
+  (= (congestion-factor macro_0019) 1.4)
+  (= (travel-duration macro_0019) 18.4169)
+  (road-next macro_0019 road_0126)
+  (connects macro_0020 loc_0143 loc_0018)
+  (road-open macro_0020)
+  (= (congestion-factor macro_0020) 1.4)
+  (= (travel-duration macro_0020) 26.1872)
+  (road-next macro_0020 road_0026)
+  (road-next macro_0020 road_0027)
+  (road-next macro_0020 road_0028)
+  (connects road_0000 loc_0000 loc_0082)
+  (road-open road_0000)
+  (= (congestion-factor road_0000) 1.0)
+  (= (travel-duration road_0000) 5.573)
+  (road-next road_0000 road_0126)
+  (connects road_0001 loc_0001 loc_0013)
+  (road-open road_0001)
+  (= (congestion-factor road_0001) 1.05)
+  (= (travel-duration road_0001) 1.7716)
+  (road-next road_0001 macro_0003)
+  (connects road_0003 loc_0002 loc_0123)
+  (road-open road_0003)
+  (= (congestion-factor road_0003) 1.0)
+  (= (travel-duration road_0003) 15.6318)
+  (road-next road_0003 road_0198)
+  (road-next road_0003 road_0199)
+  (road-next road_0003 road_0200)
+  (connects road_0004 loc_0003 loc_0005)
+  (road-open road_0004)
+  (= (congestion-factor road_0004) 1.0)
+  (= (travel-duration road_0004) 1.2517)
+  (road-next road_0004 macro_0002)
+  (road-next road_0004 road_0010)
+  (connects road_0005 loc_0003 loc_0051)
+  (road-open road_0005)
+  (= (congestion-factor road_0005) 1.06)
+  (= (travel-duration road_0005) 11.4408)
+  (road-next road_0005 macro_0006)
+  (road-next road_0005 road_0076)
+  (road-next road_0005 road_0078)
+  (connects road_0006 loc_0004 loc_0094)
+  (road-open road_0006)
+  (= (congestion-factor road_0006) 1.14)
+  (= (travel-duration road_0006) 10.4424)
+  (road-next road_0006 road_0148)
+  (road-next road_0006 road_0149)
+  (road-next road_0006 road_0150)
+  (connects road_0007 loc_0004 loc_0040)
+  (road-open road_0007)
+  (= (congestion-factor road_0007) 1.26)
+  (= (travel-duration road_0007) 12.8812)
+  (road-next road_0007 road_0060)
+  (road-next road_0007 road_0061)
+  (road-next road_0007 road_0062)
+  (connects road_0010 loc_0005 loc_0141)
+  (road-open road_0010)
+  (= (congestion-factor road_0010) 1.34)
+  (= (travel-duration road_0010) 10.3977)
+  (road-next road_0010 macro_0019)
+  (road-next road_0010 road_0228)
+  (connects road_0011 loc_0006 loc_0146)
+  (road-open road_0011)
+  (= (congestion-factor road_0011) 1.09)
+  (= (travel-duration road_0011) 4.9798)
+  (road-next road_0011 road_0236)
+  (road-next road_0011 road_0237)
+  (road-next road_0011 road_0238)
+  (connects road_0012 loc_0006 loc_0147)
+  (road-open road_0012)
+  (= (congestion-factor road_0012) 1.15)
+  (= (travel-duration road_0012) 2.5545)
+  (road-next road_0012 road_0239)
+  (road-next road_0012 road_0240)
+  (connects road_0013 loc_0007 loc_0145)
+  (road-open road_0013)
+  (= (congestion-factor road_0013) 1.2)
+  (= (travel-duration road_0013) 69.3391)
+  (road-next road_0013 road_0234)
+  (road-next road_0013 road_0235)
+  (connects road_0014 loc_0008 loc_0022)
+  (road-open road_0014)
+  (= (congestion-factor road_0014) 1.05)
+  (= (travel-duration road_0014) 96.182)
+  (road-next road_0014 road_0032)
+  (road-next road_0014 road_0033)
+  (connects road_0015 loc_0009 loc_0032)
+  (road-open road_0015)
+  (= (congestion-factor road_0015) 1.05)
+  (= (travel-duration road_0015) 11.8445)
+  (road-next road_0015 road_0046)
+  (connects road_0017 loc_0010 loc_0004)
+  (road-open road_0017)
+  (= (congestion-factor road_0017) 1.03)
+  (= (travel-duration road_0017) 13.6994)
+  (road-next road_0017 macro_0001)
+  (road-next road_0017 road_0006)
+  (road-next road_0017 road_0007)
+  (connects road_0018 loc_0012 loc_0075)
+  (road-open road_0018)
+  (= (congestion-factor road_0018) 1.1)
+  (= (travel-duration road_0018) 4.9106)
+  (road-next road_0018 macro_0009)
+  (road-next road_0018 road_0117)
+  (connects road_0020 loc_0014 loc_0135)
+  (road-open road_0020)
+  (= (congestion-factor road_0020) 1.15)
+  (= (travel-duration road_0020) 3.0941)
+  (road-next road_0020 road_0217)
+  (road-next road_0020 road_0218)
+  (road-next road_0020 road_0219)
+  (connects road_0021 loc_0015 loc_0083)
+  (road-open road_0021)
+  (= (congestion-factor road_0021) 1.11)
+  (= (travel-duration road_0021) 33.7491)
+  (road-next road_0021 road_0127)
+  (road-next road_0021 road_0128)
+  (connects road_0022 loc_0016 loc_0006)
+  (road-open road_0022)
+  (= (congestion-factor road_0022) 1.09)
+  (= (travel-duration road_0022) 2.0406)
+  (road-next road_0022 road_0011)
+  (road-next road_0022 road_0012)
+  (connects road_0023 loc_0017 loc_0116)
+  (road-open road_0023)
+  (= (congestion-factor road_0023) 1.35)
+  (= (travel-duration road_0023) 24.7319)
+  (road-next road_0023 macro_0015)
+  (road-next road_0023 road_0186)
+  (road-next road_0023 road_0188)
+  (connects road_0024 loc_0017 loc_0115)
+  (road-open road_0024)
+  (= (congestion-factor road_0024) 1.0)
+  (= (travel-duration road_0024) 9.3448)
+  (road-next road_0024 road_0184)
+  (road-next road_0024 road_0185)
+  (connects road_0025 loc_0017 loc_0080)
+  (road-open road_0025)
+  (= (congestion-factor road_0025) 1.35)
+  (= (travel-duration road_0025) 22.527)
+  (road-next road_0025 road_0120)
+  (road-next road_0025 road_0121)
+  (connects road_0026 loc_0018 loc_0132)
+  (road-open road_0026)
+  (= (congestion-factor road_0026) 1.4)
+  (= (travel-duration road_0026) 29.6397)
+  (road-next road_0026 road_0211)
+  (road-next road_0026 road_0212)
+  (road-next road_0026 road_0213)
+  (connects road_0027 loc_0018 loc_0087)
+  (road-open road_0027)
+  (= (congestion-factor road_0027) 1.2)
+  (= (travel-duration road_0027) 2.3214)
+  (road-next road_0027 road_0137)
+  (connects road_0028 loc_0018 loc_0022)
+  (road-open road_0028)
+  (= (congestion-factor road_0028) 1.1)
+  (= (travel-duration road_0028) 6.4833)
+  (road-next road_0028 road_0032)
+  (road-next road_0028 road_0033)
+  (connects road_0029 loc_0019 loc_0078)
+  (road-open road_0029)
+  (= (congestion-factor road_0029) 1.0)
+  (= (travel-duration road_0029) 7.7487)
+  (connects road_0030 loc_0020 loc_0128)
+  (road-open road_0030)
+  (= (congestion-factor road_0030) 1.0)
+  (= (travel-duration road_0030) 0.5964)
+  (road-next road_0030 road_0207)
+  (road-next road_0030 road_0208)
+  (connects road_0031 loc_0021 loc_0104)
+  (road-open road_0031)
+  (= (congestion-factor road_0031) 1.29)
+  (= (travel-duration road_0031) 11.0145)
+  (road-next road_0031 road_0166)
+  (road-next road_0031 road_0167)
+  (connects road_0032 loc_0022 loc_0008)
+  (road-open road_0032)
+  (= (congestion-factor road_0032) 1.15)
+  (= (travel-duration road_0032) 105.3422)
+  (road-next road_0032 road_0014)
+  (connects road_0033 loc_0022 loc_0131)
+  (road-open road_0033)
+  (= (congestion-factor road_0033) 1.06)
+  (= (travel-duration road_0033) 0.9967)
+  (connects road_0034 loc_0023 loc_0132)
+  (road-open road_0034)
+  (= (congestion-factor road_0034) 1.05)
+  (= (travel-duration road_0034) 5.4963)
+  (road-next road_0034 road_0211)
+  (road-next road_0034 road_0212)
+  (road-next road_0034 road_0213)
+  (connects road_0035 loc_0024 loc_0025)
+  (road-open road_0035)
+  (= (congestion-factor road_0035) 1.3)
+  (= (travel-duration road_0035) 49.6459)
+  (road-next road_0035 road_0037)
+  (road-next road_0035 road_0038)
+  (connects road_0036 loc_0024 loc_0031)
+  (road-open road_0036)
+  (= (congestion-factor road_0036) 1.4)
+  (= (travel-duration road_0036) 19.4871)
+  (road-next road_0036 road_0045)
+  (connects road_0037 loc_0025 loc_0143)
+  (road-open road_0037)
+  (= (congestion-factor road_0037) 1.26)
+  (= (travel-duration road_0037) 4.4439)
+  (road-next road_0037 macro_0020)
+  (road-next road_0037 road_0231)
+  (road-next road_0037 road_0232)
+  (connects road_0038 loc_0025 loc_0071)
+  (road-open road_0038)
+  (= (congestion-factor road_0038) 1.11)
+  (= (travel-duration road_0038) 11.6328)
+  (road-next road_0038 road_0109)
+  (road-next road_0038 road_0110)
+  (road-next road_0038 road_0111)
+  (connects road_0039 loc_0026 loc_0148)
+  (road-open road_0039)
+  (= (congestion-factor road_0039) 1.14)
+  (= (travel-duration road_0039) 16.7381)
+  (road-next road_0039 road_0241)
+  (road-next road_0039 road_0242)
+  (connects road_0040 loc_0026 loc_0038)
+  (road-open road_0040)
+  (= (congestion-factor road_0040) 1.45)
+  (= (travel-duration road_0040) 2.8595)
+  (road-next road_0040 road_0057)
+  (connects road_0041 loc_0028 loc_0054)
+  (road-open road_0041)
+  (= (congestion-factor road_0041) 1.6)
+  (= (travel-duration road_0041) 34.1582)
+  (road-next road_0041 road_0081)
+  (connects road_0042 loc_0029 loc_0073)
+  (road-open road_0042)
+  (= (congestion-factor road_0042) 1.2)
+  (= (travel-duration road_0042) 15.4206)
+  (road-next road_0042 road_0113)
+  (road-next road_0042 road_0114)
+  (connects road_0043 loc_0029 loc_0135)
+  (road-open road_0043)
+  (= (congestion-factor road_0043) 1.2)
+  (= (travel-duration road_0043) 7.3025)
+  (road-next road_0043 road_0217)
+  (road-next road_0043 road_0218)
+  (road-next road_0043 road_0219)
+  (connects road_0044 loc_0030 loc_0089)
+  (road-open road_0044)
+  (= (congestion-factor road_0044) 1.0)
+  (= (travel-duration road_0044) 2.4013)
+  (road-next road_0044 road_0138)
+  (road-next road_0044 road_0139)
+  (connects road_0045 loc_0031 loc_0145)
+  (road-open road_0045)
+  (= (congestion-factor road_0045) 1.55)
+  (= (travel-duration road_0045) 33.9519)
+  (road-next road_0045 road_0234)
+  (road-next road_0045 road_0235)
+  (connects road_0046 loc_0032 loc_0062)
+  (road-open road_0046)
+  (= (congestion-factor road_0046) 1.03)
+  (= (travel-duration road_0046) 1.6674)
+  (road-next road_0046 macro_0008)
+  (road-next road_0046 road_0097)
+  (connects road_0049 loc_0034 loc_0050)
+  (road-open road_0049)
+  (= (congestion-factor road_0049) 1.0)
+  (= (travel-duration road_0049) 18.8516)
+  (road-next road_0049 road_0074)
+  (road-next road_0049 road_0075)
+  (connects road_0050 loc_0034 loc_0063)
+  (road-open road_0050)
+  (= (congestion-factor road_0050) 1.06)
+  (= (travel-duration road_0050) 22.6578)
+  (road-next road_0050 road_0099)
+  (road-next road_0050 road_0100)
+  (connects road_0051 loc_0035 loc_0115)
+  (road-open road_0051)
+  (= (congestion-factor road_0051) 1.25)
+  (= (travel-duration road_0051) 3.4081)
+  (road-next road_0051 road_0184)
+  (road-next road_0051 road_0185)
+  (connects road_0052 loc_0035 loc_0085)
+  (road-open road_0052)
+  (= (congestion-factor road_0052) 1.45)
+  (= (travel-duration road_0052) 12.1996)
+  (road-next road_0052 road_0131)
+  (road-next road_0052 road_0132)
+  (connects road_0053 loc_0036 loc_0095)
+  (road-open road_0053)
+  (= (congestion-factor road_0053) 1.35)
+  (= (travel-duration road_0053) 4.2235)
+  (road-next road_0053 road_0151)
+  (road-next road_0053 road_0152)
+  (connects road_0054 loc_0036 loc_0035)
+  (road-open road_0054)
+  (= (congestion-factor road_0054) 1.35)
+  (= (travel-duration road_0054) 7.172)
+  (road-next road_0054 road_0051)
+  (road-next road_0054 road_0052)
+  (connects road_0055 loc_0037 loc_0033)
+  (road-open road_0055)
+  (= (congestion-factor road_0055) 1.0)
+  (= (travel-duration road_0055) 4.3142)
+  (road-next road_0055 macro_0004)
+  (road-next road_0055 macro_0005)
+  (connects road_0057 loc_0038 loc_0026)
+  (road-open road_0057)
+  (= (congestion-factor road_0057) 1.0)
+  (= (travel-duration road_0057) 1.9721)
+  (road-next road_0057 road_0039)
+  (road-next road_0057 road_0040)
+  (connects road_0058 loc_0039 loc_0053)
+  (road-open road_0058)
+  (= (congestion-factor road_0058) 1.2)
+  (= (travel-duration road_0058) 4.7133)
+  (road-next road_0058 road_0080)
+  (connects road_0059 loc_0039 loc_0028)
+  (road-open road_0059)
+  (= (congestion-factor road_0059) 1.35)
+  (= (travel-duration road_0059) 37.9098)
+  (road-next road_0059 road_0041)
+  (connects road_0060 loc_0040 loc_0004)
+  (road-open road_0060)
+  (= (congestion-factor road_0060) 1.14)
+  (= (travel-duration road_0060) 18.3245)
+  (road-next road_0060 macro_0001)
+  (road-next road_0060 road_0006)
+  (road-next road_0060 road_0007)
+  (connects road_0061 loc_0040 loc_0089)
+  (road-open road_0061)
+  (= (congestion-factor road_0061) 1.2)
+  (= (travel-duration road_0061) 8.6821)
+  (road-next road_0061 road_0138)
+  (road-next road_0061 road_0139)
+  (connects road_0062 loc_0040 loc_0039)
+  (road-open road_0062)
+  (= (congestion-factor road_0062) 1.45)
+  (= (travel-duration road_0062) 15.0916)
+  (road-next road_0062 road_0058)
+  (road-next road_0062 road_0059)
+  (connects road_0063 loc_0041 loc_0046)
+  (road-open road_0063)
+  (= (congestion-factor road_0063) 1.25)
+  (= (travel-duration road_0063) 113.9219)
+  (connects road_0064 loc_0041 loc_0137)
+  (road-open road_0064)
+  (= (congestion-factor road_0064) 1.03)
+  (= (travel-duration road_0064) 3.1581)
+  (connects road_0065 loc_0042 loc_0112)
+  (road-open road_0065)
+  (= (congestion-factor road_0065) 1.0)
+  (= (travel-duration road_0065) 9.4912)
+  (connects road_0066 loc_0043 loc_0055)
+  (road-open road_0066)
+  (= (congestion-factor road_0066) 1.1)
+  (= (travel-duration road_0066) 52.3351)
+  (road-next road_0066 macro_0007)
+  (road-next road_0066 road_0082)
+  (connects road_0067 loc_0044 loc_0109)
+  (road-open road_0067)
+  (= (congestion-factor road_0067) 1.05)
+  (= (travel-duration road_0067) 6.4414)
+  (road-next road_0067 road_0173)
+  (road-next road_0067 road_0174)
+  (connects road_0068 loc_0045 loc_0138)
+  (road-open road_0068)
+  (= (congestion-factor road_0068) 1.1)
+  (= (travel-duration road_0068) 15.8261)
+  (road-next road_0068 road_0222)
+  (road-next road_0068 road_0223)
+  (connects road_0069 loc_0045 loc_0021)
+  (road-open road_0069)
+  (= (congestion-factor road_0069) 1.25)
+  (= (travel-duration road_0069) 7.4898)
+  (road-next road_0069 road_0031)
+  (connects road_0070 loc_0047 loc_0075)
+  (road-open road_0070)
+  (= (congestion-factor road_0070) 1.3)
+  (= (travel-duration road_0070) 9.8097)
+  (road-next road_0070 macro_0009)
+  (road-next road_0070 road_0117)
+  (connects road_0071 loc_0047 loc_0124)
+  (road-open road_0071)
+  (= (congestion-factor road_0071) 1.05)
+  (= (travel-duration road_0071) 22.2109)
+  (road-next road_0071 road_0201)
+  (connects road_0072 loc_0048 loc_0036)
+  (road-open road_0072)
+  (= (congestion-factor road_0072) 1.6)
+  (= (travel-duration road_0072) 11.6952)
+  (road-next road_0072 road_0053)
+  (road-next road_0072 road_0054)
+  (connects road_0073 loc_0049 loc_0125)
+  (road-open road_0073)
+  (= (congestion-factor road_0073) 1.23)
+  (= (travel-duration road_0073) 17.9666)
+  (road-next road_0073 road_0202)
+  (road-next road_0073 road_0203)
+  (connects road_0074 loc_0050 loc_0113)
+  (road-open road_0074)
+  (= (congestion-factor road_0074) 1.06)
+  (= (travel-duration road_0074) 45.5254)
+  (road-next road_0074 road_0179)
+  (road-next road_0074 road_0180)
+  (road-next road_0074 road_0181)
+  (connects road_0075 loc_0050 loc_0092)
+  (road-open road_0075)
+  (= (congestion-factor road_0075) 1.14)
+  (= (travel-duration road_0075) 12.0307)
+  (road-next road_0075 macro_0011)
+  (road-next road_0075 road_0144)
+  (road-next road_0075 road_0145)
+  (connects road_0076 loc_0051 loc_0114)
+  (road-open road_0076)
+  (= (congestion-factor road_0076) 1.31)
+  (= (travel-duration road_0076) 1.3064)
+  (road-next road_0076 road_0182)
+  (road-next road_0076 road_0183)
+  (connects road_0078 loc_0051 loc_0049)
+  (road-open road_0078)
+  (= (congestion-factor road_0078) 1.4)
+  (= (travel-duration road_0078) 41.6354)
+  (road-next road_0078 road_0073)
+  (goal-road road_0078)
+  (connects road_0079 loc_0052 loc_0135)
+  (road-open road_0079)
+  (= (congestion-factor road_0079) 1.1)
+  (= (travel-duration road_0079) 5.337)
+  (road-next road_0079 road_0217)
+  (road-next road_0079 road_0218)
+  (road-next road_0079 road_0219)
+  (connects road_0080 loc_0053 loc_0039)
+  (road-open road_0080)
+  (= (congestion-factor road_0080) 1.1)
+  (= (travel-duration road_0080) 4.3205)
+  (road-next road_0080 road_0058)
+  (road-next road_0080 road_0059)
+  (connects road_0081 loc_0054 loc_0083)
+  (road-open road_0081)
+  (= (congestion-factor road_0081) 1.34)
+  (= (travel-duration road_0081) 29.148)
+  (road-next road_0081 road_0127)
+  (road-next road_0081 road_0128)
+  (connects road_0082 loc_0055 loc_0043)
+  (road-open road_0082)
+  (= (congestion-factor road_0082) 1.0)
+  (= (travel-duration road_0082) 47.5774)
+  (road-next road_0082 road_0066)
+  (connects road_0084 loc_0056 loc_0005)
+  (road-open road_0084)
+  (= (congestion-factor road_0084) 1.17)
+  (= (travel-duration road_0084) 14.4309)
+  (road-next road_0084 macro_0002)
+  (road-next road_0084 road_0010)
+  (connects road_0085 loc_0057 loc_0079)
+  (road-open road_0085)
+  (= (congestion-factor road_0085) 1.11)
+  (= (travel-duration road_0085) 9.9642)
+  (road-next road_0085 road_0119)
+  (connects road_0086 loc_0057 loc_0064)
+  (road-open road_0086)
+  (= (congestion-factor road_0086) 1.29)
+  (= (travel-duration road_0086) 3.511)
+  (road-next road_0086 road_0101)
+  (connects road_0087 loc_0058 loc_0096)
+  (road-open road_0087)
+  (= (congestion-factor road_0087) 1.3)
+  (= (travel-duration road_0087) 0.4259)
+  (connects road_0088 loc_0058 loc_0111)
+  (road-open road_0088)
+  (= (congestion-factor road_0088) 1.25)
+  (= (travel-duration road_0088) 30.0207)
+  (road-next road_0088 road_0178)
+  (connects road_0089 loc_0058 loc_0085)
+  (road-open road_0089)
+  (= (congestion-factor road_0089) 1.0)
+  (= (travel-duration road_0089) 3.1105)
+  (road-next road_0089 road_0131)
+  (road-next road_0089 road_0132)
+  (connects road_0090 loc_0059 loc_0104)
+  (road-open road_0090)
+  (= (congestion-factor road_0090) 1.14)
+  (= (travel-duration road_0090) 0.3461)
+  (road-next road_0090 road_0166)
+  (road-next road_0090 road_0167)
+  (connects road_0091 loc_0059 loc_0139)
+  (road-open road_0091)
+  (= (congestion-factor road_0091) 1.2)
+  (= (travel-duration road_0091) 10.4534)
+  (road-next road_0091 road_0224)
+  (road-next road_0091 road_0225)
+  (connects road_0092 loc_0060 loc_0128)
+  (road-open road_0092)
+  (= (congestion-factor road_0092) 1.55)
+  (= (travel-duration road_0092) 10.3402)
+  (road-next road_0092 road_0207)
+  (road-next road_0092 road_0208)
+  (connects road_0093 loc_0060 loc_0142)
+  (road-open road_0093)
+  (= (congestion-factor road_0093) 1.05)
+  (= (travel-duration road_0093) 11.5458)
+  (road-next road_0093 road_0229)
+  (connects road_0094 loc_0060 loc_0062)
+  (road-open road_0094)
+  (= (congestion-factor road_0094) 1.09)
+  (= (travel-duration road_0094) 13.6103)
+  (road-next road_0094 macro_0008)
+  (road-next road_0094 road_0097)
+  (connects road_0095 loc_0061 loc_0105)
+  (road-open road_0095)
+  (= (congestion-factor road_0095) 1.45)
+  (= (travel-duration road_0095) 23.6475)
+  (road-next road_0095 road_0168)
+  (connects road_0096 loc_0061 loc_0134)
+  (road-open road_0096)
+  (= (congestion-factor road_0096) 1.17)
+  (= (travel-duration road_0096) 13.8131)
+  (road-next road_0096 road_0215)
+  (road-next road_0096 road_0216)
+  (connects road_0097 loc_0062 loc_0032)
+  (road-open road_0097)
+  (= (congestion-factor road_0097) 1.0)
+  (= (travel-duration road_0097) 1.6189)
+  (road-next road_0097 road_0046)
+  (connects road_0099 loc_0063 loc_0093)
+  (road-open road_0099)
+  (= (congestion-factor road_0099) 1.14)
+  (= (travel-duration road_0099) 9.9143)
+  (road-next road_0099 macro_0012)
+  (road-next road_0099 macro_0013)
+  (connects road_0100 loc_0063 loc_0068)
+  (road-open road_0100)
+  (= (congestion-factor road_0100) 1.0)
+  (= (travel-duration road_0100) 3.8786)
+  (road-next road_0100 road_0106)
+  (connects road_0101 loc_0064 loc_0102)
+  (road-open road_0101)
+  (= (congestion-factor road_0101) 1.4)
+  (= (travel-duration road_0101) 25.1372)
+  (road-next road_0101 road_0163)
+  (road-next road_0101 road_0164)
+  (connects road_0102 loc_0065 loc_0110)
+  (road-open road_0102)
+  (= (congestion-factor road_0102) 1.0)
+  (= (travel-duration road_0102) 20.0564)
+  (road-next road_0102 road_0175)
+  (road-next road_0102 road_0176)
+  (road-next road_0102 road_0177)
+  (connects road_0103 loc_0066 loc_0045)
+  (road-open road_0103)
+  (= (congestion-factor road_0103) 1.25)
+  (= (travel-duration road_0103) 22.4799)
+  (road-next road_0103 road_0068)
+  (road-next road_0103 road_0069)
+  (connects road_0104 loc_0067 loc_0098)
+  (road-open road_0104)
+  (= (congestion-factor road_0104) 1.15)
+  (= (travel-duration road_0104) 26.3742)
+  (road-next road_0104 road_0157)
+  (connects road_0105 loc_0067 loc_0122)
+  (road-open road_0105)
+  (= (congestion-factor road_0105) 1.03)
+  (= (travel-duration road_0105) 20.4739)
+  (road-next road_0105 road_0197)
+  (connects road_0106 loc_0068 loc_0063)
+  (road-open road_0106)
+  (= (congestion-factor road_0106) 1.15)
+  (= (travel-duration road_0106) 4.4603)
+  (road-next road_0106 road_0099)
+  (road-next road_0106 road_0100)
+  (connects road_0108 loc_0070 loc_0051)
+  (road-open road_0108)
+  (= (congestion-factor road_0108) 1.65)
+  (= (travel-duration road_0108) 14.2942)
+  (road-next road_0108 macro_0006)
+  (road-next road_0108 road_0076)
+  (road-next road_0108 road_0078)
+  (connects road_0109 loc_0071 loc_0109)
+  (road-open road_0109)
+  (= (congestion-factor road_0109) 1.3)
+  (= (travel-duration road_0109) 28.7285)
+  (road-next road_0109 road_0173)
+  (road-next road_0109 road_0174)
+  (connects road_0110 loc_0071 loc_0025)
+  (road-open road_0110)
+  (= (congestion-factor road_0110) 1.17)
+  (= (travel-duration road_0110) 12.2616)
+  (road-next road_0110 road_0037)
+  (road-next road_0110 road_0038)
+  (connects road_0111 loc_0071 loc_0145)
+  (road-open road_0111)
+  (= (congestion-factor road_0111) 1.09)
+  (= (travel-duration road_0111) 6.5573)
+  (road-next road_0111 road_0234)
+  (road-next road_0111 road_0235)
+  (connects road_0112 loc_0072 loc_0128)
+  (road-open road_0112)
+  (= (congestion-factor road_0112) 1.1)
+  (= (travel-duration road_0112) 10.7069)
+  (road-next road_0112 road_0207)
+  (road-next road_0112 road_0208)
+  (connects road_0113 loc_0073 loc_0116)
+  (road-open road_0113)
+  (= (congestion-factor road_0113) 1.11)
+  (= (travel-duration road_0113) 14.5687)
+  (road-next road_0113 macro_0015)
+  (road-next road_0113 road_0186)
+  (road-next road_0113 road_0188)
+  (connects road_0114 loc_0073 loc_0113)
+  (road-open road_0114)
+  (= (congestion-factor road_0114) 1.31)
+  (= (travel-duration road_0114) 8.4215)
+  (road-next road_0114 road_0179)
+  (road-next road_0114 road_0180)
+  (road-next road_0114 road_0181)
+  (connects road_0115 loc_0074 loc_0136)
+  (road-open road_0115)
+  (= (congestion-factor road_0115) 1.5)
+  (= (travel-duration road_0115) 1.9171)
+  (road-next road_0115 road_0220)
+  (road-next road_0115 road_0221)
+  (connects road_0117 loc_0075 loc_0012)
+  (road-open road_0117)
+  (= (congestion-factor road_0117) 1.15)
+  (= (travel-duration road_0117) 5.1338)
+  (road-next road_0117 road_0018)
+  (connects road_0118 loc_0077 loc_0048)
+  (road-open road_0118)
+  (= (congestion-factor road_0118) 1.45)
+  (= (travel-duration road_0118) 4.5694)
+  (road-next road_0118 road_0072)
+  (connects road_0119 loc_0079 loc_0060)
+  (road-open road_0119)
+  (= (congestion-factor road_0119) 1.26)
+  (= (travel-duration road_0119) 17.1407)
+  (road-next road_0119 road_0092)
+  (road-next road_0119 road_0093)
+  (road-next road_0119 road_0094)
+  (connects road_0120 loc_0080 loc_0074)
+  (road-open road_0120)
+  (= (congestion-factor road_0120) 1.2)
+  (= (travel-duration road_0120) 10.1164)
+  (road-next road_0120 road_0115)
+  (connects road_0121 loc_0080 loc_0015)
+  (road-open road_0121)
+  (= (congestion-factor road_0121) 1.25)
+  (= (travel-duration road_0121) 14.2236)
+  (road-next road_0121 road_0021)
+  (connects road_0122 loc_0081 loc_0086)
+  (road-open road_0122)
+  ;; [DYNAMIC EVENT - location closure] loc_0081 incident road
+  (road-blocked road_0122)
+  (= (congestion-factor road_0122) 2.0)  ;; [DYNAMIC EVENT - slowdown] Light construction near the loc_0081 intersection slows traffic on roads 0122 (to loc_0086) and 0123 (to loc_0101). The slowdown reduces speeds by a factor of 2, reflecting temporary lane closures and detour signs.
+  (= (travel-duration road_0122) 22.3828)  ;; [DYNAMIC EVENT - slowdown] Light construction near the loc_0081 intersection slows traffic on roads 0122 (to loc_0086) and 0123 (to loc_0101). The slowdown reduces speeds by a factor of 2, reflecting temporary lane closures and detour signs.
+  (road-next road_0122 road_0133)
+  (road-next road_0122 road_0134)
+  (road-next road_0122 road_0135)
+  (road-next road_0122 road_0136)
+  (connects road_0123 loc_0081 loc_0101)
+  (road-open road_0123)
+  ;; [DYNAMIC EVENT - location closure] loc_0081 incident road
+  (road-blocked road_0123)
+  (= (congestion-factor road_0123) 2.0)  ;; [DYNAMIC EVENT - slowdown] Light construction near the loc_0081 intersection slows traffic on roads 0122 (to loc_0086) and 0123 (to loc_0101). The slowdown reduces speeds by a factor of 2, reflecting temporary lane closures and detour signs.
+  (= (travel-duration road_0123) 9.4816)  ;; [DYNAMIC EVENT - slowdown] Light construction near the loc_0081 intersection slows traffic on roads 0122 (to loc_0086) and 0123 (to loc_0101). The slowdown reduces speeds by a factor of 2, reflecting temporary lane closures and detour signs.
+  (road-next road_0123 road_0161)
+  (road-next road_0123 road_0162)
+  (connects road_0124 loc_0081 loc_0090)
+  (road-open road_0124)
+  ;; [DYNAMIC EVENT - roadworks] A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.
+  (road-blocked road_0124)
+  (= (congestion-factor road_0124) 1.0)
+  (= (travel-duration road_0124) 7.0227)
+  (road-next road_0124 road_0140)
+  (road-next road_0124 road_0141)
+  (connects road_0125 loc_0081 loc_0127)
+  (road-open road_0125)
+  ;; [DYNAMIC EVENT - roadworks] A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.
+  (road-blocked road_0125)
+  (= (congestion-factor road_0125) 1.0)
+  (= (travel-duration road_0125) 5.669)
+  (road-next road_0125 road_0206)
+  (connects road_0126 loc_0082 loc_0101)
+  (road-open road_0126)
+  (= (congestion-factor road_0126) 2.5)  ;; [DYNAMIC EVENT - slowdown] Congestion on road_0126 (loc_0082–loc_0101) due to traffic light upgrades causes a 2.5‑fold speed reduction, affecting the main corridor that connects the eastern and western parts of the network.
+  (= (travel-duration road_0126) 21.6442)  ;; [DYNAMIC EVENT - slowdown] Congestion on road_0126 (loc_0082–loc_0101) due to traffic light upgrades causes a 2.5‑fold speed reduction, affecting the main corridor that connects the eastern and western parts of the network.
+  (road-next road_0126 road_0161)
+  (road-next road_0126 road_0162)
+  (connects road_0127 loc_0083 loc_0024)
+  (road-open road_0127)
+  (= (congestion-factor road_0127) 1.65)
+  (= (travel-duration road_0127) 10.6667)
+  (road-next road_0127 road_0035)
+  (road-next road_0127 road_0036)
+  (connects road_0128 loc_0083 loc_0084)
+  (road-open road_0128)
+  (= (congestion-factor road_0128) 1.31)
+  (= (travel-duration road_0128) 4.669)
+  (road-next road_0128 macro_0010)
+  (road-next road_0128 road_0129)
+  (connects road_0129 loc_0084 loc_0083)
+  (road-open road_0129)
+  (= (congestion-factor road_0129) 1.23)
+  (= (travel-duration road_0129) 11.5239)
+  (road-next road_0129 road_0127)
+  (road-next road_0129 road_0128)
+  (connects road_0131 loc_0085 loc_0058)
+  (road-open road_0131)
+  (= (congestion-factor road_0131) 1.35)
+  (= (travel-duration road_0131) 4.1992)
+  (road-next road_0131 road_0087)
+  (road-next road_0131 road_0088)
+  (road-next road_0131 road_0089)
+  (connects road_0132 loc_0085 loc_0048)
+  (road-open road_0132)
+  (= (congestion-factor road_0132) 1.2)
+  (= (travel-duration road_0132) 6.6343)
+  (road-next road_0132 road_0072)
+  (connects road_0133 loc_0086 loc_0100)
+  (road-open road_0133)
+  (= (congestion-factor road_0133) 1.05)
+  (= (travel-duration road_0133) 8.9552)
+  (road-next road_0133 road_0159)
+  (road-next road_0133 road_0160)
+  (connects road_0134 loc_0086 loc_0066)
+  (road-open road_0134)
+  (= (congestion-factor road_0134) 1.05)
+  (= (travel-duration road_0134) 11.8949)
+  (road-next road_0134 road_0103)
+  (connects road_0135 loc_0086 loc_0097)
+  (road-open road_0135)
+  (= (congestion-factor road_0135) 1.05)
+  (= (travel-duration road_0135) 4.8978)
+  (road-next road_0135 road_0154)
+  (road-next road_0135 road_0155)
+  (road-next road_0135 road_0156)
+  (connects road_0136 loc_0086 loc_0081)
+  (road-open road_0136)
+  ;; [DYNAMIC EVENT - location closure] loc_0081 incident road
+  (road-blocked road_0136)
+  (= (congestion-factor road_0136) 1.0)
+  (= (travel-duration road_0136) 8.2899)
+  (road-next road_0136 road_0122)
+  (road-next road_0136 road_0123)
+  (road-next road_0136 road_0124)
+  (road-next road_0136 road_0125)
+  (connects road_0137 loc_0087 loc_0018)
+  (road-open road_0137)
+  (= (congestion-factor road_0137) 1.15)
+  (= (travel-duration road_0137) 2.2246)
+  (road-next road_0137 road_0026)
+  (road-next road_0137 road_0027)
+  (road-next road_0137 road_0028)
+  (connects road_0138 loc_0089 loc_0084)
+  (road-open road_0138)
+  (= (congestion-factor road_0138) 1.26)
+  (= (travel-duration road_0138) 19.9683)
+  (road-next road_0138 macro_0010)
+  (road-next road_0138 road_0129)
+  (connects road_0139 loc_0089 loc_0040)
+  (road-open road_0139)
+  (= (congestion-factor road_0139) 1.31)
+  (= (travel-duration road_0139) 9.478)
+  (road-next road_0139 road_0060)
+  (road-next road_0139 road_0061)
+  (road-next road_0139 road_0062)
+  (connects road_0140 loc_0090 loc_0059)
+  (road-open road_0140)
+  ;; [DYNAMIC EVENT - location closure] loc_0090 incident road
+  (road-blocked road_0140)
+  (= (congestion-factor road_0140) 1.0)
+  (= (travel-duration road_0140) 10.9336)
+  (road-next road_0140 road_0090)
+  (road-next road_0140 road_0091)
+  (connects road_0141 loc_0090 loc_0081)
+  (road-open road_0141)
+  ;; [DYNAMIC EVENT - roadworks] A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.
+  (road-blocked road_0141)
+  (= (congestion-factor road_0141) 1.0)
+  (= (travel-duration road_0141) 7.0227)
+  (road-next road_0141 road_0122)
+  (road-next road_0141 road_0123)
+  (road-next road_0141 road_0124)
+  (road-next road_0141 road_0125)
+  (connects road_0142 loc_0091 loc_0076)
+  (road-open road_0142)
+  (= (congestion-factor road_0142) 1.0)
+  (= (travel-duration road_0142) 5.1458)
+  (connects road_0144 loc_0092 loc_0034)
+  (road-open road_0144)
+  (= (congestion-factor road_0144) 1.06)
+  (= (travel-duration road_0144) 7.1616)
+  (road-next road_0144 road_0049)
+  (road-next road_0144 road_0050)
+  (connects road_0145 loc_0092 loc_0050)
+  (road-open road_0145)
+  (= (congestion-factor road_0145) 1.03)
+  (= (travel-duration road_0145) 10.8698)
+  (road-next road_0145 road_0074)
+  (road-next road_0145 road_0075)
+  (connects road_0148 loc_0094 loc_0004)
+  (road-open road_0148)
+  (= (congestion-factor road_0148) 1.17)
+  (= (travel-duration road_0148) 17.3872)
+  (road-next road_0148 macro_0001)
+  (road-next road_0148 road_0006)
+  (road-next road_0148 road_0007)
+  (connects road_0149 loc_0094 loc_0138)
+  (road-open road_0149)
+  (= (congestion-factor road_0149) 1.11)
+  (= (travel-duration road_0149) 0.9684)
+  (road-next road_0149 road_0222)
+  (road-next road_0149 road_0223)
+  (connects road_0150 loc_0094 loc_0105)
+  (road-open road_0150)
+  (= (congestion-factor road_0150) 1.06)
+  (= (travel-duration road_0150) 23.9642)
+  (road-next road_0150 road_0168)
+  (connects road_0151 loc_0095 loc_0029)
+  (road-open road_0151)
+  (= (congestion-factor road_0151) 1.2)
+  (= (travel-duration road_0151) 1.0239)
+  (road-next road_0151 road_0042)
+  (road-next road_0151 road_0043)
+  (connects road_0152 loc_0095 loc_0077)
+  (road-open road_0152)
+  (= (congestion-factor road_0152) 1.15)
+  (= (travel-duration road_0152) 8.1589)
+  (road-next road_0152 road_0118)
+  (connects road_0154 loc_0097 loc_0119)
+  (road-open road_0154)
+  (= (congestion-factor road_0154) 1.25)
+  (= (travel-duration road_0154) 28.9722)
+  (road-next road_0154 macro_0016)
+  (road-next road_0154 road_0192)
+  (connects road_0155 loc_0097 loc_0098)
+  (road-open road_0155)
+  (= (congestion-factor road_0155) 1.2)
+  (= (travel-duration road_0155) 35.7552)
+  (road-next road_0155 road_0157)
+  (connects road_0156 loc_0097 loc_0086)
+  (road-open road_0156)
+  (= (congestion-factor road_0156) 1.05)
+  (= (travel-duration road_0156) 4.8978)
+  (road-next road_0156 road_0133)
+  (road-next road_0156 road_0134)
+  (road-next road_0156 road_0135)
+  (road-next road_0156 road_0136)
+  (connects road_0157 loc_0098 loc_0070)
+  (road-open road_0157)
+  (= (congestion-factor road_0157) 1.55)
+  (= (travel-duration road_0157) 7.9909)
+  (road-next road_0157 road_0108)
+  (connects road_0158 loc_0099 loc_0097)
+  (road-open road_0158)
+  (= (congestion-factor road_0158) 1.35)
+  (= (travel-duration road_0158) 35.5507)
+  (road-next road_0158 road_0154)
+  (road-next road_0158 road_0155)
+  (road-next road_0158 road_0156)
+  (connects road_0159 loc_0100 loc_0056)
+  (road-open road_0159)
+  (= (congestion-factor road_0159) 1.1)
+  (= (travel-duration road_0159) 7.9837)
+  (road-next road_0159 road_0084)
+  (connects road_0160 loc_0100 loc_0070)
+  (road-open road_0160)
+  (= (congestion-factor road_0160) 1.0)
+  (= (travel-duration road_0160) 23.0445)
+  (road-next road_0160 road_0108)
+  (connects road_0161 loc_0101 loc_0056)
+  (road-open road_0161)
+  (= (congestion-factor road_0161) 1.29)
+  (= (travel-duration road_0161) 8.1289)
+  (road-next road_0161 road_0084)
+  (connects road_0162 loc_0101 loc_0081)
+  (road-open road_0162)
+  ;; [DYNAMIC EVENT - location closure] loc_0081 incident road
+  (road-blocked road_0162)
+  (= (congestion-factor road_0162) 1.0)
+  (= (travel-duration road_0162) 4.271)
+  (road-next road_0162 road_0122)
+  (road-next road_0162 road_0123)
+  (road-next road_0162 road_0124)
+  (road-next road_0162 road_0125)
+  (connects road_0163 loc_0102 loc_0127)
+  (road-open road_0163)
+  (= (congestion-factor road_0163) 1.7)
+  (= (travel-duration road_0163) 3.921)
+  (road-next road_0163 road_0206)
+  (connects road_0164 loc_0102 loc_0081)
+  (road-open road_0164)
+  ;; [DYNAMIC EVENT - roadworks] A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.
+  (road-blocked road_0164)
+  (= (congestion-factor road_0164) 1.0)
+  (= (travel-duration road_0164) 6.3843)
+  (road-next road_0164 road_0122)
+  (road-next road_0164 road_0123)
+  (road-next road_0164 road_0124)
+  (road-next road_0164 road_0125)
+  (connects road_0165 loc_0103 loc_0117)
+  (road-open road_0165)
+  (= (congestion-factor road_0165) 1.49)
+  (= (travel-duration road_0165) 1.0514)
+  (road-next road_0165 road_0189)
+  (road-next road_0165 road_0190)
+  (connects road_0166 loc_0104 loc_0061)
+  (road-open road_0166)
+  (= (congestion-factor road_0166) 1.26)
+  (= (travel-duration road_0166) 0.1966)
+  (road-next road_0166 road_0095)
+  (road-next road_0166 road_0096)
+  (connects road_0167 loc_0104 loc_0059)
+  (road-open road_0167)
+  (= (congestion-factor road_0167) 1.2)
+  (= (travel-duration road_0167) 0.3643)
+  (road-next road_0167 road_0090)
+  (road-next road_0167 road_0091)
+  (connects road_0168 loc_0105 loc_0057)
+  (road-open road_0168)
+  (= (congestion-factor road_0168) 1.34)
+  (= (travel-duration road_0168) 17.1018)
+  (road-next road_0168 road_0085)
+  (road-next road_0168 road_0086)
+  (connects road_0169 loc_0106 loc_0122)
+  (road-open road_0169)
+  (= (congestion-factor road_0169) 1.63)
+  (= (travel-duration road_0169) 9.6063)
+  (road-next road_0169 road_0197)
+  (connects road_0171 loc_0107 loc_0108)
+  (road-open road_0171)
+  (= (congestion-factor road_0171) 1.2)
+  (= (travel-duration road_0171) 6.3507)
+  (road-next road_0171 road_0172)
+  (connects road_0172 loc_0108 loc_0126)
+  (road-open road_0172)
+  (= (congestion-factor road_0172) 1.4)
+  (= (travel-duration road_0172) 1.3424)
+  (road-next road_0172 road_0204)
+  (road-next road_0172 road_0205)
+  (connects road_0173 loc_0109 loc_0044)
+  (road-open road_0173)
+  (= (congestion-factor road_0173) 1.15)
+  (= (travel-duration road_0173) 7.0548)
+  (road-next road_0173 road_0067)
+  (connects road_0174 loc_0109 loc_0031)
+  (road-open road_0174)
+  (= (congestion-factor road_0174) 1.15)
+  (= (travel-duration road_0174) 3.7413)
+  (road-next road_0174 road_0045)
+  (connects road_0175 loc_0110 loc_0055)
+  (road-open road_0175)
+  (= (congestion-factor road_0175) 1.05)
+  (= (travel-duration road_0175) 34.0176)
+  (road-next road_0175 macro_0007)
+  (road-next road_0175 road_0082)
+  (connects road_0176 loc_0110 loc_0065)
+  (road-open road_0176)
+  (= (congestion-factor road_0176) 1.09)
+  (= (travel-duration road_0176) 21.8615)
+  (road-next road_0176 road_0102)
+  (connects road_0177 loc_0110 loc_0143)
+  (road-open road_0177)
+  (= (congestion-factor road_0177) 1.06)
+  (= (travel-duration road_0177) 18.2056)
+  (road-next road_0177 macro_0020)
+  (road-next road_0177 road_0231)
+  (road-next road_0177 road_0232)
+  (connects road_0178 loc_0111 loc_0115)
+  (road-open road_0178)
+  (= (congestion-factor road_0178) 1.45)
+  (= (travel-duration road_0178) 16.8108)
+  (road-next road_0178 road_0184)
+  (road-next road_0178 road_0185)
+  (connects road_0179 loc_0113 loc_0077)
+  (road-open road_0179)
+  (= (congestion-factor road_0179) 1.4)
+  (= (travel-duration road_0179) 10.9759)
+  (road-next road_0179 road_0118)
+  (connects road_0180 loc_0113 loc_0050)
+  (road-open road_0180)
+  (= (congestion-factor road_0180) 1.2)
+  (= (travel-duration road_0180) 51.5382)
+  (road-next road_0180 road_0074)
+  (road-next road_0180 road_0075)
+  (connects road_0181 loc_0113 loc_0073)
+  (road-open road_0181)
+  (= (congestion-factor road_0181) 1.06)
+  (= (travel-duration road_0181) 13.5644)
+  (road-next road_0181 road_0113)
+  (road-next road_0181 road_0114)
+  (connects road_0182 loc_0114 loc_0051)
+  (road-open road_0182)
+  (= (congestion-factor road_0182) 1.06)
+  (= (travel-duration road_0182) 1.0571)
+  (road-next road_0182 macro_0006)
+  (road-next road_0182 road_0076)
+  (road-next road_0182 road_0078)
+  (connects road_0183 loc_0114 loc_0106)
+  (road-open road_0183)
+  (= (congestion-factor road_0183) 1.51)
+  (= (travel-duration road_0183) 11.0156)
+  (road-next road_0183 road_0169)
+  (connects road_0184 loc_0115 loc_0035)
+  (road-open road_0184)
+  (= (congestion-factor road_0184) 1.2)
+  (= (travel-duration road_0184) 3.2718)
+  (road-next road_0184 road_0051)
+  (road-next road_0184 road_0052)
+  (connects road_0185 loc_0115 loc_0017)
+  (road-open road_0185)
+  (= (congestion-factor road_0185) 1.45)
+  (= (travel-duration road_0185) 13.5499)
+  (road-next road_0185 road_0023)
+  (road-next road_0185 road_0024)
+  (road-next road_0185 road_0025)
+  (connects road_0186 loc_0116 loc_0123)
+  (road-open road_0186)
+  (= (congestion-factor road_0186) 1.25)
+  (= (travel-duration road_0186) 5.9462)
+  (road-next road_0186 road_0198)
+  (road-next road_0186 road_0199)
+  (road-next road_0186 road_0200)
+  (connects road_0188 loc_0116 loc_0073)
+  (road-open road_0188)
+  (= (congestion-factor road_0188) 1.2)
+  (= (travel-duration road_0188) 22.4999)
+  (road-next road_0188 road_0113)
+  (road-next road_0188 road_0114)
+  (connects road_0189 loc_0117 loc_0114)
+  (road-open road_0189)
+  (= (congestion-factor road_0189) 1.17)
+  (= (travel-duration road_0189) 7.7602)
+  (road-next road_0189 road_0182)
+  (road-next road_0189 road_0183)
+  (connects road_0190 loc_0117 loc_0106)
+  (road-open road_0190)
+  (= (congestion-factor road_0190) 1.2)
+  (= (travel-duration road_0190) 6.9152)
+  (road-next road_0190 road_0169)
+  (connects road_0191 loc_0118 loc_0067)
+  (road-open road_0191)
+  (= (congestion-factor road_0191) 1.09)
+  (= (travel-duration road_0191) 13.5423)
+  (road-next road_0191 road_0104)
+  (road-next road_0191 road_0105)
+  (connects road_0192 loc_0119 loc_0118)
+  (road-open road_0192)
+  (= (congestion-factor road_0192) 1.15)
+  (= (travel-duration road_0192) 42.3553)
+  (road-next road_0192 road_0191)
+  (connects road_0197 loc_0122 loc_0107)
+  (road-open road_0197)
+  (= (congestion-factor road_0197) 1.63)
+  (= (travel-duration road_0197) 1.6196)
+  (road-next road_0197 macro_0014)
+  (road-next road_0197 road_0171)
+  (connects road_0198 loc_0123 loc_0116)
+  (road-open road_0198)
+  (= (congestion-factor road_0198) 1.05)
+  (= (travel-duration road_0198) 4.9948)
+  (road-next road_0198 macro_0015)
+  (road-next road_0198 road_0186)
+  (road-next road_0198 road_0188)
+  (connects road_0199 loc_0123 loc_0002)
+  (road-open road_0199)
+  (= (congestion-factor road_0199) 1.1)
+  (= (travel-duration road_0199) 17.195)
+  (road-next road_0199 road_0003)
+  (connects road_0200 loc_0123 loc_0099)
+  (road-open road_0200)
+  (= (congestion-factor road_0200) 1.2)
+  (= (travel-duration road_0200) 18.4875)
+  (road-next road_0200 road_0158)
+  (connects road_0201 loc_0124 loc_0074)
+  (road-open road_0201)
+  (= (congestion-factor road_0201) 5.0)  ;; [DYNAMIC EVENT - slowdown] Auto-fallback (debug): avoided closure for not making A->B unsolvable.
+  (= (travel-duration road_0201) 74.261)  ;; [DYNAMIC EVENT - slowdown] Auto-fallback (debug): avoided closure for not making A->B unsolvable.
+  (road-next road_0201 road_0115)
+  (connects road_0202 loc_0125 loc_0049)
+  (road-open road_0202)
+  (= (congestion-factor road_0202) 1.06)
+  (= (travel-duration road_0202) 15.4834)
+  (road-next road_0202 road_0073)
+  (connects road_0203 loc_0125 loc_0103)
+  (road-open road_0203)
+  (= (congestion-factor road_0203) 1.37)
+  (= (travel-duration road_0203) 8.1907)
+  (road-next road_0203 road_0165)
+  (connects road_0204 loc_0126 loc_0125)
+  (road-open road_0204)
+  (= (congestion-factor road_0204) 1.23)
+  (= (travel-duration road_0204) 7.336)
+  (road-next road_0204 road_0202)
+  (road-next road_0204 road_0203)
+  (connects road_0205 loc_0126 loc_0103)
+  (road-open road_0205)
+  (= (congestion-factor road_0205) 1.14)
+  (= (travel-duration road_0205) 6.7568)
+  (road-next road_0205 road_0165)
+  (connects road_0206 loc_0127 loc_0026)
+  (road-open road_0206)
+  (= (congestion-factor road_0206) 1.37)
+  (= (travel-duration road_0206) 5.8742)
+  (road-next road_0206 road_0039)
+  (road-next road_0206 road_0040)
+  (connects road_0207 loc_0128 loc_0020)
+  (road-open road_0207)
+  (= (congestion-factor road_0207) 1.5)
+  (= (travel-duration road_0207) 0.8946)
+  (road-next road_0207 road_0030)
+  (connects road_0208 loc_0128 loc_0072)
+  (road-open road_0208)
+  (= (congestion-factor road_0208) 1.1)
+  (= (travel-duration road_0208) 10.7069)
+  (road-next road_0208 road_0112)
+  (connects road_0210 loc_0130 loc_0132)
+  (road-open road_0210)
+  (= (congestion-factor road_0210) 1.15)
+  (= (travel-duration road_0210) 19.8935)
+  (road-next road_0210 road_0211)
+  (road-next road_0210 road_0212)
+  (road-next road_0210 road_0213)
+  (connects road_0211 loc_0132 loc_0018)
+  (road-open road_0211)
+  (= (congestion-factor road_0211) 1.15)
+  (= (travel-duration road_0211) 24.3469)
+  (road-next road_0211 road_0026)
+  (road-next road_0211 road_0027)
+  (road-next road_0211 road_0028)
+  (connects road_0212 loc_0132 loc_0130)
+  (road-open road_0212)
+  (= (congestion-factor road_0212) 1.25)
+  (= (travel-duration road_0212) 21.6234)
+  (road-next road_0212 road_0210)
+  (connects road_0213 loc_0132 loc_0023)
+  (road-open road_0213)
+  (= (congestion-factor road_0213) 1.25)
+  (= (travel-duration road_0213) 6.5433)
+  (road-next road_0213 road_0034)
+  (connects road_0215 loc_0134 loc_0138)
+  (road-open road_0215)
+  (= (congestion-factor road_0215) 1.09)
+  (= (travel-duration road_0215) 5.3813)
+  (road-next road_0215 road_0222)
+  (road-next road_0215 road_0223)
+  (connects road_0216 loc_0134 loc_0021)
+  (road-open road_0216)
+  (= (congestion-factor road_0216) 1.23)
+  (= (travel-duration road_0216) 3.9204)
+  (road-next road_0216 road_0031)
+  (connects road_0217 loc_0135 loc_0052)
+  (road-open road_0217)
+  (= (congestion-factor road_0217) 1.25)
+  (= (travel-duration road_0217) 6.0647)
+  (road-next road_0217 road_0079)
+  (connects road_0218 loc_0135 loc_0014)
+  (road-open road_0218)
+  (= (congestion-factor road_0218) 1.1)
+  (= (travel-duration road_0218) 2.9596)
+  (road-next road_0218 road_0020)
+  (connects road_0219 loc_0135 loc_0029)
+  (road-open road_0219)
+  (= (congestion-factor road_0219) 1.1)
+  (= (travel-duration road_0219) 6.694)
+  (road-next road_0219 road_0042)
+  (road-next road_0219 road_0043)
+  (connects road_0220 loc_0136 loc_0111)
+  (road-open road_0220)
+  (= (congestion-factor road_0220) 1.3)
+  (= (travel-duration road_0220) 7.4337)
+  (road-next road_0220 road_0178)
+  (connects road_0221 loc_0136 loc_0047)
+  (road-open road_0221)
+  (= (congestion-factor road_0221) 1.2)
+  (= (travel-duration road_0221) 13.803)
+  (road-next road_0221 road_0070)
+  (road-next road_0221 road_0071)
+  (connects road_0222 loc_0138 loc_0134)
+  (road-open road_0222)
+  (= (congestion-factor road_0222) 1.14)
+  (= (travel-duration road_0222) 5.6282)
+  (road-next road_0222 road_0215)
+  (road-next road_0222 road_0216)
+  (connects road_0223 loc_0138 loc_0094)
+  (road-open road_0223)
+  (= (congestion-factor road_0223) 1.11)
+  (= (travel-duration road_0223) 0.9684)
+  (road-next road_0223 road_0148)
+  (road-next road_0223 road_0149)
+  (road-next road_0223 road_0150)
+  (connects road_0224 loc_0139 loc_0066)
+  (road-open road_0224)
+  (= (congestion-factor road_0224) 1.25)
+  (= (travel-duration road_0224) 8.9959)
+  (road-next road_0224 road_0103)
+  (connects road_0225 loc_0139 loc_0090)
+  (road-open road_0225)
+  ;; [DYNAMIC EVENT - location closure] loc_0090 incident road
+  (road-blocked road_0225)
+  (= (congestion-factor road_0225) 1.0)
+  (= (travel-duration road_0225) 2.4265)
+  (road-next road_0225 road_0140)
+  (road-next road_0225 road_0141)
+  (connects road_0228 loc_0141 loc_0082)
+  (road-open road_0228)
+  (= (congestion-factor road_0228) 1.11)
+  (= (travel-duration road_0228) 4.9526)
+  (road-next road_0228 road_0126)
+  (connects road_0229 loc_0142 loc_0060)
+  (road-open road_0229)
+  (= (congestion-factor road_0229) 1.1)
+  (= (travel-duration road_0229) 12.0956)
+  (road-next road_0229 road_0092)
+  (road-next road_0229 road_0093)
+  (road-next road_0229 road_0094)
+  (connects road_0231 loc_0143 loc_0110)
+  (road-open road_0231)
+  (= (congestion-factor road_0231) 1.11)
+  (= (travel-duration road_0231) 19.0643)
+  (road-next road_0231 road_0175)
+  (road-next road_0231 road_0176)
+  (road-next road_0231 road_0177)
+  (connects road_0232 loc_0143 loc_0025)
+  (road-open road_0232)
+  (= (congestion-factor road_0232) 1.03)
+  (= (travel-duration road_0232) 3.6327)
+  (road-next road_0232 road_0037)
+  (road-next road_0232 road_0038)
+  (connects road_0234 loc_0145 loc_0071)
+  (road-open road_0234)
+  (= (congestion-factor road_0234) 1.29)
+  (= (travel-duration road_0234) 7.7604)
+  (road-next road_0234 road_0109)
+  (road-next road_0234 road_0110)
+  (road-next road_0234 road_0111)
+  (connects road_0235 loc_0145 loc_0146)
+  (road-open road_0235)
+  (= (congestion-factor road_0235) 1.29)
+  (= (travel-duration road_0235) 10.5965)
+  (road-next road_0235 road_0236)
+  (road-next road_0235 road_0237)
+  (road-next road_0235 road_0238)
+  (connects road_0236 loc_0146 loc_0007)
+  (road-open road_0236)
+  (= (congestion-factor road_0236) 1.55)
+  (= (travel-duration road_0236) 67.9032)
+  (road-next road_0236 road_0013)
+  (connects road_0237 loc_0146 loc_0145)
+  (road-open road_0237)
+  (= (congestion-factor road_0237) 1.03)
+  (= (travel-duration road_0237) 8.4608)
+  (road-next road_0237 road_0234)
+  (road-next road_0237 road_0235)
+  (connects road_0238 loc_0146 loc_0006)
+  (road-open road_0238)
+  (= (congestion-factor road_0238) 1.03)
+  (= (travel-duration road_0238) 4.7056)
+  (road-next road_0238 road_0011)
+  (road-next road_0238 road_0012)
+  (connects road_0239 loc_0147 loc_0088)
+  (road-open road_0239)
+  (= (congestion-factor road_0239) 1.15)
+  (= (travel-duration road_0239) 1.2503)
+  (connects road_0240 loc_0147 loc_0016)
+  (road-open road_0240)
+  (= (congestion-factor road_0240) 1.1)
+  (= (travel-duration road_0240) 0.5386)
+  (road-next road_0240 road_0022)
+  (connects road_0241 loc_0148 loc_0064)
+  (road-open road_0241)
+  (= (congestion-factor road_0241) 1.1)
+  (= (travel-duration road_0241) 2.4078)
+  (road-next road_0241 road_0101)
+  (connects road_0242 loc_0148 loc_0079)
+  (road-open road_0242)
+  (= (congestion-factor road_0242) 1.09)
+  (= (travel-duration road_0242) 10.4518)
+  (road-next road_0242 road_0119)
+  (connects road_0243 loc_0149 loc_0119)
+  (road-open road_0243)
+  (= (congestion-factor road_0243) 1.1)
+  (= (travel-duration road_0243) 4.0407)
+  (road-next road_0243 macro_0016)
+  (road-next road_0243 road_0192)
+  (has-traffic-light loc_0004)
+  (has-traffic-light loc_0057)
+  (has-traffic-light loc_0073)
+  (has-traffic-light loc_0079)
+  (has-traffic-light loc_0083)
+  ;; [DYNAMIC EVENT - roadworks] A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.
+  (location-blocked loc_0081)
+  ;; [DYNAMIC EVENT - roadworks] A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.
+  (location-blocked loc_0090)
+  )
+
+  (:goal (reached-goal car1))
+
+  (:metric minimize (travel-time car1))
+)

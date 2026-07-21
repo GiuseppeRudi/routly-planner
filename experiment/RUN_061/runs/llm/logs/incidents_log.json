@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-07-20T20:14:55.584853",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0019",
+      "event_type": "roadworks",
+      "description": "Roadworks on the two shortest links at node loc_0019, which directly connect to loc_0020 and form a low‑axis bottleneck.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0020",
+      "event_type": "roadworks",
+      "description": "Roadworks on the two shortest links at node loc_0019, which directly connect to loc_0020 and form a low‑axis bottleneck.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0038",
+      "event_type": "roadworks",
+      "description": "Roadworks on the tight cluster at loc_0038, the shortest segment near the axis, connecting to loc_0037 and loc_0515.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0043",
+        "road_0046"
+      ],
+      "description": "Roadworks on the two shortest links at node loc_0019, which directly connect to loc_0020 and form a low‑axis bottleneck."
+    },
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0076",
+        "road_0078"
+      ],
+      "description": "Roadworks on the tight cluster at loc_0038, the shortest segment near the axis, connecting to loc_0037 and loc_0515."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0006"
+      ],
+      "description": "Accident blocking road_0006, the most direct low‑axis link from loc_0002 toward loc_0364, forcing a detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0000"
+      ],
+      "description": "Slowdown on road_0000, a low‑axis corridor from loc_0000 to loc_0020, reducing speed by a factor of 2.8.",
+      "severity": 2.8
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+scenario:
+  name: exp_150_nodes_04_planner_comp_line_param_20260715_153012
+map:
+  place_name: Bologna, Emilia-Romagna, Italy
+  place_slug: Bologna_Emilia-Romagna_Italy
+  map_scenario: nodes_150_distance_1000
+  graphml_path: C:\Users\eielp\OneDrive\Desktop\UNICAL\AUTOMATED PLANNING\routly-planner\data\Bologna_Emilia-Romagna_Italy\nodes_150_distance_1000\experiment_20260715_112452\map\road_network.graphml
+  mapping_path: C:\Users\eielp\OneDrive\Desktop\UNICAL\AUTOMATED PLANNING\routly-planner\data\Bologna_Emilia-Romagna_Italy\nodes_150_distance_1000\experiment_20260715_112452\map\roads_mapping.json
+  planning_mapping_path: data/Bologna_Emilia-Romagna_Italy/nodes_150_distance_1000/exp_150_nodes_04_planner_comp_line_param_20260715_153012/map/roads_mapping_macro.json
+vehicles:
+- id: car1
+  start:
+    type: location_id
+    value: loc_0124
+    x: 685985.691
+    y: 4929182.174
+    osm_node_id: null
+  goal:
+    type: location_id
+    value: loc_0049
+    x: 685830.009
+    y: 4930362.582
+    osm_node_id: null

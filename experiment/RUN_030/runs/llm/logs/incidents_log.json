@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-07-16T11:49:11.442991",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 1,
+  "blocked_locations": [],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0230"
+      ],
+      "description": "Roadworks on three roads connecting node loc_0134 to 0072 and 0136, creating a bottleneck at a junction that lies close to the direct path. The cluster includes roads 0118, 0229, and 0230."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0107",
+        "road_0297"
+      ],
+      "description": "Slowdowns on the two parallel roads 0107 and 0297 between nodes 0067 and 0178, which are the closest to the axis. The slowdown reduces speed by a factor of 3.0, affecting traffic along the main corridor.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0118",
+        "road_0229",
+        "road_0151"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

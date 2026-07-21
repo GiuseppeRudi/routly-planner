@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-07-15T15:31:26.147705",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.",
+      "shared_closed_roads": 4
+    },
+    {
+      "id": "loc_0090",
+      "event_type": "roadworks",
+      "description": "A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0125",
+        "road_0164",
+        "road_0124",
+        "road_0141"
+      ],
+      "description": "A multi-road construction closure at the busy junction of loc_0081. These four roads are all within 2–14 units of the start–goal axis, forming a critical bottleneck. Their simultaneous closure forces traffic to detour around the intersection."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0122",
+        "road_0123"
+      ],
+      "description": "Light construction near the loc_0081 intersection slows traffic on roads 0122 (to loc_0086) and 0123 (to loc_0101). The slowdown reduces speeds by a factor of 2, reflecting temporary lane closures and detour signs.",
+      "severity": 2.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0126"
+      ],
+      "description": "Congestion on road_0126 (loc_0082–loc_0101) due to traffic light upgrades causes a 2.5‑fold speed reduction, affecting the main corridor that connects the eastern and western parts of the network.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0201"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 983
+Aibr Preprocessing
+|F|:232
+|X|:2
+Aibr Preprocessing
+|A|:143
+|P|:1
+|E|:143
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 16
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=0.0
+Extracting plan with execution delta: 1.0
+Problem Solved
+
+Found Plan:
+0: (start-traversal car1 road_0142 loc_0087 loc_0069)
+0: -----waiting---- [17.0]
+17.0: (start-traversal car1 road_0112 loc_0069 loc_0067)
+17.0: -----waiting---- [45.0]
+45.0: (start-traversal car1 road_0108 loc_0067 loc_0083)
+45.0: -----waiting---- [71.0]
+71.0: (start-traversal car1 macro_0015 loc_0083 loc_0084)
+71.0: -----waiting---- [89.0]
+89.0: (start-traversal car1 road_0137 loc_0084 loc_0085)
+89.0: -----waiting---- [106.0]
+
+Plan-Length:116
+Elapsed Time: 106.0
+Metric (Search):106.0
+Planning Time (msec): 2226
+Heuristic Time (msec): 32
+Search Time (msec): 60
+Expanded Nodes:193
+States Evaluated:202
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:7
+Number of Duplicates detected:4

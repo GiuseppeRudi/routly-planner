@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-07-15T15:16:19.154993",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0021",
+      "event_type": "accident",
+      "description": "Accident on road_0031 between loc_0021 and loc_0057, blocking a direct link near the axis and requiring a detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "Roadworks at junction loc_0022, a key connector between northern and southern regions; closure forces a detour.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0032",
+        "road_0033",
+        "road_0044"
+      ],
+      "description": "Roadworks at junction loc_0022, a key connector between northern and southern regions; closure forces a detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0106"
+      ],
+      "description": "Light maintenance on road_0106, a main artery between loc_0065 and loc_0051, causing moderate speed reduction.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0031"
+      ],
+      "description": "Accident on road_0031 between loc_0021 and loc_0057, blocking a direct link near the axis and requiring a detour."
+    }
+  ]
+}

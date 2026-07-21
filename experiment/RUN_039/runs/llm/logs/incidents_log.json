@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-15T18:54:21.552477",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 3,
+  "blocked_locations": [
+    {
+      "id": "loc_0067",
+      "event_type": "roadworks",
+      "description": "Roadworks on three roads converging at the low‑degree node loc_0067, which connects the eastern and western parts of the network, forcing detours.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0178",
+      "event_type": "roadworks",
+      "description": "Roadworks on three roads converging at the low‑degree node loc_0067, which connects the eastern and western parts of the network, forcing detours.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0107",
+        "road_0108",
+        "road_0297"
+      ],
+      "description": "Roadworks on three roads converging at the low‑degree node loc_0067, which connects the eastern and western parts of the network, forcing detours."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0180"
+      ],
+      "description": "Reduced speed on road_0180 (link between loc_0104 and loc_0122) due to maintenance; it is the main north‑south corridor, so the slowdown impacts traffic flow.",
+      "severity": 3.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0099"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

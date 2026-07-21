@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-07-15T19:18:33.212148",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "roadworks",
+      "description": "Roadworks at junction loc_0093 block all three connecting roads, disrupting traffic between loc_0093, loc_0282, and loc_0094.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "robbery",
+      "description": "Robbery at junction loc_0094 blocks both roads to loc_0267, cutting off the secondary corridor and forcing detours.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "robbery",
+      "description": "Robbery at junction loc_0094 blocks both roads to loc_0267, cutting off the secondary corridor and forcing detours.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0282",
+      "event_type": "roadworks",
+      "description": "Roadworks at junction loc_0093 block all three connecting roads, disrupting traffic between loc_0093, loc_0282, and loc_0094.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0149",
+        "road_0153",
+        "road_0473"
+      ],
+      "description": "Roadworks at junction loc_0093 block all three connecting roads, disrupting traffic between loc_0093, loc_0282, and loc_0094."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0152",
+        "road_0454"
+      ],
+      "description": "Robbery at junction loc_0094 blocks both roads to loc_0267, cutting off the secondary corridor and forcing detours."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0213",
+        "road_0216"
+      ],
+      "description": "Light congestion on roads near junction loc_0124 slows traffic by a factor of 2.5 while keeping them open.",
+      "severity": 2.5
+    }
+  ]
+}

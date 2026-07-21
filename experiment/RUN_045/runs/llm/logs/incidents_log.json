@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-07-15T19:14:57.058512",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "robbery",
+      "description": "Robbery at intersection loc_0282 blocks roads road_0149 and road_0473, cutting the connectivity between loc_0282 and loc_0093. This isolates a small subnetwork and forces detours.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Roadworks at intersection loc_0094 block all three connecting roads (road_0152, road_0153, road_0454), which are the only links between the northern cluster (loc_0094, loc_0267, loc_0093) and the rest of the network. This forces traffic to detour via longer routes.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Roadworks at intersection loc_0094 block all three connecting roads (road_0152, road_0153, road_0454), which are the only links between the northern cluster (loc_0094, loc_0267, loc_0093) and the rest of the network. This forces traffic to detour via longer routes.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0282",
+      "event_type": "robbery",
+      "description": "Robbery at intersection loc_0282 blocks roads road_0149 and road_0473, cutting the connectivity between loc_0282 and loc_0093. This isolates a small subnetwork and forces detours.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0454",
+        "road_0153"
+      ],
+      "description": "Roadworks at intersection loc_0094 block all three connecting roads (road_0152, road_0153, road_0454), which are the only links between the northern cluster (loc_0094, loc_0267, loc_0093) and the rest of the network. This forces traffic to detour via longer routes."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0149",
+        "road_0473"
+      ],
+      "description": "Robbery at intersection loc_0282 blocks roads road_0149 and road_0473, cutting the connectivity between loc_0282 and loc_0093. This isolates a small subnetwork and forces detours."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0477"
+      ],
+      "description": "Slowdown on road_0477 reduces speed by a factor of 2.0, simulating light roadworks on the link between loc_0284 and loc_0267. Traffic can still use the road but will experience reduced throughput.",
+      "severity": 2.0
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0213",
+        "road_0216"
+      ],
+      "description": "Auto-fallback (debug): avoided closure for not making A->B unsolvable.",
+      "severity": 5.0
+    }
+  ]
+}

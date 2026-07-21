@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-07-15T15:07:16.165563",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 6,
+  "blocked_locations": [
+    {
+      "id": "loc_0022",
+      "event_type": "roadworks",
+      "description": "Roadworks at intersection loc_0022 block the three incident roads, including the near‑axis road_0044, creating a detour around this low‑degree node.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0048",
+      "event_type": "robbery",
+      "description": "Robbery at intersection loc_0048 blocks roads 0022 and 0127, isolating the node and requiring detours through alternative routes.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0078",
+      "event_type": "robbery",
+      "description": "Robbery at intersection loc_0048 blocks roads 0022 and 0127, isolating the node and requiring detours through alternative routes.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0032",
+        "road_0033",
+        "road_0044"
+      ],
+      "description": "Roadworks at intersection loc_0022 block the three incident roads, including the near‑axis road_0044, creating a detour around this low‑degree node."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0106",
+        "road_0125"
+      ],
+      "description": "Light roadworks on roads 0106 and 0125 reduce speeds, simulating congestion near the junction of loc_0051.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0072"
+      ],
+      "description": "Accident on road_0072 between loc_0048 and loc_0078 blocks the main east‑west corridor, forcing a single‑road detour."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0022",
+        "road_0127"
+      ],
+      "description": "Robbery at intersection loc_0048 blocks roads 0022 and 0127, isolating the node and requiring detours through alternative routes."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-07-15T19:13:57.226850",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0093",
+      "event_type": "accident",
+      "description": "An accident on road_0149, the narrow link between loc_0093 and loc_0282, closes a low‑degree connector that is part of the main route, causing a detour.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0094",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0152, 0153 and 0454 at intersection loc_0094 block a key junction near the corridor, forcing traffic to detour around the shared node.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0267",
+      "event_type": "roadworks",
+      "description": "Roadworks on roads 0152, 0153 and 0454 at intersection loc_0094 block a key junction near the corridor, forcing traffic to detour around the shared node.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0152",
+        "road_0454",
+        "road_0153"
+      ],
+      "description": "Roadworks on roads 0152, 0153 and 0454 at intersection loc_0094 block a key junction near the corridor, forcing traffic to detour around the shared node."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0149"
+      ],
+      "description": "An accident on road_0149, the narrow link between loc_0093 and loc_0282, closes a low‑degree connector that is part of the main route, causing a detour."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0216"
+      ],
+      "description": "Light congestion on road_0216 reduces speed by a factor of 2.5, affecting the segment between loc_0126 and loc_0124, which lies on the primary path.",
+      "severity": 2.5
+    }
+  ]
+}

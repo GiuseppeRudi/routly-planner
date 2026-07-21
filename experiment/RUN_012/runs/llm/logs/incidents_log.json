@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-07-15T17:51:09.395984",
+  "seed": 71,
+  "total_events": 4,
+  "total_roads_closed": 5,
+  "blocked_locations": [
+    {
+      "id": "loc_0028",
+      "event_type": "roadworks",
+      "description": "Closed roads 0044, 0076, and 0089 at junction loc_0028, a low‑degree node bridging the southern cluster to the main corridor. Their removal forces traffic to detour via longer routes through loc_0022 and loc_0021, increasing travel time.",
+      "shared_closed_roads": 3
+    },
+    {
+      "id": "loc_0051",
+      "event_type": "robbery",
+      "description": "Robbery blocking roads 0106 and 0105 at junction loc_0065, which is a key link between the northern and central sections. The incident removes a short, low‑distance path (0106) and an alternative corridor (0105), compelling drivers to use the longer 0032 route.",
+      "shared_closed_roads": 2
+    },
+    {
+      "id": "loc_0065",
+      "event_type": "robbery",
+      "description": "Robbery blocking roads 0106 and 0105 at junction loc_0065, which is a key link between the northern and central sections. The incident removes a short, low‑distance path (0106) and an alternative corridor (0105), compelling drivers to use the longer 0032 route.",
+      "shared_closed_roads": 2
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0044",
+        "road_0089",
+        "road_0076"
+      ],
+      "description": "Closed roads 0044, 0076, and 0089 at junction loc_0028, a low‑degree node bridging the southern cluster to the main corridor. Their removal forces traffic to detour via longer routes through loc_0022 and loc_0021, increasing travel time."
+    },
+    {
+      "event_type": "robbery",
+      "roads": [
+        "road_0106",
+        "road_0105"
+      ],
+      "description": "Robbery blocking roads 0106 and 0105 at junction loc_0065, which is a key link between the northern and central sections. The incident removes a short, low‑distance path (0106) and an alternative corridor (0105), compelling drivers to use the longer 0032 route."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0057"
+      ],
+      "description": "Light congestion on roads 0057 and 0072 reduces speed by factor 2.5. These roads lie near the main axis, connecting central nodes 0038–0077 and 0048–0078, so the slowdown slightly delays traffic without blocking it.",
+      "severity": 2.5
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0072"
+      ],
+      "description": "Light congestion on roads 0057 and 0072 reduces speed by factor 2.5. These roads lie near the main axis, connecting central nodes 0038–0077 and 0048–0078, so the slowdown slightly delays traffic without blocking it.",
+      "severity": 2.5
+    }
+  ]
+}

@@ -1,0 +1,7737 @@
+{
+  "start_loc": "loc_0994",
+  "goal_loc": "loc_0079",
+  "stats": {
+    "original_nodes": 1000,
+    "original_roads": 1850,
+    "planning_nodes": 982,
+    "planning_roads": 1802,
+    "road_compression_ratio": 0.9741,
+    "node_compression_ratio": 0.982,
+    "macro_roads_created": 69,
+    "micro_roads_merged": 145
+  },
+  "macro_roads": [
+    {
+      "id": "macro_0000",
+      "from": "loc_0016",
+      "to": "loc_0260",
+      "length": 146.32,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0036",
+        "road_0500"
+      ],
+      "source_nodes": [
+        "loc_0016",
+        "loc_0262",
+        "loc_0260"
+      ]
+    },
+    {
+      "id": "macro_0001",
+      "from": "loc_0019",
+      "to": "loc_0776",
+      "length": 123.3,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0043",
+        "road_1552"
+      ],
+      "source_nodes": [
+        "loc_0019",
+        "loc_0820",
+        "loc_0776"
+      ]
+    },
+    {
+      "id": "macro_0002",
+      "from": "loc_0031",
+      "to": "loc_0778",
+      "length": 145.98,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0063",
+        "road_1547"
+      ],
+      "source_nodes": [
+        "loc_0031",
+        "loc_0818",
+        "loc_0778"
+      ]
+    },
+    {
+      "id": "macro_0003",
+      "from": "loc_0040",
+      "to": "loc_0461",
+      "length": 162.04,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0081",
+        "road_1469"
+      ],
+      "source_nodes": [
+        "loc_0040",
+        "loc_0779",
+        "loc_0461"
+      ]
+    },
+    {
+      "id": "macro_0004",
+      "from": "loc_0074",
+      "to": "loc_0657",
+      "length": 106.95,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0148",
+        "road_1123"
+      ],
+      "source_nodes": [
+        "loc_0074",
+        "loc_0578",
+        "loc_0657"
+      ]
+    },
+    {
+      "id": "macro_0005",
+      "from": "loc_0086",
+      "to": "loc_0610",
+      "length": 135.7,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0171",
+        "road_1263"
+      ],
+      "source_nodes": [
+        "loc_0086",
+        "loc_0658",
+        "loc_0610"
+      ]
+    },
+    {
+      "id": "macro_0006",
+      "from": "loc_0099",
+      "to": "loc_0973",
+      "length": 296.67,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0191",
+        "road_0150"
+      ],
+      "source_nodes": [
+        "loc_0099",
+        "loc_0075",
+        "loc_0973"
+      ]
+    },
+    {
+      "id": "macro_0007",
+      "from": "loc_0108",
+      "to": "loc_0109",
+      "length": 123.34,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0209",
+        "road_1096"
+      ],
+      "source_nodes": [
+        "loc_0108",
+        "loc_0563",
+        "loc_0109"
+      ]
+    },
+    {
+      "id": "macro_0008",
+      "from": "loc_0109",
+      "to": "loc_0980",
+      "length": 318.1,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0210",
+        "road_0212"
+      ],
+      "source_nodes": [
+        "loc_0109",
+        "loc_0110",
+        "loc_0980"
+      ]
+    },
+    {
+      "id": "macro_0009",
+      "from": "loc_0109",
+      "to": "loc_0455",
+      "length": 139.17,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0211",
+        "road_1097",
+        "road_1099"
+      ],
+      "source_nodes": [
+        "loc_0109",
+        "loc_0564",
+        "loc_0565",
+        "loc_0455"
+      ]
+    },
+    {
+      "id": "macro_0010",
+      "from": "loc_0115",
+      "to": "loc_0116",
+      "length": 192.72,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0221",
+        "road_1658"
+      ],
+      "source_nodes": [
+        "loc_0115",
+        "loc_0883",
+        "loc_0116"
+      ]
+    },
+    {
+      "id": "macro_0011",
+      "from": "loc_0118",
+      "to": "loc_0901",
+      "length": 99.94,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0230",
+        "road_1686"
+      ],
+      "source_nodes": [
+        "loc_0118",
+        "loc_0900",
+        "loc_0901"
+      ]
+    },
+    {
+      "id": "macro_0012",
+      "from": "loc_0120",
+      "to": "loc_0119",
+      "length": 163.66,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0234",
+        "road_1053"
+      ],
+      "source_nodes": [
+        "loc_0120",
+        "loc_0542",
+        "loc_0119"
+      ]
+    },
+    {
+      "id": "macro_0013",
+      "from": "loc_0141",
+      "to": "loc_0816",
+      "length": 133.6,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0278",
+        "road_1724"
+      ],
+      "source_nodes": [
+        "loc_0141",
+        "loc_0924",
+        "loc_0816"
+      ]
+    },
+    {
+      "id": "macro_0014",
+      "from": "loc_0145",
+      "to": "loc_0438",
+      "length": 98.2,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0285",
+        "road_1444"
+      ],
+      "source_nodes": [
+        "loc_0145",
+        "loc_0767",
+        "loc_0438"
+      ]
+    },
+    {
+      "id": "macro_0015",
+      "from": "loc_0184",
+      "to": "loc_0884",
+      "length": 238.7,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0355",
+        "road_1394",
+        "road_0356"
+      ],
+      "source_nodes": [
+        "loc_0184",
+        "loc_0737",
+        "loc_0185",
+        "loc_0884"
+      ]
+    },
+    {
+      "id": "macro_0016",
+      "from": "loc_0216",
+      "to": "loc_0483",
+      "length": 129.05,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0408",
+        "road_0303"
+      ],
+      "source_nodes": [
+        "loc_0216",
+        "loc_0156",
+        "loc_0483"
+      ]
+    },
+    {
+      "id": "macro_0017",
+      "from": "loc_0225",
+      "to": "loc_0226",
+      "length": 229.45,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0431",
+        "road_0433"
+      ],
+      "source_nodes": [
+        "loc_0225",
+        "loc_0227",
+        "loc_0226"
+      ]
+    },
+    {
+      "id": "macro_0018",
+      "from": "loc_0231",
+      "to": "loc_0232",
+      "length": 94.85,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0439",
+        "road_0683"
+      ],
+      "source_nodes": [
+        "loc_0231",
+        "loc_0343",
+        "loc_0232"
+      ]
+    },
+    {
+      "id": "macro_0019",
+      "from": "loc_0257",
+      "to": "loc_0263",
+      "length": 422.28,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0488",
+        "road_0506"
+      ],
+      "source_nodes": [
+        "loc_0257",
+        "loc_0266",
+        "loc_0263"
+      ]
+    },
+    {
+      "id": "macro_0020",
+      "from": "loc_0259",
+      "to": "loc_0579",
+      "length": 192.01,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0492",
+        "road_1125"
+      ],
+      "source_nodes": [
+        "loc_0259",
+        "loc_0580",
+        "loc_0579"
+      ]
+    },
+    {
+      "id": "macro_0021",
+      "from": "loc_0264",
+      "to": "loc_0265",
+      "length": 45.84,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0502",
+        "road_1402"
+      ],
+      "source_nodes": [
+        "loc_0264",
+        "loc_0741",
+        "loc_0265"
+      ]
+    },
+    {
+      "id": "macro_0022",
+      "from": "loc_0265",
+      "to": "loc_0741",
+      "length": 60.51,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0505",
+        "road_0502"
+      ],
+      "source_nodes": [
+        "loc_0265",
+        "loc_0264",
+        "loc_0741"
+      ]
+    },
+    {
+      "id": "macro_0023",
+      "from": "loc_0270",
+      "to": "loc_0954",
+      "length": 115.78,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0515",
+        "road_1077"
+      ],
+      "source_nodes": [
+        "loc_0270",
+        "loc_0555",
+        "loc_0954"
+      ]
+    },
+    {
+      "id": "macro_0024",
+      "from": "loc_0273",
+      "to": "loc_0182",
+      "length": 191.17,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0521",
+        "road_0678"
+      ],
+      "source_nodes": [
+        "loc_0273",
+        "loc_0341",
+        "loc_0182"
+      ]
+    },
+    {
+      "id": "macro_0025",
+      "from": "loc_0280",
+      "to": "loc_0289",
+      "length": 288.83,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0536",
+        "road_0560"
+      ],
+      "source_nodes": [
+        "loc_0280",
+        "loc_0290",
+        "loc_0289"
+      ]
+    },
+    {
+      "id": "macro_0026",
+      "from": "loc_0340",
+      "to": "loc_0344",
+      "length": 282.09,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0676",
+        "road_1248"
+      ],
+      "source_nodes": [
+        "loc_0340",
+        "loc_0647",
+        "loc_0344"
+      ]
+    },
+    {
+      "id": "macro_0027",
+      "from": "loc_0340",
+      "to": "loc_0182",
+      "length": 352.95,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0677",
+        "road_1575",
+        "road_0521",
+        "road_0678"
+      ],
+      "source_nodes": [
+        "loc_0340",
+        "loc_0832",
+        "loc_0273",
+        "loc_0341",
+        "loc_0182"
+      ]
+    },
+    {
+      "id": "macro_0028",
+      "from": "loc_0344",
+      "to": "loc_0340",
+      "length": 282.09,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0685",
+        "road_1247"
+      ],
+      "source_nodes": [
+        "loc_0344",
+        "loc_0647",
+        "loc_0340"
+      ]
+    },
+    {
+      "id": "macro_0029",
+      "from": "loc_0346",
+      "to": "loc_0344",
+      "length": 101.81,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0688",
+        "road_0686"
+      ],
+      "source_nodes": [
+        "loc_0346",
+        "loc_0345",
+        "loc_0344"
+      ]
+    },
+    {
+      "id": "macro_0030",
+      "from": "loc_0367",
+      "to": "loc_0920",
+      "length": 199.14,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0728",
+        "road_0654"
+      ],
+      "source_nodes": [
+        "loc_0367",
+        "loc_0329",
+        "loc_0920"
+      ]
+    },
+    {
+      "id": "macro_0031",
+      "from": "loc_0369",
+      "to": "loc_0634",
+      "length": 274.03,
+      "speed": 2.778,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0734",
+        "road_1673"
+      ],
+      "source_nodes": [
+        "loc_0369",
+        "loc_0892",
+        "loc_0634"
+      ]
+    },
+    {
+      "id": "macro_0032",
+      "from": "loc_0387",
+      "to": "loc_0386",
+      "length": 310.44,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0773",
+        "road_0780"
+      ],
+      "source_nodes": [
+        "loc_0387",
+        "loc_0389",
+        "loc_0386"
+      ]
+    },
+    {
+      "id": "macro_0033",
+      "from": "loc_0387",
+      "to": "loc_0386",
+      "length": 310.22,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0774",
+        "road_0780"
+      ],
+      "source_nodes": [
+        "loc_0387",
+        "loc_0389",
+        "loc_0386"
+      ]
+    },
+    {
+      "id": "macro_0034",
+      "from": "loc_0389",
+      "to": "loc_0388",
+      "length": 363.14,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0778",
+        "road_0775"
+      ],
+      "source_nodes": [
+        "loc_0389",
+        "loc_0387",
+        "loc_0388"
+      ]
+    },
+    {
+      "id": "macro_0035",
+      "from": "loc_0389",
+      "to": "loc_0388",
+      "length": 362.92,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0779",
+        "road_0775"
+      ],
+      "source_nodes": [
+        "loc_0389",
+        "loc_0387",
+        "loc_0388"
+      ]
+    },
+    {
+      "id": "macro_0036",
+      "from": "loc_0395",
+      "to": "loc_0396",
+      "length": 185.06,
+      "speed": 13.889,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0793",
+        "road_0865"
+      ],
+      "source_nodes": [
+        "loc_0395",
+        "loc_0434",
+        "loc_0396"
+      ]
+    },
+    {
+      "id": "macro_0037",
+      "from": "loc_0396",
+      "to": "loc_0395",
+      "length": 185.06,
+      "speed": 13.889,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_0798",
+        "road_0864"
+      ],
+      "source_nodes": [
+        "loc_0396",
+        "loc_0434",
+        "loc_0395"
+      ]
+    },
+    {
+      "id": "macro_0038",
+      "from": "loc_0443",
+      "to": "loc_0478",
+      "length": 351.91,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0877",
+        "road_1723",
+        "road_1720"
+      ],
+      "source_nodes": [
+        "loc_0443",
+        "loc_0923",
+        "loc_0922",
+        "loc_0478"
+      ]
+    },
+    {
+      "id": "macro_0039",
+      "from": "loc_0461",
+      "to": "loc_0040",
+      "length": 162.04,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0910",
+        "road_1470"
+      ],
+      "source_nodes": [
+        "loc_0461",
+        "loc_0779",
+        "loc_0040"
+      ]
+    },
+    {
+      "id": "macro_0040",
+      "from": "loc_0478",
+      "to": "loc_0511",
+      "length": 287.68,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0942",
+        "road_0946"
+      ],
+      "source_nodes": [
+        "loc_0478",
+        "loc_0479",
+        "loc_0511"
+      ]
+    },
+    {
+      "id": "macro_0041",
+      "from": "loc_0478",
+      "to": "loc_0443",
+      "length": 352.02,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_0944",
+        "road_1721",
+        "road_1722"
+      ],
+      "source_nodes": [
+        "loc_0478",
+        "loc_0922",
+        "loc_0923",
+        "loc_0443"
+      ]
+    },
+    {
+      "id": "macro_0042",
+      "from": "loc_0515",
+      "to": "loc_0202",
+      "length": 207.8,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1005",
+        "road_0381"
+      ],
+      "source_nodes": [
+        "loc_0515",
+        "loc_0200",
+        "loc_0202"
+      ]
+    },
+    {
+      "id": "macro_0043",
+      "from": "loc_0520",
+      "to": "loc_0524",
+      "length": 67.47,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1015",
+        "road_1019"
+      ],
+      "source_nodes": [
+        "loc_0520",
+        "loc_0521",
+        "loc_0524"
+      ]
+    },
+    {
+      "id": "macro_0044",
+      "from": "loc_0524",
+      "to": "loc_0520",
+      "length": 67.47,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1022",
+        "road_1018"
+      ],
+      "source_nodes": [
+        "loc_0524",
+        "loc_0521",
+        "loc_0520"
+      ]
+    },
+    {
+      "id": "macro_0045",
+      "from": "loc_0567",
+      "to": "loc_0566",
+      "length": 261.48,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1102",
+        "road_1103"
+      ],
+      "source_nodes": [
+        "loc_0567",
+        "loc_0568",
+        "loc_0566"
+      ]
+    },
+    {
+      "id": "macro_0046",
+      "from": "loc_0570",
+      "to": "loc_0034",
+      "length": 379.51,
+      "speed": 13.889,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1107",
+        "road_1106"
+      ],
+      "source_nodes": [
+        "loc_0570",
+        "loc_0570",
+        "loc_0034"
+      ]
+    },
+    {
+      "id": "macro_0047",
+      "from": "loc_0590",
+      "to": "loc_0748",
+      "length": 97.68,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1143",
+        "road_0450"
+      ],
+      "source_nodes": [
+        "loc_0590",
+        "loc_0239",
+        "loc_0748"
+      ]
+    },
+    {
+      "id": "macro_0048",
+      "from": "loc_0606",
+      "to": "loc_0605",
+      "length": 246.96,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1175",
+        "road_1177"
+      ],
+      "source_nodes": [
+        "loc_0606",
+        "loc_0607",
+        "loc_0605"
+      ]
+    },
+    {
+      "id": "macro_0049",
+      "from": "loc_0615",
+      "to": "loc_0033",
+      "length": 155.14,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1189",
+        "road_0978"
+      ],
+      "source_nodes": [
+        "loc_0615",
+        "loc_0498",
+        "loc_0033"
+      ]
+    },
+    {
+      "id": "macro_0050",
+      "from": "loc_0629",
+      "to": "loc_0833",
+      "length": 164.04,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1212",
+        "road_1213"
+      ],
+      "source_nodes": [
+        "loc_0629",
+        "loc_0630",
+        "loc_0833"
+      ]
+    },
+    {
+      "id": "macro_0051",
+      "from": "loc_0663",
+      "to": "loc_0448",
+      "length": 125.84,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1271",
+        "road_0833"
+      ],
+      "source_nodes": [
+        "loc_0663",
+        "loc_0417",
+        "loc_0448"
+      ]
+    },
+    {
+      "id": "macro_0052",
+      "from": "loc_0690",
+      "to": "loc_0409",
+      "length": 397.5,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1315",
+        "road_0366"
+      ],
+      "source_nodes": [
+        "loc_0690",
+        "loc_0191",
+        "loc_0409"
+      ]
+    },
+    {
+      "id": "macro_0053",
+      "from": "loc_0723",
+      "to": "loc_0272",
+      "length": 252.83,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1370",
+        "road_1371"
+      ],
+      "source_nodes": [
+        "loc_0723",
+        "loc_0723",
+        "loc_0272"
+      ]
+    },
+    {
+      "id": "macro_0054",
+      "from": "loc_0740",
+      "to": "loc_0293",
+      "length": 80.47,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1400",
+        "road_1252"
+      ],
+      "source_nodes": [
+        "loc_0740",
+        "loc_0650",
+        "loc_0293"
+      ]
+    },
+    {
+      "id": "macro_0055",
+      "from": "loc_0742",
+      "to": "loc_0746",
+      "length": 187.36,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1404",
+        "road_1407",
+        "road_1410"
+      ],
+      "source_nodes": [
+        "loc_0742",
+        "loc_0743",
+        "loc_0745",
+        "loc_0746"
+      ]
+    },
+    {
+      "id": "macro_0056",
+      "from": "loc_0776",
+      "to": "loc_0019",
+      "length": 124.02,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1464",
+        "road_1551"
+      ],
+      "source_nodes": [
+        "loc_0776",
+        "loc_0820",
+        "loc_0019"
+      ]
+    },
+    {
+      "id": "macro_0057",
+      "from": "loc_0778",
+      "to": "loc_0031",
+      "length": 146.92,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1468",
+        "road_1546"
+      ],
+      "source_nodes": [
+        "loc_0778",
+        "loc_0818",
+        "loc_0031"
+      ]
+    },
+    {
+      "id": "macro_0058",
+      "from": "loc_0789",
+      "to": "loc_0467",
+      "length": 187.8,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1492",
+        "road_0147"
+      ],
+      "source_nodes": [
+        "loc_0789",
+        "loc_0073",
+        "loc_0467"
+      ]
+    },
+    {
+      "id": "macro_0059",
+      "from": "loc_0802",
+      "to": "loc_0128",
+      "length": 363.67,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1516",
+        "road_0997"
+      ],
+      "source_nodes": [
+        "loc_0802",
+        "loc_0510",
+        "loc_0128"
+      ]
+    },
+    {
+      "id": "macro_0060",
+      "from": "loc_0806",
+      "to": "loc_0808",
+      "length": 32.03,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1526",
+        "road_1527"
+      ],
+      "source_nodes": [
+        "loc_0806",
+        "loc_0807",
+        "loc_0808"
+      ]
+    },
+    {
+      "id": "macro_0061",
+      "from": "loc_0824",
+      "to": "loc_0155",
+      "length": 343.97,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1560",
+        "road_0843"
+      ],
+      "source_nodes": [
+        "loc_0824",
+        "loc_0421",
+        "loc_0155"
+      ]
+    },
+    {
+      "id": "macro_0062",
+      "from": "loc_0901",
+      "to": "loc_0118",
+      "length": 100.37,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1688",
+        "road_1687"
+      ],
+      "source_nodes": [
+        "loc_0901",
+        "loc_0900",
+        "loc_0118"
+      ]
+    },
+    {
+      "id": "macro_0063",
+      "from": "loc_0902",
+      "to": "loc_0243",
+      "length": 95.16,
+      "speed": 8.333,
+      "capacity_class": "major",
+      "source_roads": [
+        "road_1691",
+        "road_0675"
+      ],
+      "source_nodes": [
+        "loc_0902",
+        "loc_0339",
+        "loc_0243"
+      ]
+    },
+    {
+      "id": "macro_0064",
+      "from": "loc_0952",
+      "to": "loc_0551",
+      "length": 196.54,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1767",
+        "road_1061"
+      ],
+      "source_nodes": [
+        "loc_0952",
+        "loc_0547",
+        "loc_0551"
+      ]
+    },
+    {
+      "id": "macro_0065",
+      "from": "loc_0954",
+      "to": "loc_0270",
+      "length": 115.78,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1770",
+        "road_1078"
+      ],
+      "source_nodes": [
+        "loc_0954",
+        "loc_0555",
+        "loc_0270"
+      ]
+    },
+    {
+      "id": "macro_0066",
+      "from": "loc_0954",
+      "to": "loc_0557",
+      "length": 268.87,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1771",
+        "road_1313"
+      ],
+      "source_nodes": [
+        "loc_0954",
+        "loc_0688",
+        "loc_0557"
+      ]
+    },
+    {
+      "id": "macro_0067",
+      "from": "loc_0956",
+      "to": "loc_0442",
+      "length": 144.02,
+      "speed": 8.333,
+      "capacity_class": "local",
+      "source_roads": [
+        "road_1774",
+        "road_0874"
+      ],
+      "source_nodes": [
+        "loc_0956",
+        "loc_0441",
+        "loc_0442"
+      ]
+    },
+    {
+      "id": "macro_0068",
+      "from": "loc_0972",
+      "to": "loc_0079",
+      "length": 182.43,
+      "speed": 8.333,
+      "capacity_class": "arterial",
+      "source_roads": [
+        "road_1798",
+        "road_1796"
+      ],
+      "source_nodes": [
+        "loc_0972",
+        "loc_0970",
+        "loc_0079"
+      ]
+    }
+  ],
+  "metric_descriptions": {
+    "stop_reasons": "Counts how many macro-road growth attempts terminated for each reason. This is an operational counter over chain-building decisions, so the same physical node can be counted multiple times when it stops different candidate chains.",
+    "protected_node_counts": "Counts unique physical nodes protected by each abstraction rule. This is a topological counter over nodes, so each node is counted once per protection reason.",
+    "why_counts_differ": "The two counters use different units: stop_reasons counts termination events during macro-road construction, while protected_node_counts counts distinct protected nodes. Therefore, values such as branch=589 in stop_reasons and branch=312 in protected_node_counts are both valid."
+  },
+  "stop_reason_descriptions": {
+    "branch": "The next node has more than one useful continuation, so it remains explicit to preserve topology choices.",
+    "class_mismatch": "The road capacity class changes and require_same_capacity_class=true prevents merging.",
+    "cycle": "The merge would create a cycle or return to an already visited node.",
+    "dead_end": "No useful continuation exists from the current road.",
+    "fuel_station": "The node contains a fuel station and must remain visible to the planner.",
+    "max_length": "The macro-road would exceed max_length_meters.",
+    "max_segments": "The macro-road reached max_segments_per_macro.",
+    "protected_node": "The node is protected by at least one abstraction rule.",
+    "speed_mismatch": "The speed changes beyond speed_tolerance_ratio.",
+    "start_goal": "Start and goal nodes cannot be removed.",
+    "traffic_light": "The node contains a traffic light and must remain visible to the planner."
+  },
+  "stop_reasons": {
+    "branch": 1598,
+    "class_mismatch": 20,
+    "cycle": 4,
+    "dead_end": 136,
+    "speed_mismatch": 6,
+    "start_goal": 3,
+    "traffic_light": 35
+  },
+  "protected_node_counts": {
+    "branch": 797,
+    "goal": 1,
+    "start": 1,
+    "traffic_light": 15
+  },
+  "protected_nodes": [
+    {
+      "id": "loc_0000",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686859.2340435886,
+      "y": 4929839.614805558
+    },
+    {
+      "id": "loc_0001",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686557.3704458872,
+      "y": 4929443.952108557
+    },
+    {
+      "id": "loc_0002",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686566.9846936231,
+      "y": 4929139.364529888
+    },
+    {
+      "id": "loc_0003",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686715.9597087402,
+      "y": 4928666.098696179
+    },
+    {
+      "id": "loc_0004",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686728.8066448716,
+      "y": 4928545.547365454
+    },
+    {
+      "id": "loc_0005",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686727.1224853923,
+      "y": 4928497.806695356
+    },
+    {
+      "id": "loc_0006",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686893.0401296185,
+      "y": 4928451.860329169
+    },
+    {
+      "id": "loc_0007",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686806.2240177088,
+      "y": 4928103.45599657
+    },
+    {
+      "id": "loc_0008",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686805.7773856428,
+      "y": 4927874.764880912
+    },
+    {
+      "id": "loc_0009",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686719.0316187445,
+      "y": 4927919.875506298
+    },
+    {
+      "id": "loc_0010",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686023.8654191953,
+      "y": 4928365.432477295
+    },
+    {
+      "id": "loc_0011",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685995.1106866081,
+      "y": 4928233.373188456
+    },
+    {
+      "id": "loc_0012",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686952.6442125334,
+      "y": 4929247.747792384
+    },
+    {
+      "id": "loc_0013",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687009.5435346744,
+      "y": 4929219.447011457
+    },
+    {
+      "id": "loc_0014",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687446.7587788765,
+      "y": 4928995.162586732
+    },
+    {
+      "id": "loc_0015",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685123.7852903614,
+      "y": 4929458.670294371
+    },
+    {
+      "id": "loc_0017",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686376.8418795352,
+      "y": 4930217.165391128
+    },
+    {
+      "id": "loc_0018",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686752.8893866825,
+      "y": 4929831.664847378
+    },
+    {
+      "id": "loc_0019",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686860.5826460484,
+      "y": 4930062.118345846
+    },
+    {
+      "id": "loc_0020",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686922.0232493002,
+      "y": 4930041.09616519
+    },
+    {
+      "id": "loc_0021",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686903.0451148015,
+      "y": 4929460.436308203
+    },
+    {
+      "id": "loc_0023",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687301.3681972548,
+      "y": 4929911.714758705
+    },
+    {
+      "id": "loc_0024",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686707.3175429016,
+      "y": 4929818.4928039145
+    },
+    {
+      "id": "loc_0025",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686637.2626487956,
+      "y": 4929800.882220114
+    },
+    {
+      "id": "loc_0026",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686536.2304225122,
+      "y": 4929930.429012559
+    },
+    {
+      "id": "loc_0027",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686454.7578082344,
+      "y": 4929961.629956016
+    },
+    {
+      "id": "loc_0028",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686606.8407622969,
+      "y": 4929739.775756367
+    },
+    {
+      "id": "loc_0029",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686801.1487051002,
+      "y": 4929633.233569855
+    },
+    {
+      "id": "loc_0030",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687345.1857252318,
+      "y": 4929904.829564029
+    },
+    {
+      "id": "loc_0031",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687022.5918600602,
+      "y": 4930010.22848087
+    },
+    {
+      "id": "loc_0033",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687320.5753250492,
+      "y": 4930219.3360352805
+    },
+    {
+      "id": "loc_0034",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686803.3510705302,
+      "y": 4930483.411896592
+    },
+    {
+      "id": "loc_0035",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686610.9257399207,
+      "y": 4930573.17549822
+    },
+    {
+      "id": "loc_0036",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686757.5751944117,
+      "y": 4930491.0557161635
+    },
+    {
+      "id": "loc_0037",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687016.2362188174,
+      "y": 4930331.797823878
+    },
+    {
+      "id": "loc_0038",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687018.4698096485,
+      "y": 4930327.72656522
+    },
+    {
+      "id": "loc_0040",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685802.5012340962,
+      "y": 4929602.002053631
+    },
+    {
+      "id": "loc_0041",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686204.7065238649,
+      "y": 4930667.560759989
+    },
+    {
+      "id": "loc_0042",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685234.1357185282,
+      "y": 4930167.576035112
+    },
+    {
+      "id": "loc_0043",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685041.7431870388,
+      "y": 4929708.275920382
+    },
+    {
+      "id": "loc_0044",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685104.0407117939,
+      "y": 4929462.6878346475
+    },
+    {
+      "id": "loc_0045",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685220.120215237,
+      "y": 4928990.658145702
+    },
+    {
+      "id": "loc_0046",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685228.2155309316,
+      "y": 4928952.613305292
+    },
+    {
+      "id": "loc_0047",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685540.2229115082,
+      "y": 4928800.1418604255
+    },
+    {
+      "id": "loc_0048",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686280.8828292738,
+      "y": 4928519.339695986
+    },
+    {
+      "id": "loc_0049",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686423.4664048302,
+      "y": 4928500.138475958
+    },
+    {
+      "id": "loc_0050",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686722.2029759595,
+      "y": 4928461.0123242345
+    },
+    {
+      "id": "loc_0051",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686691.6504725125,
+      "y": 4928760.718060896
+    },
+    {
+      "id": "loc_0052",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687395.1036750502,
+      "y": 4929453.411601897
+    },
+    {
+      "id": "loc_0053",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687462.708322028,
+      "y": 4928837.6034221025
+    },
+    {
+      "id": "loc_0054",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687400.5052230146,
+      "y": 4928422.951475512
+    },
+    {
+      "id": "loc_0055",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687382.8233731631,
+      "y": 4928399.417981808
+    },
+    {
+      "id": "loc_0056",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686709.238831037,
+      "y": 4928477.07086217
+    },
+    {
+      "id": "loc_0057",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685547.9718494772,
+      "y": 4928814.148181549
+    },
+    {
+      "id": "loc_0058",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685234.1876999872,
+      "y": 4928992.949076809
+    },
+    {
+      "id": "loc_0059",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685020.6699822074,
+      "y": 4929941.086863461
+    },
+    {
+      "id": "loc_0060",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685244.929363348,
+      "y": 4930153.731987746
+    },
+    {
+      "id": "loc_0061",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685602.9378558699,
+      "y": 4930422.356719643
+    },
+    {
+      "id": "loc_0062",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686122.7463584074,
+      "y": 4930674.238164174
+    },
+    {
+      "id": "loc_0063",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685984.9098165378,
+      "y": 4930297.690029648
+    },
+    {
+      "id": "loc_0064",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686031.3304804469,
+      "y": 4930283.3667596
+    },
+    {
+      "id": "loc_0065",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686042.8501383674,
+      "y": 4930332.834098623
+    },
+    {
+      "id": "loc_0066",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686003.4616856962,
+      "y": 4930344.9796245545
+    },
+    {
+      "id": "loc_0067",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686086.1021528261,
+      "y": 4928838.9205617765
+    },
+    {
+      "id": "loc_0068",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686064.0769964601,
+      "y": 4929108.933739602
+    },
+    {
+      "id": "loc_0069",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685586.433884339,
+      "y": 4928948.383533734
+    },
+    {
+      "id": "loc_0070",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685750.4711545693,
+      "y": 4928980.530132477
+    },
+    {
+      "id": "loc_0071",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685818.4133671061,
+      "y": 4928990.299288648
+    },
+    {
+      "id": "loc_0072",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685874.7203495939,
+      "y": 4928990.364650331
+    },
+    {
+      "id": "loc_0074",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686036.6203759302,
+      "y": 4931070.394599183
+    },
+    {
+      "id": "loc_0076",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686667.6538174581,
+      "y": 4930969.663775856
+    },
+    {
+      "id": "loc_0077",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686755.2567621258,
+      "y": 4930956.730006762
+    },
+    {
+      "id": "loc_0079",
+      "reasons": [
+        "branch",
+        "goal",
+        "traffic_light"
+      ],
+      "x": 686636.416558506,
+      "y": 4931297.210155522
+    },
+    {
+      "id": "loc_0080",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686715.4525628798,
+      "y": 4931284.930327324
+    },
+    {
+      "id": "loc_0081",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 686802.8679682962,
+      "y": 4931270.079891753
+    },
+    {
+      "id": "loc_0082",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686886.992531762,
+      "y": 4931257.092499157
+    },
+    {
+      "id": "loc_0083",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686438.3142317167,
+      "y": 4931094.956848845
+    },
+    {
+      "id": "loc_0084",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686680.9082123796,
+      "y": 4931055.969104839
+    },
+    {
+      "id": "loc_0085",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686767.9509555321,
+      "y": 4931041.729876634
+    },
+    {
+      "id": "loc_0086",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 686852.3325463654,
+      "y": 4931027.648669089
+    },
+    {
+      "id": "loc_0087",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686697.213563732,
+      "y": 4931163.418069647
+    },
+    {
+      "id": "loc_0088",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686784.3813968659,
+      "y": 4931149.7608284075
+    },
+    {
+      "id": "loc_0089",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686869.3538785165,
+      "y": 4931136.386180457
+    },
+    {
+      "id": "loc_0090",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686021.6423382994,
+      "y": 4930928.167352477
+    },
+    {
+      "id": "loc_0091",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686492.3058509264,
+      "y": 4930853.7209072355
+    },
+    {
+      "id": "loc_0092",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686315.6992979895,
+      "y": 4930881.802241363
+    },
+    {
+      "id": "loc_0093",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686338.5573800057,
+      "y": 4931022.555744882
+    },
+    {
+      "id": "loc_0094",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686351.3543853251,
+      "y": 4931103.321839625
+    },
+    {
+      "id": "loc_0096",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686368.2297896326,
+      "y": 4931216.311239223
+    },
+    {
+      "id": "loc_0097",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686415.0781501564,
+      "y": 4931208.795841895
+    },
+    {
+      "id": "loc_0098",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686463.3419047637,
+      "y": 4931002.414151031
+    },
+    {
+      "id": "loc_0099",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686387.4457871801,
+      "y": 4931335.86032365
+    },
+    {
+      "id": "loc_0100",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686605.0614787724,
+      "y": 4930142.63047438
+    },
+    {
+      "id": "loc_0101",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686567.9283561081,
+      "y": 4930024.656308599
+    },
+    {
+      "id": "loc_0102",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686472.3549375853,
+      "y": 4929463.923229424
+    },
+    {
+      "id": "loc_0103",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686518.617158038,
+      "y": 4929771.83823053
+    },
+    {
+      "id": "loc_0104",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686418.3185492415,
+      "y": 4929796.607119839
+    },
+    {
+      "id": "loc_0105",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686452.35862843,
+      "y": 4929789.646550343
+    },
+    {
+      "id": "loc_0106",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686347.4065521942,
+      "y": 4930403.121031294
+    },
+    {
+      "id": "loc_0107",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686299.7639239884,
+      "y": 4930240.100763247
+    },
+    {
+      "id": "loc_0108",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686208.9663821375,
+      "y": 4929947.352673306
+    },
+    {
+      "id": "loc_0109",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686188.6771379203,
+      "y": 4929825.773016919
+    },
+    {
+      "id": "loc_0111",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686938.5814324985,
+      "y": 4930394.341679075
+    },
+    {
+      "id": "loc_0112",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686863.9485447796,
+      "y": 4930433.760758234
+    },
+    {
+      "id": "loc_0113",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686093.6404756795,
+      "y": 4930578.319781272
+    },
+    {
+      "id": "loc_0114",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685731.9551769817,
+      "y": 4930519.317088963
+    },
+    {
+      "id": "loc_0115",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686057.7984873074,
+      "y": 4930459.229651154
+    },
+    {
+      "id": "loc_0116",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685867.9304460473,
+      "y": 4930494.792324642
+    },
+    {
+      "id": "loc_0117",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685830.0088211325,
+      "y": 4930362.581706214
+    },
+    {
+      "id": "loc_0118",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685990.3137555942,
+      "y": 4930230.119763346
+    },
+    {
+      "id": "loc_0119",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686249.4048366715,
+      "y": 4930422.232563583
+    },
+    {
+      "id": "loc_0120",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686199.0488151892,
+      "y": 4930266.639366112
+    },
+    {
+      "id": "loc_0121",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686057.9888876424,
+      "y": 4930204.865869901
+    },
+    {
+      "id": "loc_0122",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685681.315909501,
+      "y": 4929909.879656782
+    },
+    {
+      "id": "loc_0123",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685908.8078762512,
+      "y": 4929958.075853805
+    },
+    {
+      "id": "loc_0124",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685977.9840238856,
+      "y": 4929954.397654383
+    },
+    {
+      "id": "loc_0125",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686096.4006559806,
+      "y": 4930185.466552721
+    },
+    {
+      "id": "loc_0126",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686016.7526201801,
+      "y": 4929950.360651455
+    },
+    {
+      "id": "loc_0127",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686975.8343720745,
+      "y": 4929236.897836875
+    },
+    {
+      "id": "loc_0128",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686877.7818039304,
+      "y": 4928978.772228667
+    },
+    {
+      "id": "loc_0129",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686891.0769061807,
+      "y": 4929404.02836857
+    },
+    {
+      "id": "loc_0130",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686848.1946452013,
+      "y": 4929298.349599132
+    },
+    {
+      "id": "loc_0131",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687507.5082835013,
+      "y": 4928567.203807226
+    },
+    {
+      "id": "loc_0132",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687410.3707974902,
+      "y": 4929471.995244479
+    },
+    {
+      "id": "loc_0133",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686789.6417278557,
+      "y": 4928466.041028249
+    },
+    {
+      "id": "loc_0134",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686848.4772265456,
+      "y": 4928621.359608923
+    },
+    {
+      "id": "loc_0135",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686851.3542159403,
+      "y": 4929011.6858517835
+    },
+    {
+      "id": "loc_0136",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686645.4415235519,
+      "y": 4930129.571998595
+    },
+    {
+      "id": "loc_0137",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687361.4134252059,
+      "y": 4929911.867891062
+    },
+    {
+      "id": "loc_0138",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686557.8294359859,
+      "y": 4929388.068603173
+    },
+    {
+      "id": "loc_0139",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687386.3367015244,
+      "y": 4929532.513039452
+    },
+    {
+      "id": "loc_0140",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685716.8204690603,
+      "y": 4929307.530560567
+    },
+    {
+      "id": "loc_0141",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685727.7123391815,
+      "y": 4929335.145283478
+    },
+    {
+      "id": "loc_0143",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685613.6504044546,
+      "y": 4929564.6973240515
+    },
+    {
+      "id": "loc_0144",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686919.9532300611,
+      "y": 4929058.060798333
+    },
+    {
+      "id": "loc_0145",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686784.4306714755,
+      "y": 4929329.656064637
+    },
+    {
+      "id": "loc_0146",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686776.2984050014,
+      "y": 4929476.334771609
+    },
+    {
+      "id": "loc_0147",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686381.9099095124,
+      "y": 4929125.381159928
+    },
+    {
+      "id": "loc_0148",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686191.8500099957,
+      "y": 4929108.7366610505
+    },
+    {
+      "id": "loc_0149",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685974.0076672053,
+      "y": 4929134.1363067115
+    },
+    {
+      "id": "loc_0150",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685878.8737040259,
+      "y": 4929191.478969801
+    },
+    {
+      "id": "loc_0151",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685700.1856235396,
+      "y": 4929256.728407005
+    },
+    {
+      "id": "loc_0152",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685615.689286177,
+      "y": 4928951.909558755
+    },
+    {
+      "id": "loc_0153",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685752.7188148807,
+      "y": 4929156.587533194
+    },
+    {
+      "id": "loc_0154",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685585.7188431121,
+      "y": 4929346.139756983
+    },
+    {
+      "id": "loc_0155",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685488.1375686585,
+      "y": 4929369.60002155
+    },
+    {
+      "id": "loc_0157",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686345.6254704336,
+      "y": 4929121.972403577
+    },
+    {
+      "id": "loc_0158",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686350.9519211305,
+      "y": 4929049.186187305
+    },
+    {
+      "id": "loc_0159",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686382.4352697893,
+      "y": 4929045.764748957
+    },
+    {
+      "id": "loc_0160",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686303.9440332898,
+      "y": 4928799.472122962
+    },
+    {
+      "id": "loc_0161",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686053.1035267401,
+      "y": 4928792.406908545
+    },
+    {
+      "id": "loc_0162",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686118.7686214907,
+      "y": 4928767.828998438
+    },
+    {
+      "id": "loc_0163",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686386.2365111529,
+      "y": 4928686.60398454
+    },
+    {
+      "id": "loc_0164",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686428.5208872415,
+      "y": 4928677.633813035
+    },
+    {
+      "id": "loc_0165",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686354.3075843382,
+      "y": 4928782.639964306
+    },
+    {
+      "id": "loc_0166",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686384.0358817333,
+      "y": 4928754.443802931
+    },
+    {
+      "id": "loc_0167",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686447.9046132686,
+      "y": 4928637.223633189
+    },
+    {
+      "id": "loc_0168",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686572.8396660797,
+      "y": 4928534.986328527
+    },
+    {
+      "id": "loc_0169",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686675.1041915343,
+      "y": 4928807.579197974
+    },
+    {
+      "id": "loc_0170",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686911.4926379701,
+      "y": 4928583.672874949
+    },
+    {
+      "id": "loc_0171",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687121.874340989,
+      "y": 4928658.742900507
+    },
+    {
+      "id": "loc_0172",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687233.8763920155,
+      "y": 4928870.660123374
+    },
+    {
+      "id": "loc_0173",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687324.5770937989,
+      "y": 4929059.8980299905
+    },
+    {
+      "id": "loc_0174",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687257.2189983054,
+      "y": 4929093.697907358
+    },
+    {
+      "id": "loc_0175",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687366.1998365365,
+      "y": 4929445.785297777
+    },
+    {
+      "id": "loc_0176",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687177.4264490029,
+      "y": 4929132.376362038
+    },
+    {
+      "id": "loc_0177",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687096.8607042542,
+      "y": 4929447.716686932
+    },
+    {
+      "id": "loc_0178",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687461.0635719623,
+      "y": 4928996.386856581
+    },
+    {
+      "id": "loc_0179",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688008.1847130017,
+      "y": 4928725.816405648
+    },
+    {
+      "id": "loc_0180",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688161.6202390417,
+      "y": 4928650.247110457
+    },
+    {
+      "id": "loc_0181",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687413.4799029666,
+      "y": 4929445.592729445
+    },
+    {
+      "id": "loc_0182",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688114.057782138,
+      "y": 4929301.495767686
+    },
+    {
+      "id": "loc_0184",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687357.3573575856,
+      "y": 4929950.972274959
+    },
+    {
+      "id": "loc_0186",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685310.259101385,
+      "y": 4929819.885420699
+    },
+    {
+      "id": "loc_0187",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685844.33340467,
+      "y": 4930603.764298249
+    },
+    {
+      "id": "loc_0188",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686190.4712699004,
+      "y": 4930433.727503381
+    },
+    {
+      "id": "loc_0189",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685880.0032782697,
+      "y": 4930630.576744575
+    },
+    {
+      "id": "loc_0190",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685507.5311269654,
+      "y": 4930267.739203399
+    },
+    {
+      "id": "loc_0192",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685861.7805782892,
+      "y": 4929958.497586468
+    },
+    {
+      "id": "loc_0193",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685951.0546977278,
+      "y": 4929863.945544347
+    },
+    {
+      "id": "loc_0194",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685968.9051550314,
+      "y": 4929606.463690136
+    },
+    {
+      "id": "loc_0196",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685937.4256487482,
+      "y": 4929416.928920863
+    },
+    {
+      "id": "loc_0197",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686042.7912952128,
+      "y": 4929114.738698814
+    },
+    {
+      "id": "loc_0198",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686007.8767478929,
+      "y": 4929060.6996880295
+    },
+    {
+      "id": "loc_0199",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685987.1730486897,
+      "y": 4928976.117916401
+    },
+    {
+      "id": "loc_0201",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687409.4302468908,
+      "y": 4929017.4428948555
+    },
+    {
+      "id": "loc_0202",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687418.3558196593,
+      "y": 4928832.710858354
+    },
+    {
+      "id": "loc_0203",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687193.4088789686,
+      "y": 4929444.050127066
+    },
+    {
+      "id": "loc_0205",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686581.3102948248,
+      "y": 4929035.942425228
+    },
+    {
+      "id": "loc_0206",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686803.4338053246,
+      "y": 4928964.305331342
+    },
+    {
+      "id": "loc_0207",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686287.53637528,
+      "y": 4928535.4277984705
+    },
+    {
+      "id": "loc_0208",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686094.9651926401,
+      "y": 4928561.682442678
+    },
+    {
+      "id": "loc_0209",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685834.3679938454,
+      "y": 4928858.441080372
+    },
+    {
+      "id": "loc_0210",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685796.2715449902,
+      "y": 4928871.03660484
+    },
+    {
+      "id": "loc_0211",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685895.0911517554,
+      "y": 4928849.1055891765
+    },
+    {
+      "id": "loc_0212",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685262.7846693689,
+      "y": 4929655.745542152
+    },
+    {
+      "id": "loc_0213",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685616.3940513309,
+      "y": 4929521.0303621795
+    },
+    {
+      "id": "loc_0214",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685693.2873882407,
+      "y": 4929529.786974297
+    },
+    {
+      "id": "loc_0215",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685779.1338868992,
+      "y": 4929520.123980102
+    },
+    {
+      "id": "loc_0216",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685436.8709541172,
+      "y": 4929241.025014891
+    },
+    {
+      "id": "loc_0217",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685523.1033547341,
+      "y": 4929207.3679173635
+    },
+    {
+      "id": "loc_0218",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685443.4284225805,
+      "y": 4928949.669798644
+    },
+    {
+      "id": "loc_0219",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685475.145335339,
+      "y": 4930348.123909863
+    },
+    {
+      "id": "loc_0220",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685460.126009379,
+      "y": 4930328.006792602
+    },
+    {
+      "id": "loc_0221",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 686202.2527535638,
+      "y": 4931126.536724526
+    },
+    {
+      "id": "loc_0222",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686219.8857670482,
+      "y": 4931238.991470461
+    },
+    {
+      "id": "loc_0223",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684561.4524063757,
+      "y": 4930159.308967503
+    },
+    {
+      "id": "loc_0224",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684482.9701969242,
+      "y": 4929984.0559376115
+    },
+    {
+      "id": "loc_0225",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684520.1846428233,
+      "y": 4930067.144611206
+    },
+    {
+      "id": "loc_0230",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684445.0808534619,
+      "y": 4929899.480950739
+    },
+    {
+      "id": "loc_0231",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684597.9211285753,
+      "y": 4930033.701664391
+    },
+    {
+      "id": "loc_0232",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684577.8388198657,
+      "y": 4929941.049665239
+    },
+    {
+      "id": "loc_0233",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684558.3603434409,
+      "y": 4929854.28465317
+    },
+    {
+      "id": "loc_0235",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684931.2114222483,
+      "y": 4929484.279334302
+    },
+    {
+      "id": "loc_0236",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684880.9440256229,
+      "y": 4929490.252385337
+    },
+    {
+      "id": "loc_0238",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684451.705356821,
+      "y": 4929508.710669464
+    },
+    {
+      "id": "loc_0240",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684944.6269014692,
+      "y": 4929482.604628741
+    },
+    {
+      "id": "loc_0241",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684991.0367531019,
+      "y": 4929311.157938136
+    },
+    {
+      "id": "loc_0242",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685035.6489112659,
+      "y": 4929150.377006518
+    },
+    {
+      "id": "loc_0243",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685070.9106530256,
+      "y": 4928975.700596467
+    },
+    {
+      "id": "loc_0244",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684925.2239684113,
+      "y": 4929117.094974379
+    },
+    {
+      "id": "loc_0245",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684947.5080113836,
+      "y": 4928963.237541905
+    },
+    {
+      "id": "loc_0246",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685131.500227201,
+      "y": 4929355.480378604
+    },
+    {
+      "id": "loc_0247",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684883.6863859002,
+      "y": 4929278.419799764
+    },
+    {
+      "id": "loc_0248",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684822.8587709741,
+      "y": 4929259.480031728
+    },
+    {
+      "id": "loc_0249",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685056.8781193006,
+      "y": 4929468.870302406
+    },
+    {
+      "id": "loc_0250",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685031.5964423344,
+      "y": 4929323.952451049
+    },
+    {
+      "id": "loc_0251",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684702.939694225,
+      "y": 4929198.005990474
+    },
+    {
+      "id": "loc_0252",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684837.5818929017,
+      "y": 4929170.185470913
+    },
+    {
+      "id": "loc_0253",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684906.9829623557,
+      "y": 4929187.079252078
+    },
+    {
+      "id": "loc_0254",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684758.6229303099,
+      "y": 4929176.821911207
+    },
+    {
+      "id": "loc_0255",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684711.7471009726,
+      "y": 4929057.271958462
+    },
+    {
+      "id": "loc_0256",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684690.2810143987,
+      "y": 4929302.078207828
+    },
+    {
+      "id": "loc_0258",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684348.9935361387,
+      "y": 4929085.977919711
+    },
+    {
+      "id": "loc_0259",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684435.5191015989,
+      "y": 4929058.64044855
+    },
+    {
+      "id": "loc_0260",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684579.2722742623,
+      "y": 4929013.230551493
+    },
+    {
+      "id": "loc_0261",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684488.1889179988,
+      "y": 4929515.9610362295
+    },
+    {
+      "id": "loc_0265",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684425.1562860417,
+      "y": 4929029.842641693
+    },
+    {
+      "id": "loc_0268",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685450.5293946578,
+      "y": 4929982.82823458
+    },
+    {
+      "id": "loc_0269",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685443.7298185288,
+      "y": 4929919.456285943
+    },
+    {
+      "id": "loc_0270",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685525.7721287123,
+      "y": 4930088.731910732
+    },
+    {
+      "id": "loc_0271",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685370.5735980659,
+      "y": 4930101.909836464
+    },
+    {
+      "id": "loc_0272",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685258.1387866102,
+      "y": 4930111.8198195975
+    },
+    {
+      "id": "loc_0275",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685826.7767164831,
+      "y": 4927880.162510545
+    },
+    {
+      "id": "loc_0276",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686035.7204704093,
+      "y": 4928552.348632991
+    },
+    {
+      "id": "loc_0277",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686036.3802361486,
+      "y": 4928570.443783872
+    },
+    {
+      "id": "loc_0278",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687539.2861443562,
+      "y": 4928564.174275047
+    },
+    {
+      "id": "loc_0280",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687944.1458732864,
+      "y": 4928361.454058042
+    },
+    {
+      "id": "loc_0281",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687952.8580465344,
+      "y": 4928593.777620607
+    },
+    {
+      "id": "loc_0282",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688022.0507402169,
+      "y": 4928321.673480314
+    },
+    {
+      "id": "loc_0285",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688106.4789989399,
+      "y": 4928513.253983605
+    },
+    {
+      "id": "loc_0286",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687923.5404216764,
+      "y": 4928521.635074331
+    },
+    {
+      "id": "loc_0287",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688005.8204502494,
+      "y": 4928487.083736777
+    },
+    {
+      "id": "loc_0288",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688082.2270027259,
+      "y": 4928455.865311233
+    },
+    {
+      "id": "loc_0291",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687970.7623407728,
+      "y": 4928230.118208658
+    },
+    {
+      "id": "loc_0292",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685420.8732376227,
+      "y": 4930458.055323874
+    },
+    {
+      "id": "loc_0294",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685222.79405948,
+      "y": 4930737.319694697
+    },
+    {
+      "id": "loc_0295",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685131.5550665472,
+      "y": 4930553.322310752
+    },
+    {
+      "id": "loc_0296",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684891.8552508214,
+      "y": 4930477.657208944
+    },
+    {
+      "id": "loc_0297",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684850.6213055411,
+      "y": 4930286.995269519
+    },
+    {
+      "id": "loc_0298",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685202.6132283211,
+      "y": 4930620.360497557
+    },
+    {
+      "id": "loc_0299",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685180.2792033217,
+      "y": 4930506.89746007
+    },
+    {
+      "id": "loc_0300",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685262.1078948642,
+      "y": 4930608.850581901
+    },
+    {
+      "id": "loc_0301",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685239.3916287363,
+      "y": 4930494.87611788
+    },
+    {
+      "id": "loc_0302",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685146.9371652146,
+      "y": 4930631.045992629
+    },
+    {
+      "id": "loc_0303",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685317.3510117737,
+      "y": 4930598.298216207
+    },
+    {
+      "id": "loc_0304",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685357.5893315983,
+      "y": 4930591.108895797
+    },
+    {
+      "id": "loc_0305",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685294.9188962426,
+      "y": 4930483.597894746
+    },
+    {
+      "id": "loc_0306",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684881.3970301951,
+      "y": 4930424.431728698
+    },
+    {
+      "id": "loc_0307",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685059.294231479,
+      "y": 4930389.121894559
+    },
+    {
+      "id": "loc_0308",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685267.8930346828,
+      "y": 4930347.499900925
+    },
+    {
+      "id": "loc_0309",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685429.2265753801,
+      "y": 4930312.894729597
+    },
+    {
+      "id": "loc_0310",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685208.4754281576,
+      "y": 4930501.009132868
+    },
+    {
+      "id": "loc_0311",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685181.6049425227,
+      "y": 4930364.70480225
+    },
+    {
+      "id": "loc_0312",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685032.0389789625,
+      "y": 4930249.994865513
+    },
+    {
+      "id": "loc_0313",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685007.9552258705,
+      "y": 4930133.270097382
+    },
+    {
+      "id": "loc_0314",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685240.1924657234,
+      "y": 4930209.90431812
+    },
+    {
+      "id": "loc_0315",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685279.7222054729,
+      "y": 4930201.415725593
+    },
+    {
+      "id": "loc_0316",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684815.6838611233,
+      "y": 4930263.87826483
+    },
+    {
+      "id": "loc_0317",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684796.0503011527,
+      "y": 4930175.729339781
+    },
+    {
+      "id": "loc_0318",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684661.2919130402,
+      "y": 4930201.367340288
+    },
+    {
+      "id": "loc_0319",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684637.7005502908,
+      "y": 4930254.591383824
+    },
+    {
+      "id": "loc_0320",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685710.001478239,
+      "y": 4930524.1699314425
+    },
+    {
+      "id": "loc_0321",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685579.0776355412,
+      "y": 4930426.266168221
+    },
+    {
+      "id": "loc_0322",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685552.0542258762,
+      "y": 4930678.706023358
+    },
+    {
+      "id": "loc_0323",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685529.0358988651,
+      "y": 4930559.896815247
+    },
+    {
+      "id": "loc_0324",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686121.0771309104,
+      "y": 4929536.949221411
+    },
+    {
+      "id": "loc_0325",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686014.8304978105,
+      "y": 4929411.752053415
+    },
+    {
+      "id": "loc_0326",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 686068.3822613594,
+      "y": 4929547.334876495
+    },
+    {
+      "id": "loc_0327",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686113.3383711502,
+      "y": 4929472.115266835
+    },
+    {
+      "id": "loc_0328",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686054.8012113657,
+      "y": 4929481.433202904
+    },
+    {
+      "id": "loc_0330",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686724.7955969021,
+      "y": 4929743.587892285
+    },
+    {
+      "id": "loc_0331",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686673.6878696475,
+      "y": 4929807.565309195
+    },
+    {
+      "id": "loc_0332",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686712.8092623436,
+      "y": 4929688.613895966
+    },
+    {
+      "id": "loc_0333",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686694.1758185595,
+      "y": 4929479.2436262695
+    },
+    {
+      "id": "loc_0334",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687034.5334620767,
+      "y": 4930359.495054676
+    },
+    {
+      "id": "loc_0335",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686779.3931777332,
+      "y": 4930496.218982443
+    },
+    {
+      "id": "loc_0336",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685866.3111321485,
+      "y": 4929813.238811108
+    },
+    {
+      "id": "loc_0337",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685730.3944083482,
+      "y": 4929829.93970562
+    },
+    {
+      "id": "loc_0338",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684803.8505867277,
+      "y": 4928735.700192381
+    },
+    {
+      "id": "loc_0340",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688142.1519968894,
+      "y": 4928949.893001105
+    },
+    {
+      "id": "loc_0342",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 687230.8546616852,
+      "y": 4930966.746745925
+    },
+    {
+      "id": "loc_0344",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688165.502929017,
+      "y": 4928668.969782063
+    },
+    {
+      "id": "loc_0346",
+      "reasons": [
+        "branch"
+      ],
+      "x": 688229.56053886,
+      "y": 4928615.372329508
+    },
+    {
+      "id": "loc_0347",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686557.2307368258,
+      "y": 4929210.511655124
+    },
+    {
+      "id": "loc_0348",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686434.5333795277,
+      "y": 4928575.696186495
+    },
+    {
+      "id": "loc_0349",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686670.3107218731,
+      "y": 4928495.196134512
+    },
+    {
+      "id": "loc_0351",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687350.5317499115,
+      "y": 4928158.81255554
+    },
+    {
+      "id": "loc_0354",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686728.4072532689,
+      "y": 4928388.84065649
+    },
+    {
+      "id": "loc_0355",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686810.4614701704,
+      "y": 4928448.863296342
+    },
+    {
+      "id": "loc_0356",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687488.1670890364,
+      "y": 4928045.907217789
+    },
+    {
+      "id": "loc_0357",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687447.0701031152,
+      "y": 4928150.367982625
+    },
+    {
+      "id": "loc_0360",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685823.0921490539,
+      "y": 4927637.106797844
+    },
+    {
+      "id": "loc_0361",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685769.3149122103,
+      "y": 4927747.795397293
+    },
+    {
+      "id": "loc_0362",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686576.0859289672,
+      "y": 4929078.481967462
+    },
+    {
+      "id": "loc_0363",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686655.5536788467,
+      "y": 4929064.8337769
+    },
+    {
+      "id": "loc_0364",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686642.2385121076,
+      "y": 4929025.841625387
+    },
+    {
+      "id": "loc_0365",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686728.797127169,
+      "y": 4929126.003546432
+    },
+    {
+      "id": "loc_0366",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685979.3800541051,
+      "y": 4929265.304172333
+    },
+    {
+      "id": "loc_0367",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686144.9460233958,
+      "y": 4929244.888128364
+    },
+    {
+      "id": "loc_0368",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685910.7326740697,
+      "y": 4929280.559604545
+    },
+    {
+      "id": "loc_0369",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687023.3185124203,
+      "y": 4927974.604787042
+    },
+    {
+      "id": "loc_0370",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686834.1652184923,
+      "y": 4929470.461401408
+    },
+    {
+      "id": "loc_0371",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686002.5853446014,
+      "y": 4928423.510020831
+    },
+    {
+      "id": "loc_0372",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686010.935081143,
+      "y": 4928303.907700594
+    },
+    {
+      "id": "loc_0373",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685810.7353094264,
+      "y": 4928135.016416344
+    },
+    {
+      "id": "loc_0374",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685797.7120777998,
+      "y": 4927990.067774926
+    },
+    {
+      "id": "loc_0375",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685765.8440976541,
+      "y": 4928114.545177701
+    },
+    {
+      "id": "loc_0377",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685805.227731745,
+      "y": 4927840.203456901
+    },
+    {
+      "id": "loc_0378",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685998.0421407726,
+      "y": 4928150.691016131
+    },
+    {
+      "id": "loc_0379",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685967.8477728304,
+      "y": 4928047.183695162
+    },
+    {
+      "id": "loc_0381",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685781.5196337232,
+      "y": 4927791.400369657
+    },
+    {
+      "id": "loc_0383",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685977.9690434969,
+      "y": 4928421.037865006
+    },
+    {
+      "id": "loc_0385",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685815.043527755,
+      "y": 4928426.349007714
+    },
+    {
+      "id": "loc_0386",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685724.007120311,
+      "y": 4928492.071464824
+    },
+    {
+      "id": "loc_0388",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685705.0492990442,
+      "y": 4928715.714683901
+    },
+    {
+      "id": "loc_0390",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685342.3468112575,
+      "y": 4928553.601320265
+    },
+    {
+      "id": "loc_0391",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685429.3415455621,
+      "y": 4928662.794877349
+    },
+    {
+      "id": "loc_0392",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686201.2030669167,
+      "y": 4928568.24992641
+    },
+    {
+      "id": "loc_0394",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686580.0088277726,
+      "y": 4927601.048165618
+    },
+    {
+      "id": "loc_0395",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686718.8782755396,
+      "y": 4927675.306796578
+    },
+    {
+      "id": "loc_0396",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686622.6749548769,
+      "y": 4927560.183869052
+    },
+    {
+      "id": "loc_0399",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686036.6166704713,
+      "y": 4928594.4299495425
+    },
+    {
+      "id": "loc_0400",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685920.2797916048,
+      "y": 4928625.707489802
+    },
+    {
+      "id": "loc_0401",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685932.3922097287,
+      "y": 4928648.232488842
+    },
+    {
+      "id": "loc_0402",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685864.698512808,
+      "y": 4928653.02160468
+    },
+    {
+      "id": "loc_0403",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686031.0005831111,
+      "y": 4928448.124936743
+    },
+    {
+      "id": "loc_0406",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685837.7718521552,
+      "y": 4927907.035348474
+    },
+    {
+      "id": "loc_0407",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686749.4412385854,
+      "y": 4928457.259284121
+    },
+    {
+      "id": "loc_0408",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685897.7663041274,
+      "y": 4928092.659382207
+    },
+    {
+      "id": "loc_0409",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685669.297402322,
+      "y": 4930117.935479413
+    },
+    {
+      "id": "loc_0410",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686592.5708907932,
+      "y": 4928677.351090503
+    },
+    {
+      "id": "loc_0411",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686307.545029185,
+      "y": 4928840.686206131
+    },
+    {
+      "id": "loc_0412",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686584.0996355871,
+      "y": 4929016.678816756
+    },
+    {
+      "id": "loc_0413",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686650.2748747907,
+      "y": 4928865.486252847
+    },
+    {
+      "id": "loc_0414",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686581.2513251179,
+      "y": 4928576.57221928
+    },
+    {
+      "id": "loc_0418",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686511.1487127454,
+      "y": 4929702.731213169
+    },
+    {
+      "id": "loc_0419",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685701.3178095365,
+      "y": 4928970.17587475
+    },
+    {
+      "id": "loc_0420",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685725.8928957399,
+      "y": 4929152.174223828
+    },
+    {
+      "id": "loc_0422",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685144.7684451921,
+      "y": 4929762.116120555
+    },
+    {
+      "id": "loc_0423",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685988.595779095,
+      "y": 4929269.992574568
+    },
+    {
+      "id": "loc_0425",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685767.8643400274,
+      "y": 4927742.2955063805
+    },
+    {
+      "id": "loc_0426",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685693.4251957939,
+      "y": 4927677.257501981
+    },
+    {
+      "id": "loc_0429",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685747.364507867,
+      "y": 4927872.245073312
+    },
+    {
+      "id": "loc_0435",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687131.4336446021,
+      "y": 4930983.3690860635
+    },
+    {
+      "id": "loc_0437",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686574.2321064196,
+      "y": 4931187.597905686
+    },
+    {
+      "id": "loc_0438",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686833.9779456919,
+      "y": 4929413.6142333755
+    },
+    {
+      "id": "loc_0439",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686516.8112788417,
+      "y": 4930172.201684843
+    },
+    {
+      "id": "loc_0440",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687343.5330406247,
+      "y": 4929950.818098821
+    },
+    {
+      "id": "loc_0442",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686408.6260907368,
+      "y": 4931011.248693195
+    },
+    {
+      "id": "loc_0443",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687476.9343967207,
+      "y": 4928710.555639844
+    },
+    {
+      "id": "loc_0444",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687491.6557713795,
+      "y": 4928715.015935977
+    },
+    {
+      "id": "loc_0446",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686638.4451754726,
+      "y": 4929826.74121635
+    },
+    {
+      "id": "loc_0448",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686400.9775119076,
+      "y": 4929800.044906897
+    },
+    {
+      "id": "loc_0449",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686467.7372090581,
+      "y": 4930007.560375773
+    },
+    {
+      "id": "loc_0450",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686547.9101803562,
+      "y": 4929974.2211642675
+    },
+    {
+      "id": "loc_0451",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686591.9040283962,
+      "y": 4930099.896306521
+    },
+    {
+      "id": "loc_0452",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686531.4421377821,
+      "y": 4929874.40589371
+    },
+    {
+      "id": "loc_0453",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686440.0577323196,
+      "y": 4929891.092556744
+    },
+    {
+      "id": "loc_0454",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686344.21853264,
+      "y": 4929909.153474476
+    },
+    {
+      "id": "loc_0455",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686327.0940142251,
+      "y": 4929808.252852901
+    },
+    {
+      "id": "loc_0456",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686355.4530994258,
+      "y": 4929978.768506404
+    },
+    {
+      "id": "loc_0457",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687381.3480653376,
+      "y": 4929724.206992958
+    },
+    {
+      "id": "loc_0458",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685826.8540291839,
+      "y": 4929681.951854117
+    },
+    {
+      "id": "loc_0459",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685850.1494119321,
+      "y": 4929744.60680833
+    },
+    {
+      "id": "loc_0460",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685898.1095612773,
+      "y": 4929730.270852934
+    },
+    {
+      "id": "loc_0461",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685960.6410158231,
+      "y": 4929567.717726476
+    },
+    {
+      "id": "loc_0462",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687795.7217343093,
+      "y": 4928678.49430581
+    },
+    {
+      "id": "loc_0464",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687443.6764207489,
+      "y": 4929022.010542636
+    },
+    {
+      "id": "loc_0465",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687458.7960877033,
+      "y": 4929022.846985374
+    },
+    {
+      "id": "loc_0466",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687397.1684726673,
+      "y": 4929435.072255186
+    },
+    {
+      "id": "loc_0467",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686329.0605020077,
+      "y": 4928943.735656797
+    },
+    {
+      "id": "loc_0468",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686083.9616548091,
+      "y": 4929260.116764223
+    },
+    {
+      "id": "loc_0469",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685338.4021733624,
+      "y": 4929023.880221934
+    },
+    {
+      "id": "loc_0470",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685230.0784049621,
+      "y": 4929046.371113156
+    },
+    {
+      "id": "loc_0471",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685291.6848601222,
+      "y": 4929035.532304632
+    },
+    {
+      "id": "loc_0472",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685313.4688466769,
+      "y": 4929127.457128802
+    },
+    {
+      "id": "loc_0473",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687482.4019877124,
+      "y": 4928303.40305866
+    },
+    {
+      "id": "loc_0474",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687705.6800533971,
+      "y": 4928734.191104582
+    },
+    {
+      "id": "loc_0475",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687545.2642168754,
+      "y": 4928560.544740571
+    },
+    {
+      "id": "loc_0476",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687712.5198452225,
+      "y": 4928728.830104697
+    },
+    {
+      "id": "loc_0477",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687786.7722596766,
+      "y": 4928685.528536255
+    },
+    {
+      "id": "loc_0478",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687131.2217586598,
+      "y": 4928645.048983076
+    },
+    {
+      "id": "loc_0480",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687355.5430317321,
+      "y": 4928420.8879172215
+    },
+    {
+      "id": "loc_0481",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685184.5507005468,
+      "y": 4929152.5407255115
+    },
+    {
+      "id": "loc_0482",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685202.2866560316,
+      "y": 4929156.770470415
+    },
+    {
+      "id": "loc_0483",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685379.1685467532,
+      "y": 4929126.2520543365
+    },
+    {
+      "id": "loc_0486",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685985.6908373844,
+      "y": 4929182.173881614
+    },
+    {
+      "id": "loc_0488",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685996.177794964,
+      "y": 4929317.012310514
+    },
+    {
+      "id": "loc_0489",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686105.9910054238,
+      "y": 4929400.833552609
+    },
+    {
+      "id": "loc_0490",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686056.2411551609,
+      "y": 4929488.3892388465
+    },
+    {
+      "id": "loc_0492",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685264.8888308315,
+      "y": 4930127.609466224
+    },
+    {
+      "id": "loc_0493",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685198.4051326833,
+      "y": 4930118.9987111455
+    },
+    {
+      "id": "loc_0494",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685997.3901494179,
+      "y": 4930022.745038987
+    },
+    {
+      "id": "loc_0495",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685918.1931891356,
+      "y": 4929992.384837156
+    },
+    {
+      "id": "loc_0496",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685859.2932354832,
+      "y": 4929939.483003286
+    },
+    {
+      "id": "loc_0497",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685326.6900795184,
+      "y": 4929812.33887186
+    },
+    {
+      "id": "loc_0499",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686098.1162176968,
+      "y": 4928581.705499253
+    },
+    {
+      "id": "loc_0500",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686199.0215236783,
+      "y": 4928547.454156394
+    },
+    {
+      "id": "loc_0501",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686312.0296774653,
+      "y": 4928824.161466315
+    },
+    {
+      "id": "loc_0502",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686302.7580260433,
+      "y": 4928822.795025948
+    },
+    {
+      "id": "loc_0503",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686401.5817736802,
+      "y": 4928682.375014501
+    },
+    {
+      "id": "loc_0504",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686413.3801141621,
+      "y": 4928704.969822894
+    },
+    {
+      "id": "loc_0505",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686330.9644321258,
+      "y": 4928703.072840269
+    },
+    {
+      "id": "loc_0506",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686464.151074163,
+      "y": 4928730.550604477
+    },
+    {
+      "id": "loc_0507",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686482.9315701306,
+      "y": 4928733.068412602
+    },
+    {
+      "id": "loc_0508",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686983.6175015144,
+      "y": 4929455.284257796
+    },
+    {
+      "id": "loc_0509",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686718.6739037033,
+      "y": 4928652.23586851
+    },
+    {
+      "id": "loc_0511",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687331.2979521474,
+      "y": 4928439.221486124
+    },
+    {
+      "id": "loc_0512",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687481.1917587335,
+      "y": 4928671.123625572
+    },
+    {
+      "id": "loc_0513",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687494.7130033473,
+      "y": 4928566.3120925445
+    },
+    {
+      "id": "loc_0514",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687477.3432577626,
+      "y": 4928838.981755502
+    },
+    {
+      "id": "loc_0515",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687237.053914025,
+      "y": 4928876.932818695
+    },
+    {
+      "id": "loc_0516",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686709.8254546341,
+      "y": 4930346.805511837
+    },
+    {
+      "id": "loc_0517",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686783.0393508349,
+      "y": 4930180.497506311
+    },
+    {
+      "id": "loc_0518",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686675.4917921162,
+      "y": 4930223.174561006
+    },
+    {
+      "id": "loc_0519",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686711.3649285216,
+      "y": 4930309.585199418
+    },
+    {
+      "id": "loc_0520",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686826.4578135153,
+      "y": 4930272.028501873
+    },
+    {
+      "id": "loc_0522",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686870.7083806447,
+      "y": 4930447.407000404
+    },
+    {
+      "id": "loc_0523",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686961.5830988626,
+      "y": 4930344.854398198
+    },
+    {
+      "id": "loc_0524",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686853.8353847333,
+      "y": 4930333.693520914
+    },
+    {
+      "id": "loc_0525",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687015.6771587797,
+      "y": 4930318.885835722
+    },
+    {
+      "id": "loc_0526",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686995.6327044677,
+      "y": 4930363.744431099
+    },
+    {
+      "id": "loc_0528",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685634.6699882258,
+      "y": 4929675.333972721
+    },
+    {
+      "id": "loc_0529",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685609.1586858253,
+      "y": 4929564.5578637
+    },
+    {
+      "id": "loc_0530",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685097.3013051915,
+      "y": 4929564.0490386905
+    },
+    {
+      "id": "loc_0531",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685126.9365710507,
+      "y": 4929572.019500719
+    },
+    {
+      "id": "loc_0532",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685059.4168031199,
+      "y": 4929709.33525915
+    },
+    {
+      "id": "loc_0533",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685079.0398777673,
+      "y": 4929771.548902397
+    },
+    {
+      "id": "loc_0534",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685045.3524149546,
+      "y": 4929763.129657836
+    },
+    {
+      "id": "loc_0535",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685037.3761812816,
+      "y": 4929725.549525494
+    },
+    {
+      "id": "loc_0536",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685052.1305896766,
+      "y": 4929736.908910735
+    },
+    {
+      "id": "loc_0537",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685204.0287980987,
+      "y": 4929776.111975597
+    },
+    {
+      "id": "loc_0538",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685207.0773213471,
+      "y": 4929763.23652812
+    },
+    {
+      "id": "loc_0539",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685191.2745618748,
+      "y": 4929686.234630912
+    },
+    {
+      "id": "loc_0540",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685313.120971679,
+      "y": 4929792.3636416625
+    },
+    {
+      "id": "loc_0541",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684980.43973699,
+      "y": 4929966.03244642
+    },
+    {
+      "id": "loc_0543",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686299.7236116547,
+      "y": 4930540.205070322
+    },
+    {
+      "id": "loc_0544",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685869.9663178406,
+      "y": 4930642.418140784
+    },
+    {
+      "id": "loc_0545",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685827.0899881936,
+      "y": 4930611.6642006915
+    },
+    {
+      "id": "loc_0546",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685462.8591702757,
+      "y": 4930338.723804786
+    },
+    {
+      "id": "loc_0548",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685576.5887118885,
+      "y": 4930115.485965896
+    },
+    {
+      "id": "loc_0549",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685519.6792238115,
+      "y": 4930101.48693285
+    },
+    {
+      "id": "loc_0550",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685890.856915239,
+      "y": 4930068.198733243
+    },
+    {
+      "id": "loc_0551",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685371.1817183258,
+      "y": 4930114.3337403415
+    },
+    {
+      "id": "loc_0552",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685358.8070396424,
+      "y": 4929992.594305765
+    },
+    {
+      "id": "loc_0553",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685353.3854410623,
+      "y": 4929936.109881172
+    },
+    {
+      "id": "loc_0556",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685709.2342457746,
+      "y": 4929915.491487691
+    },
+    {
+      "id": "loc_0557",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685449.6548132473,
+      "y": 4929915.089722863
+    },
+    {
+      "id": "loc_0558",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685437.0826618827,
+      "y": 4929891.707513951
+    },
+    {
+      "id": "loc_0559",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685445.4497847271,
+      "y": 4929893.491656368
+    },
+    {
+      "id": "loc_0560",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685430.8471573576,
+      "y": 4929918.3770028725
+    },
+    {
+      "id": "loc_0561",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685423.921299116,
+      "y": 4929905.405873086
+    },
+    {
+      "id": "loc_0566",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686629.3351958182,
+      "y": 4930634.092700419
+    },
+    {
+      "id": "loc_0567",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686745.1404432481,
+      "y": 4930514.83340216
+    },
+    {
+      "id": "loc_0571",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687546.7364402593,
+      "y": 4929876.805326926
+    },
+    {
+      "id": "loc_0572",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687559.2263283567,
+      "y": 4929868.894780828
+    },
+    {
+      "id": "loc_0573",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687485.0524838252,
+      "y": 4929888.476355062
+    },
+    {
+      "id": "loc_0575",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687423.1448945389,
+      "y": 4929900.185970708
+    },
+    {
+      "id": "loc_0577",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687431.3098190456,
+      "y": 4929500.836966306
+    },
+    {
+      "id": "loc_0579",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684380.4307276404,
+      "y": 4929183.086447496
+    },
+    {
+      "id": "loc_0581",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684449.8347396264,
+      "y": 4929622.227559511
+    },
+    {
+      "id": "loc_0583",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684940.3770844727,
+      "y": 4929529.586041047
+    },
+    {
+      "id": "loc_0584",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684887.2413126408,
+      "y": 4929540.179819272
+    },
+    {
+      "id": "loc_0585",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685063.0022738491,
+      "y": 4929624.259426267
+    },
+    {
+      "id": "loc_0586",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684960.6912457217,
+      "y": 4929635.497292847
+    },
+    {
+      "id": "loc_0587",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684905.9409946547,
+      "y": 4929643.57694527
+    },
+    {
+      "id": "loc_0589",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684892.7029557857,
+      "y": 4929488.908403815
+    },
+    {
+      "id": "loc_0591",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685067.4481786736,
+      "y": 4928736.299097423
+    },
+    {
+      "id": "loc_0592",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685071.9515844627,
+      "y": 4928923.791974888
+    },
+    {
+      "id": "loc_0593",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685064.2849997275,
+      "y": 4928975.033840968
+    },
+    {
+      "id": "loc_0594",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684997.219603488,
+      "y": 4928968.2658114955
+    },
+    {
+      "id": "loc_0595",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685002.2507416429,
+      "y": 4928921.806948231
+    },
+    {
+      "id": "loc_0596",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 685694.2238040731,
+      "y": 4929889.482103258
+    },
+    {
+      "id": "loc_0597",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685627.7302893904,
+      "y": 4930009.757293333
+    },
+    {
+      "id": "loc_0598",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685581.4987955729,
+      "y": 4930102.9195334725
+    },
+    {
+      "id": "loc_0599",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687180.1305647693,
+      "y": 4931088.1735774195
+    },
+    {
+      "id": "loc_0601",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686528.9515167892,
+      "y": 4930651.730665467
+    },
+    {
+      "id": "loc_0602",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686514.1445908782,
+      "y": 4930602.745862018
+    },
+    {
+      "id": "loc_0603",
+      "reasons": [
+        "traffic_light"
+      ],
+      "x": 686239.1098133741,
+      "y": 4931357.79535284
+    },
+    {
+      "id": "loc_0605",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687413.2533125194,
+      "y": 4930880.347510081
+    },
+    {
+      "id": "loc_0606",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687194.0275980497,
+      "y": 4930850.888979835
+    },
+    {
+      "id": "loc_0609",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687023.380603399,
+      "y": 4931236.161863601
+    },
+    {
+      "id": "loc_0610",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686986.7078630521,
+      "y": 4931006.325563169
+    },
+    {
+      "id": "loc_0611",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686189.7175239307,
+      "y": 4931046.567843792
+    },
+    {
+      "id": "loc_0614",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687563.382131073,
+      "y": 4929882.86680474
+    },
+    {
+      "id": "loc_0616",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685149.5484276472,
+      "y": 4929358.507163144
+    },
+    {
+      "id": "loc_0617",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686690.8836676573,
+      "y": 4928479.945324837
+    },
+    {
+      "id": "loc_0618",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687569.6770136474,
+      "y": 4930071.840773978
+    },
+    {
+      "id": "loc_0620",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686636.5867125805,
+      "y": 4928507.5345795
+    },
+    {
+      "id": "loc_0621",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686656.4871464096,
+      "y": 4928484.938201464
+    },
+    {
+      "id": "loc_0622",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686425.7114397488,
+      "y": 4928516.47824458
+    },
+    {
+      "id": "loc_0623",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687301.4459744828,
+      "y": 4929447.342058804
+    },
+    {
+      "id": "loc_0624",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686777.2440906612,
+      "y": 4928388.454296095
+    },
+    {
+      "id": "loc_0625",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686780.6395592941,
+      "y": 4928409.596528089
+    },
+    {
+      "id": "loc_0626",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687125.5328785595,
+      "y": 4929836.564171524
+    },
+    {
+      "id": "loc_0627",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687882.9503458503,
+      "y": 4928790.598159315
+    },
+    {
+      "id": "loc_0629",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687930.8216158866,
+      "y": 4928909.913906782
+    },
+    {
+      "id": "loc_0631",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684894.6106695911,
+      "y": 4930156.189426496
+    },
+    {
+      "id": "loc_0632",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686658.9401405356,
+      "y": 4929391.217598539
+    },
+    {
+      "id": "loc_0633",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687414.4255910434,
+      "y": 4928381.530224812
+    },
+    {
+      "id": "loc_0634",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686810.3596129103,
+      "y": 4928103.007900263
+    },
+    {
+      "id": "loc_0635",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686442.8426547182,
+      "y": 4927926.254402208
+    },
+    {
+      "id": "loc_0636",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686430.0595063609,
+      "y": 4927924.064516695
+    },
+    {
+      "id": "loc_0637",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685968.3937402961,
+      "y": 4928023.931447563
+    },
+    {
+      "id": "loc_0639",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686785.696647344,
+      "y": 4928171.347192529
+    },
+    {
+      "id": "loc_0640",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687005.0672221826,
+      "y": 4927962.195433633
+    },
+    {
+      "id": "loc_0642",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686932.3185692629,
+      "y": 4928023.436684742
+    },
+    {
+      "id": "loc_0643",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686343.6219923331,
+      "y": 4930629.556351669
+    },
+    {
+      "id": "loc_0646",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684640.77611645,
+      "y": 4928907.111032963
+    },
+    {
+      "id": "loc_0648",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687457.4964081293,
+      "y": 4928327.775991297
+    },
+    {
+      "id": "loc_0652",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685812.0301997777,
+      "y": 4930600.5275669005
+    },
+    {
+      "id": "loc_0653",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685799.0854123123,
+      "y": 4930629.194868459
+    },
+    {
+      "id": "loc_0654",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687239.3011222135,
+      "y": 4930993.860534662
+    },
+    {
+      "id": "loc_0655",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687252.0811146752,
+      "y": 4931078.975374649
+    },
+    {
+      "id": "loc_0660",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687184.2479293193,
+      "y": 4930820.057062523
+    },
+    {
+      "id": "loc_0661",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686843.7957819658,
+      "y": 4929021.596162247
+    },
+    {
+      "id": "loc_0662",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686109.8335722332,
+      "y": 4929446.13439185
+    },
+    {
+      "id": "loc_0663",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686440.4126212439,
+      "y": 4929719.054845472
+    },
+    {
+      "id": "loc_0664",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685883.6345753919,
+      "y": 4928988.640853698
+    },
+    {
+      "id": "loc_0665",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685992.5911009617,
+      "y": 4930238.111432532
+    },
+    {
+      "id": "loc_0666",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685988.0436132546,
+      "y": 4930292.72151959
+    },
+    {
+      "id": "loc_0667",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686046.7974154378,
+      "y": 4930325.576572134
+    },
+    {
+      "id": "loc_0668",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685947.788724218,
+      "y": 4930330.678576448
+    },
+    {
+      "id": "loc_0669",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685996.3077564447,
+      "y": 4930341.417387711
+    },
+    {
+      "id": "loc_0670",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686032.6767296745,
+      "y": 4930375.79910899
+    },
+    {
+      "id": "loc_0671",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687505.8401570071,
+      "y": 4928582.263891142
+    },
+    {
+      "id": "loc_0672",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685169.786335146,
+      "y": 4930716.119762091
+    },
+    {
+      "id": "loc_0673",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685458.2213361586,
+      "y": 4930278.804185936
+    },
+    {
+      "id": "loc_0674",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685435.1475990424,
+      "y": 4930293.886984562
+    },
+    {
+      "id": "loc_0675",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685454.7054153726,
+      "y": 4930297.169105955
+    },
+    {
+      "id": "loc_0676",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685479.9776903411,
+      "y": 4930300.381031167
+    },
+    {
+      "id": "loc_0677",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685492.7349319776,
+      "y": 4930301.367938393
+    },
+    {
+      "id": "loc_0678",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685509.0233239902,
+      "y": 4930321.8993599955
+    },
+    {
+      "id": "loc_0679",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685097.8739033488,
+      "y": 4930381.816946984
+    },
+    {
+      "id": "loc_0680",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685126.840890557,
+      "y": 4930507.986349831
+    },
+    {
+      "id": "loc_0681",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685116.9985323984,
+      "y": 4930511.930224282
+    },
+    {
+      "id": "loc_0682",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685132.4657089616,
+      "y": 4930512.448964692
+    },
+    {
+      "id": "loc_0683",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685090.8358684052,
+      "y": 4930517.654560952
+    },
+    {
+      "id": "loc_0684",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685130.831607332,
+      "y": 4930522.885675438
+    },
+    {
+      "id": "loc_0685",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685117.8160113788,
+      "y": 4930522.325652039
+    },
+    {
+      "id": "loc_0686",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685120.5924875537,
+      "y": 4930524.561489299
+    },
+    {
+      "id": "loc_0687",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685715.130031673,
+      "y": 4929898.239708443
+    },
+    {
+      "id": "loc_0689",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685928.3371595993,
+      "y": 4930043.546745453
+    },
+    {
+      "id": "loc_0690",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685859.4263588703,
+      "y": 4930054.670299349
+    },
+    {
+      "id": "loc_0691",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685278.5228185345,
+      "y": 4930744.001120759
+    },
+    {
+      "id": "loc_0692",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685039.5431452164,
+      "y": 4929940.23489047
+    },
+    {
+      "id": "loc_0693",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685639.7615716292,
+      "y": 4930413.881957217
+    },
+    {
+      "id": "loc_0694",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685628.8115831251,
+      "y": 4930441.80616312
+    },
+    {
+      "id": "loc_0695",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685677.7182011851,
+      "y": 4930530.517332448
+    },
+    {
+      "id": "loc_0699",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685820.396992045,
+      "y": 4928657.146291454
+    },
+    {
+      "id": "loc_0700",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686233.1067920249,
+      "y": 4930897.298042025
+    },
+    {
+      "id": "loc_0702",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685613.1852204367,
+      "y": 4928762.671551151
+    },
+    {
+      "id": "loc_0706",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685803.7585350985,
+      "y": 4929681.835923741
+    },
+    {
+      "id": "loc_0707",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687350.4507966881,
+      "y": 4929935.253484304
+    },
+    {
+      "id": "loc_0708",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685118.556051253,
+      "y": 4930510.040271436
+    },
+    {
+      "id": "loc_0709",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686570.6849488437,
+      "y": 4928155.143423343
+    },
+    {
+      "id": "loc_0714",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686544.8547494798,
+      "y": 4928153.890551151
+    },
+    {
+      "id": "loc_0717",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686747.6774304326,
+      "y": 4928168.297971878
+    },
+    {
+      "id": "loc_0718",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686669.2818926648,
+      "y": 4928161.965742036
+    },
+    {
+      "id": "loc_0720",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686707.609060917,
+      "y": 4928165.101167491
+    },
+    {
+      "id": "loc_0721",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686569.4352862367,
+      "y": 4928184.534398643
+    },
+    {
+      "id": "loc_0722",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687318.2270675589,
+      "y": 4929919.215863923
+    },
+    {
+      "id": "loc_0724",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684711.5901985142,
+      "y": 4929224.843544298
+    },
+    {
+      "id": "loc_0725",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686634.6430598459,
+      "y": 4928487.92382804
+    },
+    {
+      "id": "loc_0726",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686796.2729818483,
+      "y": 4928408.389449674
+    },
+    {
+      "id": "loc_0727",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685187.4177481028,
+      "y": 4928973.784258931
+    },
+    {
+      "id": "loc_0728",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686569.1731323848,
+      "y": 4930571.797947464
+    },
+    {
+      "id": "loc_0729",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686573.2065317127,
+      "y": 4930584.82078851
+    },
+    {
+      "id": "loc_0730",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686853.7873222926,
+      "y": 4930402.006905781
+    },
+    {
+      "id": "loc_0731",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687059.0876341246,
+      "y": 4930328.785180492
+    },
+    {
+      "id": "loc_0732",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687164.5459308884,
+      "y": 4928400.142454177
+    },
+    {
+      "id": "loc_0733",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687166.3887508501,
+      "y": 4928414.358743973
+    },
+    {
+      "id": "loc_0734",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686256.4048337962,
+      "y": 4931035.807010965
+    },
+    {
+      "id": "loc_0735",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686037.1099648774,
+      "y": 4929413.446160335
+    },
+    {
+      "id": "loc_0736",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686049.5483120816,
+      "y": 4929455.91369034
+    },
+    {
+      "id": "loc_0739",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686864.7778732552,
+      "y": 4929669.860242116
+    },
+    {
+      "id": "loc_0740",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685130.1847515431,
+      "y": 4931088.298480697
+    },
+    {
+      "id": "loc_0742",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687693.3956194129,
+      "y": 4928742.074074573
+    },
+    {
+      "id": "loc_0744",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687837.8078938405,
+      "y": 4928779.987892946
+    },
+    {
+      "id": "loc_0746",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687820.3836918105,
+      "y": 4928754.237055633
+    },
+    {
+      "id": "loc_0747",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687346.6195911844,
+      "y": 4929913.8758294955
+    },
+    {
+      "id": "loc_0748",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684771.5896676339,
+      "y": 4929504.283320491
+    },
+    {
+      "id": "loc_0749",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687422.9965843286,
+      "y": 4928997.367539262
+    },
+    {
+      "id": "loc_0750",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685723.979925846,
+      "y": 4930513.319264105
+    },
+    {
+      "id": "loc_0751",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687137.477012968,
+      "y": 4929608.673275761
+    },
+    {
+      "id": "loc_0753",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684948.9269982124,
+      "y": 4929702.708780298
+    },
+    {
+      "id": "loc_0755",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685467.9194027329,
+      "y": 4930091.593110888
+    },
+    {
+      "id": "loc_0756",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685453.6228304915,
+      "y": 4930092.952474816
+    },
+    {
+      "id": "loc_0757",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685469.084800664,
+      "y": 4930104.277521809
+    },
+    {
+      "id": "loc_0758",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685455.715890058,
+      "y": 4930106.308155407
+    },
+    {
+      "id": "loc_0759",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685458.2882294247,
+      "y": 4930107.615592597
+    },
+    {
+      "id": "loc_0760",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685827.33133331,
+      "y": 4929948.673868488
+    },
+    {
+      "id": "loc_0762",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 687000.9159472494,
+      "y": 4929453.925629893
+    },
+    {
+      "id": "loc_0763",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687150.4999309247,
+      "y": 4928459.247866327
+    },
+    {
+      "id": "loc_0764",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687132.2948747457,
+      "y": 4928419.03546907
+    },
+    {
+      "id": "loc_0765",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687196.4315143223,
+      "y": 4928410.243638477
+    },
+    {
+      "id": "loc_0768",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686354.1082365918,
+      "y": 4930084.1531327395
+    },
+    {
+      "id": "loc_0769",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686422.4020048465,
+      "y": 4930203.4982760055
+    },
+    {
+      "id": "loc_0770",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686480.9344230172,
+      "y": 4930051.162501437
+    },
+    {
+      "id": "loc_0771",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686503.204512674,
+      "y": 4930127.364807879
+    },
+    {
+      "id": "loc_0772",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686515.3803710979,
+      "y": 4930994.014539311
+    },
+    {
+      "id": "loc_0773",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687122.0423409939,
+      "y": 4929819.07639756
+    },
+    {
+      "id": "loc_0774",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687156.9943781694,
+      "y": 4929836.281079021
+    },
+    {
+      "id": "loc_0775",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686985.7850430154,
+      "y": 4929854.607226127
+    },
+    {
+      "id": "loc_0776",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686743.6443455267,
+      "y": 4930097.587161554
+    },
+    {
+      "id": "loc_0777",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687305.6802859188,
+      "y": 4930208.600827405
+    },
+    {
+      "id": "loc_0778",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687161.7983772467,
+      "y": 4929967.235026976
+    },
+    {
+      "id": "loc_0780",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687394.8660751118,
+      "y": 4928392.472401539
+    },
+    {
+      "id": "loc_0781",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687450.8995858165,
+      "y": 4928334.089233571
+    },
+    {
+      "id": "loc_0782",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687412.8400862437,
+      "y": 4928421.328351101
+    },
+    {
+      "id": "loc_0783",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687553.9863845987,
+      "y": 4928218.621412495
+    },
+    {
+      "id": "loc_0784",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687561.810977294,
+      "y": 4928227.685375261
+    },
+    {
+      "id": "loc_0785",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686477.3738079977,
+      "y": 4927521.606550389
+    },
+    {
+      "id": "loc_0786",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686766.8730080589,
+      "y": 4927724.633615299
+    },
+    {
+      "id": "loc_0787",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685910.9405663682,
+      "y": 4928984.363897822
+    },
+    {
+      "id": "loc_0788",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686054.7166421819,
+      "y": 4928968.680111147
+    },
+    {
+      "id": "loc_0789",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686141.5451545152,
+      "y": 4928958.9161607735
+    },
+    {
+      "id": "loc_0790",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686286.1426610253,
+      "y": 4929116.964808392
+    },
+    {
+      "id": "loc_0792",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686741.2466356958,
+      "y": 4928472.676638546
+    },
+    {
+      "id": "loc_0793",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687189.7693097513,
+      "y": 4929744.864223066
+    },
+    {
+      "id": "loc_0794",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687365.4561446235,
+      "y": 4929722.614625594
+    },
+    {
+      "id": "loc_0795",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687208.1690528678,
+      "y": 4930259.86323507
+    },
+    {
+      "id": "loc_0796",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686041.4679997746,
+      "y": 4928809.116131422
+    },
+    {
+      "id": "loc_0797",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686051.1458763636,
+      "y": 4928790.46095965
+    },
+    {
+      "id": "loc_0798",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686044.6622520086,
+      "y": 4928799.835946019
+    },
+    {
+      "id": "loc_0799",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686043.656864977,
+      "y": 4928791.869607983
+    },
+    {
+      "id": "loc_0800",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686052.4648596869,
+      "y": 4928799.147768149
+    },
+    {
+      "id": "loc_0801",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686042.6536828282,
+      "y": 4928766.038286646
+    },
+    {
+      "id": "loc_0802",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686736.9295869335,
+      "y": 4928650.314721209
+    },
+    {
+      "id": "loc_0803",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686739.528928614,
+      "y": 4930457.096465014
+    },
+    {
+      "id": "loc_0804",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686748.6562420612,
+      "y": 4930512.922305308
+    },
+    {
+      "id": "loc_0805",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687361.8578108579,
+      "y": 4928371.076200558
+    },
+    {
+      "id": "loc_0806",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687596.1432633927,
+      "y": 4929692.663899453
+    },
+    {
+      "id": "loc_0808",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687601.5758285252,
+      "y": 4929718.634912812
+    },
+    {
+      "id": "loc_0809",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686473.3673245595,
+      "y": 4928724.700707378
+    },
+    {
+      "id": "loc_0810",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685830.8048859715,
+      "y": 4930959.16680768
+    },
+    {
+      "id": "loc_0812",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685838.7692308179,
+      "y": 4929721.313455813
+    },
+    {
+      "id": "loc_0813",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685893.6172531145,
+      "y": 4929881.678438051
+    },
+    {
+      "id": "loc_0814",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685938.4682255986,
+      "y": 4930079.311222403
+    },
+    {
+      "id": "loc_0815",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685892.9305437797,
+      "y": 4929901.780600496
+    },
+    {
+      "id": "loc_0816",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685765.5109942332,
+      "y": 4929461.42570856
+    },
+    {
+      "id": "loc_0817",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687291.9815702965,
+      "y": 4929916.32452371
+    },
+    {
+      "id": "loc_0819",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687192.0828018403,
+      "y": 4929956.145698677
+    },
+    {
+      "id": "loc_0821",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685277.6264870387,
+      "y": 4930740.562632716
+    },
+    {
+      "id": "loc_0822",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685238.2197632439,
+      "y": 4930735.369566143
+    },
+    {
+      "id": "loc_0823",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685219.01231084,
+      "y": 4930703.67191021
+    },
+    {
+      "id": "loc_0824",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685153.2511099238,
+      "y": 4929451.105650346
+    },
+    {
+      "id": "loc_0826",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685164.7303905906,
+      "y": 4930510.078228469
+    },
+    {
+      "id": "loc_0828",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685768.2443744751,
+      "y": 4927565.5243555615
+    },
+    {
+      "id": "loc_0829",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686756.1986397248,
+      "y": 4928440.344296121
+    },
+    {
+      "id": "loc_0830",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686805.4440543274,
+      "y": 4928435.145096383
+    },
+    {
+      "id": "loc_0833",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687848.9522069488,
+      "y": 4928807.691729233
+    },
+    {
+      "id": "loc_0835",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685740.2819342935,
+      "y": 4930670.457733791
+    },
+    {
+      "id": "loc_0836",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685742.0299435585,
+      "y": 4930662.748048237
+    },
+    {
+      "id": "loc_0837",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685709.88579422,
+      "y": 4930652.012368645
+    },
+    {
+      "id": "loc_0838",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685707.7355444614,
+      "y": 4930669.615824577
+    },
+    {
+      "id": "loc_0839",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685732.082939909,
+      "y": 4930646.699597608
+    },
+    {
+      "id": "loc_0840",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685724.1711575531,
+      "y": 4930680.491407099
+    },
+    {
+      "id": "loc_0841",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685634.9964618147,
+      "y": 4930663.233750411
+    },
+    {
+      "id": "loc_0842",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685813.4380998791,
+      "y": 4931075.932342279
+    },
+    {
+      "id": "loc_0843",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685839.0818068502,
+      "y": 4931119.422417547
+    },
+    {
+      "id": "loc_0844",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685806.2326685019,
+      "y": 4931106.1646001
+    },
+    {
+      "id": "loc_0845",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685847.9197174369,
+      "y": 4931093.305752849
+    },
+    {
+      "id": "loc_0846",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687473.5160814706,
+      "y": 4928872.0560552515
+    },
+    {
+      "id": "loc_0848",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685833.2933267609,
+      "y": 4927964.848991005
+    },
+    {
+      "id": "loc_0851",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685434.1477323645,
+      "y": 4928853.5433734665
+    },
+    {
+      "id": "loc_0853",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685014.4956991409,
+      "y": 4928922.155621047
+    },
+    {
+      "id": "loc_0856",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686432.7437205558,
+      "y": 4929034.957155066
+    },
+    {
+      "id": "loc_0858",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685884.2324497057,
+      "y": 4929000.286347306
+    },
+    {
+      "id": "loc_0859",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685856.4310541021,
+      "y": 4928993.510054443
+    },
+    {
+      "id": "loc_0860",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685288.9123819459,
+      "y": 4930721.42993788
+    },
+    {
+      "id": "loc_0861",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685312.9260460569,
+      "y": 4930738.301519901
+    },
+    {
+      "id": "loc_0862",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685291.4257358231,
+      "y": 4930755.186112935
+    },
+    {
+      "id": "loc_0863",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685280.9730825026,
+      "y": 4930727.273274196
+    },
+    {
+      "id": "loc_0864",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685304.4656317667,
+      "y": 4930722.818697653
+    },
+    {
+      "id": "loc_0865",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685307.4317837493,
+      "y": 4930725.093387746
+    },
+    {
+      "id": "loc_0866",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685351.5608810764,
+      "y": 4930718.1373932045
+    },
+    {
+      "id": "loc_0867",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685261.7182601555,
+      "y": 4930784.521087823
+    },
+    {
+      "id": "loc_0868",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685308.1992531775,
+      "y": 4930691.508646388
+    },
+    {
+      "id": "loc_0869",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686991.1002988477,
+      "y": 4929410.397465988
+    },
+    {
+      "id": "loc_0870",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686981.7752008652,
+      "y": 4929322.726236786
+    },
+    {
+      "id": "loc_0871",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685747.4231010512,
+      "y": 4930699.488448228
+    },
+    {
+      "id": "loc_0872",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687370.3465198625,
+      "y": 4929449.340102216
+    },
+    {
+      "id": "loc_0873",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686815.1081110428,
+      "y": 4931351.175908916
+    },
+    {
+      "id": "loc_0874",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686020.974319806,
+      "y": 4930940.93283284
+    },
+    {
+      "id": "loc_0875",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685994.0657664514,
+      "y": 4930932.168829477
+    },
+    {
+      "id": "loc_0876",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687215.2308093603,
+      "y": 4930273.507448137
+    },
+    {
+      "id": "loc_0877",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685824.0127462391,
+      "y": 4931093.644264978
+    },
+    {
+      "id": "loc_0878",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685829.3599589836,
+      "y": 4931094.708900744
+    },
+    {
+      "id": "loc_0879",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686123.1015614264,
+      "y": 4928405.949543227
+    },
+    {
+      "id": "loc_0881",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685119.3934681362,
+      "y": 4930490.431589585
+    },
+    {
+      "id": "loc_0884",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687556.9881973064,
+      "y": 4930070.3959754445
+    },
+    {
+      "id": "loc_0885",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687572.062010347,
+      "y": 4930080.725588038
+    },
+    {
+      "id": "loc_0888",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686432.7888701133,
+      "y": 4928668.951560606
+    },
+    {
+      "id": "loc_0889",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686813.5314147061,
+      "y": 4927881.902571737
+    },
+    {
+      "id": "loc_0890",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686809.8514199508,
+      "y": 4927871.202225561
+    },
+    {
+      "id": "loc_0895",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684765.4038047476,
+      "y": 4928550.500028761
+    },
+    {
+      "id": "loc_0896",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685624.831193801,
+      "y": 4928756.700920156
+    },
+    {
+      "id": "loc_0897",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685632.5396590077,
+      "y": 4928771.2842748985
+    },
+    {
+      "id": "loc_0898",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686325.6446804681,
+      "y": 4928683.2208901625
+    },
+    {
+      "id": "loc_0899",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686317.575998832,
+      "y": 4928707.335847611
+    },
+    {
+      "id": "loc_0901",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685962.1602168661,
+      "y": 4930138.576309327
+    },
+    {
+      "id": "loc_0902",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685165.8737623765,
+      "y": 4928985.04311669
+    },
+    {
+      "id": "loc_0903",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686979.839914742,
+      "y": 4929411.529697697
+    },
+    {
+      "id": "loc_0905",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687496.3561220658,
+      "y": 4928673.4733309075
+    },
+    {
+      "id": "loc_0907",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685171.2656013392,
+      "y": 4928968.132288764
+    },
+    {
+      "id": "loc_0908",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686047.5407948622,
+      "y": 4930923.873332363
+    },
+    {
+      "id": "loc_0909",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684864.1441753183,
+      "y": 4929357.805393538
+    },
+    {
+      "id": "loc_0910",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687269.568447171,
+      "y": 4929933.399036266
+    },
+    {
+      "id": "loc_0912",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684615.4235344717,
+      "y": 4928481.914989952
+    },
+    {
+      "id": "loc_0915",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686447.8827000059,
+      "y": 4930607.935761193
+    },
+    {
+      "id": "loc_0916",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686712.4057194758,
+      "y": 4928492.047622805
+    },
+    {
+      "id": "loc_0920",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686124.047672718,
+      "y": 4929388.555153453
+    },
+    {
+      "id": "loc_0925",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686662.0574574287,
+      "y": 4928468.88951543
+    },
+    {
+      "id": "loc_0926",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685337.2915780364,
+      "y": 4930720.820632881
+    },
+    {
+      "id": "loc_0927",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685309.7128031396,
+      "y": 4930688.372381029
+    },
+    {
+      "id": "loc_0928",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686472.7242290583,
+      "y": 4928739.067726212
+    },
+    {
+      "id": "loc_0929",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686480.3956434204,
+      "y": 4928723.546131273
+    },
+    {
+      "id": "loc_0930",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685871.8367413664,
+      "y": 4928996.029646225
+    },
+    {
+      "id": "loc_0932",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685213.2909781205,
+      "y": 4929042.913184814
+    },
+    {
+      "id": "loc_0934",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684618.81055673,
+      "y": 4930133.202496187
+    },
+    {
+      "id": "loc_0935",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684662.717583519,
+      "y": 4930125.201464231
+    },
+    {
+      "id": "loc_0937",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684997.0164463688,
+      "y": 4929951.385534012
+    },
+    {
+      "id": "loc_0938",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687569.9218521605,
+      "y": 4930033.882621199
+    },
+    {
+      "id": "loc_0939",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685132.2600389633,
+      "y": 4930521.058747518
+    },
+    {
+      "id": "loc_0940",
+      "reasons": [
+        "branch",
+        "traffic_light"
+      ],
+      "x": 684565.4869128471,
+      "y": 4930169.362125905
+    },
+    {
+      "id": "loc_0941",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684958.8577136511,
+      "y": 4929990.486517201
+    },
+    {
+      "id": "loc_0942",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684839.4231699351,
+      "y": 4930045.039032891
+    },
+    {
+      "id": "loc_0943",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684776.0346199861,
+      "y": 4930073.862487115
+    },
+    {
+      "id": "loc_0944",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684987.1415730328,
+      "y": 4929981.309000981
+    },
+    {
+      "id": "loc_0945",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684980.4896185868,
+      "y": 4929980.763808051
+    },
+    {
+      "id": "loc_0946",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684984.7977375501,
+      "y": 4929977.840463836
+    },
+    {
+      "id": "loc_0947",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684835.7822190252,
+      "y": 4929496.048698078
+    },
+    {
+      "id": "loc_0948",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686029.2624417399,
+      "y": 4928424.885096761
+    },
+    {
+      "id": "loc_0949",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685939.1366647503,
+      "y": 4930039.5647306135
+    },
+    {
+      "id": "loc_0950",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685867.0374971658,
+      "y": 4929815.660872488
+    },
+    {
+      "id": "loc_0951",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685865.2174913778,
+      "y": 4929812.529378632
+    },
+    {
+      "id": "loc_0952",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685453.1353196796,
+      "y": 4930276.368850975
+    },
+    {
+      "id": "loc_0953",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685461.444549281,
+      "y": 4930089.029183237
+    },
+    {
+      "id": "loc_0954",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685577.6919367687,
+      "y": 4929985.2596314605
+    },
+    {
+      "id": "loc_0955",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686480.2019015714,
+      "y": 4930855.785698772
+    },
+    {
+      "id": "loc_0956",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686498.4409325429,
+      "y": 4930950.893863619
+    },
+    {
+      "id": "loc_0957",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686506.764355081,
+      "y": 4930995.41237957
+    },
+    {
+      "id": "loc_0958",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686439.4792871857,
+      "y": 4930623.803162478
+    },
+    {
+      "id": "loc_0959",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686451.1636581696,
+      "y": 4930621.125901552
+    },
+    {
+      "id": "loc_0960",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685683.0122099437,
+      "y": 4930503.96562656
+    },
+    {
+      "id": "loc_0962",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687406.7031697403,
+      "y": 4929503.13979596
+    },
+    {
+      "id": "loc_0963",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686443.2090550873,
+      "y": 4930609.168978516
+    },
+    {
+      "id": "loc_0964",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687449.0421101479,
+      "y": 4928973.116427714
+    },
+    {
+      "id": "loc_0965",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687450.9701801192,
+      "y": 4928954.006067658
+    },
+    {
+      "id": "loc_0966",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687407.9142666955,
+      "y": 4929018.132899018
+    },
+    {
+      "id": "loc_0967",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686007.8762391142,
+      "y": 4929501.778726363
+    },
+    {
+      "id": "loc_0968",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685007.3142260814,
+      "y": 4929909.690169922
+    },
+    {
+      "id": "loc_0969",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685713.2261118689,
+      "y": 4930526.585604704
+    },
+    {
+      "id": "loc_0972",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686552.9037937227,
+      "y": 4931190.942742125
+    },
+    {
+      "id": "loc_0973",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686542.7585726632,
+      "y": 4931190.751303067
+    },
+    {
+      "id": "loc_0974",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686988.8964938215,
+      "y": 4929854.318814922
+    },
+    {
+      "id": "loc_0975",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686352.6663340323,
+      "y": 4930075.896243148
+    },
+    {
+      "id": "loc_0977",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686562.6729664728,
+      "y": 4928481.899495517
+    },
+    {
+      "id": "loc_0978",
+      "reasons": [
+        "branch"
+      ],
+      "x": 686564.8763743477,
+      "y": 4928497.459941994
+    },
+    {
+      "id": "loc_0979",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687392.2842539758,
+      "y": 4929478.877518766
+    },
+    {
+      "id": "loc_0980",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685985.490822795,
+      "y": 4929733.628210833
+    },
+    {
+      "id": "loc_0982",
+      "reasons": [
+        "branch"
+      ],
+      "x": 684662.1940760673,
+      "y": 4929221.382684158
+    },
+    {
+      "id": "loc_0983",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685142.5448923807,
+      "y": 4931059.635611218
+    },
+    {
+      "id": "loc_0984",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685191.3730323638,
+      "y": 4929198.503639448
+    },
+    {
+      "id": "loc_0985",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685173.7039253487,
+      "y": 4929193.886730244
+    },
+    {
+      "id": "loc_0986",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685080.5254812494,
+      "y": 4929628.371682459
+    },
+    {
+      "id": "loc_0987",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685857.1949072371,
+      "y": 4928638.521634774
+    },
+    {
+      "id": "loc_0988",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685620.9089709725,
+      "y": 4928777.277561782
+    },
+    {
+      "id": "loc_0989",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687464.8472341679,
+      "y": 4928955.440343114
+    },
+    {
+      "id": "loc_0990",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687338.0608187255,
+      "y": 4930100.264047635
+    },
+    {
+      "id": "loc_0991",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687321.4512422506,
+      "y": 4930098.20634668
+    },
+    {
+      "id": "loc_0992",
+      "reasons": [
+        "branch"
+      ],
+      "x": 687066.657494612,
+      "y": 4930343.855733407
+    },
+    {
+      "id": "loc_0994",
+      "reasons": [
+        "start"
+      ],
+      "x": 684614.4029520209,
+      "y": 4927593.826667887
+    },
+    {
+      "id": "loc_0995",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685154.9208577911,
+      "y": 4927950.612549467
+    },
+    {
+      "id": "loc_0997",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685805.5267977886,
+      "y": 4929611.671458037
+    },
+    {
+      "id": "loc_0998",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685818.2728859502,
+      "y": 4929661.773569479
+    },
+    {
+      "id": "loc_0999",
+      "reasons": [
+        "branch"
+      ],
+      "x": 685820.1177727359,
+      "y": 4929651.5208733445
+    }
+  ],
+  "merged_internal_nodes": [
+    {
+      "id": "loc_0110",
+      "x": 686166.4897980343,
+      "y": 4929699.870148723
+    },
+    {
+      "id": "loc_0227",
+      "x": 684454.0438515756,
+      "y": 4930097.693852911
+    },
+    {
+      "id": "loc_0266",
+      "x": 684359.4930299572,
+      "y": 4929302.887857249
+    },
+    {
+      "id": "loc_0290",
+      "x": 687853.9219063477,
+      "y": 4928166.3845387725
+    },
+    {
+      "id": "loc_0341",
+      "x": 688119.7167652203,
+      "y": 4929226.707234949
+    },
+    {
+      "id": "loc_0343",
+      "x": 684586.7574711959,
+      "y": 4929982.502340881
+    },
+    {
+      "id": "loc_0434",
+      "x": 686727.032216145,
+      "y": 4927639.443935264
+    },
+    {
+      "id": "loc_0580",
+      "x": 684421.5931823105,
+      "y": 4929169.380424995
+    },
+    {
+      "id": "loc_0607",
+      "x": 687323.5590852876,
+      "y": 4930812.612616033
+    },
+    {
+      "id": "loc_0630",
+      "x": 687895.1313253033,
+      "y": 4928924.445777546
+    },
+    {
+      "id": "loc_0647",
+      "x": 688153.2307924601,
+      "y": 4928821.78757539
+    },
+    {
+      "id": "loc_0779",
+      "x": 685856.6458010102,
+      "y": 4929585.130085356
+    },
+    {
+      "id": "loc_0807",
+      "x": 687607.533419277,
+      "y": 4929704.110047723
+    },
+    {
+      "id": "loc_0818",
+      "x": 687064.3335956688,
+      "y": 4929998.301199124
+    },
+    {
+      "id": "loc_0820",
+      "x": 686771.4886844446,
+      "y": 4930088.571397022
+    },
+    {
+      "id": "loc_0922",
+      "x": 687220.7474743496,
+      "y": 4928664.28130225
+    },
+    {
+      "id": "loc_0923",
+      "x": 687275.9611154677,
+      "y": 4928673.698861528
+    },
+    {
+      "id": "loc_0924",
+      "x": 685765.3029511466,
+      "y": 4929441.431386823
+    }
+  ]
+}

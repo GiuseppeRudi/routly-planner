@@ -1,0 +1,77 @@
+project:
+  project_root: .
+  seed: 71
+experiment:
+  name_prefix: exp_100_nodes_01_planner_proc_node_param
+osm:
+  place_name: Bologna, Emilia-Romagna, Italy
+  network_type: drive
+graph_simplification:
+  keep_largest_component: true
+  remove_isolated_nodes: true
+  distance_meters: 1000
+  max_nodes: 100
+planner:
+  enhsp_jar: planners/enhsp/enhsp-20.jar
+  java_heap_mb: 8192
+  traversal_model: process
+  state_representation: node_based
+  action_generation: parameterized
+sumo:
+  sumo_gui: sumo-gui
+features:
+  traffic_lights:
+    enabled: true
+    green_duration:
+      min: 20
+      max: 30
+    yellow_duration:
+      min: 3
+      max: 6
+    red_duration:
+      min: 20
+      max: 30
+  road_abstraction:
+    enabled: true
+    max_segments_per_macro: 8
+    max_length_meters: 1500
+    speed_tolerance_ratio: 0.15
+    require_same_capacity_class: true
+  congestion:
+    enabled: true
+    mode: pddl
+    type: static
+    replanning: false
+    num_background_vehicles: 200
+    congestion_factor: 2.0
+    dynamic:
+      window_seconds: 30
+      hybrid:
+        min_temporal_variation: 0.1
+    vehicles_for_max_congestion_by_road_class:
+      local: 20
+      arterial: 35
+      major: 50
+  controller:
+    replan_window_seconds: 30
+    max_iterations: 50
+  llm_events:
+    enabled: true
+    strategic_injection: true
+    prevent_unsolvable_blocks: true
+    unsolvable_fallback: slowdown
+    unsolvable_fallback_severity: 5.0
+  sumo:
+    plans:
+    - base
+    - dynamic
+    open_event_map: false
+    open_congestion_map: false
+  fuel:
+    enabled: false
+    replanning: false
+    stations_ratio: 0.15
+    initial_fuel_ratio: 0.8
+    stations_source: random
+    consumption_mode: continuous
+    refuel_stop_seconds: 10.0

@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-07-15T15:33:10.642332",
+  "seed": 71,
+  "total_events": 3,
+  "total_roads_closed": 4,
+  "blocked_locations": [
+    {
+      "id": "loc_0081",
+      "event_type": "roadworks",
+      "description": "Major roadworks at intersection loc_0081 affecting three low‑axis roads, forcing detours onto alternative routes.",
+      "shared_closed_roads": 3
+    }
+  ],
+  "events": [
+    {
+      "event_type": "roadworks",
+      "roads": [
+        "road_0124",
+        "road_0164",
+        "road_0125"
+      ],
+      "description": "Major roadworks at intersection loc_0081 affecting three low‑axis roads, forcing detours onto alternative routes."
+    },
+    {
+      "event_type": "accident",
+      "roads": [
+        "road_0023"
+      ],
+      "description": "Accident on low‑distance road_0023 between loc_0017 and loc_0116, blocking a direct path and requiring rerouting."
+    },
+    {
+      "event_type": "slowdown",
+      "roads": [
+        "road_0091"
+      ],
+      "description": "Light congestion on road_0091 (loc_0059–loc_0139) reducing speed by factor 2.5.",
+      "severity": 2.5
+    }
+  ]
+}

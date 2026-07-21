@@ -1,0 +1,107 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 2427
+Aibr Preprocessing
+|F|:235
+|X|:3
+Aibr Preprocessing
+|A|:160
+|P|:1
+|E|:145
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 19
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=0.0
+-------------Time: 10s ; Expanded Nodes: 146553 (Avg-Speed 14655.0 n/s); Evaluated States: 155568
+-------------Time: 20s ; Expanded Nodes: 292975 (Avg-Speed 14648.0 n/s); Evaluated States: 308792
+Extracting plan with execution delta: 1.0
+Problem Solved
+
+Found Plan:
+0: (start-traversal car1 road_0143 loc_0088 loc_0049)
+0: -----waiting---- [15.0]
+15.0: (start-traversal car1 road_0073 loc_0049 loc_0093)
+15.0: -----waiting---- [17.0]
+17.0: (start-traversal car1 road_0151 loc_0093 loc_0077)
+17.0: -----waiting---- [26.0]
+26.0: (start-traversal car1 road_0124 loc_0077 loc_0080)
+26.0: -----waiting---- [44.0]
+44.0: (start-traversal car1 road_0129 loc_0080 loc_0021)
+44.0: -----waiting---- [49.0]
+49.0: (start-traversal car1 road_0031 loc_0021 loc_0057)
+49.0: -----waiting---- [66.0]
+66.0: (start-traversal car1 road_0089 loc_0057 loc_0028)
+66.0: -----waiting---- [76.0]
+76.0: (start-traversal car1 road_0044 loc_0028 loc_0022)
+76.0: -----waiting---- [91.0]
+91.0: (start-traversal car1 road_0032 loc_0022 loc_0065)
+91.0: -----waiting---- [97.0]
+97.0: (refuel car1 loc_0065)
+97.0: (start-traversal car1 road_0106 loc_0065 loc_0051)
+97.0: -----waiting---- [106.0]
+106.0: (start-traversal car1 road_0076 loc_0051 loc_0028)
+106.0: -----waiting---- [112.0]
+112.0: (start-traversal car1 road_0044 loc_0028 loc_0022)
+112.0: -----waiting---- [127.0]
+127.0: (start-traversal car1 road_0033 loc_0022 loc_0021)
+127.0: -----waiting---- [136.0]
+136.0: (start-traversal car1 road_0030 loc_0021 loc_0080)
+136.0: -----waiting---- [140.0]
+140.0: (start-traversal car1 road_0129 loc_0080 loc_0021)
+140.0: -----waiting---- [145.0]
+145.0: (start-traversal car1 road_0030 loc_0021 loc_0080)
+145.0: -----waiting---- [149.0]
+149.0: (start-traversal car1 road_0129 loc_0080 loc_0021)
+149.0: -----waiting---- [154.0]
+154.0: (start-traversal car1 road_0030 loc_0021 loc_0080)
+154.0: -----waiting---- [158.0]
+158.0: (start-traversal car1 road_0129 loc_0080 loc_0021)
+158.0: -----waiting---- [163.0]
+163.0: (start-traversal car1 road_0030 loc_0021 loc_0080)
+163.0: -----waiting---- [167.0]
+167.0: (start-traversal car1 road_0129 loc_0080 loc_0021)
+167.0: -----waiting---- [172.0]
+172.0: (start-traversal car1 road_0030 loc_0021 loc_0080)
+172.0: -----waiting---- [176.0]
+176.0: (start-traversal car1 road_0130 loc_0080 loc_0009)
+176.0: -----waiting---- [191.0]
+191.0: (start-traversal car1 road_0012 loc_0009 loc_0081)
+191.0: -----waiting---- [216.0]
+216.0: (start-traversal car1 macro_0011 loc_0081 loc_0002)
+216.0: -----waiting---- [239.0]
+239.0: (start-traversal car1 road_0003 loc_0002 loc_0064)
+239.0: -----waiting---- [251.0]
+251.0: (refuel car1 loc_0064)
+251.0: (start-traversal car1 macro_0010 loc_0064 loc_0037)
+251.0: -----waiting---- [289.0]
+289.0: (start-traversal car1 macro_0002 loc_0037 loc_0072)
+289.0: -----waiting---- [314.0]
+314.0: (start-traversal car1 road_0118 loc_0072 loc_0054)
+314.0: -----waiting---- [321.0]
+321.0: (start-traversal car1 road_0080 loc_0054 loc_0058)
+321.0: -----waiting---- [332.0]
+332.0: (start-traversal car1 road_0092 loc_0058 loc_0067)
+332.0: -----waiting---- [339.0]
+339.0: (start-traversal car1 road_0108 loc_0067 loc_0083)
+339.0: -----waiting---- [371.0]
+371.0: (start-traversal car1 macro_0012 loc_0083 loc_0084)
+371.0: -----waiting---- [391.0]
+391.0: (start-traversal car1 road_0137 loc_0084 loc_0085)
+391.0: -----waiting---- [410.0]
+
+Plan-Length:480
+Elapsed Time: 410.0
+Metric (Search):410.0
+Planning Time (msec): 28092
+Heuristic Time (msec): 17531
+Search Time (msec): 22170
+Expanded Nodes:328237
+States Evaluated:346148
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:14532
+Number of Duplicates detected:16339

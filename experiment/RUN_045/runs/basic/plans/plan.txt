@@ -1,0 +1,60 @@
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 1089
+Aibr Preprocessing
+|F|:300
+|X|:0
+|A|:504
+|P|:0
+|E|:0
+H1 Setup Time (msec): 32
+Setting horizon to:NaN
+Running Greedy Best First Search
+h(n = s_0)=179.6477
+ g(n)= 29.9218 h(n)=149.72589
+ g(n)= 36.746502 h(n)=142.9012
+ g(n)= 49.3674 h(n)=130.2803
+ g(n)= 68.752304 h(n)=110.8954
+ g(n)= 76.081 h(n)=103.5667
+ g(n)= 85.0969 h(n)=94.550804
+ g(n)= 88.7209 h(n)=90.9268
+ g(n)= 98.223206 h(n)=81.4245
+ g(n)= 104.864006 h(n)=74.7837
+ g(n)= 107.999504 h(n)=71.6482
+ g(n)= 119.2132 h(n)=60.4345
+ g(n)= 136.7342 h(n)=42.913498
+ g(n)= 145.5861 h(n)=34.0616
+ g(n)= 146.992 h(n)=32.6557
+ g(n)= 158.4945 h(n)=21.1532
+ g(n)= 179.6477 h(n)=0.0
+Problem Solved
+
+Found Plan:
+0.0: (traverse-road-static-road_0325 car1 road_0325 loc_0189 loc_0012)
+1.0: (traverse-road-static-road_0018 car1 road_0018 loc_0012 loc_0252)
+2.0: (traverse-road-static-road_0428 car1 road_0428 loc_0252 loc_0161)
+3.0: (traverse-road-static-road_0285 car1 road_0285 loc_0161 loc_0109)
+4.0: (traverse-road-static-road_0187 car1 road_0187 loc_0109 loc_0107)
+5.0: (traverse-road-static-road_0181 car1 road_0181 loc_0107 loc_0110)
+6.0: (traverse-road-static-road_0188 car1 road_0188 loc_0110 loc_0217)
+7.0: (traverse-road-static-road_0377 car1 road_0377 loc_0217 loc_0239)
+8.0: (traverse-road-static-road_0410 car1 road_0410 loc_0239 loc_0238)
+9.0: (traverse-road-static-road_0407 car1 road_0407 loc_0238 loc_0108)
+10.0: (traverse-road-static-road_0185 car1 road_0185 loc_0108 loc_0081)
+11.0: (traverse-road-static-road_0132 car1 road_0132 loc_0081 loc_0126)
+12.0: (traverse-road-static-road_0216 car1 road_0216 loc_0126 loc_0124)
+13.0: (traverse-road-static-road_0213 car1 road_0213 loc_0124 loc_0149)
+14.0: (traverse-road-static-road_0266 car1 road_0266 loc_0149 loc_0165)
+15.0: (traverse-road-static-road_0293 car1 road_0293 loc_0165 loc_0170)
+
+Plan-Length:16
+Metric (Search):179.6477
+Planning Time (msec): 2261
+Heuristic Time (msec): 14
+Search Time (msec): 44
+Expanded Nodes:17
+States Evaluated:25
+Fixed constraint violations during search (zero-crossing):0
+Number of Dead-Ends detected:0
+Number of Duplicates detected:7

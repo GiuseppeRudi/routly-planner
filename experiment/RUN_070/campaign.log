@@ -1,0 +1,95 @@
+
+========================================================================
+STAGE: build_macro_roads
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\build_macro_roads.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_700_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_075/config/project.yaml
+========================================================================
+Macro-road abstraction completed.
+  Roads: 1249 -> 1219 (ratio=0.976)
+  Nodes: 700 -> 690 (ratio=0.9857)
+  Mapping:   data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\map\roads_mapping_macro.json
+  Report:    data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\map\macro_roads_report.json
+  Base graph:  data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\map\road_network_graph_base.png
+  Macro graph: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\map\road_network_graph_macro.png
+  Image:     data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\map\macro_roads_comparison.png
+
+========================================================================
+STAGE: build_domain_and_problem
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\03_build_domain_and_problem.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_700_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_075/config/project.yaml
+========================================================================
+Building PDDL domain and problem from scenario and mapping
+Generated 200 shared background routes: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\artifacts\background_routes.json
+Generated 8 traffic-light programs: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\artifacts\traffic_light_timings.json
+
+PDDL DOMAIN DEFERRED TO CONTROLLER: the active replanning controller will write the canonical domain.pddl used for its planning run.
+Computed congestion factors for 1219 roads from 200 generated background routes.
+
+PDDL PROBLEM CREATED:
+  Vehicle: car1
+  Start:   loc_0611
+  Goal:    loc_0695
+  Problem: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\pddl\problem.pddl
+
+========================================================================
+STAGE: generate_plan
+COMMAND: C:\Users\giu20\miniconda3\envs\routly\python.exe C:\Projects\routly-planner\scripts\pipeline\04_generate_plan.py --project-config data/Bologna_Emilia-Romagna_Italy/nodes_700_distance_2000/scalability_v2_campaign_20260720_223223_847962_run_075/config/project.yaml
+========================================================================
+Computed dynamic congestion profile for 1219 roads from 200 background routes (computed once, reused for every window).
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_000.txt
+Elapsed time: 680.835s
+  Window 1: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_002.txt
+Elapsed time: 709.479s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_003.txt
+Elapsed time: 613.060s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_004.txt
+Elapsed time: 618.583s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_005.txt
+Elapsed time: 611.619s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_006.txt
+Elapsed time: 612.971s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_007.txt
+Elapsed time: 604.929s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_008.txt
+Elapsed time: 624.374s
+  Window 9: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_010.txt
+Elapsed time: 617.229s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_011.txt
+Elapsed time: 612.905s
+Using overridden congestion factors for 1219 roads.
+Running ENHSP
+Plan saved: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan_congestion_base_window_012.txt
+Elapsed time: 609.946s
+  Window 13: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 14: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 15: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 16: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 17: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+  Window 18: congestion unchanged along the remaining route -> reusing the previous solve, skipping ENHSP.
+Roads in controller plan (base): 48
+  Reached loc_0695 in 19 window(s); elapsed 598 s.
+  Legs/windows image: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\images\road_network_plan_legs.png
+
+OUTPUT FILES (congestion controller):
+  Plan:       data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\plans\plan.txt
+  Plan image: data\Bologna_Emilia-Romagna_Italy\nodes_700_distance_2000\scalability_v2_campaign_20260720_223223_847962_run_075\runs\basic\images\road_network_plan.png
