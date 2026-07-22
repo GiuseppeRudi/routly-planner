@@ -1,0 +1,1023 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=0.76in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+
+\captionsetup{font=small,labelfont=bf,skip=3pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.28em}
+\setlength{\columnsep}{0.45cm}
+\renewcommand{\arraystretch}{1.06}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\raggedbottom
+
+\titleformat{\section}{\large\bfseries}{\thesection}{0.55em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.50em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{0.45em}{}
+\titleformat{\paragraph}[block]{\normalsize\itshape}{\theparagraph}{0.45em}{}
+\titlespacing*{\section}{0pt}{0.55em}{0.25em}
+\titlespacing*{\subsection}{0pt}{0.40em}{0.18em}
+\titlespacing*{\subsubsection}{0pt}{0.30em}{0.12em}
+\titlespacing*{\paragraph}{0pt}{0.30em}{0.12em}
+\setcounter{secnumdepth}{4}
+
+\definecolor{codebg}{RGB}{247,247,247}
+\definecolor{codeframe}{RGB}{180,180,180}
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  columns=fullflexible,
+  frame=single,
+  rulecolor=\color{codeframe},
+  backgroundcolor=\color{codebg},
+  xleftmargin=0.22em,
+  xrightmargin=0.22em,
+  aboveskip=0.28em,
+  belowskip=0.28em,
+  showstringspaces=false,
+  breaklines=true
+}
+
+\newcommand{\figureplaceholder}[3]{%
+  \begin{figure}[H]
+    \centering
+    \fbox{\parbox[c][#1][c]{0.93\linewidth}{\small\raggedright
+      \textbf{Image placeholder.} #2}}
+    \caption{#3}
+  \end{figure}%
+}
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries Routly: Scalable PDDL+ Urban Routing\par}
+  \vspace{0.20em}
+  {\large Model simplification, step-by-step replanning, and LLM road events\par}
+  \vspace{0.65em}
+  {\normalsize Cozza S. -- Cristiano F. -- Ielpa E. -- Rudi G.\par}
+  \vspace{0.45em}
+  {\normalsize \today\par}
+\end{center}
+\vspace{-0.35em}
+
+\begin{abstract}
+Routly is a framework for urban route planning over real OpenStreetMap networks. It downloads a city's road map using OSMnx, ENHSP solves a PDDL-based problem and SUMO visualizes the resulting route in a traffic simulation. The model can include traffic that slows roads down, traffic lights, closed roads, and fuel limits. These features make the routes more realistic, but they also increase the computational cost of planning. Routly studies two different scalability strategies. The \emph{model-side} branch improves scalability by simplifying the planning model before it is given to the planner. The \emph{controller-side} branch keeps the
+detailed PDDL+ process model but solves the trip in smaller pieces and joins them, for congestion or for fuel. A separate LLM layer generates structured road closures and slowdowns using topology and start/goal information, without ever seeing the planned route; a second planning run then measures how well the route adapts. All modelling choices and experimental parameters are recorded through validated YAML configuration snapshots.
+\end{abstract}
+\vspace{-0.35em}
+
+\section{Problem Description}
+
+Routly receives a directed road graph $G=(L,R)$, where $L$ are locations (nodes) and $R$ are the roads connecting
+them (edges). It also receives a vehicle $v$, a start location $s$, and a goal location
+$g$. The task is to find a route that minimizes a numeric cost while
+respecting road availability and optional time and fuel constraints.
+
+The current case study uses the drivable network of Bologna, Italy. OSMnx
+downloads the network from OpenStreetMap and removes extra geometry-only points while
+keeping real junctions, dead ends, road connections and road shapes
+\cite{boeing2017}. Routly then crops the map to a chosen radius (\texttt{distance\_meters}), caps the number of nodes (\texttt{max\_nodes}), keeps only connected parts, and fixes a random seed so runs can be repeated. Bologna is a good test case because its centre combines radial streets, a dense
+secondary road network, and a ring structure \cite{wiki_bologna}. 
+
+ENHSP chooses the route from the PDDL+ model. SUMO then simulates that route with background vehicles, used for visualization and validation \cite{lopez2018}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.40\linewidth]{images/bologna_urban_structure.png}
+  \caption{Visual urban structure of the city of Bologna.}
+  \label{fig:basic-plan-to-goal}
+\end{figure}
+
+\subsection{Why use PDDL+?}
+Special graph algorithms such as Dijkstra, A*, and time-dependent routing are highly effective at computing shortest paths \cite{baum2015}, and they can even use traffic-based weights. Routly uses PDDL+ for a different reason: one planning model can
+combine logical rules, numeric resources, time, and events. PDDL+ separates
+agent actions, continuous processes, and events that happen automatically. This makes it suitable for describing movement,
+fuel use, traffic-light delay, congestion, and road disruptions. Previous work already used PDDL+ for urban traffic control, especially for adjusting traffic-light
+green phases \cite{vallati2016}. Routly instead studies the route of one vehicle
+on a road network extracted automatically from a real city.
+
+The biggest problem is scalability. More realistic features make the model
+bigger. Numeric planning is strongly affected by the way the model is
+written, and only a limited number of planners support rich PDDL+ models
+\cite{piotrowski2024}. Generic actions are especially costly when the
+grounder receives many road, node, and time combinations, although most of them
+are not valid road movements.
+
+
+\subsection{Research questions}
+\begin{description}[leftmargin=1.05cm,labelwidth=0.85cm,itemsep=0.10em,topsep=0.05em]
+
+  \item[\textbf{RQ1}] How much do the model-side optimisations improve planner scalability?
+
+  \item[\textbf{RQ2}] Can the Python controllers solve larger routing problems by splitting them into smaller plans?
+
+  \item[\textbf{RQ3}] Can the LLM generate useful road disruptions without seeing the original route?
+
+\end{description}
+
+\section{Modelling and Implementation}
+
+\subsection{Realistic base domain}
+\textbf{Traffic lights.} Signal nodes come from OSM. Each junction is labelled simple, medium, or complex from its number
+of connected roads and the highest road class that reaches it (e.g. local + local + arterial counts as arterial). More complex
+junctions receive longer green, yellow, and red phases. The planner uses an
+expected red-light delay rather than predicting the exact light colour at
+arrival:
+\[
+ d^{\mathrm{signal}}=\frac{r^2}{2(g+y+r)},
+\]
+where $g$, $y$, and $r$ are the green, yellow, and red durations. This follows
+the standard idea of average signal delay \cite{webster1958}.
+
+\begin{table}[H]
+\centering
+\caption{Traffic-light complexity classification.}
+\label{tab:traffic-light-complexity}
+\small
+
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Signal input & Level 0 & Level 1 & Level 2 \\
+\midrule
+Degree (roads meeting) & $\leq 2$ & $3$ & $\geq 4$ \\
+Highest road class & local & arterial & major \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{@{}lc@{}}
+\toprule
+Class & Score (degree + road level) \\
+\midrule
+Simple & $0$ \\
+Medium & $1$--$2$ \\
+Complex & $3$--$4$ \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+\textbf{Congestion.} Simulated background traffic represents the other
+vehicles that create traffic load around the planned vehicle. Their routes are
+used to count how many vehicles use each road. With the configured maximum
+factor of 2.0, the implemented calculation can be written simply as
+\[
+ \text{congestion factor}
+ =\min\!\left(2,\,1+\frac{\text{background vehicles on the road}}
+                         {\text{saturation count for its road class}}\right).
+\]
+The saturation count reflects road capacity:
+
+\begin{table}[H]
+\centering
+\caption{Road-class saturation thresholds used for congestion.}
+\label{tab:congestion-saturation}
+\scriptsize
+
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Road class & Local & Arterial & Major \\
+\midrule
+Saturation count & 20 & 35 & 50 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+Congestion then affects route cost through two direct relationships:
+\[
+ \text{effective speed}=\frac{\text{speed limit}}{\text{congestion factor}},
+ \qquad
+ \text{road duration}=\frac{\text{road length}}{\text{effective speed}}
+                       +\text{signal delay}.
+\]
+The signal delay is the expected traffic-light delay defined above and is zero
+when the road does not end at a signal. In static mode, the factor and duration
+remain fixed for the whole plan. In dynamic mode, Python computes one duration
+per global window and writes it as \texttt{travel-duration-window}; a single
+global event advances the active window for the network.
+
+\begin{figure}[H]
+\centering
+
+\begin{minipage}[t]{0.47\textwidth}
+\centering
+\textbf{Static congestion}
+
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+;; Fixed for the whole plan
+(= (congestion-factor road_0001) 1.05)
+(= (travel-duration road_0001) 12.40)
+\end{lstlisting}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\textbf{Dynamic congestion}
+
+\begin{lstlisting}[basicstyle=\ttfamily\tiny]
+;; Global time windows
+(= (sim-time) 0)
+(current-window tw_00000)
+
+(= (window-start tw_00000) 0)
+(= (window-start tw_00030) 30)
+
+(next-window tw_00000 tw_00030)
+
+(= (travel-duration-window road_0002 tw_00000) 12.40)
+
+(= (travel-duration-window road_0002 tw_00030) 18.10)
+
+(:event advance-window
+ :parameters (?from - time-window ?to - time-window)
+ :precondition (and
+   (current-window ?from) (next-window ?from ?to)
+   (>= (sim-time) (window-start ?to)))
+ :effect (and (not (current-window ?from)) (current-window ?to)))
+\end{lstlisting}
+\end{minipage}
+
+\caption{Static and dynamic congestion encoding.}
+\label{fig:congestion-encoding}
+\end{figure}
+
+\textbf{Fuel.} This numeric resource is decremented per road segment in discrete mode, whereas in continuous mode it decreases dynamically during the PDDL+ movement process. Fuel stations can be extracted from OpenStreetMap (OSM) or synthetically sampled using a fixed seed. The fuel controller incorporates necessary refuelling stops directly into the route planning process.
+
+\vspace{0.5em}
+\begin{lstlisting}
+;; discrete 
+(decrease (fuel-level ?v) (* (road-length ?r) (fuel-consumption-rate ?v)))
+
+;; continuous (#t = time step)
+(decrease (fuel-level ?v) (* #t (* (speed ?v) (fuel-consumption-rate ?v))))
+\end{lstlisting}
+
+\subsection{Model-side scalability}
+
+All numerical examples use the same calibrated Bologna case. Table \ref{tab:size-reference} reports the target
+model after the preprocessing steps described next.
+
+\begin{table}[H]
+\centering
+\caption{Initial network configuration for the reference case.}
+\label{tab:size-reference}
+\scriptsize
+
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Roads $(r)$ & Locations $(l)$ & Window length \\
+\midrule
+862 & 500 & 30 s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Hybrid congestion and macro-road abstraction}
+
+The original congestion choices make either every road static or every road
+dynamic. Hybrid congestion selects the representation road by road. Python
+compares each road's congestion factors across all time windows and applies
+
+\[
+  \max_w c_{r,w} - \min_w c_{r,w} \geq \theta,
+\]
+
+where \(c_{r,w}\) is the congestion factor of road \(r\) during time window \(w\), \(\theta\) is the threshold.
+
+A road remains dynamic only when its congestion variation reaches this
+threshold. Otherwise, it receives one static cost because storing a separate
+value for every window would add little useful information to the planner.
+
+In the experimental configuration, \(\theta=0.10\) was used because
+it provided the best trade-off for the tested graph sizes.
+
+
+Macro-road abstraction is a separate preprocessing step that merges linear road chains before PDDL generation. Table \ref{tab:preliminary-size-effects}  reports the resulting reduction, together with the effect of hybrid congestion, on the 500-node reference case.
+\begin{table}[H]
+\centering
+\caption{Effect of macro-road abstraction and hybrid congestion in the
+500-node reference case.}
+\label{tab:preliminary-size-effects}
+\scriptsize
+
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Improvement & Metric & Before & After \\
+\midrule
+
+\multirow{2}{*}{Macro-road abstraction}
+& Locations & 500 & 483 \\
+& Roads & 862 & 829 \\
+\midrule
+
+\multirow{3}{*}{Hybrid congestion}
+& Dynamic roads & 829 & 47 \\
+& Static roads & 0 & 782 \\
+& Dynamic road-window values & 17,409 & 987 \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.90\linewidth]{images/macro_roads_comparison.png}
+  \caption{Comparison between the original road network and its macro-road abstraction.}
+  \label{fig:macro-roads-comparison}
+\end{figure}
+
+\subsubsection{Three modelling axes}
+These two changes reduce the model before the main encoding choices are
+applied. The larger model-side study then changes three independent axes,
+summarised in Table~\ref{tab:model-axes} before the alternatives are discussed.
+
+\begin{table}[H]
+\centering
+\caption{The three modelling axes used in the scalability study.}
+\label{tab:model-axes}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}Y>{\raggedright\arraybackslash}p{4cm}@{}}
+\toprule
+Modelling axis & What it changes & Available choices \\
+\midrule
+Traversal model & How the vehicle crosses a road. & \texttt{process} | \texttt{compiled\_duration} \\
+State representation & Whether the vehicle state is attached to a node or to an edge. & \texttt{node\_based} | \texttt{line\_graph} \\
+Action generation & Whether action instantiation is handled by ENHSP or by Python. & \texttt{parameterized} | \texttt{compiled} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Process, node-based, parameterized baseline}
+The baseline fixes the three axes as
+\texttt{process + node\_based + parameterized}. The vehicle starts a road,
+moves while the remaining distance decreases, and reaches the next node through
+an arrival event. This is the only Routly variant that represents the vehicle
+while it is on a road.
+\vspace{0.5em}
+
+\begin{lstlisting}
+(:action start-traversal
+ :parameters (?v - vehicle ?r - road ?from ?to - location)
+ :precondition (and (at ?v ?from) (connects ?r ?from ?to) (road-open ?r) (not (moving ?v)))
+ :effect (and (not (at ?v ?from)) (on-road ?v ?r) (moving ?v) (assign (distance-remaining ?v) (road-length ?r))))
+
+(:process traverse
+ :parameters (?v - vehicle)
+ :precondition (and (moving ?v) (> (distance-remaining ?v) 0))
+ :effect (decrease (distance-remaining ?v) (* #t (speed ?v))))
+
+(:event arrive
+ :parameters (?v - vehicle ?r - road ?from ?to - location)
+ :precondition (and (on-road ?v ?r) (connects ?r ?from ?to) (<= (distance-remaining ?v) 0))
+ :effect (and (not (moving ?v)) (not (on-road ?v ?r)) (at ?v ?to)))
+\end{lstlisting}
+
+The start and arrival schemas expose a road and its two endpoints. A dynamic
+start action also contains a window parameter. The \texttt{connects} predicate
+removes invalid combinations only after they have been handed to the grounder.
+
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lll@{}}
+\toprule
+Reference formula & Substitution & Loose exposure \\
+\midrule
+$|R||L|^2(1+|W|)$
+& $829\cdot483^2\cdot22$
+& $4.255\times10^9$ assignments \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Compiled duration, node-based, parameterized}
+The first change affects only the traversal axis. Python
+computes each duration from road length, speed, signal delay, and congestion;
+one numeric PDDL action then moves the vehicle directly between two nodes.
+
+\vspace{0.5em}
+\begin{lstlisting}
+(:action traverse-road
+ :parameters (?v - vehicle ?r - road ?from ?to - location)
+ :precondition (and (at ?v ?from) (connects ?r ?from ?to) (road-open ?r))
+ :effect (and (not (at ?v ?from)) (at ?v ?to) (increase (travel-time ?v) (travel-duration ?r))))
+\end{lstlisting}
+
+This is a substantial semantic simplification even though it does not yet solve
+grounding. In the core crossing encoding, three movement mechanisms become one,
+the process and arrival event disappear, and no mid-road vehicle state must be
+maintained. Table \ref{tab:traversal-simplification} reports this structural
+change separately from the grounding estimate.
+
+\begin{table}[H]
+\centering
+\caption{Structural effect of compiling one road crossing into a numeric action.}
+\label{tab:traversal-simplification}
+\scriptsize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Core encoding feature & Process baseline & Compiled duration \\
+\midrule
+Movement mechanisms & 3 (action + process + event) & 1 action \\
+Mid-road vehicle fluents & 2 (remaining distance + speed) & 0 \\
+Loose grounding exposure & $4.255\times10^9$ & $4.255\times10^9$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\paragraph{Compiled duration, line graph, parameterized}
+Only the state representation changes from \texttt{node\_based} to \texttt{line\_graph}. In this representation, the vehicle is associated with the
+road it is about to traverse rather than with an intersection. Each movement
+therefore connects the current road to one of its valid successor roads. After
+the traversal, the vehicle state is updated to the next road.
+
+\vspace{0.5em}
+\begin{lstlisting}
+(:action traverse-road
+ :parameters (?v - vehicle ?r ?next - road)
+ :precondition (and (ready-road ?v ?r) (road-next ?r ?next) (road-open ?r))
+ :effect (and (not (ready-road ?v ?r)) (ready-road ?v ?next) (increase (travel-time ?v) (travel-duration ?r))))
+\end{lstlisting}
+
+The node-based product over a road and two locations is replaced by a product
+over the current road, its possible successor, and the window. Logical
+filtering still occurs inside ENHSP, so invalid road pairs are still exposed to
+the grounder. However, the smaller parameter space still leads to a significant
+improvement in the grounding phase.
+
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lll@{}}
+\toprule
+Reference formula & Substitution & Loose exposure \\
+\midrule
+$|R|^2|W|$
+& $829^2\cdot21$
+& $1.443\times10^7$ assignments \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Compiled action generation with singleton types}
+The final change moves action instantiation from ENHSP to Python. For every
+valid transition, Python creates types that contain exactly one road, location,
+or window object. The action keeps normal PDDL parameters, but each parameter
+has only one type-compatible object. The following excerpt is taken from the
+generated singleton encoding.
+
+\vspace{0.5em}
+
+\begin{figure}[H]
+\centering
+
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\textbf{Singleton types}
+
+\begin{lstlisting}
+(:types
+    loc_type_loc_a loc_type_loc_b - location
+    road_type_road_0001 - road
+)
+\end{lstlisting}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\textbf{Associated objects}
+
+\begin{lstlisting}
+(:objects
+    loc_a - loc_type_loc_a
+    loc_b - loc_type_loc_b
+    road_0001 - road_type_road_0001
+)
+\end{lstlisting}
+\end{minipage}
+
+\caption{Singleton types and their associated objects.}
+\label{fig:singleton-types}
+\end{figure}
+
+The resulting action binds its road and endpoints to those singleton types:
+
+\vspace{0.5em}
+
+\begin{lstlisting}
+(:action traverse-road-static-road_0001
+ :parameters (?v - vehicle ?r - road_type_road_0001 ?from - loc_type_loc_a ?to - loc_type_loc_b)
+ :precondition (and (at ?v ?from) (road-open ?r))
+ :effect (and (not (at ?v ?from)) (at ?v ?to) (increase (travel-time ?v) (travel-duration ?r))))
+\end{lstlisting}
+
+This compilation can be applied to either state representation. For node-based
+state, Python generates one schema for every static road and one for every
+dynamic road-window pair. For line-graph state, $T_s$ and $T_d$ denote valid
+static and dynamic road-to-road transitions; one additional schema completes
+the goal road. This follows the wider idea that reformulating a planning model
+can reduce grounding work.
+
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}llll@{}}
+\toprule
+Compiled representation & Reference formula & Substitution
+& Generated action schemas \\
+\midrule
+Node-based
+& $S+D|W|$
+& $782+47\cdot21$
+& $1769$ \\
+
+Line graph
+& $T_s+T_d|W|$
+& $1471+79\cdot21$
+& $3130$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For this graph, compiled node-based action generation is the smallest final
+encoding. The compiled line graph remains larger because one road can have
+several valid successors, so road-to-road transitions outnumber roads.
+
+\subsection{Controller-side scalability branch}
+The second branch preserves the canonical
+\texttt{process + node\_based + parameterized} model. The two branches are complementary rather than
+stacked: compiled traversal simplifies the model given to the planner, whereas
+the controller retains the expressive process model and reduces the horizon of
+each call. Figure \ref{fig:controller-loop} shows the common workflow used by both the
+congestion and fuel controllers.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=4mm and 6mm,
+  box/.style={draw,rounded corners,align=center,minimum height=6mm,inner sep=3pt,font=\scriptsize},
+  arr/.style={-Latex,thick}
+]
+\node[box] (state) {Current state\\location, time, fuel};
+\node[box,right=of state] (problem) {Build local\\PDDL+ problem};
+\node[box,right=of problem] (plan) {ENHSP\\partial plan};
+\node[box,right=of plan] (prefix) {Execute prefix\\to node boundary};
+\node[box,below=of plan] (update) {Update state and\\advance window/leg};
+\draw[arr] (state) -- (problem);
+\draw[arr] (problem) -- (plan);
+\draw[arr] (plan) -- (prefix);
+\draw[arr] (prefix.south) |- (update.east);
+\draw[arr] (update.west) -| (state.south);
+\end{tikzpicture}
+\caption{How the controller plans the trip in small steps, one part at a time.}
+\label{fig:controller-loop}
+\end{figure}
+
+The \textbf{congestion controller} divides time into windows. For each window it
+computes one static congestion snapshot, generates a problem from
+the current location to the unchanged final goal, and executes the last
+completed traversal that fits the window. A node-boundary rule ensures that the next planning problem is only generated once the vehicle has actually completed its current road segment and arrived at a node. If the congestion factors on the unexecuted part of a cached plan are unchanged, the controller reuses it directly and skips that window's ENHSP call. Across iterations the congestion profile is dynamic, although each individual PDDL problem is static.
+
+The \textbf{fuel controller} splits the route by reachability. If the final
+goal is reachable with current fuel, it remains the planning target; otherwise
+the controller selects a reachable fuel station according to its station
+policy, solves that leg, updates fuel, and continues until the final goal is
+reached. 
+Fuel and congestion replanning are currently mutually exclusive.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.43\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/congestion_controller_500.png}
+    \small (a) Congestion controller
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.43\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/fuel_controller_500.png}
+    \small (b) Fuel controller
+  \end{minipage}
+  \caption{Dynamic route decomposition into successive planning legs.}
+  \label{fig:dynamic-controller-legs}
+\end{figure}
+
+\section{LLM Event Injection}
+
+
+Unlike approaches that let an LLM produce the plan directly
+~\cite{valmeekam2023}, Routly keeps ENHSP as the planner and uses the LLM only
+to generate validated disruptions. It generates a structured
+event description, validated by Python and translated into a new PDDL
+problem. Routly supports two closure patterns and one slowdown effect.
+
+A \textbf{single-road closure} blocks one selected road. A
+\textbf{multi-road closure} blocks a connected group of roads. When at least
+two closed roads share the same intersection, that intersection is also
+blocked. 
+
+Start and goal locations are always protected.
+
+The domain distinguishes the original availability of a road from a temporary
+LLM disruption:
+
+\vspace{0.5em}
+\begin{lstlisting}
+(:predicates (road-open ?r - road) (road-blocked ?r - road) (location-blocked ?l - location))
+\end{lstlisting}
+
+The traversal action can use a road only when it is open and not affected by an
+event.
+
+A slowdown does not close the road. Instead, it increases its congestion
+factor.
+
+The workflow is shown in Figure \ref{fig:llm-protocol}, where \(G\) is the road
+graph, \(s\) is the start location, and \(g\) is the goal location.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=5mm and 8mm,
+  box/.style={draw,rounded corners,align=center,minimum height=6mm,inner sep=3pt,font=\scriptsize},
+  data/.style={draw,align=center,minimum height=6mm,inner sep=3pt,font=\scriptsize},
+  arr/.style={-Latex,thick}
+]
+\node[data] (g) {$G,s,g$};
+\node[box,right=of g] (p0) {ENHSP\\baseline $P_0$};
+\node[box,below=of p0] (llm) {LLM sees topology\\but not $P_0$};
+\node[data,right=of llm] (event) {validated event $E$\\closure or slowdown};
+\node[box,right=of event] (p1) {ENHSP on $G_E$\\alternative $P_1$};
+
+\draw[arr] (g) -- (p0);
+\draw[arr] (g.south) |- (llm.west);
+\draw[arr] (llm) -- (event);
+\draw[arr] (event) -- (p1);
+\end{tikzpicture}
+\caption{Plan-hidden event generation and second planning run.}
+\label{fig:llm-protocol}
+\end{figure}
+
+First, ENHSP computes the baseline plan:
+
+\[
+  P_0=\operatorname{Plan}(G,s,g).
+\]
+
+The LLM then receives the start and goal locations, the valid road identifiers,
+and the endpoints of each candidate road. However, it never receives the
+baseline plan \(P_0\).
+
+When the instance contains at most 120 roads, the complete road set is provided
+to the LLM. For larger instances, Python selects at most 120 candidate roads.
+With \texttt{strategic\_injection=true}, these roads are chosen from a geometric
+corridor around the straight start--goal segment ranked by the distance of each road
+from that segment.
+
+Using this information, the LLM generates the events and
+Python validates them before
+applying to the road graph. The modified graph is denoted by \(G_E\). Finally, ENHSP solves the same routing task again:
+
+\[
+  P_1=\operatorname{Plan}(G_E,s,g).
+\]
+
+The comparison between \(P_0\) and \(P_1\) shows how the route changes after a
+plan-hidden disruption.
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.45\linewidth]{images/500_nodes_event_map.png}
+  \caption{Route adaptation after LLM-generated disruptions.}
+  \label{fig:500-nodes-event-map}
+\end{figure}
+
+\section{Results}
+All values reported in the result tables were collected from a reproducible pool of experiments. Whenever possible, the same experimental baseline was kept fixed, while only the planner configuration under evaluation was changed. ENHSP was executed with a maximum memory allocation of 8 GB.
+
+\subsection{RQ1: model-side scalability}
+
+RQ1 is divided into two complementary experiments. RQ1-A compares the five
+planner configurations on the same fixed 300-node instance, while RQ1-B studies
+how the successful compiled configurations scale across larger graph sizes.
+
+
+To keep the result tables compact, Table~\ref{tab:planner-codes} assigns a short
+code to each planner configuration.
+
+\begin{table}[H]
+\centering
+\caption{Codes used for the planner configurations.}
+\label{tab:planner-codes}
+\scriptsize
+
+\begin{tabular}{@{}c l l l@{}}
+\toprule
+Code & Traversal model & State representation & Action generation \\
+\midrule
+PNP & \texttt{process}            & \texttt{node\_based} & \texttt{parameterized} \\
+CNP & \texttt{compiled\_duration} & \texttt{node\_based} & \texttt{parameterized} \\
+CNC & \texttt{compiled\_duration} & \texttt{node\_based} & \texttt{compiled} \\
+CLP & \texttt{compiled\_duration} & \texttt{line\_graph} & \texttt{parameterized} \\
+CLC & \texttt{compiled\_duration} & \texttt{line\_graph} & \texttt{compiled} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{RQ1-A: comparison on a fixed 300-node instance}
+
+To obtain a complete runtime comparison, RQ1-A uses a fixed 300-node
+instance on which all five formulations terminate successfully. The
+original graph contains 300 nodes and 504 roads. After road abstraction,
+the planning graph contains 289 locations and 484 road objects. All runs
+use the same start and goal locations, 200 background routes, static
+congestion, and identical planner resources. Therefore, only the PDDL
+formulation changes between runs.
+
+
+
+\begin{table}[H]
+\centering
+\caption{RQ1-A: comparison of the five formulations on the fixed
+300-node instance with static congestion. Speedups compare each compiled
+configuration with its parameterized counterpart using the same state
+representation.}
+\label{tab:rq1-a}
+\scriptsize
+\begin{tabular}{@{}c r r r r@{}}
+\toprule
+Configuration
+& Grounding (s)
+& Planning (s)
+& Grounding speedup
+& Planning speedup \\
+\midrule
+PNP & 79.253 & 146.901 & --              & --              \\
+CNP & 40.379 & 41.427  & \textit{baseline} & \textit{baseline} \\
+CNC & 1.063  & 2.542   & $38.0\times$    & $16.3\times$    \\
+CLP & 76.263 & 77.464  & \textit{baseline} & \textit{baseline} \\
+CLC & 1.914  & 3.606   & $39.8\times$    & $21.5\times$    \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{RQ1-B: scalability across larger graph sizes}
+RQ1-B investigates how far the two successful compiled configurations, CNC and CLC, can scale by testing them from 500 to 2,000 requested nodes.
+
+All experiments use macro-road abstraction and hybrid congestion with
+$\theta=0.10$. The number of background routes grows with the graph size.
+The table reports the number of dynamic roads, static roads, and time windows,
+together with grounding and planning time.
+
+
+
+\begin{table}[H]
+\centering
+\caption{RQ1-B: scalability of the compiled configurations.}
+\label{tab:rq1-b}
+\scriptsize
+
+\begin{tabular}{@{}rcrrrrrl@{}}
+\toprule
+Nodes & Config. & Dynamic & Static & Windows
+& Grounding (s) & Planning (s) \\
+\midrule
+500  & CNC & 47  & 782  & 21 & 2.255   & 8.431    \\
+1000 & CNC & 78  & 1706 & 25 & 9.447   & 33.011  \\
+1500 & CNC & 109 & 2629 & 25 & 30.153  & 89.963  \\
+2000 & CNC & 110 & 3572 & 32 & 85.278  & 245.256  \\
+\midrule
+500  & CLC & 47  & 782  & 21 & 4.820   & 16.535   \\
+1000 & CLC & 78  & 1706 & 25 & 31.510  & 103.992  \\
+1500 & CLC & 109 & 2629 & 25 & 106.007 & 299.261  \\
+2000 & CLC & 110 & 3572 & 32 & 170.379 & 489.018  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+\subsection{RQ2: controller-side scalability}
+Table \ref{tab:cong-controller} compares a single-shot solve with the congestion
+controller under dynamic congestion, using the
+\texttt{process + node\_based + parameterized} planner configuration.
+
+\begin{table}[H]
+\centering
+\caption{Planning times of the single-shot model and congestion controller.}
+\emph{{N + M cached} denotes N ENHSP solves plus M windows in which the
+controller reused the previous plan}
+\label{tab:cong-controller}
+\begin{tabular}{rrrl}
+\toprule
+Nodes & Single-shot (s) & Controller (s) & Calls (controller) \\
+\midrule
+100  & 494.2            & 11.4    & 5 + 1 cached  \\
+150  & 3238.3           & 48.5    & 5 + 2 cached  \\
+200  & OOM              & 230.1   & 6 + 3 cached  \\
+300  & OOM$^{\dagger}$  & 498.0   & 5 + 1 cached  \\
+500  & OOM$^{\dagger}$  & 3311.9  & 16 + 7 cached \\
+700  & OOM$^{\dagger}$  & 6912.6  & 11 + 8 cached \\
+1000 & OOM$^{\dagger}$  & Timeout & -             \\
+\bottomrule
+\end{tabular}
+
+
+\vspace{0.25em}
+\begin{minipage}{0.95\linewidth}
+\footnotesize
+$^\dagger$ Not rerun at the nominal size because the same encoding had already
+exhausted the memory on a smaller node instance.
+\end{minipage}
+\begin{minipage}{0.95\linewidth}
+\footnotesize
+\textit{\textbf{Timeout}}: The run was expected to finish eventually but exceeded the 4-hour timeout
+\end{minipage}
+\end{table}
+
+Table \ref{tab:fuel-controller} reports the corresponding comparison for the fuel controller.
+
+\begin{table}[H]
+\centering
+
+
+\caption{Planning times of the single-shot discrete and continuous model and fuel controller.}
+\label{tab:fuel-controller}
+\begin{tabular}{rrrrl}
+\toprule
+Nodes & Single-shot discrete (s) & Single-shot continuous (s) & Controller (s) & Calls (controller) \\
+\midrule
+100  & 34.9          & 12.6          & 4.9               & 2 \\
+150  & 58.2          & 116.3         & 16.7              & 2 \\
+200  & OOM           & OOM           & 167.0             & 4 \\
+300  & OOM$^\dagger$ & OOM$^\dagger$ & 169.9             & 2 \\
+500  & OOM$^\dagger$ & OOM$^\dagger$ & 1003.6            & 5 \\
+700  & OOM$^\dagger$ & OOM$^\dagger$ & 3181.1            & 5 \\
+1000 & OOM$^\dagger$ & OOM$^\dagger$ & Timeout           & - \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.25em}
+\begin{minipage}{0.95\linewidth}
+\footnotesize
+$^\dagger$ Not rerun at the nominal size because the same encoding had already
+exhausted the memory on a smaller node instance.
+\end{minipage}
+\begin{minipage}{0.95\linewidth}
+\footnotesize
+\textit{\textbf{Timeout}}: We expect it to finish eventually but it exceeds the maximum timeout of 4 hours
+\end{minipage}
+\end{table}
+
+Both controllers show the same general pattern. The single-shot configurations
+solve only the smaller instances, up to about 150 nodes, and then run out
+of memory. In contrast, both the congestion and fuel controllers scale to instances of up to 700 nodes by splitting the routing task into smaller planning problems; at 1000 nodes both exceed the time limit, but still progress far beyond the single-shot model, which already fails at 200 nodes.
+
+The controller time is not monotonic because map shape,
+the number of partial legs and (for the fuel controller) station positions differ between instances.
+\subsection{RQ3: LLM event quality}
+
+The LLM analysis was restricted to 15 valid experiments over graph sizes of
+100, 150, and 200 nodes. 
+
+In 11 of the 15
+experiments, at least one selected road belonged to \(P_0\), corresponding to
+an overall hit rate of 73.3\%.
+
+\begin{table}[H]
+\centering
+\caption{LLM targeting quality and observed route response over 15 experiments.}
+\label{tab:llm-results}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}Y r r Y@{}}
+\toprule
+LLM outcome & Count & Share & Observed effect \\
+\midrule
+
+Selected roads miss \(P_0\)
+& 4
+& 26.7\%
+& No direct intervention on the hidden baseline route. \\
+
+Selected roads hit \(P_0\), without safeguard intervention
+& 5
+& 33.3\%
+& Three different routes and two unchanged road sequences. \\
+
+Selected roads hit \(P_0\), but make the problem unsolvable.
+& 6
+& 40.0\%
+& Each unsafe closure was converted into a slowdown. \\
+
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Overall, the LLM selected roads belonging to \(P_0\) in
+\(11/15=73.3\%\) of the experiments. Among the five relevant cases that did
+not require safeguard intervention, three produced a different road sequence.
+Thus, 60.0\% of the unmodified relevant event sets were followed by an
+observed rerouting.
+
+In six experiments, the LLM selected structurally critical roads whose closure
+would have disconnected the start and goal locations. This does not indicate
+that the selected roads were irrelevant; rather, it shows that the available
+network did not contain a secondary connection capable of preserving
+reachability. In these cases, the solvability guard converted the unsafe
+closure into a slowdown before replanning.
+
+\section{Code and Experimental Material}
+All source code, configuration files, and experiments used to produce the
+results reported in this paper are available in the Routly Planner GitHub
+repository:
+\href{https://github.com/GiuseppeRudi/routly-planner}{\texttt{github.com/GiuseppeRudi/routly-planner}}.
+
+\section{Conclusions and Future Work}
+
+Routly shows that the main challenge in rich PDDL+ urban routing is not only
+the traffic itself, but the amount of detail exposed to the planner. The
+model-side branch addresses this problem by simplifying the representation
+before planning, while the controller-side branch reduces the size of each
+planning call without removing the detailed process model. Together, these two
+branches show that scalability can be improved both by changing the model and
+by changing how the planner is used.
+
+The experiments confirm that these choices make a real difference. Models that
+were too large for the planner become manageable after compilation, selective
+time modelling, singleton types, or controller-based decomposition. The LLM
+layer adds a different contribution: it does not replace the planner, but
+creates validated disruptions that test whether Routly can adapt its route
+when the road network changes.
+
+The main future work is to combine the two controllers. Fuel should select the
+next reachable target, congestion should define the costs for the current time
+window, ENHSP should compute the route, and Python should update location, time,
+fuel, and refuelling before the next call. Further work also includes online
+event injection after part of the route has been executed, experiments on cities
+with different road layouts, and a larger evaluation of LLM-generated events.
+
+\vspace{2em}
+
+\begin{multicols}{2}
+\begin{thebibliography}{99}\scriptsize
+
+\bibitem{boeing2017}
+G. Boeing, ``OSMnx: New Methods for Acquiring, Constructing, Analyzing, and
+Visualizing Complex Street Networks,'' \emph{Computers, Environment and Urban
+Systems}, vol. 65, pp. 126--139, 2017.
+
+\bibitem{wiki_bologna}
+``Urbanistica di Bologna preunitaria,'' \emph{Wikipedia, l'enciclopedia libera}.
+[Online]. Available: \url{https://it.wikipedia.org/wiki/Urbanistica_di_Bologna_preunitaria}.
+
+\bibitem{lopez2018}
+P. Alvarez Lopez et al., ``Microscopic Traffic Simulation using SUMO,'' in
+\emph{2018 IEEE Intelligent Transportation Systems Conference},
+pp. 2575--2582, 2018.
+
+\bibitem{baum2015}
+M. Baum, J. Dibbelt, T. Pajor, and D. Wagner, ``Dynamic Time-Dependent Route
+Planning in Road Networks with User Preferences,'' \emph{arXiv:1512.09132},
+2015.
+
+\bibitem{vallati2016}
+M. Vallati, D. Magazzeni, B. De Schutter, L. Chrpa, and T. L. McCluskey,
+``Efficient Macroscopic Urban Traffic Models for Reducing Congestion: A PDDL+
+Planning Approach,'' in \emph{Proc. AAAI}, pp. 3188--3194, 2016.
+
+\bibitem{piotrowski2024}
+W. Piotrowski and A. Perez, ``Real-World Planning with PDDL+ and Beyond,''
+\emph{arXiv:2402.11901}, 2024.
+
+\bibitem{webster1958}
+F. V. Webster, \emph{Traffic Signal Settings}, Road Research Technical Paper
+No. 39, HMSO, London, 1958.
+
+
+\bibitem{valmeekam2023}
+K. Valmeekam, M. Marquez, S. Sreedharan, and S. Kambhampati, ``On the
+Planning Abilities of Large Language Models: A Critical Investigation,''
+\emph{arXiv:2305.15771}, 2023.
+
+\end{thebibliography}
+\end{multicols}
+
+\end{document}
