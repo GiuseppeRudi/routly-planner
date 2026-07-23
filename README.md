@@ -2,6 +2,10 @@
 
 Routly Planner builds a PDDL planning problem from a real OpenStreetMap road network, solves the route with ENHSP, and validates the result in SUMO. The current case study uses the road network of Bologna, Italy.
 
+<p align="center">
+  <img src="images/bologna_urban_structure.png" alt="Historical and modern road structure of central Bologna" width="620">
+</p>
+
 ```text
 OpenStreetMap
     -> graph simplification and optional macro-roads
@@ -112,33 +116,36 @@ Two planner-side scalability backends are implemented:
 
 In a line graph, the vehicle state is a road and actions represent transitions between connected roads. Start and goal are still selected as nodes in the scenario; the PDDL generation step deterministically converts them to the first and last road of the shortest start-node to goal-node path, computed on road length. This keeps the user workflow unchanged while allowing the planner to compare node-state and road-state formulations.
 
+## Results at a glance
+
+The final report evaluates the three research questions on reproducible Bologna experiments with ENHSP limited to an 8 GB Java heap:
+
+| Research question | Main result |
+| --- | --- |
+| Model-side scalability | On the fixed 300-node instance, compiled node-based actions reduce grounding time from 40.379 s to 1.063 s (`38.0x`) and planning time from 41.427 s to 2.542 s (`16.3x`) relative to the parameterized node-based baseline. |
+| Larger compiled models | Both compiled node-based and compiled line-graph configurations solve instances up to 2,000 requested nodes; compiled node-based planning takes 245.256 s at that size. |
+| Controller-side scalability | The monolithic process formulations run out of memory from 200 nodes, while the congestion and fuel controllers solve instances up to 700 nodes by concatenating partial plans. |
+| LLM event quality | In 15 final experiments, LLM events hit at least one road of the hidden baseline plan in 73.3% of cases; 60.0% of the relevant event sets not modified by the safeguard produced a different road sequence. |
+
 ## Macro-road abstraction
 
 Macro-roads merge linear chains whose intermediate nodes are not planning decisions. Start, goal, fuel stations, and branching intersections remain protected. The planner works on the compressed mapping, while SUMO receives the expanded sequence of original roads.
 
-The following figure comes from the latest 500-node experiment. It compares the original mapping with the planning mapping and highlights fused intermediate nodes, traffic lights, fuel stations, and the resulting macro-roads. In this run, 90 micro-roads are fused into 41 macro-roads; the planning representation changes from 702 roads and 393 nodes to 676 roads and 383 nodes.
+The following figure comes from the 500-node reference experiment used in the final report. It compares the original mapping with the planning mapping and highlights fused intermediate nodes, traffic lights, fuel stations, and the resulting macro-roads. The planning representation changes from 862 roads and 500 nodes to 829 roads and 483 nodes.
 
 ![Original and macro-road planning mappings](images/macro_roads_comparison.png)
 
-## Route comparison without fuel
+## LLM-driven route adaptation
 
-This 500-node experiment disables fuel, so the route difference is not influenced by stations or tank constraints. The recalculated plan changes because the LLM-generated events modify road availability or traversal cost.
+Routly keeps ENHSP responsible for planning and uses the LLM only to propose structured road closures or slowdowns. The LLM receives topology, start, and goal information, but never receives the baseline plan. Python validates each event, protects start and goal, and converts a closure that would make the task unsolvable into a slowdown before the second planning run.
 
-| Original plan without fuel | Recalculated plan without fuel |
-| --- | --- |
-| ![Original route without fuel](images/no_fuel_route_original.png) | ![Recalculated route without fuel](images/no_fuel_route_replanned.png) |
+The combined event map shows the complete comparison on one map: blue is the original route, green is the recalculated route, red marks blocked roads, yellow marks slowdowns, and crosses mark blocked intersections.
 
-The combined event map makes the cause of the deviation explicit: blue is the original route, green is the recalculated route, red marks blocked roads, yellow marks slowdowns, and crosses mark blocked intersections.
+<p align="center">
+  <img src="images/500_nodes_event_map.png" alt="Original and recalculated routes after LLM-generated road events" width="620">
+</p>
 
-![LLM events and original versus recalculated route](images/no_fuel_event_map.png)
-
-## Congestion without fuel
-
-Congestion is shown with fuel disabled so that the maps focus only on road factors. Green roads are close to free-flow conditions; yellow and red roads have progressively higher congestion factors.
-
-| Before LLM events | After LLM events |
-| --- | --- |
-| ![Congestion factors before LLM events](images/no_fuel_congestion_pre.png) | ![Congestion factors after LLM events](images/no_fuel_congestion_post.png) |
+## Congestion models
 
 PDDL congestion supports three temporal semantics:
 
@@ -156,6 +163,12 @@ Planner-side scalability and controller-side scalability are separate branches:
 - controller-side optimization preserves `process + node_based + parameterized` and concatenates partial plans in Python.
 
 Fuel and congestion replanning controllers are mutually exclusive. Road abstraction may be enabled or disabled in either controller, provided all intermediate plans use the same planning mapping.
+
+| Congestion controller | Fuel controller |
+| --- | --- |
+| ![Successive route legs produced by the congestion controller](images/congestion_controller_500.png) | ![Successive route legs and refuelling targets produced by the fuel controller](images/fuel_controller_500.png) |
+
+The congestion controller plans against one static snapshot per time window and can reuse a cached plan when the relevant unexecuted costs have not changed. The fuel controller keeps the final goal when it is reachable; otherwise, it selects a reachable station as the next temporary target. Both controllers execute only complete road traversals so every partial plan ends at a valid node state.
 
 ## Experiment outputs
 
