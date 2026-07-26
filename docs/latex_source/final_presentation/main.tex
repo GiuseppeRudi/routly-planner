@@ -1,0 +1,1305 @@
+\documentclass[aspectratio=169,10pt,t]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{listings}
+\usepackage{qrcode}
+\usepackage{hyperref}
+
+\graphicspath{{figures/}}
+
+\definecolor{rPrimary}{RGB}{27,38,79}
+\definecolor{rSecondary}{RGB}{42,72,145}
+\definecolor{rAccent}{RGB}{233,151,42}
+\definecolor{rTeal}{RGB}{0,150,136}
+\definecolor{rBg}{RGB}{245,247,251}
+\definecolor{rInk}{RGB}{32,36,45}
+\definecolor{rMuted}{RGB}{108,116,132}
+\definecolor{rRed}{RGB}{190,55,65}
+\definecolor{rLine}{RGB}{205,210,218}
+\colorlet{cPNP}{rPrimary}
+\colorlet{cCNP}{rAccent}
+\colorlet{cCNC}{rTeal}
+\colorlet{cCLP}{rSecondary}
+\colorlet{cCLC}{rRed}
+
+%% ---------- Theme ----------
+\usetheme{default}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=rInk,bg=white}
+\setbeamercolor{structure}{fg=rPrimary}
+\setbeamercolor{alerted text}{fg=rAccent}
+\setbeamerfont{frametitle}{series=\bfseries,size=\Large}
+\setbeamercolor{frametitle}{fg=rPrimary,bg=white}
+\setbeamertemplate{itemize item}{\color{rAccent}\scriptsize$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{rSecondary}\scriptsize$\bullet$}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamercolor{block title}{bg=rPrimary,fg=white}
+\setbeamercolor{block body}{bg=rBg,fg=rInk}
+\setbeamercolor{block title alerted}{bg=rAccent,fg=white}
+\setbeamercolor{block body alerted}{bg=rAccent!12,fg=rInk}
+\setbeamercolor{block title example}{bg=rTeal,fg=white}
+\setbeamercolor{block body example}{bg=rTeal!10,fg=rInk}
+\setbeamersize{text margin left=0.58cm,text margin right=0.58cm}
+
+\setbeamertemplate{frametitle}{%
+	\nointerlineskip%
+	\vspace{0.5em}\hspace{0.7em}%
+	\begin{minipage}{\dimexpr0.94\paperwidth-0.7em\relax}%
+		{\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle}\par%
+	\end{minipage}\par%
+	\begin{tikzpicture}[remember picture,overlay]
+		\draw[rAccent,line width=2pt]
+			([xshift=0.58cm,yshift=-11mm]current page.north west) -- ++(1.45cm,0);
+	\end{tikzpicture}%
+	\vspace{0pt}%
+}
+
+\setbeamercolor{footcol}{fg=white,bg=rPrimary}
+\setbeamertemplate{footline}{%
+	\leavevmode%
+	\hbox{%
+		\begin{beamercolorbox}[wd=0.30\paperwidth,ht=2.6ex,dp=1.2ex,leftskip=0.8em]{footcol}%
+			\scriptsize Routly
+		\end{beamercolorbox}%
+		\begin{beamercolorbox}[wd=0.50\paperwidth,ht=2.6ex,dp=1.2ex,center]{footcol}%
+			\scriptsize\insertshorttitle
+		\end{beamercolorbox}%
+		\begin{beamercolorbox}[wd=0.20\paperwidth,ht=2.6ex,dp=1.2ex,rightskip=0.8em]{footcol}%
+			\scriptsize\hfill\insertframenumber\,/\,\inserttotalframenumber
+		\end{beamercolorbox}%
+	}\vskip0pt%
+}
+
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+\setbeamerfont{caption}{size=\scriptsize}
+\setbeamercolor{caption name}{fg=rSecondary}
+
+\lstset{
+	basicstyle=\ttfamily\tiny,
+	columns=fullflexible,
+	keepspaces=true,
+	showstringspaces=false,
+	breaklines=true,
+	frame=none,
+	aboveskip=1pt,
+	belowskip=1pt
+}
+
+%% ---------- Helpers ----------
+\newcommand{\sectionframe}[3]{%
+	\begin{frame}[plain]
+		\begin{tikzpicture}[remember picture,overlay]
+			\fill[rPrimary](current page.south west) rectangle (current page.north east);
+			\fill[rAccent]([yshift=-3mm]current page.west) rectangle ([yshift=0mm]current page.east);
+			\node[anchor=west,text=rAccent,font=\Large\bfseries]
+			at ([xshift=13mm,yshift=24mm]current page.west) {#1};
+			\node[anchor=west,text=white,font=\huge\bfseries,text width=0.82\paperwidth]
+			at ([xshift=13mm,yshift=7mm]current page.west) {#2};
+			\node[anchor=west,text=rBg,font=\small,text width=0.86\paperwidth]
+			at ([xshift=13mm,yshift=-25mm]current page.west) {#3};
+		\end{tikzpicture}
+\end{frame}}
+
+\newcommand{\takeaway}[1]{%
+	\vspace{0.25em}\par\noindent
+	\begin{tikzpicture}
+		\node[
+		fill=rAccent!15,
+		draw=rAccent,
+		line width=0.9pt,
+		rounded corners=3pt,
+		inner sep=6pt,
+		text width=\dimexpr\linewidth-30pt\relax,
+		font=\small
+		]{\textbf{\textcolor{rAccent!60!black}{Key point.}}~#1};
+	\end{tikzpicture}%
+}
+
+\newcommand{\metric}[3]{%
+	\begin{tikzpicture}
+		\node[
+		fill=#1,
+		draw=rPrimary!35,
+		rounded corners=4pt,
+		inner sep=5pt,
+		text width=\dimexpr\linewidth-18pt\relax,
+		align=left
+		]{{\large\bfseries\color{rPrimary}#2}\\[-1pt]{\scriptsize\color{rInk}#3}};
+	\end{tikzpicture}%
+}
+
+\title[Routly --- Hybrid Planning for Urban Routing]{Routly}
+\subtitle{Hybrid Automated Planning for Realistic Urban Route Optimization}
+\author{Cozza S. \and Cristiano F. \and Ielpa E. \and Rudi G.}
+\institute{Automated Planning --- University of Calabria}
+\date{A.Y. 2025/2026}
+
+% Rehearsal notes are embedded in the source but hidden in the audience PDF.
+\setbeameroption{hide notes}
+
+\begin{document}
+	
+	%% 1 --------------------------------------------------------------------------
+	\begin{frame}[plain]
+		\begin{tikzpicture}[remember picture,overlay]
+			\fill[rPrimary](current page.south west) rectangle (current page.north east);
+			\fill[rSecondary]([yshift=28mm]current page.west) rectangle ([yshift=44mm]current page.east);
+			\draw[rAccent,line width=2.2pt,rounded corners=5pt]
+			([xshift=16mm,yshift=33mm]current page.west) --
+			([xshift=42mm,yshift=40mm]current page.west) --
+			([xshift=70mm,yshift=35mm]current page.west) --
+			([xshift=98mm,yshift=42mm]current page.west) --
+			([xshift=128mm,yshift=37mm]current page.west) --
+			([xshift=158mm,yshift=41mm]current page.west);
+			\foreach \x/\y in {16/33,42/40,70/35,98/42,128/37,158/41}
+			\fill[white]([xshift=\x mm,yshift=\y mm]current page.west) circle (1.1mm);
+			\node[anchor=west,text=white,font=\fontsize{40}{44}\selectfont\bfseries]
+			at ([xshift=16mm,yshift=12mm]current page.west) {Routly};
+			\draw[rAccent,line width=2.5pt]
+			([xshift=16mm,yshift=1mm]current page.west)--([xshift=52mm,yshift=1mm]current page.west);
+			\node[anchor=west,text=white,font=\large,text width=0.8\paperwidth]
+			at ([xshift=16mm,yshift=-7mm]current page.west)
+			{Hybrid Automated Planning for Realistic Urban Route Optimization};
+			\node[anchor=west,text=white,font=\normalsize]
+			at ([xshift=16mm,yshift=-20mm]current page.west)
+			{Cozza~S. \quad Cristiano~F. \quad Ielpa~E. \quad Rudi~G.};
+			\node[anchor=west,text=rAccent,font=\footnotesize]
+			at ([xshift=16mm,yshift=-30mm]current page.west)
+			{Automated Planning $\cdot$ University of Calabria $\cdot$ A.Y. 2025/2026};
+		\end{tikzpicture}
+		\note{Time: 20 seconds. Introduce Routly as a hybrid planning framework for route optimisation over real urban road networks. Preview the central idea: realism is useful only if the resulting planning model remains computationally manageable.}
+	\end{frame}
+	
+	%% 2 --------------------------------------------------------------------------
+	\begin{frame}{Real routes must account for how a city behaves}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.37\textwidth}
+				\vspace{0.25cm}
+				\textbf{The problem}\par
+				Route a single vehicle through a \textbf{directed OSM road graph}
+				where traffic signals, congestion, and fuel all shape the trip.
+				
+				\vspace{0.45cm}
+				\textbf{The goal}\par
+				Minimise \textbf{real driving time}, not distance alone.
+				
+				\vspace{0.55cm}
+				{\small\color{rMuted}
+					We use Bologna: a compact but irregular network with rings, radial roads, and many
+					constrained intersections.
+				}
+			\end{column}
+			\begin{column}{0.61\textwidth}
+				\centering
+				\includegraphics[height=0.69\textheight,width=\linewidth,keepaspectratio]{figures/bologna.png}
+			\end{column}
+		\end{columns}
+		\note{Time: 55 seconds. Use the image to motivate Bologna orally. Its historical rings, radial connections, waterways, and irregular intersections make route choice less uniform than a grid. Define the input as a directed road graph, one vehicle, a start, and a goal. The objective is realistic travel time under constraints, not shortest geometric distance.}
+	\end{frame}
+	
+	%% 3 --------------------------------------------------------------------------
+	\begin{frame}{Why PDDL+ and not just a shortest-path search}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.33\textwidth}
+				{
+				\setbeamercolor{block title}{bg=rRed,fg=white}
+				\setbeamercolor{block body}{bg=rRed!7,fg=rInk}
+				\begin{block}{A* / Dijkstra\hfill\textbf{\large$\times$}}
+				\begin{itemize}
+				\item specialised in finding the shortest path;
+				\item need fixed, known road costs;
+				\item extra real-world behaviour must be added
+				outside the search.
+				\end{itemize}
+				\end{block}
+				}
+			\end{column}
+			\begin{column}{0.62\textwidth}
+				\begin{columns}[T,onlytextwidth]
+					\begin{column}{0.31\textwidth}
+						\begin{block}{Actions}
+							The decisions the planner makes: which road to drive next, and when to stop and refuel.
+						\end{block}
+					\end{column}
+					\begin{column}{0.31\textwidth}
+						\begin{alertblock}{Processes}
+							Track what changes on its own while driving: time keeps passing and fuel keeps dropping as the vehicle moves.
+						\end{alertblock}
+					\end{column}
+					\begin{column}{0.31\textwidth}
+						\begin{exampleblock}{Events}
+							Arriving at a junction, waiting at red lights, and moving to the next time window as time passes
+						\end{exampleblock}
+					\end{column}
+				\end{columns}
+				
+				\vspace{0.35cm}
+				All of this lives in one domain, and \textbf{ENHSP} plans over it directly.
+			\end{column}
+		\end{columns}
+		\vspace{0.25cm}
+		\center
+		\takeaway{The domain is not hand-written: one configuration file decides which features are compiled into it.}
+		\note{Time: 55 seconds. Acknowledge that A-star and Dijkstra are strong tools for their specialised task. The reason for PDDL+ is representational: actions, processes, events, numeric resources, and logical constraints coexist in one domain. The contribution is scalable declarative modelling, not a universal replacement for graph algorithms.}
+	\end{frame}
+	
+	%% 4 --------------------------------------------------------------------------
+	\begingroup
+	\renewcommand{\tabularxcolumn}[1]{>{\centering\arraybackslash}m{#1}}
+	\begin{frame}{The pipeline and the three research questions}
+		\vspace{0.5cm}
+		\centering
+		\begin{tikzpicture}[
+			>=Stealth,
+			node distance=6mm,
+			st/.style={
+				draw=rPrimary,
+				fill=rPrimary!8,
+				line width=1pt,
+				rounded corners=4pt,
+				minimum height=0.88cm,
+				text width=2.5cm,
+				align=center,
+				font=\small
+			}
+			]
+			\node[st](a){\textbf{OSMnx}\\real city map};
+			\node[st,right=of a](b){\textbf{PDDL+}\\hybrid model};
+			\node[st,right=of b](c){\textbf{LLM}\\event injection};
+			\node[st,right=of c](d){\textbf{SUMO}\\validate the plan};
+			\draw[->,rAccent,line width=1.3pt](a)--(b);
+			\draw[->,rAccent,line width=1.3pt](b)--(c);
+			\draw[->,rAccent,line width=1.3pt](c)--(d);
+		\end{tikzpicture}
+		
+		\vspace{1cm}
+		\renewcommand{\arraystretch}{1.35}
+		\begin{tabularx}{0.94\linewidth}{@{}>{\bfseries\color{rAccent}\centering\arraybackslash}m{0.75cm} >{\bfseries\centering\arraybackslash}m{4.0cm} X@{}}
+			RQ1 & Model-side scalability &
+			Can abstraction, hybrid modelling, alternative representations, and compilation reduce grounding and planning cost?\\
+			RQ2 & Controller-side scalability &
+			Can a Python controller keep the process model while solving larger routes as a sequence of smaller plans?\\
+			RQ3 & LLM event quality &
+			Can an LLM generate useful disruptions to test the planner, without ever seeing the route?\\
+		\end{tabularx}
+		\note{Time: 50 seconds. Walk through the pipeline once, then state the three research questions. RQ1 changes the model given to ENHSP. RQ2 changes how ENHSP is called while preserving the expressive process model. RQ3 is an independent robustness experiment in which the LLM proposes validated disruptions but never plans the route.}
+	\end{frame}
+	\endgroup
+	
+	%% 5 --------------------------------------------------------------------------
+	\sectionframe{Foundation}{Realistic Features}{The three real-world features in our model: traffic lights, congestion, and fuel}
+	\note{Time: 10 seconds. Introduce the foundation section. These realistic features motivate PDDL+ but also create the scalability problem addressed in the next chapters.}
+	
+	%% 6 --------------------------------------------------------------------------
+	\begin{frame}{Traffic lights}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.65\textwidth}
+				\begin{itemize}
+					\item Each signal is graded \textbf{simple / medium / complex} from its number of approaches and its highest incident road class.
+					\item Green / yellow / red are \textbf{sampled per signal} from configurable ranges (defaults 20--30\,/\,3--6\,/\,20--30\,s); complex junctions draw longer phases.
+					\item On arrival, the expected wait for uniform arrivals is added:
+				\end{itemize}
+				\[
+				d=\frac{r^{2}}{2\,C},\qquad C=g+y+r .
+				\]
+				\begin{center}
+				{\scriptsize Uniform-delay term of Webster's delay model (1958), for undersaturated signals.}
+				\end{center}
+			\end{column}
+			\begin{column}{0.35\textwidth}
+				\centering
+				\begin{tikzpicture}
+					\draw[rounded corners=3pt,fill=rInk] (0,0) rectangle (1.15,3.1);
+					\fill[red!80!black] (0.575,2.55) circle (0.34);
+					\fill[yellow!85!black] (0.575,1.55) circle (0.34);
+					\fill[rTeal] (0.575,0.55) circle (0.34);
+				\end{tikzpicture}
+			\end{column}
+		\end{columns}
+		\vspace{0.5em}
+		\takeaway{Only signalized nodes cost time, and that cost grows with the junction's complexity and the red share of its cycle.}
+		\note{Time: 45 seconds. Explain that signals affect route cost even when the vehicle follows the same geometric path. The current model precomputes an expected waiting delay rather than simulating a full queue. One-way roads and driving directions are preserved by the directed OSM graph.}
+	\end{frame}
+	
+	%% 7 --------------------------------------------------------------------------
+	\begin{frame}{Congestion}
+		Simulated background routes determine how many vehicles use each road; that load sets the slowdown.
+		\vspace{0.3em}
+		\begin{columns}[c,onlytextwidth]
+			\begin{column}{0.55\textwidth}
+				\[
+				\text{factor}=\min\!\Big(f_{\max},\;1+\tfrac{\text{load}}{\text{max-load}}\,(f_{\max}-1)\Big)
+				\]
+				{\small \textbf{\(f_{\max}\)}: max congestion factor.}
+				\vspace{0.2em}
+				\[
+				\text{effective speed}=\frac{\text{speed limit}}{\text{factor}}
+				\]
+				{\small \textbf{road time} \(=\) length \(/\) effective speed.}
+			\end{column}
+			\hfill
+			\begin{column}{0.40\textwidth}
+				\centering
+				\renewcommand{\arraystretch}{1.3}
+				\begin{tabular}{@{}lc@{}}
+					\toprule
+					\rowcolor{rPrimary!12}\textbf{Road class} & \textbf{Max-load (veh.)}\\
+					\midrule
+					Local & 20\\
+					Arterial & 35\\
+					Major & 50\\
+					\bottomrule
+				\end{tabular}
+			\end{column}
+		\end{columns}
+		\vspace{1em}
+		\takeaway{Load can at most double a road's time, and higher road classes absorb more traffic before slowing.}
+		\note{Time: 50 seconds. Use the exact relationships from the final report. Background routes count the vehicles using each road. The congestion factor is one plus load divided by the saturation count for the road class, capped at two. Local, arterial, and major roads use saturation counts of 20, 35, and 50. The factor reduces effective speed; road duration then adds the signal delay. Static mode keeps one value per road, while dynamic mode stores one duration per global window.}
+	\end{frame}
+	
+
+  \begin{frame}[fragile]{Static vs.\ dynamic congestion}
+  Congestion enters the plan as a cost per road. The only question is whether that cost may change over time.
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Static congestion}
+  \begin{lstlisting}
+(:action start-traversal
+ :parameters (?v ?r ?from ?to)
+ :effect (assign (speed ?v)
+   (/ (speed-limit ?r) (congestion-factor ?r))))
+
+;; one value per road
+(= (congestion-factor macro_0002) 1.54)
+\end{lstlisting}
+      {\scriptsize The factor is divided at plan time: one value per road, \(|R|\).}
+    \end{block}
+	{\small Later we will cover the \textbf{hybrid} congestion}
+  \end{column}
+    \hfill
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Dynamic congestion --- one window}
+  \begin{lstlisting}
+(:action start-traversal-dynamic
+ :parameters (?v ?r ?from ?to ?w)
+ :precondition (and (dynamic-road ?r) (current-window ?w))
+ :effect (assign (speed ?v) (effective-speed-window ?r ?w)))
+
+;; one value per road per window
+(current-window tw_00000)
+(= (effective-speed-window macro_0000 tw_00000) 8.09)
+\end{lstlisting}
+      {\scriptsize An \texttt{advance-window} event moves the window on: one value per road \emph{and} window, \(|R|\times|W|\).}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+  \vfill
+  \takeaway{With one window the two coincide; every extra window multiplies the numeric facts.}
+  \note{Time: 40 seconds. Follow Figure 2 of the report. Static congestion fixes one factor and one duration per road for the whole plan. Dynamic congestion stores one duration per road and per window, and a single global event advances the active window. Showing one window makes the mechanism readable, because it is exactly the static case plus the window index. This sets up the dynamic congestion section.}
+  \end{frame}
+
+	%% 8 --------------------------------------------------------------------------
+	\begin{frame}{Fuel}
+		\textbf{Constraint:} a road can be entered only with enough fuel to cross it,
+		\(\;\text{fuel}\ge\text{length}\times\text{rate}\;\).
+		\vspace{0.05cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.45\textwidth}
+				\begin{block}{Discrete cost}
+					One drop when the road is taken:
+					\[ \Delta f=-\,\text{length}\times\text{rate} \]
+					More efficient, but less realistic.
+				\end{block}
+			\end{column}
+			\begin{column}{0.45\textwidth}
+				\begin{exampleblock}{Continuous process}
+					Fuel burns while moving:
+					\[ \frac{df}{dt}=-\,\text{speed}\times\text{rate} \]
+					More realistic, but less efficient.
+				\end{exampleblock}
+			\end{column}
+		\end{columns}
+		\vspace{0.25cm}
+		{\small Stations can be real fuel points or a seeded random
+			subset of nodes.}
+		\vspace{0.5em}
+		\takeaway{Refuelling is \emph{instantaneous} for the planner (it just fills the tank).}
+		\note{Time: 45 seconds. Explain the hard fuel precondition before entering a road. Contrast the discrete model, where the resource changes once per traversal, with the continuous process model. Fuel stations are either real OSM amenities or a reproducible seeded fallback.}
+	\end{frame}
+	
+	%% 9 --------------------------------------------------------------------------
+	\begin{frame}[plain]
+		\begin{tikzpicture}[remember picture,overlay]
+			\fill[rPrimary](current page.south west) rectangle (current page.north east);
+			\fill[rAccent]([yshift=-3mm]current page.west) rectangle ([yshift=0mm]current page.east);
+			\node[anchor=west,text=rAccent,font=\Large\bfseries]
+			at ([xshift=13mm,yshift=24mm]current page.west) {RQ1};
+			\node[anchor=west,text=white,font=\huge\bfseries,text width=0.82\paperwidth]
+			at ([xshift=13mm,yshift=7mm]current page.west) {Model-side Scalability};
+			\node[anchor=north west,text=rBg,font=\small,text width=0.40\paperwidth]
+			at ([xshift=13mm,yshift=-18mm]current page.west)
+			{How can we reduce what ENHSP must\\represent and ground?};
+			
+			\node[
+				anchor=north east,
+				fill=rSecondary!58,
+				draw=white!30,
+				line width=0.8pt,
+				rounded corners=4pt,
+				inner sep=5pt,
+				text=white
+			]
+			at ([xshift=-13mm,yshift=-12mm]current page.east)
+			{\begin{minipage}{0.29\paperwidth}
+				{\small\bfseries\textcolor{rAccent}{Reference case}}\par
+				\vspace{0.8mm}
+				{\bfseries \(L=500\quad R=862\)}\par
+				\vspace{0.7mm}
+				{\tiny\color{rBg}\(L\): locations \qquad \(R\): roads}
+			\end{minipage}};
+		\end{tikzpicture}
+		\note{Time: 15 seconds. State RQ1: the first strategy changes the planning model itself through selective detail, abstraction, reformulation, and compilation. Establish only the original Bologna reference network: 500 locations and 862 directed roads. The later slides introduce each reduction when it becomes relevant.}
+	\end{frame}
+	
+	%% 10 -------------------------------------------------------------------------
+	\begin{frame}{Hybrid congestion}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.43\textwidth}
+				{\small Hybrid selection compares each road's congestion factor across all windows. A road remains dynamic only when}
+				\vspace{-0.05cm}
+				\[
+				\max_w c_{r,w}-\min_w c_{r,w}\geq\theta .
+				\]
+				{\scriptsize \(c_{r,w}\) is the congestion factor of road \(r\) in window \(w\).}
+			\end{column}
+			\begin{column}{0.54\textwidth}
+				\centering
+				{\scriptsize\bfseries Threshold calibration on the reference case\par}
+				\vspace{0.04cm}
+				\renewcommand{\arraystretch}{1.12}
+				\setlength{\tabcolsep}{3.4pt}
+				\begin{tabular}{@{}c r r@{}}
+					\toprule
+					\(\theta\) & Dynamic roads & Road--window values\\
+					\midrule
+					0.05 & 390 & 8,580\\
+					0.07 & 54 & 1,134\\
+					\rowcolor{rRed!13}
+					\textcolor{rRed}{\bfseries 0.10} &
+					\textcolor{rRed}{\bfseries 47} &
+					\textcolor{rRed}{\bfseries 987}\\
+					0.12 & 4 & 60\\
+					\bottomrule
+				\end{tabular}
+			\end{column}
+		\end{columns}
+		
+		\vspace{0.78cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\metric{rAccent!16}{829 $\rightarrow$ 47}{roads kept dynamic}
+			\end{column}
+			\begin{column}{0.48\textwidth}
+				\metric{rTeal!14}{17,409 $\rightarrow$ 47 $\times$ 21 $\rightarrow$ 987}{dynamic road--window values}
+			\end{column}
+		\end{columns}
+		\vfill
+		\takeaway{Hybrid congestion reduces temporal detail by \(94.3\%\) in the 500-node reference case.}
+		\note{Time: 65 seconds. Clarify that this is the hybrid-selection rule, not the congestion-factor formula shown earlier. The table uses the same 500-node Bologna reference artifacts as the rest of the slide. At 0.05, 390 roads remain dynamic and create 8,580 road-window values; at 0.07, 54 roads create 1,134 values; at 0.10, 47 roads create 987 values; and at 0.12 only four roads and 60 values remain. The highlighted 0.10 row is the selected balance. With 21 selected global windows, the final reduction is from 17,409 to 47 times 21, or 987 values.}
+	\end{frame}
+	
+	%% 11 -------------------------------------------------------------------------
+	\begin{frame}{Macro-road abstraction}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.22\textwidth}
+				\renewcommand{\arraystretch}{1.36}
+				\setlength{\tabcolsep}{2pt}
+				\small
+				\vspace{0.5cm}
+				\begin{tabular}{@{}l@{}}
+					\toprule
+					\textbf{Protected elements}\\
+					\midrule
+					Start / goal\\
+					Traffic light\\
+					Fuel station\\
+					Branch node\\
+					Road class / speed\\
+					\bottomrule
+				\end{tabular}
+			\end{column}
+			\begin{column}{0.75\textwidth}
+				\centering
+				\includegraphics[height=0.59\textheight,width=\linewidth,keepaspectratio]{figures/macro_roads_comparison.png}
+			\end{column}
+		\end{columns}
+		
+		\vfill
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\metric{rPrimary!10}{500 $\rightarrow$ 483}{locations}
+			\end{column}
+			\begin{column}{0.48\textwidth}
+				\metric{rAccent!14}{862 $\rightarrow$ 829}{roads}
+			\end{column}
+		\end{columns}
+		\note{Time: 50 seconds. Explain orally that only linear chains without a planning decision can be compressed. Start and goal, traffic lights, fuel stations, and branch nodes remain explicit. Adjacent segments also stop merging when road class or speed is incompatible. Read the before-and-after values from the fixed 500-node case.}
+	\end{frame}
+	
+	%% 12 -------------------------------------------------------------------------
+	\begin{frame}{Configurations}
+		{\small\bfseries Three independent axes\par}
+		\vspace{0.08cm}
+		\renewcommand{\arraystretch}{1.14}
+		\setlength{\tabcolsep}{4pt}
+		\scriptsize
+		\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{2.05cm} X >{\raggedright\arraybackslash}p{5.35cm}@{}}
+			\toprule
+			Axis & Question & Choices\\
+			\midrule
+			Traversal & How does the vehicle cross a road? &
+			\texttt{process} / \texttt{compiled\_duration}\\
+			State & Where is the vehicle state represented? &
+			\texttt{node\_based} / \texttt{line\_graph}\\
+			Generation & Who instantiates the valid movements? &
+			ENHSP (\texttt{parameterized}) / Python (\texttt{compiled})\\
+			\bottomrule
+		\end{tabularx}
+		
+		\vfill
+		\centering
+		\begin{tikzpicture}[
+			modelbox/.style={
+				rounded corners=4pt,
+				minimum width=2.55cm,
+				minimum height=2.05cm,
+				text width=2.25cm,
+				align=center,
+				inner sep=4pt,
+				font=\scriptsize,
+				line width=1pt
+			}
+			]
+			\node[modelbox,draw=cPNP,fill=cPNP!8] at (0,0) {
+				{\large\bfseries\color{cPNP}PNP}\\[2pt]
+				process\\node-based\\parameterized
+			};
+			\node[modelbox,draw=cCNP,fill=cCNP!12] at (2.85,0) {
+				{\large\bfseries\color{cCNP!72!black}CNP}\\[2pt]
+				compiled duration\\node-based\\parameterized
+			};
+			\node[modelbox,draw=cCNC,fill=cCNC!10] at (5.70,0) {
+				{\large\bfseries\color{cCNC!72!black}CNC}\\[2pt]
+				compiled duration\\node-based\\compiled
+			};
+			\node[modelbox,draw=cCLP,fill=cCLP!9] at (8.55,0) {
+				{\large\bfseries\color{cCLP}CLP}\\[2pt]
+				compiled duration\\line graph\\parameterized
+			};
+			\node[modelbox,draw=cCLC,fill=cCLC!9] at (11.40,0) {
+				{\large\bfseries\color{cCLC}CLC}\\[2pt]
+				compiled duration\\line graph\\compiled
+			};
+		\end{tikzpicture}
+		\note{Time: 65 seconds. First explain the three questions. Traversal asks how a road crossing is represented. State asks whether the vehicle is attached to a node or to an edge. Generation asks whether ENHSP or Python instantiates valid moves. Then decode the five configurations and introduce their stable colours, which remain unchanged in the grounding and result slides.}
+	\end{frame}
+	
+	%% 13 -------------------------------------------------------------------------
+	\begin{frame}[fragile]{Traversal and state representation}
+		\setbeamerfont{block title}{size=\small}
+		\noindent{\small\bfseries Traversal: process vs compiled duration\par}
+		\vspace{-0.20cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\setbeamercolor{block title}{bg=cPNP,fg=white}
+				\setbeamercolor{block body}{bg=cPNP!6,fg=rInk}
+				\begin{block}{Process \hfill \textnormal{PNP}}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+(:action start-traversal
+ :effect (moving ?v))
+(:process traverse
+ :effect (decrease (remaining ?v)
+   (* #t (speed ?v))))
+(:event arrive
+ :effect (at ?v ?to))
+\end{lstlisting}
+				\end{block}
+			\end{column}
+			\begin{column}{0.48\textwidth}
+				\setbeamercolor{block title}{bg=cCNP,fg=white}
+				\setbeamercolor{block body}{bg=cCNP!8,fg=rInk}
+				\begin{block}{Compiled duration \hfill \textnormal{CNP}}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+(:action traverse-road
+ :parameters (?v ?r ?from ?to)
+ :precondition (and (at ?v ?from)
+   (connects ?r ?from ?to))
+ :effect (and (not (at ?v ?from))
+   (at ?v ?to)
+   (increase (travel-time ?v)
+    (travel-duration ?r))))
+\end{lstlisting}
+				\end{block}
+			\end{column}
+		\end{columns}
+		
+		\vspace{0.08cm}
+		\noindent{\small\bfseries State: node-based vs line graph\par}
+		\vspace{-0.20cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\setbeamercolor{block title}{bg=cCNP,fg=white}
+				\setbeamercolor{block body}{bg=cCNP!7,fg=rInk}
+				\begin{block}{Node-based \hfill \textnormal{\textcolor{white}{CNP / CNC}}}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+(:action traverse-road
+ :parameters (?v ?r ?from ?to)
+ :precondition (and (at ?v ?from)
+   (connects ?r ?from ?to))
+ :effect (at ?v ?to))
+\end{lstlisting}
+				\end{block}
+			\end{column}
+			\begin{column}{0.48\textwidth}
+				\setbeamercolor{block title}{bg=cCLP,fg=white}
+				\setbeamercolor{block body}{bg=cCLP!7,fg=rInk}
+				\begin{block}{Line graph \hfill \textnormal{\textcolor{white}{CLP / CLC}}}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+(:action traverse-road
+ :parameters (?v ?r ?next)
+ :precondition (and (ready-road ?v ?r)
+   (road-next ?r ?next))
+ :effect (ready-road ?v ?next))
+\end{lstlisting}
+				\end{block}
+			\end{column}
+		\end{columns}
+		\note{Time: 75 seconds. Read the slide by rows. The upper row compares traversal semantics: the process baseline separates start, continuous movement, and arrival, while compiled duration uses one numeric action. The lower row compares state representation: node-based actions expose a road and two endpoints; the line graph exposes only a current road and a valid successor. The next slide isolates the action-generation choice, which is where singleton types remove the largest grounding burden.}
+	\end{frame}
+	
+	%% 14 -------------------------------------------------------------------------
+	\begin{frame}[fragile]{Action generation: singleton types}
+
+	\vspace{-0.5cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\setbeamercolor{block title}{bg=rPrimary,fg=white}
+				\setbeamercolor{block body}{bg=rPrimary!6,fg=rInk}
+				\begin{block}{Parameterized \hfill \textnormal{PNP / CNP / CLP}}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+(:action traverse-road
+ :parameters
+  (?v - vehicle
+   ?r - road
+   ?from ?to - location)
+ :precondition (and
+  (at ?v ?from)
+  (connects ?r ?from ?to))
+ :effect (and
+  (not (at ?v ?from))
+  (at ?v ?to)))
+\end{lstlisting}
+				\end{block}
+				{\scriptsize\textbf{ENHSP:} one generic schema is grounded over
+					every type-compatible road/location tuple, then invalid
+					combinations are filtered.}
+			\end{column}
+			\begin{column}{0.48\textwidth}
+				\setbeamercolor{block title}{bg=cCNC,fg=white}
+				\setbeamercolor{block body}{bg=cCNC!7,fg=rInk}
+				\begin{block}{Compiled singleton types \hfill \textnormal{CNC / CLC}}
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+(:types
+ loc_a_t loc_b_t - location
+ road_0001_t - road)
+(:objects
+ loc_a - loc_a_t
+ loc_b - loc_b_t
+ road_0001 - road_0001_t)
+(:action traverse-road-static-road_0001
+ :parameters (?v - vehicle
+  ?r - road_0001_t
+  ?from - loc_a_t ?to - loc_b_t)
+ :precondition (and (at ?v ?from)
+  (road-open ?r)) ...)
+\end{lstlisting}
+				\end{block}
+				{\scriptsize\textbf{Python:} one schema is emitted per valid
+					transition; each singleton type admits exactly one object.}
+			\end{column}
+		\end{columns}
+		\vfill
+		\takeaway{Singleton types move valid action instantiation from ENHSP to Python.}
+		\note{Time: 80 seconds. This is the central generation-axis optimization. On the left, the parameterized schema accepts every object of the broad road and location types, so ENHSP constructs their cross product and later checks the topology. On the right, Python first identifies one valid transition, creates a singleton subtype for each participating object, and emits a specialized action. Since each subtype contains exactly one object, each PDDL parameter has a single legal binding and invalid combinations never reach the grounder.}
+	\end{frame}
+	
+	%% 15 -------------------------------------------------------------------------
+	\begin{frame}{Grounding}
+		\centering
+		{\small\textbf{Fixed reference case after macro preprocessing}\par}
+		\vspace{0.05cm}
+		{\scriptsize
+			Road level: \(R=829\), \(L=483\), \(W=21\), \(S=782\), \(D=47\).\\
+			Line graph: \(T_s=1{,}471\) valid static transitions;
+			\(T_d=79\) valid dynamic transitions.}
+		
+		\vspace{0.25cm}
+		\begin{tikzpicture}[
+			>=Stealth,
+			n/.style={
+				rounded corners=5pt,
+				minimum width=3.15cm,
+				minimum height=2.45cm,
+				text width=2.85cm,
+				align=center,
+				inner sep=6pt,
+				line width=1pt
+			}
+			]
+			\node[n,draw=cPNP,fill=cPNP!6](a) at (0,0) {
+				{\small
+					\textcolor{cPNP}{\bfseries PNP}
+					\quad
+					\textcolor{cCNP!72!black}{\bfseries CNP}}\\[3pt]
+				{\Large\bfseries \(4.255\times10^9\)}\\[4pt]
+				{\scriptsize \(|R||L|^2(1+|W|)\)}
+			};
+			\node[n,draw=cCLP,fill=cCLP!7](b) at (3.75,0) {
+				{\small\textcolor{cCLP}{\bfseries CLP}}\\[3pt]
+				{\Large\bfseries \(1.443\times10^7\)}\\[2pt]
+				{\scriptsize \(|R|^2|W|\)}
+			};
+			\node[n,draw=cCNC,fill=cCNC!8](c) at (7.50,0) {
+				{\small\textcolor{cCNC!72!black}{\bfseries CNC}}\\[3pt]
+				{\Large\bfseries 1,769}\\[4pt]
+				{\scriptsize \(S+D|W|\)}
+			};
+			\node[n,draw=cCLC,fill=cCLC!7](d) at (11.25,0) {
+				{\small\textcolor{cCLC}{\bfseries CLC}}\\[3pt]
+				{\Large\bfseries 3,130}\\[4pt]
+				{\scriptsize \(T_s+T_d|W|\)}
+			};
+			\draw[->,rMuted,line width=1.1pt](a)--(b);
+			\draw[->,rMuted,line width=1.1pt](b)--(c);
+			\draw[->,rMuted,line width=1.1pt](c)--(d);
+		\end{tikzpicture}
+		
+		\vfill
+		\takeaway{The best final encodings are compiled-based.}
+		\note{Time: 60 seconds. Use the same colour codes introduced on the configuration slide. PNP and CNP share the same node-based parameter product, so changing traversal semantics alone does not change their loose grounding exposure. CLP lowers arity through the line graph. CNC and CLC move valid instantiation to Python and reduce the model to thousands of schemas.}
+	\end{frame}
+	
+	%% 16 -------------------------------------------------------------------------
+	\begin{frame}{Which configuration is fastest on the same instance?}
+		\begin{tikzpicture}[remember picture,overlay]
+			\node[
+			anchor=north east,
+			rounded corners=3pt,
+			draw=rPrimary!35,
+			fill=rPrimary!8,
+			inner xsep=7pt,
+			inner ysep=3pt,
+			font=\small\bfseries,
+			text=rPrimary
+			] at ([xshift=-0.55cm,yshift=-0.52cm]current page.north east) {300 nodes};
+		\end{tikzpicture}
+		\vspace{0.2cm}
+		{\small All five configurations use the same map, start/goal, traffic,
+			static congestion, and 8 GB ENHSP heap.\par}
+		
+		
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.71\textwidth}
+				\centering
+				{\scriptsize\textbf{Dark}: grounding \qquad \textbf{Light}: planning\par}
+				\vspace{-0.08cm}
+				\begin{tikzpicture}
+					\begin{axis}[
+						width=\linewidth,
+						height=0.56\textheight,
+						ybar,
+						ymode=log,
+						ymin=0.7,
+						ymax=260,
+						ylabel={seconds (log scale)},
+						symbolic x coords={PNP,CNP,CNC,CLP,CLC},
+						xtick={PNP,CNP,CNC,CLP,CLC},
+						tick label style={font=\scriptsize},
+						label style={font=\scriptsize},
+						grid=major,
+						major grid style={draw=rLine},
+						axis line style={draw=rMuted},
+						enlarge x limits=0.15
+						]
+						\addplot[ybar,bar width=5pt,bar shift=-3pt,fill=cPNP,draw=cPNP] coordinates {(PNP,79.253)};
+						\addplot[ybar,bar width=5pt,bar shift=3pt,fill=cPNP!28,draw=cPNP] coordinates {(PNP,146.901)};
+						\addplot[ybar,bar width=5pt,bar shift=-3pt,fill=cCNP,draw=cCNP!72!black] coordinates {(CNP,40.379)};
+						\addplot[ybar,bar width=5pt,bar shift=3pt,fill=cCNP!28,draw=cCNP!72!black] coordinates {(CNP,41.427)};
+						\addplot[ybar,bar width=5pt,bar shift=-3pt,fill=cCNC,draw=cCNC!72!black] coordinates {(CNC,1.063)};
+						\addplot[ybar,bar width=5pt,bar shift=3pt,fill=cCNC!25,draw=cCNC!72!black] coordinates {(CNC,2.542)};
+						\addplot[ybar,bar width=5pt,bar shift=-3pt,fill=cCLP,draw=cCLP] coordinates {(CLP,76.263)};
+						\addplot[ybar,bar width=5pt,bar shift=3pt,fill=cCLP!25,draw=cCLP] coordinates {(CLP,77.464)};
+						\addplot[ybar,bar width=5pt,bar shift=-3pt,fill=cCLC,draw=cCLC] coordinates {(CLC,1.914)};
+						\addplot[ybar,bar width=5pt,bar shift=3pt,fill=cCLC!25,draw=cCLC] coordinates {(CLC,3.606)};
+					\end{axis}
+				\end{tikzpicture}
+			\end{column}
+			\begin{column}{0.26\textwidth}
+				\metric{cCNC!11}{38.0$\times$ / 16.3$\times$}{{\tiny grounding / planning speedup}}
+				\vspace{0.55cm}
+				\metric{cCLC!10}{39.8$\times$ / 21.5$\times$}{{\tiny grounding / planning speedup}}
+				\vspace{0.10cm}
+				\metric{cCNC!11}{3.605 s}{{\tiny grounding + planning}}
+			\end{column}
+		\end{columns}
+		\vfill
+		\takeaway{Compilation, rather than traversal simplification alone, removes the grounding cost.}
+		\note{Time: 65 seconds. This experiment fixes a 300-node instance so all five configurations terminate successfully and only the formulation changes. Use the stable colours to connect the bars to the configuration slide. Parameterized models spend tens to hundreds of seconds, while compiled generation brings both phases close to seconds. CNC gains 38 times in grounding and 16.3 times in planning over CNP; CLC gains 39.8 and 21.5 times over CLP.}
+	\end{frame}
+	
+	%% 17 -------------------------------------------------------------------------
+	\begin{frame}{How far can the two best configurations scale?}
+		\textbf{\textcolor{cCNC!72!black}{CNC} and \textcolor{cCLC}{CLC} are carried forward from the fixed-instance comparison.}
+		\vspace{0.16cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.64\textwidth}
+				\centering
+				\begin{tikzpicture}
+					\begin{axis}[
+						width=\linewidth,
+						height=0.54\textheight,
+						xlabel={requested nodes},
+						ylabel={planning time (s)},
+						ymode=log,
+						xmin=450,xmax=2050,
+						ymin=6,ymax=700,
+						xtick={500,1000,1500,2000},
+						tick label style={font=\scriptsize},
+						label style={font=\scriptsize},
+						legend style={font=\scriptsize,at={(0.5,1.02)},anchor=south,legend columns=2,draw=none},
+						grid=major,
+						major grid style={draw=rLine},
+						axis line style={draw=rMuted}
+						]
+						\addplot[very thick,cCNC,mark=*] coordinates {
+							(500,8.431) (1000,33.011) (1500,89.963) (2000,245.256)
+						};
+						\addplot[very thick,cCLC,mark=square*] coordinates {
+							(500,16.535) (1000,103.992) (1500,299.261) (2000,489.018)
+						};
+						\legend{CNC node-based,CLC line graph}
+					\end{axis}
+				\end{tikzpicture}
+			\end{column}
+			\begin{column}{0.33\textwidth}
+				\centering\footnotesize
+				\renewcommand{\arraystretch}{1.12}
+				\setlength{\tabcolsep}{3.1pt}
+				\begin{tabular}{@{}rrrr@{}}
+					\toprule
+					Nodes & Dyn. & Static & Win.\\
+					\midrule
+					500  & 47  & 782  & 21\\
+					1000 & 78  & 1706 & 25\\
+					1500 & 109 & 2629 & 25\\
+					2000 & 110 & 3572 & 32\\
+					\bottomrule
+				\end{tabular}
+				
+				\vspace{0.28cm}
+				\metric{cCNC!11}{245.3 s}{at 2,000 nodes}
+				\vspace{0.30cm}
+				\metric{cCLC!10}{489.0 s}{at 2,000 nodes}
+			\end{column}
+		\end{columns}
+		\vfill
+		\takeaway{Parameterized models already fail at 500 nodes (OOM); CNC and CLC reach 2,000.}
+		\note{Time: 55 seconds. This second result asks how far the two best configurations from the previous experiment can scale. The parameterized alternatives already fail to complete at 500 nodes through memory exhaustion or timeout. Both compiled formulations scale from 500 to 2,000 requested nodes, and CNC remains faster at every size because a road can have several valid successor roads.}
+	\end{frame}
+	
+	%% 17 -------------------------------------------------------------------------
+	\sectionframe{RQ2}{Controller-side Scalability}{Can we preserve the process model while reducing the horizon of each planner call?}
+	\note{Time: 10 seconds. State RQ2: the second strategy does not simplify the process model. It changes the control architecture so ENHSP repeatedly solves smaller local problems.}
+	
+	%% 18 -------------------------------------------------------------------------
+	\begin{frame}{A plan--act--replan loop replaces one monolithic solve}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.40\textwidth}
+				\begin{itemize}
+					\item Observe current location, time, fuel, and disruptions.
+					\item Build a small local PDDL+ problem.
+					\item Execute a completed prefix to a node boundary.
+					\item Update state and plan the next leg.
+				\end{itemize}
+				\vspace{0.25cm}
+				Each ENHSP call retains the expressive
+				\texttt{process + node\_based + parameterized} semantics.
+			\end{column}
+			\begin{column}{0.58\textwidth}
+				\centering
+				\begin{tikzpicture}[
+					>=Stealth,
+					n/.style={
+						draw=rPrimary,
+						fill=rBg,
+						line width=1pt,
+						rounded corners=3pt,
+						minimum width=3.15cm,
+						minimum height=0.95cm,
+						align=center,
+						font=\small
+					}
+					]
+					\node[n](s){\textbf{Observe state}\\location, time, fuel};
+					\node[n,right=1.75cm of s](p){\textbf{Build local PDDL+}\\current window or leg};
+					\node[n,below=1.0cm of p](e){\textbf{ENHSP}\\solve partial plan};
+					\node[n,left=1.75cm of e](x){\textbf{Execute prefix}\\to node boundary};
+					\draw[->,rAccent,line width=1.3pt](s)--(p);
+					\draw[->,rAccent,line width=1.3pt](p)--(e);
+					\draw[->,rAccent,line width=1.3pt](e)--(x);
+					\draw[->,rAccent,line width=1.3pt](x)--(s);
+				\end{tikzpicture}
+			\end{column}
+		\end{columns}
+		\takeaway{The model stays rich; the controller makes each individual planning problem small.}
+		\note{Time: 55 seconds. Explain the loop. Partial plans end at a node boundary, so the next problem never has to serialise a vehicle midway through a PDDL+ process. The controller changes the horizon of each call while preserving the detailed process model.}
+	\end{frame}
+	
+	%% 19 -------------------------------------------------------------------------
+	\begin{frame}{The congestion controller replans by time window}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.44\textwidth}
+				\begin{itemize}
+					\item Build one static congestion snapshot for the current window.
+					\item Plan from the current node toward the unchanged final goal.
+					\item Execute only the last completed traversal inside the window.
+					\item Reuse the cached plan when unexecuted road costs do not change.
+				\end{itemize}
+				\vspace{0.25cm}
+				Dynamic behaviour emerges across iterations even though each local PDDL+
+				problem is static.
+			\end{column}
+			\begin{column}{0.54\textwidth}
+				\centering
+				\includegraphics[height=0.62\textheight,width=\linewidth,keepaspectratio]{figures/congestion_controller.png}
+				
+				{\scriptsize\color{rMuted}Successive congestion windows along a 500-node route.}
+			\end{column}
+		\end{columns}
+		\note{Time: 50 seconds. The controller creates a static snapshot for the current time window. It solves toward the global goal but executes only the node-complete prefix that fits the window. If remaining road factors do not change, it reuses the cached plan and avoids an ENHSP call.}
+	\end{frame}
+	
+	%% 20 -------------------------------------------------------------------------
+	\begin{frame}{The fuel controller replans by reachability}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\begin{itemize}
+					\item If the final goal is reachable, plan directly to it.
+					\item Otherwise select a reachable station that advances the trip.
+					\item Keep a \(10\%\) fuel safety margin.
+					\item Update fuel after each leg, then choose the next target.
+				\end{itemize}
+				\vspace{0.25cm}
+				Fuel is disabled inside each local problem to avoid counting consumption twice;
+				the controller applies the resource update.
+			\end{column}
+			\begin{column}{0.50\textwidth}
+				\centering
+				\includegraphics[height=0.57\textheight,width=\linewidth,keepaspectratio]{figures/fuel_controller.png}
+				
+				{\scriptsize\color{rMuted}Reachable legs between selected refuelling targets.}
+			\end{column}
+		\end{columns}
+		\takeaway{Fuel chooses the next target; ENHSP still chooses the route to that target.}
+		\note{Time: 50 seconds. Explain the target hierarchy. The final goal is preferred when reachable; otherwise the controller selects a reachable station using progress toward the goal and deterministic tie-breaking. The 0.9 safety factor keeps roughly ten percent reserve. Fuel is updated by the controller between legs.}
+	\end{frame}
+	
+	%% 21 -------------------------------------------------------------------------
+	\begin{frame}{Both controllers extend solvable cases from 150 to 700 nodes}
+		\textbf{Same process + node-based + parameterized semantics; global solve versus partial solves.}
+		\vspace{0.20cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.49\textwidth}
+				\begin{block}{Dynamic congestion controller}
+					\centering\scriptsize
+					\begin{tabular}{@{}r r r@{}}
+						\toprule
+						Nodes & Single-shot & Controller\\
+						\midrule
+						100  & 494.2 s  & \textbf{11.4 s}\\
+						150  & 3238.3 s & \textbf{48.5 s}\\
+						200  & \textcolor{rRed}{OOM} & 230.1 s\\
+						700  & \textcolor{rRed}{OOM} & 6912.6 s\\
+						1000 & \textcolor{rRed}{OOM} & Timeout\\
+						\bottomrule
+					\end{tabular}
+					
+					\vspace{0.15cm}
+					Up to 7 cached windows at 500 nodes avoid repeated calls.
+				\end{block}
+			\end{column}
+			\begin{column}{0.49\textwidth}
+				\begin{exampleblock}{Fuel controller}
+					\centering\scriptsize
+					\begin{tabular}{@{}r r r r@{}}
+						\toprule
+						Nodes & Discrete & Continuous & Controller\\
+						\midrule
+						100  & 34.9 s & 12.6 s  & \textbf{4.9 s}\\
+						150  & 58.2 s & 116.3 s & \textbf{16.7 s}\\
+						200  & \textcolor{rRed}{OOM} & \textcolor{rRed}{OOM} & 167.0 s\\
+						700  & \textcolor{rRed}{OOM} & \textcolor{rRed}{OOM} & 3181.1 s\\
+						1000 & \textcolor{rRed}{OOM} & \textcolor{rRed}{OOM} & Timeout\\
+						\bottomrule
+					\end{tabular}
+					
+					\vspace{0.15cm}
+					Solved cases require 2--5 partial ENHSP calls.
+				\end{exampleblock}
+			\end{column}
+		\end{columns}
+		\vspace{0.20cm}
+		\takeaway{Decomposition improves scale, but the 1,000-node cases still exceed the four-hour limit.}
+		\note{Time: 75 seconds. Compare each controller only with its semantically matched single-shot baseline. At 100 and 150 nodes decomposition is already faster. From 200 nodes the monolithic formulations run out of memory, while both controllers continue to 700 nodes. At 1,000 nodes they time out after four hours. Runtime is not monotonic because map shape, window count, and station positions differ.}
+	\end{frame}
+	
+	%% 22 -------------------------------------------------------------------------
+	\sectionframe{RQ3}{LLM Event Quality}{Can plan-hidden disruptions target relevant roads while validated planning remains in control?}
+	\note{Time: 10 seconds. Introduce RQ3. The LLM is tested as a scenario generator under strict validation, not as a route planner.}
+	
+	%% 23 -------------------------------------------------------------------------
+	\begin{frame}{The LLM generates scenarios; ENHSP still generates plans}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\begin{itemize}
+					\item The LLM receives topology, road identifiers, start, and goal.
+					\item It proposes a single closure, a connected multi-road closure, or a slowdown.
+					\item It never sees the baseline plan \(P_0\).
+					\item Python validates identifiers, protects start and goal, and preserves solvability.
+				\end{itemize}
+			\end{column}
+			\begin{column}{0.50\textwidth}
+				\centering
+				\begin{tikzpicture}[
+					>=Stealth,
+					ev/.style={
+						draw=rPrimary,
+						rounded corners=4pt,
+						minimum width=4.3cm,
+						minimum height=1.12cm,
+						align=center,
+						font=\small
+					}
+					]
+					\node[ev,fill=rAccent!13](e1){\textbf{Single-road closure}\\block one valid road};
+					\node[ev,fill=rPrimary!8,below=0.35cm of e1](e2){\textbf{Connected closure}\\block a connected road group};
+					\node[ev,fill=rTeal!12,below=0.35cm of e2](e3){\textbf{Slowdown}\\increase congestion without closure};
+					\draw[->,rAccent,line width=1.2pt]([xshift=-8mm]e1.west)--(e1.west);
+					\draw[->,rAccent,line width=1.2pt]([xshift=-8mm]e2.west)--(e2.west);
+					\draw[->,rAccent,line width=1.2pt]([xshift=-8mm]e3.west)--(e3.west);
+				\end{tikzpicture}
+			\end{column}
+		\end{columns}
+		\takeaway{Language models make the benchmark adversarial; symbolic validation keeps the experiment controlled.}
+		\note{Time: 50 seconds. Make the role separation explicit. The LLM proposes structured events from topology, not the plan. Python validates all identifiers and protects start and goal. Unsafe closures are converted to slowdowns when needed. ENHSP remains the only component that computes routes.}
+	\end{frame}
+	
+	%% 24 -------------------------------------------------------------------------
+	\begin{frame}{Plan-hidden events test route adaptation without route leakage}
+		\centering
+		\begin{tikzpicture}[
+			>=Stealth,
+			node distance=6mm,
+			b/.style={
+				draw=rPrimary,
+				fill=rPrimary!8,
+				line width=1pt,
+				rounded corners=3pt,
+				minimum height=1.05cm,
+				text width=2.35cm,
+				align=center,
+				font=\small
+			},
+			d/.style={
+				draw=rTeal,
+				fill=rTeal!12,
+				line width=1pt,
+				rounded corners=3pt,
+				minimum height=1.05cm,
+				text width=2.55cm,
+				align=center,
+				font=\small
+			}
+			]
+			\node[b](p0){ENHSP\\baseline \(P_0\)};
+			\node[d,right=of p0](llm){LLM sees\\\textbf{topology only}};
+			\node[d,right=of llm](val){Python validates\\and protects \(s,g\)};
+			\node[b,right=of val](p1){ENHSP\\alternative \(P_1\)};
+			\draw[->,rAccent,line width=1.3pt](p0)--(llm);
+			\draw[->,rAccent,line width=1.3pt](llm)--(val);
+			\draw[->,rAccent,line width=1.3pt](val)--(p1);
+		\end{tikzpicture}
+		
+		\vspace{0.55cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.48\textwidth}
+				\begin{block}{Baseline}
+					\[
+					P_0=\operatorname{Plan}(G,s,g)
+					\]
+					The route is computed before event generation and never shown to the LLM.
+				\end{block}
+			\end{column}
+			\begin{column}{0.48\textwidth}
+				\begin{exampleblock}{Perturbed network}
+					\[
+					P_1=\operatorname{Plan}(G_E,s,g)
+					\]
+					Comparing \(P_0\) and \(P_1\) reveals whether the validated event changes the route.
+				\end{exampleblock}
+			\end{column}
+		\end{columns}
+		\note{Time: 55 seconds. First compute the baseline route. Then give the LLM only topology plus start and goal. Python validates the event and applies it to produce the perturbed graph. ENHSP solves again. The comparison tests relevance and route response without leaking the hidden plan.}
+	\end{frame}
+	
+	%% 25 -------------------------------------------------------------------------
+	\begin{frame}{Plan-hidden events hit the baseline route in 73.3\% of runs}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.53\textwidth}
+				\centering
+				\includegraphics[height=0.55\textheight,width=0.95\linewidth,keepaspectratio]{figures/500_nodes_event_map.png}
+				
+				{\scriptsize\color{rMuted}A route before and after a validated LLM-generated disruption.}
+			\end{column}
+			\begin{column}{0.44\textwidth}
+				\textbf{15 valid experiments}\par
+				{\scriptsize Graph sizes: 100, 150, and 200 nodes.}
+				
+				\vspace{0.16cm}
+				\metric{rSecondary!10}{73.3\%}{11/15 event sets selected at least one road on hidden \(P_0\)}
+				\vspace{0.10cm}
+				\metric{rPrimary!10}{60.0\%}{3/5 relevant safe event sets changed the road sequence}
+				\vspace{0.10cm}
+				\metric{rAccent!14}{6 safeguards}{unsafe closures became slowdowns before replanning}
+			\end{column}
+		\end{columns}
+		\vspace{-0.10cm}
+		\takeaway{The events often target relevant roads, but the small sample supports only a preliminary conclusion.}
+		\note{Time: 60 seconds. Point to the route comparison, then report three numbers. Eleven of fifteen event sets hit at least one baseline road. Among the five relevant cases requiring no safeguard, three changed the road sequence. Six structurally unsafe closures were converted to slowdowns. Emphasise that fifteen experiments are preliminary.}
+	\end{frame}
+	
+	%% 26 -------------------------------------------------------------------------
+	\sectionframe{Conclusion}{Conclusions}{What do the three research questions establish, and where are the remaining limits?}
+	\note{Time: 10 seconds. Close the experimental chapters and introduce the final synthesis: direct answers to the three research questions, the main limitations, and the next development step.}
+	
+	%% 27 -------------------------------------------------------------------------
+	\begin{frame}{The results answer all three questions---with clear limits}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.57\textwidth}
+				\begin{block}{What the experiments establish}
+					\begin{itemize}
+						\item \textbf{RQ1:} compiled singleton actions reach 2,000 requested nodes.
+						\item \textbf{RQ2:} process-preserving controllers extend solved cases to 700 nodes.
+						\item \textbf{RQ3:} validated plan-hidden events frequently target relevant roads.
+					\end{itemize}
+				\end{block}
+			\end{column}
+			\begin{column}{0.41\textwidth}
+				\begin{alertblock}{Current limits}
+					\begin{itemize}
+						\item one main city topology;
+						\item separate controllers and offline events;
+						\item 15 final LLM experiments.
+					\end{itemize}
+				\end{alertblock}
+			\end{column}
+		\end{columns}
+		\vspace{0.35cm}
+		\takeaway{Scalability depends on how much modelling detail and parameterisation ENHSP must handle.}
+		\note{Time: 60 seconds. Answer the research questions directly. Model-side compilation enables the largest tested graphs. Controller-side decomposition preserves richer process semantics. The LLM is useful as a validated event generator. Then acknowledge the three central limitations: one city, separate controllers with offline events, and a small LLM sample.}
+	\end{frame}
+	
+	%% 28 -------------------------------------------------------------------------
+	\begin{frame}{A joint controller is the next step}
+		\textbf{One hierarchy prevents fuel and congestion policies from competing.}
+		\vspace{0.28cm}
+		\centering
+		\begin{tikzpicture}[
+			node distance=0.42cm,
+			box/.style={
+				draw=rLine,
+				rounded corners=3pt,
+				minimum height=0.95cm,
+				minimum width=2.65cm,
+				align=center,
+				font=\scriptsize
+			},
+			arr/.style={-{Latex[length=2mm]},thick,draw=rAccent}
+			]
+			\node[box,fill=rTeal!12](fuel){\textbf{Fuel}\\chooses goal or station};
+			\node[box,right=of fuel,fill=rAccent!13](cong){\textbf{Congestion}\\sets window costs};
+			\node[box,right=of cong,fill=rPrimary!9](plan){\textbf{ENHSP}\\chooses local path};
+			\node[box,right=of plan,fill=rSecondary!9](python){\textbf{Python}\\executes a valid prefix};
+			\draw[arr](fuel)--(cong);
+			\draw[arr](cong)--(plan);
+			\draw[arr](plan)--(python);
+			\draw[arr](python.south)--++(0,-0.42)-|
+			node[pos=0.25,below,font=\scriptsize]{update location, time, fuel, and window}
+			(fuel.south);
+		\end{tikzpicture}
+		
+		\vspace{0.45cm}
+		\begin{columns}[T,onlytextwidth]
+			\begin{column}{0.32\textwidth}
+				\metric{rSecondary!10}{Online events}{inject disruptions during route execution}
+			\end{column}
+			\begin{column}{0.32\textwidth}
+				\metric{rPrimary!10}{More cities}{test grid, radial, and irregular topologies}
+			\end{column}
+			\begin{column}{0.32\textwidth}
+				\metric{rAccent!14}{Stronger baselines}{expand LLM tests and routing comparisons}
+			\end{column}
+		\end{columns}
+		
+		\vspace{0.25cm}
+		\textbf{Fuel chooses the target. Congestion chooses the costs. ENHSP chooses the path. Python updates the state.}
+		\note{Time: 55 seconds. Describe the hierarchy. Fuel decides whether the next target is the final goal or a reachable station. Congestion supplies the costs for the current time window. ENHSP finds the local route and Python executes a node-consistent prefix before updating all state variables. Add online events, more city structures, and stronger baselines.}
+	\end{frame}
+	
+	%% 29 -------------------------------------------------------------------------
+	\begin{frame}[plain]
+		\begin{tikzpicture}[remember picture,overlay]
+			\fill[rPrimary](current page.south west) rectangle (current page.north east);
+			\fill[rAccent]([yshift=8mm]current page.west) rectangle ([yshift=11mm]current page.east);
+			
+			\node[anchor=west,text=white,font=\Huge\bfseries]
+			at ([xshift=16mm,yshift=18mm]current page.west){Thank you!};
+			\node[anchor=west,text=rAccent,font=\Large]
+			at ([xshift=16mm,yshift=-3mm]current page.west){Questions?};
+			
+			\node[anchor=center,text=white,font=\large\bfseries]
+			at ([xshift=-29mm,yshift=20mm]current page.east)
+			{GitHub repository};
+			\node[fill=white,rounded corners=3pt,inner sep=5pt]
+			at ([xshift=-29mm,yshift=-7mm]current page.east)
+			{\qrcode[height=30mm]{https://github.com/GiuseppeRudi/routly-planner}};
+		\end{tikzpicture}
+		\note{Time: 15 seconds. Thank the audience, invite questions, and point to the QR code for the GitHub repository.}
+	\end{frame}
+	
+\end{document}
