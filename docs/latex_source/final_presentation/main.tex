@@ -749,59 +749,90 @@
 	\end{frame}
 	
 	%% 15 -------------------------------------------------------------------------
-	\begin{frame}{Grounding}
+	\begin{frame}{Grounding: exposure vs retained structures}
 		\centering
-		{\small\textbf{Fixed reference case after macro preprocessing}\par}
+		{\small\textbf{500-node hybrid reference after macro preprocessing}\par}
 		\vspace{0.05cm}
 		{\scriptsize
 			Road level: \(R=829\), \(L=483\), \(W=21\), \(S=782\), \(D=47\).\\
 			Line graph: \(T_s=1{,}471\) valid static transitions;
 			\(T_d=79\) valid dynamic transitions.}
 		
-		\vspace{0.25cm}
+		\vspace{0.12cm}
+		{\scriptsize
+			\textbf{Candidates}: loose assignments exposed to ENHSP
+			\qquad
+			\textbf{Retained (derived)}: valid mechanisms after static filtering\par}
+		
+		\vspace{0.12cm}
 		\begin{tikzpicture}[
-			>=Stealth,
 			n/.style={
 				rounded corners=5pt,
-				minimum width=3.15cm,
-				minimum height=2.45cm,
-				text width=2.85cm,
+				minimum width=2.58cm,
+				minimum height=3.18cm,
+				text width=2.30cm,
 				align=center,
-				inner sep=6pt,
+				inner sep=4pt,
 				line width=1pt
 			}
 			]
 			\node[n,draw=cPNP,fill=cPNP!6](a) at (0,0) {
-				{\small
-					\textcolor{cPNP}{\bfseries PNP}
-					\quad
-					\textcolor{cCNP!72!black}{\bfseries CNP}}\\[3pt]
-				{\Large\bfseries \(4.255\times10^9\)}\\[4pt]
-				{\scriptsize \(|R||L|^2(1+|W|)\)}
+				{\small\textcolor{cPNP}{\bfseries PNP}}\\[2pt]
+				{\tiny CANDIDATES}\\[-1pt]
+				{\normalsize\bfseries\boldmath \(4.642\times10^9\)}\\[-1pt]
+				{\tiny \(RL^2(W+3)+W^2+1\)}\\[3pt]
+				{\color{cPNP!35}\rule{1.85cm}{0.4pt}}\\[2pt]
+				{\tiny RETAINED}\\[-1pt]
+				{\large\bfseries 2,619}\\[-1pt]
+				{\tiny \(1{,}769A+849E+1P\)}
 			};
-			\node[n,draw=cCLP,fill=cCLP!7](b) at (3.75,0) {
-				{\small\textcolor{cCLP}{\bfseries CLP}}\\[3pt]
-				{\Large\bfseries \(1.443\times10^7\)}\\[2pt]
-				{\scriptsize \(|R|^2|W|\)}
+			\node[n,draw=cCNP,fill=cCNP!8](b) at (2.82,0) {
+				{\small\textcolor{cCNP!72!black}{\bfseries CNP}}\\[2pt]
+				{\tiny CANDIDATES}\\[-1pt]
+				{\normalsize\bfseries\boldmath \(4.255\times10^9\)}\\[-1pt]
+				{\tiny \(RL^2(1+W)+W^2\)}\\[3pt]
+				{\color{cCNP!45}\rule{1.85cm}{0.4pt}}\\[2pt]
+				{\tiny RETAINED}\\[-1pt]
+				{\large\bfseries 1,789}\\[-1pt]
+				{\tiny \(1{,}769A+20E\)}
 			};
-			\node[n,draw=cCNC,fill=cCNC!8](c) at (7.50,0) {
-				{\small\textcolor{cCNC!72!black}{\bfseries CNC}}\\[3pt]
-				{\Large\bfseries 1,769}\\[4pt]
-				{\scriptsize \(S+D|W|\)}
+			\node[n,draw=cCNC,fill=cCNC!8](c) at (5.64,0) {
+				{\small\textcolor{cCNC!72!black}{\bfseries CNC}}\\[2pt]
+				{\tiny CANDIDATES}\\[-1pt]
+				{\normalsize\bfseries 2,210}\\[-1pt]
+				{\tiny \(S+DW+W^2\)}\\[3pt]
+				{\color{cCNC!45}\rule{1.85cm}{0.4pt}}\\[2pt]
+				{\tiny RETAINED}\\[-1pt]
+				{\large\bfseries 1,789}\\[-1pt]
+				{\tiny \(1{,}769A+20E\)}
 			};
-			\node[n,draw=cCLC,fill=cCLC!7](d) at (11.25,0) {
-				{\small\textcolor{cCLC}{\bfseries CLC}}\\[3pt]
-				{\Large\bfseries 3,130}\\[4pt]
-				{\scriptsize \(T_s+T_d|W|\)}
+			\node[n,draw=cCLP,fill=cCLP!7](d) at (8.46,0) {
+				{\small\textcolor{cCLP}{\bfseries CLP}}\\[2pt]
+				{\tiny CANDIDATES}\\[-1pt]
+				{\normalsize\bfseries\boldmath \(1.514\times10^7\)}\\[-1pt]
+				{\tiny \(R(R+1)(1+W)+W^2\)}\\[3pt]
+				{\color{cCLP!35}\rule{1.85cm}{0.4pt}}\\[2pt]
+				{\tiny RETAINED}\\[-1pt]
+				{\large\bfseries 3,151}\\[-1pt]
+				{\tiny \(3{,}131A+20E\)}
 			};
-			\draw[->,rMuted,line width=1.1pt](a)--(b);
-			\draw[->,rMuted,line width=1.1pt](b)--(c);
-			\draw[->,rMuted,line width=1.1pt](c)--(d);
+			\node[n,draw=cCLC,fill=cCLC!7](e) at (11.28,0) {
+				{\small\textcolor{cCLC}{\bfseries CLC}}\\[2pt]
+				{\tiny CANDIDATES}\\[-1pt]
+				{\normalsize\bfseries 3,572}\\[-1pt]
+				{\tiny \(T_s+T_dW+1+W^2\)}\\[3pt]
+				{\color{cCLC!35}\rule{1.85cm}{0.4pt}}\\[2pt]
+				{\tiny RETAINED}\\[-1pt]
+				{\large\bfseries 3,151}\\[-1pt]
+				{\tiny \(3{,}131A+20E\)}
+			};
 		\end{tikzpicture}
 		
+		\vspace{-0.02cm}
+		{\scriptsize \(A=\) action \qquad \(E=\) event \qquad \(P=\) process\par}
 		\vfill
-		\takeaway{The best final encodings are compiled-based.}
-		\note{Time: 60 seconds. Use the same colour codes introduced on the configuration slide. PNP and CNP share the same node-based parameter product, so changing traversal semantics alone does not change their loose grounding exposure. CLP lowers arity through the line graph. CNC and CLC move valid instantiation to Python and reduce the model to thousands of schemas.}
+		\takeaway{Grounding time depends on both candidate exposure and retained structures.}
+		\note{Time: 75 seconds. This slide separates two quantities that must not be conflated. Candidate exposure is a loose type-based Cartesian upper bound, not an exact count of ENHSP operations. Retained structures are derived from the static topology of the 500-node hybrid reference case; the parameterized runs did not complete at this scale, so these are not measured ENHSP output counts. For PNP, the candidate formula contains static and dynamic start actions, \(RL^2(1+W)\); two arrival-event schemas, \(2RL^2\); the window-advance event, \(W^2\); and one vehicle process. After static filtering, PNP retains 1,769 start actions, 829 arrival events, 20 window-advance events, and one process. CNP removes the arrival events and process: its compiled traversal actions directly increase sim-time, while the window-advance event remains. The line graph reduces loose exposure but retains more actions because one road can have several successors. CNC and CLC reach the same retained structures as their parameterized counterparts while moving almost all instantiation to Python.}
 	\end{frame}
 	
 	%% 16 -------------------------------------------------------------------------
@@ -826,12 +857,12 @@
 		\begin{columns}[T,onlytextwidth]
 			\begin{column}{0.71\textwidth}
 				\centering
-				{\scriptsize\textbf{Dark}: grounding \qquad \textbf{Light}: planning\par}
+				{\scriptsize\textbf{Dark}: grounding \qquad \textbf{Light}: total planning\par}
 				\vspace{-0.08cm}
 				\begin{tikzpicture}
 					\begin{axis}[
 						width=\linewidth,
-						height=0.56\textheight,
+						height=0.49\textheight,
 						ybar,
 						ymode=log,
 						ymin=0.7,
@@ -867,9 +898,28 @@
 				\metric{cCNC!11}{3.605 s}{{\tiny grounding + planning}}
 			\end{column}
 		\end{columns}
+		\vspace{0.12cm}
+		\begin{tikzpicture}
+			\node[
+				rounded corners=3pt,
+				draw=rPrimary!28,
+				fill=rPrimary!4,
+				text width=0.94\textwidth,
+				align=center,
+				inner xsep=7pt,
+				inner ysep=4pt
+			] {
+				{\scriptsize\textbf{Grounded structures on this static instance:}\quad
+				\textcolor{cPNP}{\textbf{PNP}} \(925=462A+462E+1P\)
+				\quad
+				\textcolor{cCNP!72!black}{\textbf{CNP}}/\textcolor{cCNC!72!black}{\textbf{CNC}} \(462A\)
+				\quad
+				\textcolor{cCLP}{\textbf{CLP}}/\textcolor{cCLC}{\textbf{CLC}} \(851A\)}
+			};
+		\end{tikzpicture}
 		\vfill
-		\takeaway{Compilation, rather than traversal simplification alone, removes the grounding cost.}
-		\note{Time: 65 seconds. This experiment fixes a 300-node instance so all five configurations terminate successfully and only the formulation changes. Use the stable colours to connect the bars to the configuration slide. Parameterized models spend tens to hundreds of seconds, while compiled generation brings both phases close to seconds. CNC gains 38 times in grounding and 16.3 times in planning over CNP; CLC gains 39.8 and 21.5 times over CLP.}
+		\takeaway{Compilation removes mechanisms; singleton types remove generic grounding.}
+		\note{Time: 75 seconds. This experiment fixes a 300-node static instance so all five configurations terminate successfully. The light bar is the total ENHSP planning call, including grounding and preprocessing, rather than pure search time. The grounded-structure strip explains the apparently conflicting results. PNP and CNP share the same dominant node-based action exposure, but PNP produces 462 actions, 462 arrival events, and one process, while CNP produces only 462 actions. CLP has lower parameter arity, yet road-to-road branching leaves 851 valid actions, so its grounding time is close to PNP and higher than CNP. CNC and CLC retain the same valid actions as CNP and CLP respectively, but singleton types prevent ENHSP from enumerating the generic Cartesian products. In the raw logs, heuristic and search times are only 13 and 42 ms for CNP, 17 and 53 ms for CNC, 13 and 83 ms for CLP, and 24 and 68 ms for CLC; their total-time differences are therefore dominated by grounding. PNP additionally requires 3.023 s of heuristic computation and 3.902 s of search because continuous process/event semantics remain.}
 	\end{frame}
 	
 	%% 17 -------------------------------------------------------------------------
