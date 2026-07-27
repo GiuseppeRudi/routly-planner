@@ -43,6 +43,7 @@ docs/latex_source/*/*.log
 docs/latex_source/*/*.out
 docs/latex_source/*/*.pdf
 docs/latex_source/*/*.nav
+docs/latex_source/*/*.vrb
 docs/latex_source/*/*.snm
 docs/latex_source/*/*.toc
 docs/latex_source/*/*.synctex.gz

@@ -1,194 +1,272 @@
+<div align="center">
+
 # Routly Planner
 
-Routly Planner builds a PDDL planning problem from a real OpenStreetMap road network, solves the route with ENHSP, and validates the result in SUMO. The current case study uses the road network of Bologna, Italy.
+**Scalable PDDL+ urban routing over real road networks**
+
+![Project status](https://img.shields.io/badge/status-completed%20academic%20project-4c1)
+![Python](https://img.shields.io/badge/Python-3.11-3776ab)
+![Planning](https://img.shields.io/badge/planning-PDDL%2B%20%7C%20ENHSP-1b264f)
+![Simulation](https://img.shields.io/badge/validation-SUMO-ea982a)
+![License](https://img.shields.io/badge/license-MIT-00897b)
+
+*Model simplification, step-by-step replanning, and validated LLM road events*
+
+</div>
+
+> **Project status:** completed research prototype developed for the Automated
+> Planning course at the University of Calabria, A.Y. 2025/2026. The repository
+> is maintained as a reproducible academic artifact rather than a
+> production-ready navigation service.
+
+## Overview
+
+Routly is an experimental framework for automated urban route planning on real
+OpenStreetMap networks. It converts a road graph into a configurable PDDL+
+planning problem, delegates route synthesis to ENHSP, and validates the
+resulting plan in SUMO.
+
+Unlike a conventional shortest-path implementation, Routly studies how a
+single symbolic model can combine logical constraints, numeric costs, temporal
+processes, traffic lights, congestion, road closures, and fuel availability.
+The Bologna road network is used as the primary case study.
 
 <p align="center">
   <img src="images/bologna_urban_structure.png" alt="Historical and modern road structure of central Bologna" width="620">
 </p>
 
-```text
-OpenStreetMap
-    -> graph simplification and optional macro-roads
-    -> PDDL domain and problem
-    -> ENHSP plan
-    -> optional LLM events or controller replanning
-    -> SUMO route validation
+## Research questions
+
+The project evaluates three complementary questions.
+
+| Research question | Focus |
+|---|---|
+| **RQ1 - Model-side scalability** | How much can compilation and graph abstraction reduce grounding and planning cost? |
+| **RQ2 - Controller-side scalability** | Can a detailed PDDL+ task be solved at larger scales by decomposing it into smaller planning calls? |
+| **RQ3 - LLM event generation** | Can a language model generate relevant road disruptions without access to the original route? |
+
+## System architecture
+
+```mermaid
+flowchart LR
+    A["OpenStreetMap / OSMnx"] --> B["Road-graph preprocessing"]
+    B --> C["Optional macro-road abstraction"]
+    C --> D["PDDL+ domain and problem"]
+    D --> E["ENHSP planner"]
+    E --> F["Plan parsing and route expansion"]
+    F --> G["SUMO validation"]
+    H["Validated LLM road events"] --> D
+    I["Congestion or fuel controller"] --> D
+    E --> I
 ```
 
-## Setup
+The implementation separates three responsibilities:
 
-The project uses Conda and Python 3.11:
+- **Python** constructs the graph, generates PDDL, validates events, manages
+  decomposition, and records experiment artifacts.
+- **ENHSP** remains responsible for symbolic plan generation.
+- **SUMO** provides microscopic route simulation and visual validation.
+
+The LLM does not replace the planner. It proposes structured closures or
+slowdowns from topology and start/goal information; Python validates the
+proposal before ENHSP computes a new route.
+
+## Planning formulations
+
+Routly exposes three independent modelling axes:
+
+| Axis | Alternatives | Purpose |
+|---|---|---|
+| Traversal model | `process`, `compiled_duration` | Preserve continuous PDDL+ semantics or compile traversal into direct durative actions |
+| State representation | `node_based`, `line_graph` | Represent the vehicle at locations or on roads |
+| Action generation | `parameterized`, `compiled` | Let ENHSP ground generic schemas or emit only valid actions in Python |
+
+These axes produce the five evaluated formulations:
+
+| Code | Traversal | State | Actions |
+|---|---|---|---|
+| PNP | Process | Node-based | Parameterized |
+| CNP | Compiled duration | Node-based | Parameterized |
+| CNC | Compiled duration | Node-based | Compiled |
+| CLP | Compiled duration | Line graph | Parameterized |
+| CLC | Compiled duration | Line graph | Compiled |
+
+Macro-road abstraction provides an additional preprocessing optimization. It
+merges linear chains whose intermediate nodes do not represent planning
+decisions, while protecting intersections, start and goal locations, traffic
+lights, and fuel stations.
+
+![Comparison between the original network and its macro-road abstraction](images/macro_roads_comparison.png)
+
+## Replanning and route adaptation
+
+The model-side and controller-side approaches address different sources of
+complexity:
+
+- **Model-side optimization** reduces the number of candidate groundings and
+  retained planning structures before search.
+- **Congestion control** solves one static traffic snapshot at a time and
+  executes only a valid prefix before replanning.
+- **Fuel control** selects the final goal when reachable, or a reachable fuel
+  station as the next temporary target.
+- **LLM event generation** creates plan-hidden closures and slowdowns, while a
+  deterministic safeguard preserves start/goal validity and solvability.
+
+| Congestion-window replanning | Fuel-aware replanning |
+|---|---|
+| ![Successive route legs generated by the congestion controller](images/congestion_controller_500.png) | ![Successive route legs and refuelling targets generated by the fuel controller](images/fuel_controller_500.png) |
+
+The following experiment compares the baseline and recalculated routes after a
+validated LLM-generated disruption. The LLM receives the topology but never
+the hidden baseline plan.
+
+<p align="center">
+  <img src="images/500_nodes_event_map.png" alt="Baseline and recalculated routes after validated LLM road events" width="680">
+</p>
+
+## Experimental findings
+
+Experiments use reproducible YAML snapshots, the Bologna road network, and an
+8 GB Java heap for ENHSP.
+
+| Question | Main finding |
+|---|---|
+| **RQ1-A** | On the fixed 300-node instance, compiled node-based actions reduce grounding from 40.379 s to 1.063 s (**38.0×**) and total planning from 41.427 s to 2.542 s (**16.3×**) relative to the node-based parameterized baseline. |
+| **RQ1-B** | Both successful compiled formulations solve instances with up to 2,000 requested nodes. |
+| **RQ2** | Single-shot process formulations fail from 200 nodes because of memory pressure, whereas congestion and fuel controllers solve instances with up to 700 nodes. |
+| **RQ3** | Across 15 final experiments, plan-hidden LLM events target at least one baseline-route road in 73.3% of cases; 60.0% of the relevant event sets unaffected by the safeguard produce a different road sequence. |
+
+These results should be interpreted within the experimental scope. The study
+uses one principal city topology, evaluates congestion and fuel controllers
+separately, and reports a limited sample of LLM-generated events.
+
+## Reproducibility
+
+### Requirements
+
+- Conda
+- Java and the bundled/configured ENHSP JAR
+- SUMO for simulation and visual validation
+- An Ollama, LM Studio, or Groq endpoint only when LLM events are enabled
+
+### Environment setup
 
 ```bash
 conda env create -f environment.yml
 conda activate routly
+```
+
+For LLM-backed experiments, create `.env` from `.env.example` and configure the
+provider and model. Groq additionally requires `GROQ_API_KEY`.
+
+### Run the complete pipeline
+
+```bash
 python scripts/run_pipeline.py
 ```
 
-Java, the configured ENHSP jar, and SUMO are required for the complete pipeline. Useful runner commands are:
+The pipeline executes:
+
+1. map acquisition and simplification;
+2. start/goal selection;
+3. optional macro-road construction;
+4. PDDL domain and problem generation;
+5. ENHSP planning or controller-managed replanning;
+6. conversion and validation in SUMO.
+
+Useful commands:
 
 ```bash
 python scripts/run_pipeline.py --help
-python scripts/run_pipeline.py <experiment-id> --resume
+python scripts/run_pipeline.py 1 4 6
+python scripts/run_pipeline.py --resume
+python scripts/run_pipeline.py 4 5 6 --resume <experiment-name>
 ```
+
+When no step number is supplied, the complete pipeline runs. `--resume`
+without a value selects the most recent experiment.
 
 ## Configuration
 
-The experiment is controlled by two YAML files:
+Two versioned YAML files control execution:
 
-- `config/pipeline.yaml` selects and orders the pipeline stages.
-- `config/project.yaml` configures the map, planner, congestion, fuel, controllers, LLM events, and SUMO.
+- [`config/pipeline.yaml`](config/pipeline.yaml) selects and orders the
+  pipeline stages.
+- [`config/project.yaml`](config/project.yaml) defines the map, planner,
+  abstractions, congestion, controllers, fuel, LLM events, and SUMO options.
 
-`config/project.yaml` is intentionally kept comment-free. Before changing it, read the documented example in `docs/project.yaml.example`, which explains the effect of each setting and the valid planner combinations.
+The production configuration is intentionally compact. Read
+[`docs/project.yaml.example`](docs/project.yaml.example) before editing it:
+the example documents every option and the compatibility constraints between
+planner formulations.
 
-The main planner settings describe three independent decisions:
+Each run stores a snapshot of the effective configuration alongside its
+generated domains, problems, plans, maps, metrics, and simulation artifacts.
 
-| Setting | Values | Question answered |
-| --- | --- | --- |
-| `planner.traversal_model` | `process`, `compiled_duration` | How is road traversal represented in PDDL? |
-| `planner.state_representation` | `node_based`, `line_graph` | Is the vehicle state a node or a road? |
-| `planner.action_generation` | `parameterized`, `compiled` | Does ENHSP ground a generic schema, or does Python emit valid actions? |
+## Experiment artifacts
 
-Other important switches are:
-
-| Setting | Values | Purpose |
-| --- | --- | --- |
-| `features.road_abstraction.enabled` | `true`, `false` | Enable macro-road compression |
-| `features.congestion.mode` | `sumo`, `pddl` | Display congestion in SUMO or pass it to PDDL |
-| `features.congestion.type` | `static`, `dynamic`, `hybrid` | Select the temporal congestion model |
-| `features.fuel.enabled` | `true`, `false` | Add fuel consumption and refuelling stations |
-| `features.llm_events.enabled` | `true`, `false` | Generate road events and a recalculated route |
-
-Valid combinations and their constraints are documented directly in `config/project.yaml`.
-
-## Planning models and scalability strategies
-
-### PDDL+ process
-
-The original model represents traversal with a start action, a continuous process while the vehicle is on the road, and an arrival event. It can represent the vehicle mid-road, but the additional state and numeric evolution increase planner complexity.
-
-```lisp
-(:action start-traverse ...)
-(:process traverse-road ...)
-(:event arrive ...)
-```
-
-`process` supports only:
-
-```yaml
-planner:
-  traversal_model: process
-  state_representation: node_based
-  action_generation: parameterized
-```
-
-This branch is retained for PDDL+ controller experiments. The external controller solves smaller partial plans while preserving processes and events.
-
-### Compiled duration
-
-For start-to-goal routing, the exact position of the vehicle while it crosses a road is not required. `compiled_duration` therefore models the same transition as one direct action with a precomputed duration:
-
-```lisp
-(:durative-action traverse-road
- :parameters (?v - vehicle ?r - road ?from ?to - location)
- :duration (= ?duration (travel-duration ?r))
- :condition (at start (and (at ?v ?from) (connects ?r ?from ?to)))
- :effect (at end (and (at ?v ?to) (not (at ?v ?from)))))
-```
-
-Action generation can then follow two strategies:
-
-- `parameterized`: ENHSP receives one generic schema and grounds the Cartesian product of its parameters.
-- `compiled`: Python generates only valid road/window schemas. Singleton types bind each schema to its road and reduce planner grounding.
-
-Two planner-side scalability backends are implemented:
-
-- `compiled_duration + node_based + compiled`, which keeps vehicle state on locations but emits only valid road/location schemas.
-- `compiled_duration + line_graph`, which makes the vehicle state a road and traverses from one road to the next.
-
-| Traversal model | State representation | Action generation | Status |
-| --- | --- | --- | --- |
-| `process` | `node_based` | `parameterized` | Implemented; PDDL+ controller branch |
-| `compiled_duration` | `node_based` | `parameterized` | Implemented; generic grounding baseline |
-| `compiled_duration` | `node_based` | `compiled` | Implemented; current planner-side optimization |
-| `compiled_duration` | `line_graph` | `parameterized` | Implemented; road-state grounding baseline |
-| `compiled_duration` | `line_graph` | `compiled` | Implemented; transition-specific road-state actions |
-
-In a line graph, the vehicle state is a road and actions represent transitions between connected roads. Start and goal are still selected as nodes in the scenario; the PDDL generation step deterministically converts them to the first and last road of the shortest start-node to goal-node path, computed on road length. This keeps the user workflow unchanged while allowing the planner to compare node-state and road-state formulations.
-
-## Results at a glance
-
-The final report evaluates the three research questions on reproducible Bologna experiments with ENHSP limited to an 8 GB Java heap:
-
-| Research question | Main result |
-| --- | --- |
-| Model-side scalability | On the fixed 300-node instance, compiled node-based actions reduce grounding time from 40.379 s to 1.063 s (`38.0x`) and planning time from 41.427 s to 2.542 s (`16.3x`) relative to the parameterized node-based baseline. |
-| Larger compiled models | Both compiled node-based and compiled line-graph configurations solve instances up to 2,000 requested nodes; compiled node-based planning takes 245.256 s at that size. |
-| Controller-side scalability | The monolithic process formulations run out of memory from 200 nodes, while the congestion and fuel controllers solve instances up to 700 nodes by concatenating partial plans. |
-| LLM event quality | In 15 final experiments, LLM events hit at least one road of the hidden baseline plan in 73.3% of cases; 60.0% of the relevant event sets not modified by the safeguard produced a different road sequence. |
-
-## Macro-road abstraction
-
-Macro-roads merge linear chains whose intermediate nodes are not planning decisions. Start, goal, fuel stations, and branching intersections remain protected. The planner works on the compressed mapping, while SUMO receives the expanded sequence of original roads.
-
-The following figure comes from the 500-node reference experiment used in the final report. It compares the original mapping with the planning mapping and highlights fused intermediate nodes, traffic lights, fuel stations, and the resulting macro-roads. The planning representation changes from 862 roads and 500 nodes to 829 roads and 483 nodes.
-
-![Original and macro-road planning mappings](images/macro_roads_comparison.png)
-
-## LLM-driven route adaptation
-
-Routly keeps ENHSP responsible for planning and uses the LLM only to propose structured road closures or slowdowns. The LLM receives topology, start, and goal information, but never receives the baseline plan. Python validates each event, protects start and goal, and converts a closure that would make the task unsolvable into a slowdown before the second planning run.
-
-The combined event map shows the complete comparison on one map: blue is the original route, green is the recalculated route, red marks blocked roads, yellow marks slowdowns, and crosses mark blocked intersections.
-
-<p align="center">
-  <img src="images/500_nodes_event_map.png" alt="Original and recalculated routes after LLM-generated road events" width="620">
-</p>
-
-## Congestion models
-
-PDDL congestion supports three temporal semantics:
-
-- `static`: one factor per road for the complete problem;
-- `dynamic`: factors can change between global time windows;
-- `hybrid`: only roads with `max(window_factors) - min(window_factors) >= min_temporal_variation` remain dynamic.
-
-In controller-based congestion replanning, each partial PDDL problem receives one static snapshot for its current window. The sequence of snapshots is dynamic even though every individual planner call remains static.
-
-## Controllers and replanning
-
-Planner-side scalability and controller-side scalability are separate branches:
-
-- planner-side optimization uses `compiled_duration` and optionally compiled actions;
-- controller-side optimization preserves `process + node_based + parameterized` and concatenates partial plans in Python.
-
-Fuel and congestion replanning controllers are mutually exclusive. Road abstraction may be enabled or disabled in either controller, provided all intermediate plans use the same planning mapping.
-
-| Congestion controller | Fuel controller |
-| --- | --- |
-| ![Successive route legs produced by the congestion controller](images/congestion_controller_500.png) | ![Successive route legs and refuelling targets produced by the fuel controller](images/fuel_controller_500.png) |
-
-The congestion controller plans against one static snapshot per time window and can reuse a cached plan when the relevant unexecuted costs have not changed. The fuel controller keeps the final goal when it is reachable; otherwise, it selects a reachable station as the next temporary target. Both controllers execute only complete road traversals so every partial plan ends at a valid node state.
-
-## Experiment outputs
-
-Each run stores a complete configuration snapshot and its generated artifacts:
+Generated experiments are stored below `data/` and excluded from version
+control:
 
 ```text
-data/<city>/nodes_<N>_distance_<meters>/<experiment>/
-  config/                 YAML snapshots
-  map/                    graph and macro-road artifacts
-  runs/basic/             baseline domain, problem, plan, and images
-  runs/llm/               events, recalculated plan, and comparisons
-  sumo/                   SUMO network, routes, and reports
+data/<city>/<scenario>/<experiment>/
+├── config/                 # Configuration snapshots
+├── map/                    # Base and macro-road graph artifacts
+├── runs/
+│   ├── basic/             # Baseline PDDL, plan and figures
+│   └── llm/               # Events, replanned route and comparisons
+└── sumo/                   # SUMO network, routes and reports
 ```
 
-Main repository folders:
+## Repository structure
 
-- `src/`: graph, PDDL, planner, SUMO, feature, and controller logic.
-- `scripts/`: pipeline stages and the main runner.
-- `config/`: versioned YAML configuration.
-- `planners/`: local ENHSP binaries.
-- `images/`: README figures selected from reproducible experiments.
-- `docs/`: implementation and scalability reports.
-- `data/`: generated experiment outputs.
+```text
+routly-planner/
+├── config/                 # Pipeline and project configuration
+├── docs/                   # Report, presentation and technical references
+├── domain/                 # Reference PDDL domains
+├── images/                 # Curated README figures
+├── planners/enhsp/         # ENHSP planner artifact
+├── scripts/
+│   ├── run_pipeline.py     # Main entry point
+│   └── pipeline/           # Individual pipeline stages
+└── src/routly/
+    ├── controller/         # Congestion and fuel decomposition
+    ├── domain/             # Road, congestion, fuel and signal models
+    ├── graph/              # Graph conversion and visualization
+    ├── llm/                # Structured event prompts
+    ├── osm/                # OpenStreetMap acquisition
+    ├── pddl/               # Domain/problem generation
+    ├── planning/           # ENHSP execution and plan parsing
+    └── sumo/               # SUMO export and validation
+```
+
+## Documentation
+
+| Document | Contents |
+|---|---|
+| [Final report](docs/report.pdf) | Research motivation, formalization, implementation, experimental protocol, results, limitations, and future work |
+| [Final presentation](docs/presentation.pdf) | Visual overview of the research questions, architecture, scalability strategies, and conclusions |
+| [Grounding formulae reference](docs/configurations.pdf) | Derivation and interpretation of the grounding estimates for the five model-side configurations |
+| [Annotated project configuration](docs/project.yaml.example) | Complete YAML option reference and valid planner combinations |
+| [Report LaTeX source](docs/latex_source/final_report/report.tex) | Reproducible source of the final report |
+| [Presentation LaTeX source](docs/latex_source/final_presentation/main.tex) | Reproducible source of the final presentation |
+
+## Limitations and future work
+
+The current implementation keeps the fuel and congestion controllers separate.
+The principal extension is a joint hierarchy in which fuel selects the next
+reachable target, congestion supplies the current window costs, ENHSP computes
+the local route, and Python updates the execution state. Further work includes
+online event injection, evaluation on cities with different urban structures,
+and a broader statistical assessment of LLM-generated disruptions.
+
+## Academic context
+
+Developed by **S. Cozza, F. Cristiano, E. Ielpa, and G. Rudi** for the
+**Automated Planning** course at the **University of Calabria**, academic year
+2025/2026.
+
+## License
+
+Released under the [MIT License](LICENSE).
