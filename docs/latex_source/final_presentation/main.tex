@@ -1206,7 +1206,7 @@
 					\addplot[rAccent,line width=0.9pt,dotted,forget plot] coordinates {(85,14400) (1300,14400)};
 					\node[font=\tiny,text=rAccent!70!black,anchor=south east] at (axis cs:1250,14400) {4 h limit};
 					\addplot[only marks,mark=x,mark size=3.6pt,very thick,rRed,forget plot]
-					coordinates {(200,3238.3) (700,3238.3)};
+					coordinates {(200,3238.3)};
 					\node[font=\tiny\bfseries,text=rRed,anchor=west] at (axis cs:215,3238.3) {OOM};
 					\addplot[only marks,mark=x,mark size=3.6pt,very thick,rAccent!80!black,forget plot]
 					coordinates {(1000,14400)};
@@ -1229,6 +1229,7 @@
 		700 nodes; at 1{,}000 nodes both controllers still exceed the four-hour limit.}
 	\note{Time: 75 seconds. Below 200 nodes the controller is one to two orders of magnitude faster on the same instance. From 200 nodes the single solve produces no plan at all: the red crosses are memory exhaustion. The controllers keep returning plans up to 700 nodes; at 1,000 nodes both exceed the four-hour limit.}
 \end{frame}
+
 
 	%% 22 -------------------------------------------------------------------------
 	\sectionframe{RQ3}{LLM Event Generation}{Can plan-hidden disruptions target relevant roads while validated planning remains in control?}
